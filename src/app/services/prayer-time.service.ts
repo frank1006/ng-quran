@@ -1,0 +1,192 @@
+import { Injectable } from '@angular/core';
+import { Observable, from, throwError } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
+
+import {
+  LocationCoordinates,
+  PrayerTimings,
+  PrayerTimeData,
+  AladhanApiResponse,
+  LocationError,
+  AladhanTimings,
+  HijriDate
+} from './prayer-time.types';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PrayerTimeService {
+  private readonly baseUrl = 'https://api.aladhan.com/v1';
+  private readonly defaultMethod = 4; // Umm Al-Qura
+
+  /**
+   * Requests user permission and retrieves current location coordinates
+   * @returns Observable of LocationCoordinates
+   */
+  getCurrentLocation(): Observable<LocationCoordinates> {
+    return new Observable<LocationCoordinates>((observer) => {
+      if (!navigator.geolocation) {
+        observer.error({
+          code: 0,
+          message: 'Geolocation is not supported by your browser'
+        } as LocationError);
+        return;
+      }
+
+      const options: PositionOptions = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        (position: GeolocationPosition) => {
+          observer.next({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+          observer.complete();
+        },
+        (error: GeolocationPositionError) => {
+          let errorMessage = 'Unable to retrieve your location';
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information is unavailable.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out. Please try again.';
+              break;
+          }
+
+          observer.error({
+            code: error.code,
+            message: errorMessage
+          } as LocationError);
+        },
+        options
+      );
+    });
+  }
+
+  /**
+   * Fetches prayer times from Aladhan API based on coordinates
+   * @param latitude - Latitude coordinate
+   * @param longitude - Longitude coordinate
+   * @param date - Optional date, defaults to today
+   * @returns Observable of PrayerTimeData
+   */
+  getPrayerTimesByCoordinates(
+    latitude: number,
+    longitude: number,
+    date?: Date
+  ): Observable<PrayerTimeData> {
+    const targetDate = date || new Date();
+    const dateStr = `${targetDate.getDate()}-${targetDate.getMonth() + 1}-${targetDate.getFullYear()}`;
+    
+    const url = `${this.baseUrl}/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=${this.defaultMethod}`;
+
+    return from(fetch(url)).pipe(
+      switchMap((response: Response) => {
+        if (!response.ok) {
+          return throwError(() => new Error(`API request failed: ${response.status} ${response.statusText}`));
+        }
+        return from(response.json()) as Observable<AladhanApiResponse>;
+      }),
+      map((apiResponse: AladhanApiResponse) => {
+        if (apiResponse.code !== 200 || !apiResponse.data) {
+          throw new Error(apiResponse.status || 'Invalid API response');
+        }
+        const timingData = apiResponse.data;
+        const timings = this.convertTimings(timingData.timings);
+        const hijriDate = timingData.date.hijri ? this.convertHijriDate(timingData.date.hijri) : undefined;
+        
+        return {
+          date: timingData.date.readable,
+          timings,
+          location: { latitude, longitude },
+          hijriDate
+        } as PrayerTimeData;
+      }),
+      catchError((error: Error) => {
+        const errorMessage = error.message || 'Failed to fetch prayer times. Please check your internet connection.';
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  /**
+   * Gets current location and fetches today's prayer times
+   * @returns Observable of PrayerTimeData
+   */
+  getTodayPrayerTimes(): Observable<PrayerTimeData> {
+    return this.getCurrentLocation().pipe(
+      switchMap((location: LocationCoordinates) => {
+        return this.getPrayerTimesByCoordinates(location.latitude, location.longitude);
+      }),
+      catchError((error: Error | LocationError) => {
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : (error as LocationError).message || 'Failed to get prayer times';
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  /**
+   * Converts Aladhan API timings format to our PrayerTimings format
+   * @param apiTimings - Timings from Aladhan API
+   * @returns Formatted PrayerTimings object
+   */
+  private convertTimings(apiTimings: AladhanTimings): PrayerTimings {
+    // Extract time from format like "04:45 (GMT)" or "04:45"
+    const extractTime = (timeString: string): string => {
+      const match = timeString.match(/(\d{2}:\d{2})/);
+      return match ? match[1] : timeString.split(' ')[0];
+    };
+
+    return {
+      fajr: extractTime(apiTimings.Fajr || ''),
+      sunrise: extractTime(apiTimings.Sunrise || ''),
+      dhuhr: extractTime(apiTimings.Dhuhr || ''),
+      asr: extractTime(apiTimings.Asr || ''),
+      maghrib: extractTime(apiTimings.Maghrib || ''),
+      isha: extractTime(apiTimings.Isha || '')
+    };
+  }
+
+  /**
+   * Converts Aladhan API Hijri date format to our HijriDate format
+   * @param apiHijri - Hijri date from Aladhan API
+   * @returns Formatted HijriDate object
+   */
+  private convertHijriDate(apiHijri: any): HijriDate {
+    return {
+      date: apiHijri.date || '',
+      format: apiHijri.format || '',
+      day: apiHijri.day || '',
+      weekday: {
+        en: apiHijri.weekday?.en || '',
+        ar: apiHijri.weekday?.ar || ''
+      },
+      month: {
+        number: apiHijri.month?.number || 0,
+        en: apiHijri.month?.en || '',
+        ar: apiHijri.month?.ar || '',
+        days: apiHijri.month?.days || 0
+      },
+      year: apiHijri.year || '',
+      designation: {
+        abbreviated: apiHijri.designation?.abbreviated || 'AH',
+        expanded: apiHijri.designation?.expanded || 'Anno Hegirae'
+      },
+      holidays: apiHijri.holidays || [],
+      adjustedHolidays: apiHijri.adjustedHolidays || [],
+      method: apiHijri.method || ''
+    };
+  }
+}
+

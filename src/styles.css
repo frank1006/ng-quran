@@ -1,0 +1,30 @@
+:root {
+  --border-radius-all: 1.5rem;
+  --border-radius-tl: 1.5rem 1.5rem 0 0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #ffffff;
+  color: #1f1f1f;
+}
+
+html, body, .main {
+  height: 100%;
+  overflow: hidden;
+}
+
+.main {
+  min-height: 100dvh;
+  background: linear-gradient(180deg, #fff9f0 0%, #ffffff 40%);
+  padding-bottom: 85px;
+  font-family: 'Poppins', sans-serif;
+}
