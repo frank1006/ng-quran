@@ -1,149 +1,24 @@
-<section class="hero-section">
-  <div class="hero-background">
-    <div class="curve-timeline">
-      <svg viewBox="0 0 400 120" preserveAspectRatio="none" class="curve-svg">
-        <path d="M 0,100 Q 100,20 200,50 T 400,60 L 400,120 L 0,120 Z"
-              fill="url(#gradient1)" opacity="0.3"/>
-        <defs>
-          <linearGradient id="gradient1" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#ffb030;stop-opacity:0.4" />
-            <stop offset="100%" style="stop-color:#874d14;stop-opacity:0.2" />
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-  </div>
-
-  <div class="hero-content">
-    <div class="current-prayer">
-      <h2 class="prayer-name">{{ currentPrayer().name || 'Loading...' }}</h2>
-      <p class="time-remaining">{{ timeUntilNext() }}</p>
-    </div>
-  </div>
-
+<app-hero-section
+  [currentPrayer]="currentPrayer()"
+  [timeUntilNext]="timeUntilNext()"
+>
   @if (prayerTrajectory()) {
-    <div class="prayer-trajectory">
-      <svg viewBox="0 0 600 160" class="trajectory-svg">
-          <!-- Define masks and gradients -->
-          <defs>
-            <linearGradient id="trajectoryGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#874d14" />
-              @if (prayerTrajectory()?.progress !== undefined) {
-                <stop [attr.offset]="getGradientOffset(prayerTrajectory()!.progress)" stop-color="#874d14" />
-                <stop [attr.offset]="getGradientOffset(prayerTrajectory()!.progress)" stop-color="#c9a880" />
-              }
-              <stop offset="100%" stop-color="#c9a880" />
-            </linearGradient>
-          </defs>
-
-          <!-- Main trajectory curve: day/night cycle arc -->
-          <!-- Path: flat start (night) -> curve up (sunrise) -> peak (noon/day) -> curve down (sunset) -> flat end (night) -->
-          <!-- Adjusted: curve ends at 540 to give more space for Isha marker -->
-          <path
-            d="M 0 160 L 50 160 C 150 160, 240 40, 300 40 S 440 160, 540 160 L 600 160"
-            fill="none"
-            stroke="url(#trajectoryGradient)"
-            stroke-width="4.5"
-            stroke-linecap="round"
-            class="trajectory-path"
-          />
-
-          <!-- Rounded endpoint marker at progress position -->
-          @if (prayerTrajectory()?.endpointPosition) {
-            <circle
-              [attr.cx]="prayerTrajectory()!.endpointPosition.x"
-              [attr.cy]="prayerTrajectory()!.endpointPosition.y"
-              r="4.25"
-              fill="#ffb030"
-              class="trajectory-endpoint"
-            />
-          }
-
-          <!-- Prayer markers -->
-          @if (prayerTrajectory()?.prayers && prayerTrajectory()?.curvePoints) {
-            @for (prayer of prayerTrajectory()!.prayers; track prayer.key; let i = $index) {
-              @if (prayerTrajectory()!.curvePoints && prayerTrajectory()!.curvePoints[i]) {
-                @let point = prayerTrajectory()!.curvePoints[i];
-                @let isCurrent = getPrayerIsCurrent(prayer, i);
-                @let hasPassed = getPrayerHasPassed(prayer);
-                @let isNext = getPrayerIsNext(prayer);
-
-                <g class="prayer-marker" [class.current]="isCurrent" [class.next]="isNext">
-                  <!-- Marker circle -->
-                  <circle
-                    [attr.cx]="point.x"
-                    [attr.cy]="point.y"
-                    r="8"
-                    [class.filled]="hasPassed"
-                    [class.next-filled]="isNext"
-                    class="marker-circle"
-                  />
-                </g>
-              }
-            }
-          }
-        </svg>
-    </div>
+    <app-prayer-trajectory [trajectoryData]="prayerTrajectory()!" />
   }
-</section>
+</app-hero-section>
+
 <section class="prayers">
-  <div class="date-section">
-    <div class="date-header">
-      <button class="nav-button" (click)="navigateDate(-1)" type="button">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
+  <app-date-header
+    [formattedDate]="formattedDate()"
+    [hijriDate]="hijriDate()"
+    (dateNavigate)="navigateDate($event)"
+  />
 
-      <div class="date-content">
-        <div class="location-badge">
-          <span class="today-label">TODAY</span>
-          <span class="location">📍 Dubai</span>
-        </div>
-        <div class="date-text">{{ formattedDate() }}</div>
-        <div class="hijri-date">{{ hijriDate() }}</div>
-      </div>
-
-      <button class="nav-button" (click)="navigateDate(1)" type="button">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  @if (loading()) {
-    <div class="loading-state">
-      <p>Loading prayer times...</p>
-    </div>
-  }
-
-  @if (error()) {
-    <div class="error-state">
-      <p>{{ error() }}</p>
-      <button class="retry-button" (click)="loadPrayerTimes()">Retry</button>
-    </div>
-  }
-
-  @if (prayerData() && !loading() && prayers().length > 0) {
-    <div class="prayer-list-container">
-      <div class="prayer-list">
-      @for (prayer of prayers(); track prayer.key) {
-        <div class="prayer-card" [class.active]="prayer.isActive">
-          <div class="prayer-info">
-            <h3 class="prayer-title">{{ prayer.name }}</h3>
-            <p class="prayer-time">{{ prayer.time }}</p>
-          </div>
-          <button class="notification-button" type="button" [class.active]="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-          </button>
-        </div>
-      }
-      </div>
-    </div>
-  }
+  <app-prayer-list
+    [prayers]="prayers()"
+    [loading]="loading()"
+    [error]="error()"
+    (retry)="loadPrayerTimes()"
+  />
 </section>
 

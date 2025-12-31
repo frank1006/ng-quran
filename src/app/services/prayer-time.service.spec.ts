@@ -113,22 +113,20 @@ describe('PrayerTimeService', () => {
       const mockResponse = {
         code: 200,
         status: 'OK',
-        data: [
-          {
-            timings: {
-              Fajr: '05:30 (GMT)',
-              Sunrise: '07:00 (GMT)',
-              Dhuhr: '12:30 (GMT)',
-              Asr: '15:00 (GMT)',
-              Maghrib: '17:30 (GMT)',
-              Isha: '19:00 (GMT)'
-            },
-            date: {
-              readable: '29 Dec 2024',
-              timestamp: '1234567890'
-            }
+        data: {
+          timings: {
+            Fajr: '05:30 (GMT)',
+            Sunrise: '07:00 (GMT)',
+            Dhuhr: '12:30 (GMT)',
+            Asr: '15:00 (GMT)',
+            Maghrib: '17:30 (GMT)',
+            Isha: '19:00 (GMT)'
+          },
+          date: {
+            readable: '29 Dec 2024',
+            timestamp: '1234567890'
           }
-        ]
+        }
       };
 
       window.fetch = vi.fn().mockResolvedValue({
@@ -171,7 +169,7 @@ describe('PrayerTimeService', () => {
       const mockResponse = {
         code: 400,
         status: 'Bad Request',
-        data: []
+        data: null
       };
 
       window.fetch = vi.fn().mockResolvedValue({
@@ -210,22 +208,20 @@ describe('PrayerTimeService', () => {
       const mockResponse = {
         code: 200,
         status: 'OK',
-        data: [
-          {
-            timings: {
-              Fajr: '05:30 (GMT)',
-              Sunrise: '07:00 (GMT)',
-              Dhuhr: '12:30 (GMT)',
-              Asr: '15:00 (GMT)',
-              Maghrib: '17:30 (GMT)',
-              Isha: '19:00 (GMT)'
-            },
-            date: {
-              readable: '29 Dec 2024',
-              timestamp: '1234567890'
-            }
+        data: {
+          timings: {
+            Fajr: '05:30 (GMT)',
+            Sunrise: '07:00 (GMT)',
+            Dhuhr: '12:30 (GMT)',
+            Asr: '15:00 (GMT)',
+            Maghrib: '17:30 (GMT)',
+            Isha: '19:00 (GMT)'
+          },
+          date: {
+            readable: '29 Dec 2024',
+            timestamp: '1234567890'
           }
-        ]
+        }
       };
 
       mockGetCurrentPosition.mockImplementation((success: PositionCallback) => {

@@ -1,26 +1,40 @@
 import { TestBed } from '@angular/core/testing';
 import { HomeComponent } from './home.component';
-import { PrayerTimeService } from '../../services/prayer-time.service';
+import { PrayerTimeStore } from '../../store/prayer-time.store';
+import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
-  let service: PrayerTimeService;
+  let store: PrayerTimeStore;
+  let trajectoryService: PrayerTrajectoryService;
 
   beforeEach(async () => {
-    const serviceSpy = {
-      getTodayPrayerTimes: vi.fn()
+    const storeSpy = {
+      loading: vi.fn(() => false),
+      error: vi.fn(() => null),
+      preloadPrayerTimes: vi.fn(() => of([])),
+      getCachedPrayerTimes: vi.fn(() => null),
+      getPrayerTimes: vi.fn(() => of(null)),
+      hasDataForRange: vi.fn(() => false)
+    };
+
+    const trajectoryServiceSpy = {
+      updateCurrentTime: vi.fn(),
+      calculateTrajectory: vi.fn(() => null)
     };
 
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
       providers: [
-        { provide: PrayerTimeService, useValue: serviceSpy }
+        { provide: PrayerTimeStore, useValue: storeSpy },
+        { provide: PrayerTrajectoryService, useValue: trajectoryServiceSpy }
       ]
     }).compileComponents();
 
-    service = TestBed.inject(PrayerTimeService);
+    store = TestBed.inject(PrayerTimeStore);
+    trajectoryService = TestBed.inject(PrayerTrajectoryService);
     const fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
   });
@@ -31,7 +45,7 @@ describe('HomeComponent', () => {
 
   it('should load prayer times on init', () => {
     const mockData = {
-      date: '29 Dec 2024',
+      date: '2024-12-29',
       timings: {
         fajr: '05:30',
         sunrise: '07:00',
@@ -43,9 +57,11 @@ describe('HomeComponent', () => {
       location: { latitude: 0, longitude: 0 }
     };
 
-    vi.spyOn(service, 'getTodayPrayerTimes').mockReturnValue(of(mockData));
+    vi.spyOn(store, 'preloadPrayerTimes').mockReturnValue(of([mockData]));
+    vi.spyOn(store, 'getCachedPrayerTimes').mockReturnValue(mockData);
+    
     component.ngOnInit();
 
-    expect(service.getTodayPrayerTimes).toHaveBeenCalled();
+    expect(store.preloadPrayerTimes).toHaveBeenCalled();
   });
 });
