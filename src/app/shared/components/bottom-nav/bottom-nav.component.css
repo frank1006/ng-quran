@@ -7,7 +7,7 @@
   justify-content: space-around;
   align-items: center;
   background: #ffffff;
-  padding: 0.8rem 0 0.8rem;
+  padding: 0.8rem 0 0;
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
   z-index: 100;
@@ -22,7 +22,7 @@
   color: #9ca3af;
   transition: all 0.3s ease;
   padding: 11px 16px 10px;
-  border-radius: 12px;
+  border-radius: var(--border-radius-tl);
 }
 
 .nav-item:hover {
