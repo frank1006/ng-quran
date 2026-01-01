@@ -1,8 +1,8 @@
 .compass-container {
   position: relative;
-  width: 300px;
-  height: 300px;
-  margin: 2rem auto;
+  width: 320px;
+  height: 320px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,14 +50,5 @@
   .qibla-indicator {
     /* Use hardware acceleration */
     transform: translate3d(0, 0, 0);
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 480px) {
-  .compass-container {
-    width: 250px;
-    height: 250px;
-    margin: 1.5rem auto;
   }
 }

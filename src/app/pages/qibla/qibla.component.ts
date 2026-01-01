@@ -94,8 +94,11 @@ export class QiblaComponent implements OnInit, OnDestroy {
       }
 
       // Check if Device Orientation is available
-      if (typeof window !== 'undefined') {
-        this.compassAvailable.set(!!window.DeviceOrientationEvent);
+      this.compassAvailable.set(this.qiblaService.isDeviceOrientationSupported());
+
+      // Automatically request compass permission if available
+      if (this.compassAvailable()) {
+        this.requestCompassPermission();
       }
 
       this.loading.set(false);
@@ -107,59 +110,56 @@ export class QiblaComponent implements OnInit, OnDestroy {
 
   /**
    * Request compass permission and start listening to device compass updates
-   * This must be called from a user gesture (button click) on iOS
+   * Automatically requests permission if not already granted (saved in localStorage)
    */
-  protected requestCompassPermission(): void {
+  private async requestCompassPermission(): Promise<void> {
     this.compassPermissionRequested.set(true);
     this.error.set(null);
+
+    // Check if permission was previously granted
+    const wasGranted = this.qiblaService.isCompassPermissionGranted();
+
+    // Request permission if not already granted
+    if (!wasGranted) {
+      const granted = await this.qiblaService.requestCompassPermission();
+      if (!granted) {
+        // Permission denied, but don't show error immediately
+        // User can still see Qibla direction (without compass rotation)
+        this.compassPermissionGranted.set(false);
+        this.compassPermissionRequested.set(false);
+        return;
+      }
+    }
 
     // Clean up previous subscription if exists
     if (this.headingSubscription) {
       this.headingSubscription.unsubscribe();
     }
 
+    // Start listening to compass updates
     this.headingSubscription = this.qiblaService.getDeviceHeading().subscribe({
       next: (heading) => {
         if (heading !== null) {
           this.compassPermissionGranted.set(true);
-          // Force update by setting to new object reference
+          this.compassPermissionRequested.set(false);
           this.currentHeading.set(heading);
           this.updateInstruction();
-          // Debug: Log heading updates (remove in production)
-          if (typeof console !== 'undefined' && console.log) {
-            const rotation = -heading;
-            const qiblaAngle = this.qiblaBearing() - heading;
-            console.log('Device heading:', heading.toFixed(1) + '°', 
-                       'Compass rotation:', rotation.toFixed(1) + '°',
-                       'Qibla angle:', qiblaAngle.toFixed(1) + '°');
-          }
         } else {
           this.compassPermissionGranted.set(false);
+          this.compassPermissionRequested.set(false);
           this.currentHeading.set(null);
-          if (!this.error()) {
-            this.error.set('Compass permission not granted. Please allow device motion access.');
-          }
         }
       },
       error: (err) => {
         // Compass not available, but we can still show Qibla direction
         this.compassPermissionGranted.set(false);
+        this.compassPermissionRequested.set(false);
         this.currentHeading.set(null);
-        this.error.set('Unable to access compass. Please check device permissions.');
         console.error('Compass error:', err);
       }
     });
   }
 
-  /**
-   * Start listening to device compass updates (if permission already granted)
-   */
-  private startCompassUpdates(): void {
-    // Only auto-start if permission was previously granted
-    if (this.compassPermissionGranted()) {
-      this.requestCompassPermission();
-    }
-  }
 
   /**
    * Update instruction based on current heading and Qibla bearing

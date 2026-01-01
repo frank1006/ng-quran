@@ -8,14 +8,14 @@ viewBox="0 0 745 740.19"
  <defs>
   <style type="text/css">
    <![CDATA[
-    .str0 {stroke:red;stroke-width:5.34;stroke-miterlimit:2.61313}
-    .str4 {stroke:black;stroke-width:10.68;stroke-miterlimit:2.61313}
+    .str0 {stroke:#ffb030;stroke-width:5.34;stroke-miterlimit:2.61313}
+    .str4 {stroke:#ffb030;stroke-width:10.68;stroke-miterlimit:2.61313}
     .str5 {stroke:#FAC84D;stroke-width:10.68;stroke-miterlimit:2.61313}
-    .str2 {stroke:black;stroke-width:4.01;stroke-miterlimit:2.61313}
+    .str2 {stroke:#874d14;stroke-width:4.01;stroke-miterlimit:2.61313}
     .str3 {stroke:#5498EB;stroke-width:32.04;stroke-miterlimit:2.61313}
-    .str7 {stroke:#5498EB;stroke-width:13.35;stroke-miterlimit:2.61313}
+    .str7 {stroke:#874d14;stroke-width:13.35;stroke-miterlimit:2.61313}
     .str9 {stroke:#FAC84D;stroke-width:13.35;stroke-miterlimit:2.61313}
-    .str1 {stroke:black;stroke-width:0.67;stroke-miterlimit:2.61313}
+    .str1 {stroke:#874d14;stroke-width:0.67;stroke-miterlimit:2.61313}
     .str6 {stroke:#B3B3B3;stroke-width:0.67;stroke-miterlimit:2.61313}
     .str8 {stroke:#FAC84D;stroke-width:0.67;stroke-miterlimit:2.61313}
     .fil0 {fill:none}

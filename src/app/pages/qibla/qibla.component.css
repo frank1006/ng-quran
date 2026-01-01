@@ -8,7 +8,7 @@
   background: #ffffff;
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
-  padding: 2rem 1.5rem;
+  padding: 1.5rem;
 }
 
 /* Header styles moved to qibla-header component */
@@ -49,7 +49,6 @@
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-  padding-top: 1rem;
 }
 
 .instruction-section {
@@ -85,62 +84,6 @@
   color: #874d14;
 }
 
-.instruction-hint {
-  font-family: 'Poppins', sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  color: #6b7280;
-  margin: 0.5rem 0 0 0;
-  font-style: italic;
-}
-
-.compass-permission-section {
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 1rem;
-}
-
-.permission-card {
-  padding: 1.5rem;
-  background: #fffaf0;
-  border: 2px solid #ffb030;
-  border-radius: var(--border-radius-all);
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(255, 176, 48, 0.15);
-}
-
-.permission-text {
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: #1f1f1f;
-  margin: 0 0 1rem 0;
-}
-
-.permission-button {
-  padding: 12px 32px;
-  background: #ffb030;
-  color: #1f1f1f;
-  border: none;
-  border-radius: var(--border-radius-all);
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 150px;
-}
-
-.permission-button:hover:not(:disabled) {
-  background: #ff9900;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 176, 48, 0.3);
-}
-
-.permission-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 @media (max-width: 480px) {
   

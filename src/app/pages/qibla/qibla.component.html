@@ -25,25 +25,6 @@
   @if (!loading() && !error() && location()) {
     <section class="qibla-content-section">
       <div class="qibla-content">
-        <!-- Compass Permission Request -->
-        @if (!compassPermissionGranted() && compassAvailable()) {
-          <div class="compass-permission-section">
-            <div class="permission-card">
-              <p class="permission-text">
-                Enable compass access to find Qibla direction
-              </p>
-              <button 
-                class="permission-button" 
-                (click)="requestCompassPermission()" 
-                type="button"
-                [disabled]="compassPermissionRequested()"
-              >
-                {{ compassPermissionRequested() ? 'Requesting...' : 'Enable Compass' }}
-              </button>
-            </div>
-          </div>
-        }
-
         <!-- Compass -->
         <app-qibla-compass
           [qiblaBearing]="qiblaBearing()"
@@ -54,9 +35,6 @@
         <div class="instruction-section">
           <div class="instruction-card" [class.facing]="instruction() === 'You\'re facing Makkah'">
             <p class="instruction-text">{{ instructionText() }}</p>
-            @if (!compassPermissionGranted() && compassAvailable()) {
-              <p class="instruction-hint">Tap "Enable Compass" above to see turn directions</p>
-            }
           </div>
         </div>
       </div>

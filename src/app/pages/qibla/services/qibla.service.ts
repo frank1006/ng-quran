@@ -38,6 +38,11 @@ export interface QiblaData {
   cityName: string;
 }
 
+/**
+ * Local storage key for compass permission
+ */
+const COMPASS_PERMISSION_KEY = 'qibla_compass_permission_granted';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -64,16 +69,89 @@ export class QiblaService {
   }
 
   /**
+   * Save compass permission state to localStorage
+   */
+  private saveCompassPermission(granted: boolean): void {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(COMPASS_PERMISSION_KEY, granted ? 'true' : 'false');
+      } catch (e) {
+        console.warn('Failed to save compass permission to localStorage', e);
+      }
+    }
+  }
+
+  /**
+   * Load compass permission state from localStorage
+   */
+  private loadCompassPermission(): boolean | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+    try {
+      const stored = localStorage.getItem(COMPASS_PERMISSION_KEY);
+      return stored === 'true' ? true : stored === 'false' ? false : null;
+    } catch (e) {
+      console.warn('Failed to load compass permission from localStorage', e);
+      return null;
+    }
+  }
+
+  /**
+   * Check if compass permission was previously granted
+   */
+  isCompassPermissionGranted(): boolean {
+    return this.loadCompassPermission() === true;
+  }
+
+  /**
+   * Check if device orientation API is supported
+   */
+  isDeviceOrientationSupported(): boolean {
+    return typeof window !== 'undefined' && !!window.DeviceOrientationEvent;
+  }
+
+  /**
+   * Request compass permission (for iOS 13+)
+   * Returns a Promise that resolves to true if permission was granted
+   */
+  async requestCompassPermission(): Promise<boolean> {
+    if (!this.isDeviceOrientationSupported()) {
+      return false;
+    }
+
+    // Check if iOS permission request is needed
+    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      try {
+        const response = await (DeviceOrientationEvent as any).requestPermission();
+        const granted = response === 'granted';
+        this.saveCompassPermission(granted);
+        return granted;
+      } catch (e) {
+        console.warn('Failed to request compass permission', e);
+        this.saveCompassPermission(false);
+        return false;
+      }
+    }
+
+    // For non-iOS devices, permission is implicitly granted
+    this.saveCompassPermission(true);
+    return true;
+  }
+
+  /**
    * Get device compass heading using Device Orientation API
    * Uses magnetometer (compass) primarily, with gyroscope and accelerometer for enhanced accuracy
    * The Device Orientation API automatically uses available sensors:
    * - Magnetometer: compass heading (alpha)
    * - Gyroscope: rotation rate (smoother tracking)
    * - Accelerometer: device tilt compensation
+   * 
+   * Automatically checks for saved permission and requests if needed
    */
   getDeviceHeading(): Observable<number | null> {
     return new Observable<number | null>((observer) => {
-      if (!window.DeviceOrientationEvent) {
+      if (!this.isDeviceOrientationSupported()) {
         observer.next(null);
         observer.complete();
         return;
@@ -81,34 +159,46 @@ export class QiblaService {
 
       let cleanup: (() => void) | null = null;
 
-      // Request permission for iOS 13+ (required for gyroscope and magnetometer access)
-      if (
-        typeof (DeviceOrientationEvent as any).requestPermission === 'function'
-      ) {
-        (DeviceOrientationEvent as any)
-          .requestPermission()
-          .then((response: string) => {
-            if (response === 'granted') {
-              cleanup = this.setupOrientationListener(observer);
-            } else {
-              observer.next(null);
-              observer.complete();
-            }
-          })
-          .catch(() => {
-            observer.next(null);
-            observer.complete();
-          });
-      } else {
+      // Check if permission was previously granted
+      const savedPermission = this.loadCompassPermission();
+      const needsPermissionRequest = typeof (DeviceOrientationEvent as any).requestPermission === 'function';
+
+      // For non-iOS devices, permission is implicit
+      if (!needsPermissionRequest) {
+        this.saveCompassPermission(true);
         cleanup = this.setupOrientationListener(observer);
+        return () => {
+          if (cleanup) {
+            cleanup();
+          }
+        };
       }
 
-      // Return cleanup function
-      return () => {
-        if (cleanup) {
-          cleanup();
+      // For iOS devices, check if permission was previously granted
+      if (savedPermission === true) {
+        // Permission was previously granted, try to start listening
+        // If it fails, the observer will receive null
+        try {
+          cleanup = this.setupOrientationListener(observer);
+        } catch (e) {
+          // If setup fails, permission might have been revoked
+          this.saveCompassPermission(false);
+          observer.next(null);
+          observer.complete();
         }
-      };
+        return () => {
+          if (cleanup) {
+            cleanup();
+          }
+        };
+      }
+
+      // Permission not granted yet - will be requested via requestCompassPermission()
+      // Return an observable that completes immediately
+      // The component should call requestCompassPermission() first
+      observer.next(null);
+      observer.complete();
+      return;
     });
   }
 
