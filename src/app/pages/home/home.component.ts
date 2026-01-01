@@ -81,9 +81,29 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /**
    * Parse time string to minutes from midnight
+   * Handles both 24-hour format (HH:MM) and 12-hour format (h:MM AM/PM)
    */
   private parseTimeToMinutes(timeString: string): number {
     const trimmed = timeString.trim();
+    
+    // Try to match 12-hour format with AM/PM first
+    const twelveHourMatch = trimmed.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (twelveHourMatch) {
+      let hours = parseInt(twelveHourMatch[1], 10);
+      const minutes = parseInt(twelveHourMatch[2], 10);
+      const period = twelveHourMatch[3].toUpperCase();
+      
+      // Convert 12-hour to 24-hour format
+      if (period === 'PM' && hours !== 12) {
+        hours += 12;
+      } else if (period === 'AM' && hours === 12) {
+        hours = 0;
+      }
+      
+      return hours * 60 + minutes;
+    }
+    
+    // Fall back to 24-hour format (HH:MM)
     const match = trimmed.match(/(\d{1,2}):(\d{2})/);
     if (!match) return -1;
     const hours = parseInt(match[1], 10);
