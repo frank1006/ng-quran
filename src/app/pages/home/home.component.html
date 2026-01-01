@@ -1,11 +1,16 @@
-<app-hero-section
-  [currentPrayer]="currentPrayer()"
-  [timeUntilNext]="timeUntilNext()"
->
+<app-hero-header>
+  <div class="current-prayer">
+    <h2 class="prayer-name" [attr.aria-live]="'polite'">
+      {{ currentPrayer()?.name || 'Loading...' }}
+    </h2>
+    <p class="time-remaining" [attr.aria-live]="'polite'">
+      {{ timeUntilNext() }}
+    </p>
+  </div>
   @if (prayerTrajectory()) {
     <app-prayer-trajectory [trajectoryData]="prayerTrajectory()!" />
   }
-</app-hero-section>
+</app-hero-header>
 
 <section class="prayers">
   <app-date-header

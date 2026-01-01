@@ -1,7 +1,10 @@
 .surah-detail-container {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: linear-gradient(180deg, #fff9f0 0%, #ffffff 40%);
   padding-top: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .loading-state,
@@ -41,135 +44,6 @@
   box-shadow: 0 4px 12px rgba(255, 176, 48, 0.3);
 }
 
-.hero-section {
-  padding: 1.5rem 2rem 8.5rem 2rem;
-  margin-bottom: -1.5rem;
-  position: relative;
-  background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
-  overflow: hidden;
-}
-
-.hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0.6;
-}
-
-.curve-timeline {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 120px;
-  animation: floatBackground 8s ease-in-out infinite;
-}
-
-.curve-svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-  animation: waveSvg 12s ease-in-out infinite;
-}
-
-.curve-svg path {
-  animation: pulseOpacity 10s ease-in-out infinite;
-}
-
-@keyframes floatBackground {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-12px);
-  }
-}
-
-@keyframes waveSvg {
-  0%, 100% {
-    transform: scaleY(1) translateY(0px);
-  }
-  25% {
-    transform: scaleY(1.05) translateY(-3px);
-  }
-  50% {
-    transform: scaleY(0.98) translateY(-6px);
-  }
-  75% {
-    transform: scaleY(1.03) translateY(-3px);
-  }
-}
-
-@keyframes pulseOpacity {
-  0%, 100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.4;
-  }
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-}
-
-.header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(243, 244, 246, 0.8);
-  border-radius: var(--border-radius-all);
-  color: #1f1f1f;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-}
-
-.back-button:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: #ffb030;
-  transform: translateX(-2px);
-}
-
-.toggle-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: rgba(249, 250, 251, 0.9);
-  border: 2px solid transparent;
-  border-radius: var(--border-radius-all);
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-}
-
-.toggle-button:hover {
-  background: rgba(243, 244, 246, 0.9);
-}
-
-.toggle-button.active {
-  background: rgba(255, 245, 230, 0.9);
-  border-color: #ffb030;
-  color: #ffb030;
-}
 
 .surah-title-wrapper {
   display: flex;
@@ -258,12 +132,11 @@
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
   padding: 1.5rem 2rem;
-  padding-bottom: 200px;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  height: calc(100vh - 200px);
-  max-height: calc(100vh - 200px);
+  flex: 1;
+  min-height: 0;
 }
 
 .verse-item {
@@ -287,7 +160,7 @@
 }
 
 .verse-item.bookmarked {
-  border-left: 4px solid #ffb030;
+  box-shadow: inset 4px 0 0 #ffb030, 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .verse-header {
@@ -399,42 +272,4 @@
   color: #1f1f1f;
 }
 
-@media (max-width: 768px) {
-  .hero-section {
-    padding: 1rem 1.5rem 3rem 1.5rem;
-  }
-
-
-  .surah-title-right {
-    align-self: flex-start;
-  }
-
-  .surah-name-arabic {
-    font-size: 28px;
-    text-align: left;
-  }
-
-  .surah-name-latin {
-    font-size: 24px;
-  }
-
-  .verses-container {
-    padding: 1rem 1.5rem;
-    padding-bottom: 200px;
-  }
-
-  .verse-item {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .verse-arabic {
-    font-size: 20px;
-    line-height: 2.2;
-  }
-
-  .verse-translation {
-    font-size: 14px;
-  }
-}
 

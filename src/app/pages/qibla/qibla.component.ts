@@ -4,12 +4,12 @@ import { Subscription } from 'rxjs';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService, CompassInstruction } from './services/qibla.service';
 import { QiblaCompassComponent } from './components/qibla-compass.component';
-import { QiblaHeaderComponent } from './components/qibla-header.component';
+import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-header.component';
 
 @Component({
   selector: 'app-qibla',
   standalone: true,
-  imports: [CommonModule, QiblaCompassComponent, QiblaHeaderComponent],
+  imports: [CommonModule, QiblaCompassComponent, HeroHeaderComponent],
   templateUrl: './qibla.component.html',
   styleUrl: './qibla.component.css'
 })

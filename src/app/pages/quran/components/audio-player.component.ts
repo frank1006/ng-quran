@@ -6,7 +6,6 @@ export interface AudioPlayerState {
   currentTime: number;
   duration: number;
   currentVerse: number | null;
-  isRepeating: boolean;
 }
 
 @Component({
@@ -32,8 +31,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     isPlaying: false,
     currentTime: 0,
     duration: 0,
-    currentVerse: null,
-    isRepeating: false
+    currentVerse: null
   });
 
   private audio: HTMLAudioElement | null = null;
@@ -125,15 +123,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     const handleEnded = () => {
       this.state.update(s => ({ ...s, isPlaying: false, currentTime: 0 }));
       this.stopProgressTracking();
-      if (this.state().isRepeating && this.audio) {
-        this.audio.currentTime = 0;
-        this.play().catch(() => {
-          // Play failed, try next verse
-          this.playNext.emit();
-        });
-      } else {
-        this.playNext.emit();
-      }
+      this.playNext.emit();
     };
 
     const handleError = (e: Event) => {
@@ -216,10 +206,6 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
 
   protected skipPrevious(): void {
     this.playPrevious.emit();
-  }
-
-  protected toggleRepeat(): void {
-    this.state.update(s => ({ ...s, isRepeating: !s.isRepeating }));
   }
 
   protected onSeek(event: Event): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, effect, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -6,6 +6,7 @@ import { QuranApiService } from '../../../services/quran-api.service';
 import { QuranStoreService } from '../../../services/quran-store.service';
 import { ChapterWithVerses, Verse, AudioRecitation, SurahResponse } from '../../../services/quran-api.types';
 import { AudioPlayerComponent } from './audio-player.component';
+import { HeroHeaderComponent } from '../../../shared/components/hero-header/hero-header.component';
 
 interface VerseWithAudio extends Verse {
   translation?: string;
@@ -16,11 +17,11 @@ interface VerseWithAudio extends Verse {
 @Component({
   selector: 'app-surah-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, AudioPlayerComponent],
+  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent],
   templateUrl: './surah-detail.component.html',
   styleUrl: './surah-detail.component.css'
 })
-export class SurahDetailComponent implements OnInit, OnDestroy {
+export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   protected readonly chapter = signal<ChapterWithVerses | null>(null);
   protected readonly verses = signal<VerseWithAudio[]>([]);
   protected readonly loading = signal<boolean>(true);
@@ -33,6 +34,8 @@ export class SurahDetailComponent implements OnInit, OnDestroy {
 
   protected readonly selectedReciterId = computed(() => this.quranStore.selectedReciterId());
 
+  @ViewChild('versesContainer', { static: false }) versesContainerRef!: ElementRef<HTMLDivElement>;
+
   private chapterId: number | null = null;
   private verseAudioCache: Map<number, string> = new Map();
 
@@ -43,17 +46,16 @@ export class SurahDetailComponent implements OnInit, OnDestroy {
     private quranStore: QuranStoreService,
     private http: HttpClient
   ) {
-    // Restore last read position
+    // Auto-scroll to playing verse when it changes
     effect(() => {
-      const chapterId = this.chapterId;
-      const verses = this.verses();
-      if (chapterId && verses.length > 0) {
-        const lastVerse = this.quranStore.getLastReadPosition(chapterId);
-        if (lastVerse) {
-          setTimeout(() => {
-            this.scrollToVerse(lastVerse);
-          }, 300);
-        }
+      const playingVerse = this.currentPlayingVerse();
+      if (playingVerse) {
+        // Wait for view to be initialized
+        setTimeout(() => {
+          if (this.versesContainerRef?.nativeElement) {
+            this.scrollToVerse(playingVerse);
+          }
+        }, 200);
       }
     });
   }
@@ -66,6 +68,18 @@ export class SurahDetailComponent implements OnInit, OnDestroy {
         this.loadChapter(this.chapterId);
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Scroll to last read position after view is initialized
+    if (this.chapterId && this.verses().length > 0) {
+      const lastVerse = this.quranStore.getLastReadPosition(this.chapterId);
+      if (lastVerse) {
+        setTimeout(() => {
+          this.scrollToVerse(lastVerse);
+        }, 300);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -248,10 +262,28 @@ export class SurahDetailComponent implements OnInit, OnDestroy {
   }
 
   protected scrollToVerse(verseNumber: number): void {
+    if (!this.versesContainerRef?.nativeElement) return;
+
     const element = document.getElementById(`verse-${verseNumber}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    if (!element) return;
+
+    const container = this.versesContainerRef.nativeElement;
+    
+    // Get the element's position relative to the container
+    const elementOffsetTop = element.offsetTop;
+    
+    // Convert 3rem to pixels (1rem = 16px typically, but get actual computed value)
+    const gapRem = 3;
+    const remInPixels = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const gapPixels = gapRem * remInPixels;
+
+    // Calculate scroll position: element top - gap from container top
+    const scrollTop = elementOffsetTop - gapPixels;
+
+    container.scrollTo({
+      top: Math.max(0, scrollTop),
+      behavior: 'smooth'
+    });
   }
 
   protected onVerseVisible(verseNumber: number): void {

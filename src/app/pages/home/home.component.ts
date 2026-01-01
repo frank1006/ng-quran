@@ -4,7 +4,7 @@ import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { PrayerTimeData, PrayerTimings } from '../../services/prayer-time.types';
 import { SettingsService, TimeFormat } from '../../services/settings.service';
 import { formatTime } from '../../services/time-format.util';
-import { HeroSectionComponent } from './components/hero-section/hero-section.component';
+import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-header.component';
 import { PrayerTrajectoryComponent } from './components/trajectory/prayer-trajectory.component';
 import { DateHeaderComponent } from './components/date-header/date-header.component';
 import { PrayerListComponent } from './components/prayer-list/prayer-list.component';
@@ -25,7 +25,7 @@ const TIME_UPDATE_INTERVAL_MS = 1000;
   standalone: true,
   imports: [
     CommonModule,
-    HeroSectionComponent,
+    HeroHeaderComponent,
     PrayerTrajectoryComponent,
     DateHeaderComponent,
     PrayerListComponent

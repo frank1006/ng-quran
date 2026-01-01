@@ -1,7 +1,16 @@
 <div class="qibla-container">
   <!-- Header with city location (Hero section style) -->
   @if (!error() || loading()) {
-    <app-qibla-header [cityName]="cityName()" [countryName]="countryName()" />
+    <app-hero-header>
+      <div class="location-title">
+        <h2 class="city-name" [attr.aria-live]="'polite'">
+          {{ cityName() || 'Loading...' }}
+        </h2>
+        <p class="location-label" [attr.aria-live]="'polite'">
+          {{ countryName() || 'Loading...' }}
+        </p>
+      </div>
+    </app-hero-header>
   }
 
   <!-- Error state -->

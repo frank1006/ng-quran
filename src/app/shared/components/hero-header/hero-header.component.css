@@ -1,9 +1,12 @@
 .hero-section {
-  padding: 1.5rem 2rem 8.5rem 2rem;
+  height: 228px;
+  padding: 1.5rem 2rem;
   margin-bottom: -1.5rem;
   position: relative;
   background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
-  overflow: hidden;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-background {
@@ -73,22 +76,60 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
 }
 
-.prayer-name {
-  font-family: 'Poppins', sans-serif;
-  font-size: 32px;
-  font-weight: 700;
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.back-button,
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(243, 244, 246, 0.8);
+  border-radius: var(--border-radius-all);
   color: #1f1f1f;
-  letter-spacing: -0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  text-decoration: none;
 }
 
-.time-remaining {
-  font-family: 'Poppins', sans-serif;
-  text-transform: uppercase;
-  font-size: 14px;
-  font-weight: 500;
-  color: #874d14;
-  margin: 0;
+.back-button:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #ffb030;
+  transform: translateX(-2px);
+}
+
+.action-button {
+  background: rgba(249, 250, 251, 0.9);
+  border-color: transparent;
+  color: #6b7280;
+}
+
+.action-button:hover {
+  background: rgba(243, 244, 246, 0.9);
+}
+
+.action-button.active {
+  background: rgba(255, 245, 230, 0.9);
+  border-color: #ffb030;
+  color: #ffb030;
+}
+
+.hero-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
