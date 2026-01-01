@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { PrayerTimeData, PrayerTimings } from '../../services/prayer-time.types';
+import { SettingsService, TimeFormat } from '../../services/settings.service';
+import { formatTime } from '../../services/time-format.util';
 import { HeroSectionComponent } from './components/hero-section/hero-section.component';
 import { PrayerTrajectoryComponent } from './components/trajectory/prayer-trajectory.component';
 import { DateHeaderComponent } from './components/date-header/date-header.component';
@@ -47,20 +49,21 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private prayerTimeStore: PrayerTimeStore,
-    private trajectoryService: PrayerTrajectoryService
+    private trajectoryService: PrayerTrajectoryService,
+    private settingsService: SettingsService
   ) {}
 
   /**
    * Get prayer list from current prayer data
    */
-  private createPrayerList(data: PrayerTimeData): PrayerItem[] {
+  private createPrayerList(data: PrayerTimeData, timeFormat: TimeFormat): PrayerItem[] {
     return [
-      { name: 'Fajr', key: 'fajr', time: data.timings.fajr || '', isActive: false },
-      { name: 'Shuruq', key: 'sunrise', time: data.timings.sunrise || '', isActive: false },
-      { name: 'Dhuhr', key: 'dhuhr', time: data.timings.dhuhr || '', isActive: false },
-      { name: 'Asr', key: 'asr', time: data.timings.asr || '', isActive: false },
-      { name: 'Maghrib', key: 'maghrib', time: data.timings.maghrib || '', isActive: false },
-      { name: 'Isha', key: 'isha', time: data.timings.isha || '', isActive: false }
+      { name: 'Fajr', key: 'fajr', time: formatTime(data.timings.fajr || '', timeFormat), isActive: false },
+      { name: 'Shuruq', key: 'sunrise', time: formatTime(data.timings.sunrise || '', timeFormat), isActive: false },
+      { name: 'Dhuhr', key: 'dhuhr', time: formatTime(data.timings.dhuhr || '', timeFormat), isActive: false },
+      { name: 'Asr', key: 'asr', time: formatTime(data.timings.asr || '', timeFormat), isActive: false },
+      { name: 'Maghrib', key: 'maghrib', time: formatTime(data.timings.maghrib || '', timeFormat), isActive: false },
+      { name: 'Isha', key: 'isha', time: formatTime(data.timings.isha || '', timeFormat), isActive: false }
     ];
   }
 
@@ -106,9 +109,10 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   protected readonly prayers = computed<PrayerItem[]>(() => {
     const data = this.prayerData();
+    const timeFormat = this.settingsService.currentTimeFormat(); // React to time format changes
     if (!data?.timings) return [];
 
-    const prayerList = this.createPrayerList(data);
+    const prayerList = this.createPrayerList(data, timeFormat);
 
     // Only show active prayer if viewing today's date
     if (!this.isToday(this.currentDate())) {
@@ -168,7 +172,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (!todayData?.timings) return [];
 
-    return this.createPrayerList(todayData);
+    const timeFormat = this.settingsService.currentTimeFormat();
+    return this.createPrayerList(todayData, timeFormat);
   }
 
   /**

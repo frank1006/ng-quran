@@ -40,8 +40,22 @@ export class QiblaComponent implements OnInit, OnDestroy {
    */
   protected readonly location = computed(() => this.prayerTimeStore.currentLocation());
 
+  /**
+   * Watch for location changes and reinitialize if location becomes available
+   */
+  private locationWatcher: any = null;
+
   ngOnInit(): void {
     this.initializeQibla();
+    
+    // Watch for location changes (in case location becomes available after permission is granted)
+    this.locationWatcher = setInterval(() => {
+      const currentLocation = this.location();
+      // If we have an error and location becomes available, reinitialize
+      if (this.error() && currentLocation && !this.loading()) {
+        this.initializeQibla();
+      }
+    }, 1000);
   }
 
   ngOnDestroy(): void {
@@ -52,6 +66,10 @@ export class QiblaComponent implements OnInit, OnDestroy {
     if (this.locationSubscription) {
       this.locationSubscription.unsubscribe();
       this.locationSubscription = null;
+    }
+    if (this.locationWatcher) {
+      clearInterval(this.locationWatcher);
+      this.locationWatcher = null;
     }
   }
 
@@ -65,14 +83,46 @@ export class QiblaComponent implements OnInit, OnDestroy {
 
     try {
       // Get current location from store (already available from prayer times)
-      const location = this.location();
+      let location = this.location();
 
+      // If location is not immediately available, wait a bit and check again
+      // This handles the case where permission was just granted in settings
       if (!location) {
-        // Location not yet available in store, trigger it through store
-        this.error.set('Location not available. Please enable location access.');
-        this.loading.set(false);
+        // Try to trigger location fetch through store
+        const today = new Date();
+        this.prayerTimeStore.preloadPrayerTimes(today).subscribe({
+          next: () => {
+            // Wait a moment for location to be stored
+            setTimeout(() => {
+              location = this.location();
+              if (location) {
+                this.continueQiblaInitialization(location);
+              } else {
+                this.error.set('Location not available. Please enable location access.');
+                this.loading.set(false);
+              }
+            }, 300);
+          },
+          error: (err) => {
+            this.error.set('Location not available. Please enable location access.');
+            this.loading.set(false);
+          }
+        });
         return;
       }
+
+      this.continueQiblaInitialization(location);
+    } catch (err) {
+      this.error.set(err instanceof Error ? err.message : 'Failed to initialize Qibla');
+      this.loading.set(false);
+    }
+  }
+
+  /**
+   * Continue Qibla initialization with location
+   */
+  private async continueQiblaInitialization(location: { latitude: number; longitude: number }): Promise<void> {
+    try {
 
       // Calculate Qibla bearing from store's location (no new API call)
       const bearing = this.qiblaService.calculateQiblaBearing(
@@ -103,6 +153,7 @@ export class QiblaComponent implements OnInit, OnDestroy {
 
         if (wasGranted) {
           // Auto-start if permission was previously granted
+          // Try to start listening immediately
           this.startCompassListening();
         } else {
           // Show "Enable Compass" button (requires user gesture on iOS)
@@ -125,6 +176,16 @@ export class QiblaComponent implements OnInit, OnDestroy {
     this.needsPermissionButton.set(false);
     this.compassPermissionRequested.set(true);
 
+    // Check if permission was already granted (from settings page)
+    const wasAlreadyGranted = this.qiblaService.isCompassPermissionGranted();
+    
+    if (wasAlreadyGranted) {
+      // Permission was already granted, just start listening
+      this.startCompassListening();
+      return;
+    }
+
+    // Request permission if not already granted
     const granted = await this.qiblaService.requestCompassPermission();
 
     if (granted) {
@@ -155,17 +216,31 @@ export class QiblaComponent implements OnInit, OnDestroy {
           this.currentHeading.set(heading);
           this.updateInstruction();
         } else {
-          this.compassPermissionGranted.set(false);
-          this.compassPermissionRequested.set(false);
-          this.currentHeading.set(null);
+          // If heading is null but permission was saved, it might need user gesture on iOS
+          // Don't immediately show button, wait a bit to see if it starts
+          const wasGranted = this.qiblaService.isCompassPermissionGranted();
+          if (!wasGranted) {
+            this.compassPermissionGranted.set(false);
+            this.compassPermissionRequested.set(false);
+            this.currentHeading.set(null);
+            this.needsPermissionButton.set(true);
+          }
         }
       },
       error: (err) => {
         // Compass not available, but we can still show Qibla direction
-        this.compassPermissionGranted.set(false);
-        this.compassPermissionRequested.set(false);
-        this.currentHeading.set(null);
         console.error('Compass error:', err);
+        // Check if permission was saved - if yes, show button to retry
+        const wasGranted = this.qiblaService.isCompassPermissionGranted();
+        if (wasGranted) {
+          // Permission was granted but event listener failed - might need user gesture
+          this.needsPermissionButton.set(true);
+        } else {
+          this.compassPermissionGranted.set(false);
+          this.compassPermissionRequested.set(false);
+          this.currentHeading.set(null);
+          this.needsPermissionButton.set(true);
+        }
       }
     });
   }
