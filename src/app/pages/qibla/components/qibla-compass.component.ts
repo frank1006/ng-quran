@@ -9,6 +9,10 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
+  <div 
+      class="qibla-point">
+      <img src="/kaaba.svg" alt="Qibla"class="qibla-point-svg"/>
+    </div> 
     <div class="compass-container">
       <!-- SVG Compass with rotation -->
       <div 
