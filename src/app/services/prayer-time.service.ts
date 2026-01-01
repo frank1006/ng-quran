@@ -19,10 +19,6 @@ export class PrayerTimeService {
   private readonly baseUrl = 'https://api.aladhan.com/v1';
   private readonly defaultMethod = 4; // Umm Al-Qura
 
-  /**
-   * Requests user permission and retrieves current location coordinates
-   * @returns Observable of LocationCoordinates
-   */
   getCurrentLocation(): Observable<LocationCoordinates> {
     return new Observable<LocationCoordinates>((observer) => {
       if (!navigator.geolocation) {
@@ -72,13 +68,6 @@ export class PrayerTimeService {
     });
   }
 
-  /**
-   * Fetches prayer times from Aladhan API based on coordinates
-   * @param latitude - Latitude coordinate
-   * @param longitude - Longitude coordinate
-   * @param date - Optional date, defaults to today
-   * @returns Observable of PrayerTimeData
-   */
   getPrayerTimesByCoordinates(
     latitude: number,
     longitude: number,
@@ -118,10 +107,6 @@ export class PrayerTimeService {
     );
   }
 
-  /**
-   * Gets current location and fetches today's prayer times
-   * @returns Observable of PrayerTimeData
-   */
   getTodayPrayerTimes(): Observable<PrayerTimeData> {
     return this.getCurrentLocation().pipe(
       switchMap((location: LocationCoordinates) => {
@@ -136,13 +121,7 @@ export class PrayerTimeService {
     );
   }
 
-  /**
-   * Converts Aladhan API timings format to our PrayerTimings format
-   * @param apiTimings - Timings from Aladhan API
-   * @returns Formatted PrayerTimings object
-   */
   private convertTimings(apiTimings: AladhanTimings): PrayerTimings {
-    // Extract time from format like "04:45 (GMT)" or "04:45"
     const extractTime = (timeString: string): string => {
       const match = timeString.match(/(\d{2}:\d{2})/);
       return match ? match[1] : timeString.split(' ')[0];
@@ -158,11 +137,6 @@ export class PrayerTimeService {
     };
   }
 
-  /**
-   * Converts Aladhan API Hijri date format to our HijriDate format
-   * @param apiHijri - Hijri date from Aladhan API
-   * @returns Formatted HijriDate object
-   */
   private convertHijriDate(apiHijri: any): HijriDate {
     return {
       date: apiHijri.date || '',

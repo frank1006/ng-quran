@@ -11,9 +11,6 @@ import { PrayerListComponent } from './components/prayer-list/prayer-list.compon
 import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
 import { TrajectoryData } from './components/trajectory/prayer-trajectory.types';
 
-/**
- * Represents a prayer item with its display information
- */
 interface PrayerItem {
   name: string;
   time: string;
@@ -21,9 +18,6 @@ interface PrayerItem {
   isActive: boolean;
 }
 
-/**
- * Constants
- */
 const TIME_UPDATE_INTERVAL_MS = 1000;
 
 @Component({
@@ -53,9 +47,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private settingsService: SettingsService
   ) {}
 
-  /**
-   * Get prayer list from current prayer data
-   */
   private createPrayerList(data: PrayerTimeData, timeFormat: TimeFormat): PrayerItem[] {
     return [
       { name: 'Fajr', key: 'fajr', time: formatTime(data.timings.fajr || '', timeFormat), isActive: false },
@@ -67,9 +58,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     ];
   }
 
-  /**
-   * Check if a date is today
-   */
   private isToday(date: Date): boolean {
     const today = new Date();
     return (
@@ -79,21 +67,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
-  /**
-   * Parse time string to minutes from midnight
-   * Handles both 24-hour format (HH:MM) and 12-hour format (h:MM AM/PM)
-   */
   private parseTimeToMinutes(timeString: string): number {
     const trimmed = timeString.trim();
-    
-    // Try to match 12-hour format with AM/PM first
     const twelveHourMatch = trimmed.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
     if (twelveHourMatch) {
       let hours = parseInt(twelveHourMatch[1], 10);
       const minutes = parseInt(twelveHourMatch[2], 10);
       const period = twelveHourMatch[3].toUpperCase();
       
-      // Convert 12-hour to 24-hour format
       if (period === 'PM' && hours !== 12) {
         hours += 12;
       } else if (period === 'AM' && hours === 12) {
@@ -103,7 +84,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       return hours * 60 + minutes;
     }
     
-    // Fall back to 24-hour format (HH:MM)
     const match = trimmed.match(/(\d{1,2}):(\d{2})/);
     if (!match) return -1;
     const hours = parseInt(match[1], 10);
@@ -111,9 +91,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return hours * 60 + minutes;
   }
 
-  /**
-   * Find the last prayer that has passed for a given time
-   */
   private findLastPassedPrayer(prayers: PrayerItem[], currentMinutes: number): PrayerItem | null {
     for (let i = prayers.length - 1; i >= 0; i--) {
       const prayerMinutes = this.parseTimeToMinutes(prayers[i].time);
@@ -124,22 +101,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  /**
-   * Prayer list with active state based on current time
-   */
   protected readonly prayers = computed<PrayerItem[]>(() => {
     const data = this.prayerData();
-    const timeFormat = this.settingsService.currentTimeFormat(); // React to time format changes
+    const timeFormat = this.settingsService.currentTimeFormat();
     if (!data?.timings) return [];
 
     const prayerList = this.createPrayerList(data, timeFormat);
 
-    // Only show active prayer if viewing today's date
     if (!this.isToday(this.currentDate())) {
       return prayerList;
     }
 
-    // Determine active prayer based on today's prayer times
     const todayPrayers = this.getTodayPrayerTimes();
     if (todayPrayers.length === 0) return prayerList;
 
@@ -147,14 +119,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
     const lastPassedPrayer = this.findLastPassedPrayer(todayPrayers, currentMinutes);
 
-    // Mark active prayer in display list
     if (lastPassedPrayer) {
       const displayIndex = prayerList.findIndex(p => p.name === lastPassedPrayer.name);
       if (displayIndex >= 0) {
         prayerList[displayIndex].isActive = true;
       }
     } else {
-      // If no prayer has passed yet, activate last prayer from yesterday (Isha)
       if (prayerList.length > 0) {
         prayerList[prayerList.length - 1].isActive = true;
       }
@@ -163,9 +133,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return prayerList;
   });
 
-  /**
-   * Current prayer being displayed in hero section (always uses today's date)
-   */
   protected readonly currentPrayer = computed<PrayerItem | null>(() => {
     const todayPrayers = this.getTodayPrayerTimes();
     if (todayPrayers.length === 0) {
@@ -176,16 +143,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
     const lastPassedPrayer = this.findLastPassedPrayer(todayPrayers, currentMinutes);
-
-    // Return the last passed prayer, or the last prayer from yesterday if none passed
     return lastPassedPrayer || todayPrayers[todayPrayers.length - 1];
   });
 
-  /**
-   * Get today's prayer times for calculating time until next prayer
-   * Always uses today's date, not the selected date
-   * Includes Shuruq for accurate timing calculation
-   */
   private getTodayPrayerTimes(): PrayerItem[] {
     const today = new Date();
     const todayData = this.prayerTimeStore.getCachedPrayerTimes(this.getDateKey(today));
@@ -196,9 +156,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.createPrayerList(todayData, timeFormat);
   }
 
-  /**
-   * Get the next upcoming prayer for today
-   */
   private getNextTodayPrayer(): PrayerItem | null {
     const todayPrayers = this.getTodayPrayerTimes();
     if (todayPrayers.length === 0) return null;
@@ -213,13 +170,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     }
 
-    // If all today's prayers passed, return tomorrow's first prayer (Fajr)
     return { name: 'Fajr', key: 'fajr', time: todayPrayers[0].time, isActive: false };
   }
 
-  /**
-   * Format time difference as human-readable string
-   */
   private formatTimeUntil(hours: number, minutes: number, prayerName: string): string {
     const parts: string[] = [];
 
@@ -234,9 +187,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return `${parts.join(' ')} until ${prayerName}`;
   }
 
-  /**
-   * Time remaining until next prayer (always calculated for today)
-   */
   protected readonly timeUntilNext = computed<string>(() => {
     const next = this.getNextTodayPrayer();
     if (!next?.time) return 'Loading...';
@@ -251,7 +201,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     const nextTime = new Date(now);
     nextTime.setHours(hours, minutes, 0, 0);
 
-    // If the prayer time has passed today, it's for tomorrow
     if (nextTime < now) {
       nextTime.setDate(nextTime.getDate() + 1);
     }
@@ -263,14 +212,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.formatTimeUntil(diffHours, diffMinutes, next.name);
   });
 
-  /**
-   * Prayer trajectory data for visualization (uses trajectory service)
-   */
   protected readonly prayerTrajectory = computed<TrajectoryData | null>(() => {
     const todayPrayers = this.getTodayPrayerTimes();
     if (todayPrayers.length === 0) return null;
 
-    // Convert PrayerItem to format expected by trajectory service
     const prayersForTrajectory = todayPrayers.map(p => ({
       name: p.name,
       time: p.time,
@@ -281,9 +226,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.trajectoryService.calculateTrajectory(prayersForTrajectory);
   });
 
-  /**
-   * Formatted date string
-   */
   protected readonly formattedDate = computed<string>(() => {
     const date = this.currentDate();
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -301,9 +243,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return `${dayName} ${day}${daySuffix} ${month}`;
   });
 
-  /**
-   * Hijri date string
-   */
   protected readonly hijriDate = computed<string>(() => {
     const data = this.prayerData();
     if (!data?.hijriDate) return '';
@@ -322,8 +261,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadPrayerTimes();
-
-    // Update current time every second for smooth progress animation
     this.timeInterval = window.setInterval(() => {
       this.trajectoryService.updateCurrentTime();
     }, TIME_UPDATE_INTERVAL_MS) as unknown as number;
@@ -336,53 +273,33 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Load prayer times for today and preload surrounding dates
-   */
   protected loadPrayerTimes(): void {
     const today = new Date();
-
-    // Preload prayer times for 3 days before and after today
     this.prayerTimeStore.preloadPrayerTimes(today).subscribe({
-      next: () => {
-        // Set today's prayer data
-        this.updatePrayerDataForDate(today);
-      },
-      error: () => {
-        // Error is already handled by the store
-      }
+      next: () => this.updatePrayerDataForDate(today),
+      error: () => {}
     });
   }
 
-  /**
-   * Update prayer data for a specific date (uses cache when available)
-   */
   private updatePrayerDataForDate(date: Date): void {
     const dateKey = this.getDateKey(date);
     const cachedData = this.prayerTimeStore.getCachedPrayerTimes(dateKey);
 
     if (cachedData?.timings) {
-      // Use cached data immediately
       this.prayerData.set(cachedData);
       return;
     }
 
-    // Not in cache, fetch from API (this should rarely happen after initial load)
     this.prayerTimeStore.getPrayerTimes(date).subscribe({
       next: (data) => {
         if (data?.timings) {
           this.prayerData.set(data);
         }
       },
-      error: () => {
-        // Error is already handled by the store
-      }
+      error: () => {}
     });
   }
 
-  /**
-   * Get date key for caching
-   */
   private getDateKey(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -390,9 +307,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return `${year}-${month}-${day}`;
   }
 
-  /**
-   * Navigate to previous/next date
-   */
   navigateDate(days: number): void {
     const newDate = new Date(this.currentDate());
     newDate.setDate(newDate.getDate() + days);
@@ -403,32 +317,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Load prayer times for a specific date
-   */
   private loadPrayerTimesForDate(date: Date): void {
     const dateKey = this.getDateKey(date);
     const cachedData = this.prayerTimeStore.getCachedPrayerTimes(dateKey);
 
     if (cachedData) {
-      // Date is cached, just update the display
       this.updatePrayerDataForDate(date);
       return;
     }
 
-    // Date not cached, check if we need to preload a range
     if (!this.prayerTimeStore.hasDataForRange(date)) {
-      // Preload only missing dates in the range
       this.prayerTimeStore.preloadPrayerTimes(date).subscribe({
-        next: () => {
-          this.updatePrayerDataForDate(date);
-        },
-        error: () => {
-          // Error is already handled by the store
-        }
+        next: () => this.updatePrayerDataForDate(date),
+        error: () => {}
       });
     } else {
-      // Shouldn't happen, but just in case
       this.updatePrayerDataForDate(date);
     }
   }
