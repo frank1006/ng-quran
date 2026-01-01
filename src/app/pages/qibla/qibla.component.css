@@ -84,9 +84,45 @@
   color: #874d14;
 }
 
+/* Instruction button (styled like card but as a button with yellow fill) */
+.instruction-button {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  background: #ffb030;
+  color: #1f1f1f;
+  border: 2px solid #ffb030;
+  border-radius: var(--border-radius-all);
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(255, 176, 48, 0.3);
+  text-align: center;
+}
+
+.instruction-button:hover:not(:disabled) {
+  background: #ff9900;
+  border-color: #ff9900;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 176, 48, 0.4);
+}
+
+.instruction-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 20px rgba(255, 176, 48, 0.3);
+}
+
+.instruction-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: #ffb030;
+  border-color: #ffb030;
+}
+
 
 @media (max-width: 480px) {
-  
+
   .instruction-text {
     font-size: 16px;
   }

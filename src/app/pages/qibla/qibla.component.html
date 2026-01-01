@@ -33,9 +33,24 @@
 
         <!-- Instruction section -->
         <div class="instruction-section">
-          <div class="instruction-card" [class.facing]="instruction() === 'You\'re facing Makkah'">
-            <p class="instruction-text">{{ instructionText() }}</p>
-          </div>
+          <!-- Enable Compass Button (shown when permission needed) -->
+          @if (needsPermissionButton() && compassAvailable()) {
+            <button
+              class="instruction-button"
+              (click)="enableCompass()"
+              type="button"
+              [disabled]="compassPermissionRequested()"
+            >
+              {{ compassPermissionRequested() ? 'Requesting Permission...' : 'Enable Compass' }}
+            </button>
+          }
+
+          <!-- Direction instruction (shown when compass is active) -->
+          @if (compassPermissionGranted()) {
+            <div class="instruction-card" [class.facing]="instruction() === 'You\'re facing Makkah'">
+              <p class="instruction-text">{{ instructionText() }}</p>
+            </div>
+          }
         </div>
       </div>
     </section>

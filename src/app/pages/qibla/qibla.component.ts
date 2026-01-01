@@ -24,7 +24,8 @@ export class QiblaComponent implements OnInit, OnDestroy {
   protected readonly compassPermissionGranted = signal<boolean>(false);
   protected readonly compassPermissionRequested = signal<boolean>(false);
   protected readonly compassAvailable = signal<boolean>(false);
-  
+  protected readonly needsPermissionButton = signal<boolean>(false);
+
   private headingSubscription: Subscription | null = null;
   private locationSubscription: Subscription | null = null;
   private lastLocationKey: string | null = null; // Cache key for location info lookup
@@ -96,9 +97,17 @@ export class QiblaComponent implements OnInit, OnDestroy {
       // Check if Device Orientation is available
       this.compassAvailable.set(this.qiblaService.isDeviceOrientationSupported());
 
-      // Automatically request compass permission if available
+      // Check if permission was previously granted (from localStorage)
       if (this.compassAvailable()) {
-        this.requestCompassPermission();
+        const wasGranted = this.qiblaService.isCompassPermissionGranted();
+
+        if (wasGranted) {
+          // Auto-start if permission was previously granted
+          this.startCompassListening();
+        } else {
+          // Show "Enable Compass" button (requires user gesture on iOS)
+          this.needsPermissionButton.set(true);
+        }
       }
 
       this.loading.set(false);
@@ -109,28 +118,28 @@ export class QiblaComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Request compass permission and start listening to device compass updates
-   * Automatically requests permission if not already granted (saved in localStorage)
+   * User action to enable compass (called from button click)
+   * Requests permission and starts listening if granted
    */
-  private async requestCompassPermission(): Promise<void> {
+  async enableCompass(): Promise<void> {
+    this.needsPermissionButton.set(false);
     this.compassPermissionRequested.set(true);
-    this.error.set(null);
 
-    // Check if permission was previously granted
-    const wasGranted = this.qiblaService.isCompassPermissionGranted();
+    const granted = await this.qiblaService.requestCompassPermission();
 
-    // Request permission if not already granted
-    if (!wasGranted) {
-      const granted = await this.qiblaService.requestCompassPermission();
-      if (!granted) {
-        // Permission denied, but don't show error immediately
-        // User can still see Qibla direction (without compass rotation)
-        this.compassPermissionGranted.set(false);
-        this.compassPermissionRequested.set(false);
-        return;
-      }
+    if (granted) {
+      this.startCompassListening();
+    } else {
+      this.compassPermissionRequested.set(false);
+      this.error.set('Compass permission denied. Please enable in your browser settings.');
     }
+  }
 
+  /**
+   * Start listening to device compass updates
+   * Called when permission is already granted or after user grants permission
+   */
+  private startCompassListening(): void {
     // Clean up previous subscription if exists
     if (this.headingSubscription) {
       this.headingSubscription.unsubscribe();
@@ -142,6 +151,7 @@ export class QiblaComponent implements OnInit, OnDestroy {
         if (heading !== null) {
           this.compassPermissionGranted.set(true);
           this.compassPermissionRequested.set(false);
+          this.needsPermissionButton.set(false);
           this.currentHeading.set(heading);
           this.updateInstruction();
         } else {
