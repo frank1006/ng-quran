@@ -1,0 +1,82 @@
+<div class="audio-player" [class.collapsed]="!audioUrl()">
+  @if (audioUrl()) {
+    <div class="player-content">
+      <div class="player-info">
+        <div class="verse-info">
+          <span class="verse-label">Verse</span>
+          <span class="verse-number">{{ currentVerse() || 0 }}</span>
+        </div>
+      </div>
+
+      <div class="player-controls">
+        <button 
+          class="control-button"
+          (click)="skipPrevious()"
+          [disabled]="!currentVerse() || currentVerse()! <= 1"
+          aria-label="Previous verse"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="19 20 9 12 19 4 19 20"></polygon>
+            <line x1="5" y1="19" x2="5" y2="5"></line>
+          </svg>
+        </button>
+
+        <button 
+          class="control-button play-pause-button"
+          (click)="togglePlayPause()"
+          aria-label="Play/Pause"
+        >
+          @if (state().isPlaying) {
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
+          } @else {
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          }
+        </button>
+
+        <button 
+          class="control-button"
+          (click)="skipNext()"
+          [disabled]="!currentVerse() || currentVerse()! >= totalVerses()"
+          aria-label="Next verse"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 4 15 12 5 20 5 4"></polygon>
+            <line x1="19" y1="5" x2="19" y2="19"></line>
+          </svg>
+        </button>
+
+        <button 
+          class="control-button"
+          [class.active]="state().isRepeating"
+          (click)="toggleRepeat()"
+          aria-label="Repeat"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="player-progress">
+        <span class="time-display">{{ formatTime(state().currentTime) }}</span>
+        <input
+          type="range"
+          class="seek-bar"
+          [min]="0"
+          [max]="state().duration || 0"
+          [value]="state().currentTime"
+          (input)="onSeek($event)"
+          [disabled]="!state().duration"
+        />
+        <span class="time-display">{{ formatTime(state().duration) }}</span>
+      </div>
+    </div>
+  }
+</div>
+

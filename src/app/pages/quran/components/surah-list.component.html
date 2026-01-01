@@ -1,0 +1,83 @@
+<div class="surah-list-container">
+  <div class="header-section">
+    <h1 class="page-title">Quran</h1>
+    
+    <div class="reciter-selector">
+      <label for="reciter-select" class="reciter-label">Reciter</label>
+      <select 
+        id="reciter-select" 
+        class="reciter-select"
+        [value]="selectedReciterId() ?? ''"
+        (change)="onReciterChange($event)"
+      >
+        @if (reciters().length === 0) {
+          <option value="">Loading reciters...</option>
+        } @else {
+          @for (reciter of reciters(); track reciter.id) {
+            <option [value]="reciter.id">{{ reciter.name }}</option>
+          }
+        }
+      </select>
+    </div>
+
+    <div class="search-section">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search surahs..."
+          [value]="searchQuery()"
+          (input)="onSearchChange($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p>Loading surahs...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-state">
+      <p>{{ error() }}</p>
+      <button class="retry-button" (click)="retry()">Retry</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="surah-grid">
+      @for (chapter of filteredChapters(); track chapter.id) {
+        <button 
+          class="surah-card"
+          (click)="navigateToSurah(chapter.id)"
+        >
+          <div class="surah-number">{{ chapter.id }}</div>
+          <div class="surah-info">
+            <div class="surah-names">
+              <h3 class="surah-name-latin">{{ chapter.transliteration }}</h3>
+              <h4 class="surah-name-arabic">{{ chapter.name }}</h4>
+            </div>
+            <p class="surah-translation">{{ chapter.translation }}</p>
+            <div class="surah-meta">
+              <span class="surah-type">{{ chapter.type }}</span>
+              <span class="surah-verses">{{ chapter.total_verses }} ayahs</span>
+            </div>
+          </div>
+        </button>
+      }
+    </div>
+
+    @if (filteredChapters().length === 0) {
+      <div class="empty-state">
+        <p>No surahs found matching your search.</p>
+      </div>
+    }
+  }
+</div>
+

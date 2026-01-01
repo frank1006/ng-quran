@@ -1,7 +1,93 @@
 /**
  * Types and interfaces for Quran API responses
+ * Based on: https://quranapi.pages.dev/getting-started
  */
 
+// Surah list item from /api/surah.json
+export interface SurahListItem {
+  surahName: string;
+  surahNameArabic: string;
+  surahNameArabicLong: string;
+  surahNameTranslation: string;
+  revelationPlace: 'Mecca' | 'Madina';
+  totalAyah: number;
+}
+
+// Full surah/chapter response from /api/{surahNumber}.json
+export interface SurahResponse {
+  surahName: string;
+  surahNameArabic: string;
+  surahNameArabicLong: string;
+  surahNameTranslation: string;
+  revelationPlace: 'Mecca' | 'Madina';
+  totalAyah: number;
+  surahNo: number;
+  audio: {
+    [reciterId: string]: {
+      reciter: string;
+      url: string;
+      originalUrl: string;
+    };
+  };
+  english: string[];
+  arabic1: string[]; // Uthmani
+  arabic2: string[]; // Simple
+  bengali?: string[];
+  urdu?: string[];
+}
+
+// Verse response from /api/{chapterNumber}/{verseNumber}.json
+export interface VerseResponse {
+  surahName: string;
+  surahNameArabic: string;
+  surahNameArabicLong: string;
+  surahNameTranslation: string;
+  revelationPlace: 'Mecca' | 'Madina';
+  totalAyah: number;
+  surahNo: number;
+  ayahNo: number;
+  audio: {
+    [reciterId: string]: {
+      reciter: string;
+      url: string;
+      originalUrl: string;
+    };
+  };
+  english: string;
+  arabic1: string;
+  arabic2: string;
+  bengali?: string;
+  urdu?: string;
+}
+
+// Reciters response from /api/reciters.json - returns object with id as key
+export interface RecitersResponse {
+  [reciterId: string]: string; // "1": "Mishary Rashid Al Afasy"
+}
+
+// Audio response from /api/audio/{reciterId}/{verseNumber}.json
+export interface AudioResponse {
+  [reciterId: string]: {
+    reciter: string;
+    url: string;
+    originalUrl: string;
+  };
+}
+
+// Tafsir response from /api/tafsir/{chapter}_{verse}.json
+export interface TafsirResponse {
+  text: string;
+  source?: string;
+}
+
+// Translation response from /api/{language}.json
+export interface TranslationResponse {
+  [surahNumber: string]: {
+    [ayahNumber: string]: string;
+  };
+}
+
+// Legacy interfaces for backward compatibility (will be mapped)
 export interface Chapter {
   id: number;
   name: string;
@@ -61,5 +147,4 @@ export interface AudioRecitation {
   format?: string;
 }
 
-export type TranslationLanguage = 'en' | 'bn' | 'ar';
-
+export type TranslationLanguage = 'en' | 'bn' | 'ar' | 'urdu';

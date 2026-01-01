@@ -1,0 +1,110 @@
+import { Component, OnInit, signal, computed, effect } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { QuranApiService } from '../../../services/quran-api.service';
+import { QuranStoreService } from '../../../services/quran-store.service';
+import { Chapter, Reciter } from '../../../services/quran-api.types';
+
+@Component({
+  selector: 'app-surah-list',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './surah-list.component.html',
+  styleUrl: './surah-list.component.css'
+})
+export class SurahListComponent implements OnInit {
+  protected readonly chapters = signal<Chapter[]>([]);
+  protected readonly reciters = signal<Reciter[]>([]);
+  protected readonly loading = signal<boolean>(true);
+  protected readonly error = signal<string | null>(null);
+  protected readonly searchQuery = signal<string>('');
+
+  protected readonly selectedReciterId = computed(() => this.quranStore.selectedReciterId());
+
+  protected readonly filteredChapters = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const allChapters = this.chapters();
+
+    if (!query) {
+      return allChapters;
+    }
+
+    return allChapters.filter(chapter => {
+      const nameMatch = chapter.name.toLowerCase().includes(query);
+      const transliterationMatch = chapter.transliteration.toLowerCase().includes(query);
+      const translationMatch = chapter.translation.toLowerCase().includes(query);
+      const idMatch = chapter.id.toString().includes(query);
+      
+      return nameMatch || transliterationMatch || translationMatch || idMatch;
+    });
+  });
+
+  constructor(
+    private quranApi: QuranApiService,
+    private quranStore: QuranStoreService,
+    private router: Router
+  ) {
+    // Set default reciter when reciters are loaded
+    effect(() => {
+      const recitersList = this.reciters();
+      const currentReciterId = this.selectedReciterId();
+      
+      if (recitersList.length > 0 && currentReciterId === null) {
+        this.quranStore.setSelectedReciter(recitersList[0].id);
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadChapters();
+    this.loadReciters();
+  }
+
+  private loadChapters(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.quranApi.getChapters().subscribe({
+      next: (chapters) => {
+        this.chapters.set(chapters);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.message || 'Failed to load chapters');
+        this.loading.set(false);
+        console.error('Error loading chapters:', err);
+      }
+    });
+  }
+
+  private loadReciters(): void {
+    this.quranApi.getReciters().subscribe({
+      next: (reciters) => {
+        this.reciters.set(reciters);
+      },
+      error: (err) => {
+        console.error('Error loading reciters:', err);
+      }
+    });
+  }
+
+  onSearchChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
+  }
+
+  onReciterChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const reciterId = select.value ? parseInt(select.value, 10) : null;
+    this.quranStore.setSelectedReciter(reciterId);
+  }
+
+  navigateToSurah(chapterId: number): void {
+    this.router.navigate(['/quran', chapterId]);
+  }
+
+  protected retry(): void {
+    this.loadChapters();
+  }
+}
+
