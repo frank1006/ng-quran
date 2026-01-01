@@ -63,7 +63,7 @@ export class QiblaService {
 
     const bearing = Math.atan2(y, x);
     const bearingDegrees = this.toDegrees(bearing);
-    
+
     // Normalize to 0-360
     return (bearingDegrees + 360) % 360;
   }
@@ -146,7 +146,7 @@ export class QiblaService {
    * - Magnetometer: compass heading (alpha)
    * - Gyroscope: rotation rate (smoother tracking)
    * - Accelerometer: device tilt compensation
-   * 
+   *
    * Automatically checks for saved permission and requests if needed
    */
   getDeviceHeading(): Observable<number | null> {
@@ -206,6 +206,8 @@ export class QiblaService {
    * Setup orientation event listener
    * Uses 'deviceorientationabsolute' if available for more accurate readings
    * Falls back to 'deviceorientation' if absolute is not supported
+   *
+   * Properly handles coordinate system conversion to ensure consistent heading
    */
   private setupOrientationListener(
     observer: { next: (value: number | null) => void; complete: () => void }
@@ -214,76 +216,118 @@ export class QiblaService {
     let rafId: number | null = null;
     let pendingHeading: number | null = null;
     let isActive = true;
-    
+    let isAbsolute = false;
+    let firstReading = true;
+
+    // Determine which event to use (absolute is preferred)
+    const eventName = 'ondeviceorientationabsolute' in window
+      ? 'deviceorientationabsolute'
+      : 'deviceorientation';
+
     // Use requestAnimationFrame to throttle updates for better performance
     const updateHeading = () => {
       if (!isActive) return;
-      
+
       if (pendingHeading !== null) {
         observer.next(pendingHeading);
         pendingHeading = null;
       }
       rafId = requestAnimationFrame(updateHeading);
     };
-    
+
     // Start the animation frame loop
     rafId = requestAnimationFrame(updateHeading);
-    
+
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      // Use alpha for compass heading (azimuth)
-      // Alpha is the compass direction (0-360) from magnetometer
-      // On iOS: alpha is device orientation relative to Earth
-      // On Android: alpha is usually absolute (0° = North, 90° = East, 180° = South, 270° = West)
-      // Beta is pitch (front-to-back tilt)
-      // Gamma is roll (left-to-right tilt)
-      
-      if (event.alpha !== null && !isNaN(event.alpha)) {
-        // Normalize to 0-360 range
-        let heading = event.alpha;
-        
-        // Some devices report alpha in different coordinate systems
-        // Convert to standard: 0° = North, 90° = East, 180° = South, 270° = West
-        // If absolute orientation is available, alpha is already in this format
-        // If relative, we may need adjustment
-        
-        // Ensure heading is in 0-360 range
-        while (heading < 0) heading += 360;
-        while (heading >= 360) heading -= 360;
-        
-        // Smooth out rapid changes to reduce jitter
-        if (lastHeading !== null) {
-          let diff = heading - lastHeading;
-          
-          // Handle wraparound (e.g., 359° to 1° = 2° change, not 358°)
-          if (diff > 180) {
-            diff -= 360;
-          } else if (diff < -180) {
-            diff += 360;
-          }
-          
-          // Apply smoothing (reduces jitter while maintaining responsiveness)
-          // Increased smoothing factor for better performance
-          heading = lastHeading + diff * 0.25; // 25% of change applied (smoother)
-          
-          // Normalize again after smoothing
-          while (heading < 0) heading += 360;
-          while (heading >= 360) heading -= 360;
-        }
-        
-        lastHeading = heading;
-        // Queue update for next animation frame (throttles to ~60fps)
-        pendingHeading = Math.round(heading * 10) / 10; // Round to 1 decimal place
-      } else if (event.alpha === null) {
-        // Device orientation might not be absolute
-        console.warn('Device orientation alpha is null - compass may not work accurately');
+      // Priority order for heading:
+      // 1. webkitCompassHeading (iOS-specific, most accurate compass reading)
+      // 2. alpha (standard DeviceOrientationEvent, fallback)
+      //
+      // DeviceOrientationEvent coordinate system:
+      // - Alpha: rotation around z-axis (0-360°) - compass direction
+      // - Beta: rotation around x-axis (front-to-back tilt)
+      // - Gamma: rotation around y-axis (left-to-right tilt)
+      //
+      // For absolute orientation:
+      // - Alpha: 0° = North, 90° = East, 180° = South, 270° = West (clockwise)
+      //
+      // iOS webkitCompassHeading:
+      // - Direct compass reading (0-360°)
+      // - 0° = North, 90° = East, 180° = South, 270° = West (clockwise)
+      // - More accurate than alpha on iOS devices
+
+      let heading: number | null = null;
+
+      // Check for iOS webkitCompassHeading first (most accurate)
+      if ((event as any).webkitCompassHeading !== undefined && (event as any).webkitCompassHeading !== null) {
+        heading = (event as any).webkitCompassHeading;
       }
+      // Fall back to standard alpha
+      else if (event.alpha !== null && !isNaN(event.alpha)) {
+        heading = event.alpha;
+
+        // Detect if this is absolute orientation on first reading
+        if (firstReading) {
+          isAbsolute = (event as any).absolute === true || eventName === 'deviceorientationabsolute';
+          firstReading = false;
+        }
+
+        // For non-absolute orientation, alpha might need adjustment
+        // This is a fallback - absolute orientation is preferred
+        if (!isAbsolute) {
+          // On some devices, we may need to adjust alpha
+          // For now, use it as-is and rely on absolute events when available
+        }
+      } else {
+        // No heading available
+        if (firstReading) {
+          observer.next(null);
+          firstReading = false;
+        }
+        return;
+      }
+
+      // Validate heading is a number
+      if (heading === null || isNaN(heading)) {
+        return;
+      }
+
+      // Normalize to 0-360 range (ensures consistent output)
+      heading = heading % 360;
+      if (heading < 0) heading += 360;
+
+      // On first reading, use it directly without smoothing
+      // This ensures consistent starting point on page refresh
+      if (lastHeading === null) {
+        lastHeading = heading;
+        pendingHeading = Math.round(heading * 10) / 10;
+        return;
+      }
+
+      // Smooth out rapid changes to reduce jitter
+      // Only apply smoothing after first reading to ensure consistent initial state
+      let diff = heading - lastHeading;
+
+      // Handle wraparound (e.g., 359° to 1° = 2° change, not 358°)
+      if (diff > 180) {
+        diff -= 360;
+      } else if (diff < -180) {
+        diff += 360;
+      }
+
+      // Apply smoothing (reduces jitter while maintaining responsiveness)
+      // Reduced smoothing factor from 0.3 to 0.15 for more responsive updates
+      heading = lastHeading + diff * 0.15; // 15% of change applied
+
+      // Normalize again after smoothing
+      heading = heading % 360;
+      if (heading < 0) heading += 360;
+
+      lastHeading = heading;
+      // Queue update for next animation frame (throttles to ~60fps)
+      pendingHeading = Math.round(heading * 10) / 10;
     };
 
-    // Try absolute orientation first (better accuracy, uses more sensors)
-    const eventName = 'ondeviceorientationabsolute' in window 
-      ? 'deviceorientationabsolute' 
-      : 'deviceorientation';
-    
     window.addEventListener(eventName, handleOrientation, { passive: true });
 
     // Return cleanup function
@@ -341,7 +385,7 @@ export class QiblaService {
   async getLocationInfo(latitude: number, longitude: number): Promise<GeocodingLocationInfo> {
     // Create cache key based on rounded coordinates
     const cacheKey = this.getCacheKey(latitude, longitude);
-    
+
     // Check cache first
     if (this.locationInfoCache.has(cacheKey)) {
       return this.locationInfoCache.get(cacheKey)!;
@@ -359,10 +403,10 @@ export class QiblaService {
       );
 
       const data = await response.json();
-      
+
       let cityName = 'Unknown Location';
       let countryName = 'Unknown Country';
-      
+
       if (data.address) {
         // Try city, town, village, or municipality
         cityName = (
@@ -373,7 +417,7 @@ export class QiblaService {
           data.address.state ||
           'Unknown Location'
         );
-        
+
         // Get country name
         countryName = data.address.country || 'Unknown Country';
       }
@@ -385,7 +429,7 @@ export class QiblaService {
 
       // Cache the result
       this.locationInfoCache.set(cacheKey, locationInfo);
-      
+
       return locationInfo;
     } catch (error) {
       console.error('Error getting location info:', error);

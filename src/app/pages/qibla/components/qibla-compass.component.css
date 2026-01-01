@@ -1,8 +1,55 @@
-.compass-container {
+.compass-wrapper {
   position: relative;
   width: 320px;
   height: 320px;
   margin: 0 auto;
+}
+
+/* Debug overlay - Fixed at top of compass */
+.debug-overlay {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.debug-info {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.debug-item {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.debug-label {
+  color: #ccc;
+  font-weight: 400;
+}
+
+.debug-value {
+  color: #ffb030;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.compass-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,18 +92,24 @@
 }
 
 .qibla-point {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  pointer-events: none;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .qibla-point-svg {
   width: 60px;
   height: 60px;
   object-fit: contain;
-  position: absolute;
-  top: 0%;
-  left: 50%;
-  transform: translate(-50%, -100%);
-  z-index: 1;
+  /* Qibla point stays static - no rotation */
+  transform: translateY(-134%);
 }
 

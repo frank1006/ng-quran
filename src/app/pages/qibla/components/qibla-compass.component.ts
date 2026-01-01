@@ -9,21 +9,25 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-  <div 
-      class="qibla-point">
-      <img src="/kaaba.svg" alt="Qibla"class="qibla-point-svg"/>
-    </div> 
-    <div class="compass-container">
-      <!-- SVG Compass with rotation -->
-      <div 
-        class="compass-svg-wrapper"
-        [style.transform]="'rotate(' + compassRotation() + 'deg)'"
-      >
-        <img 
-          src="/Qibla.svg" 
-          alt="Qibla Compass"
-          class="compass-svg"
-        />
+    <div class="compass-wrapper">
+      <!-- Qibla point - Static (fixed at top, pointing upward) -->
+      <div class="qibla-point">
+        <img src="/kaaba.svg" alt="Qibla" class="qibla-point-svg"/>
+      </div>
+
+      <!-- Compass container -->
+      <div class="compass-container">
+        <!-- SVG Compass with rotation - Rotates to align Qibla direction with static Qibla point -->
+        <div
+          class="compass-svg-wrapper"
+          [style.transform]="'rotate(' + compassRotation() + 'deg)'"
+        >
+          <img
+            src="/Qibla.svg"
+            alt="Qibla Compass"
+            class="compass-svg"
+          />
+        </div>
       </div>
     </div>
   `,
@@ -34,69 +38,51 @@ export class QiblaCompassComponent {
   readonly currentHeading = input<number | null>(0); // Device heading (0-360)
 
   /**
-   * Calculate rotation angle for compass ring
-   * Device Orientation API alpha: 0° = North, 90° = East, 180° = South, 270° = West
-   * When device rotates clockwise, compass ring must rotate counter-clockwise to keep North fixed
-   * 
-   * On some devices (especially iOS), the coordinate system might be inverted
-   * If North appears wrong, try inverting: use `heading` instead of `-heading`
+   * Calculate rotation angle for compass dial
+   *
+   * The Qibla point stays static (fixed pointing upward at top of screen).
+   * The compass dial rotates so that the Qibla bearing on the compass aligns with the static Qibla point.
+   *
+   * Formula: compassRotation = (bearing - heading + 360) % 360
+   *
+   * Explanation:
+   * - Qibla bearing: Absolute direction to Makkah (0° = North, 90° = East, etc.)
+   * - Device heading: Direction device is facing (0° = North, 90° = East, etc.)
+   * - Static Qibla point: Fixed at top of screen (0°/North position)
+   *
+   * To align Qibla on compass with static point:
+   * - If Qibla is at 90° (East) and device is facing 0° (North)
+   *   → Compass needs to rotate 90° clockwise to show East at top
+   *   → Rotation = (90° - 0° + 360) % 360 = 90°
+   *
+   * - If device rotates to face 90° (East)
+   *   → Qibla bearing and device heading are aligned
+   *   → Rotation = (90° - 90° + 360) % 360 = 0° (no rotation needed)
+   *
+   * - If Qibla is at 270° (West) and device faces 0° (North)
+   *   → Rotation = (270° - 0° + 360) % 360 = 270°
+   *
+   * When device rotates clockwise (heading increases), compass counter-rotates
+   * to keep Qibla aligned with the static point.
    */
   readonly compassRotation = computed<number>(() => {
+    const bearing = this.qiblaBearing();
     const heading = this.currentHeading();
+
+    // If no heading available, show Qibla bearing at top (no device rotation compensation)
     if (heading === null || heading === undefined) {
-      return 0;
+      // Rotate compass so Qibla bearing appears at top
+      // Rotation = bearing (since heading is 0/unknown)
+      let rotation = bearing % 360;
+      return Math.round(rotation * 10) / 10;
     }
-    // Device heading: 0° = North, increases clockwise (standard)
-    // Compass ring must rotate OPPOSITE to keep North pointing up
-    // 
-    // When device rotates 90° clockwise (facing East), 
-    // compass ring rotates -90° counter-clockwise to keep North at top
-    // 
-    // Standard formula: rotation = -heading
-    // This keeps North always pointing up regardless of device orientation
-    const rotation = -heading;
-    
+
+    // Calculate rotation to align Qibla bearing with static point
+    // Formula: rotation = (bearing - heading + 360) % 360
+    // This rotates the compass so that the Qibla bearing on the dial aligns with the top
+    let rotation = (bearing - heading + 360) % 360;
+
     return Math.round(rotation * 10) / 10;
   });
 
-  /**
-   * Calculate the angle for Qibla indicator relative to screen
-   * Qibla bearing: absolute direction to Makkah (0-360°, where 0° = North)
-   * Device heading: direction device is facing (0° = North, 90° = East)
-   * 
-   * Since the compass dial rotates by -heading to keep North at top,
-   * the Qibla indicator needs to be positioned relative to the rotated compass.
-   * 
-   * Formula: qiblaAngle = qiblaBearing - heading
-   * This gives us where Qibla is relative to device's current facing direction.
-   * 
-   * Then we need to account for the compass dial rotation:
-   * Final angle = (qiblaBearing - heading) + compassRotation
-   * Simplified: = (qiblaBearing - heading) - heading = qiblaBearing - 2*heading
-   * 
-   * Actually, since compass rotates by -heading, and Qibla is relative to device:
-   * Final Qibla angle = qiblaBearing (absolute) + compassRotation
-   * = qiblaBearing - heading
-   */
-  readonly qiblaAngle = computed<number>(() => {
-    const bearing = this.qiblaBearing();
-    const heading = this.currentHeading();
-    
-    if (heading === null || heading === undefined) {
-      // If no heading, show Qibla at its absolute bearing position
-      return bearing;
-    }
-    
-    // Qibla bearing is absolute (0° = North)
-    // Compass dial rotates by -heading to keep North at top
-    // So Qibla indicator should be at: bearing - heading
-    // This positions it correctly on the rotated compass dial
-    let angle = bearing - heading;
-    
-    // Normalize to 0-360 range
-    while (angle < 0) angle += 360;
-    while (angle >= 360) angle -= 360;
-    
-    return Math.round(angle * 10) / 10;
-  });
 }
