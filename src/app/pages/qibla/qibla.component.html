@@ -1,14 +1,7 @@
 <div class="qibla-container">
   <!-- Header with city location (Hero section style) -->
-  @if (!loading() && !error() && location()) {
+  @if (!error() || loading()) {
     <app-qibla-header [cityName]="cityName()" [countryName]="countryName()" />
-  }
-
-  <!-- Loading state -->
-  @if (loading()) {
-    <div class="loading-state">
-      <p>Loading Qibla direction...</p>
-    </div>
   }
 
   <!-- Error state -->
@@ -25,10 +18,10 @@
   }
 
   <!-- Main content section -->
-  @if (!loading() && !error() && location()) {
+  @if (!error() || loading()) {
     <section class="qibla-content-section">
       <div class="qibla-content">
-        <!-- Compass -->
+        <!-- Compass - always visible -->
         <app-qibla-compass
           [qiblaBearing]="qiblaBearing()"
           [currentHeading]="compassPermissionGranted() ? currentHeading() : null"
@@ -36,23 +29,30 @@
 
         <!-- Instruction section -->
         <div class="instruction-section">
-          <!-- Enable Compass Button (shown when permission needed) -->
-          @if (needsPermissionButton() && compassAvailable()) {
-            <button
-              class="instruction-button"
-              (click)="enableCompass()"
-              type="button"
-              [disabled]="compassPermissionRequested()"
-            >
-              {{ compassPermissionRequested() ? 'Requesting Permission...' : 'Enable Compass' }}
-            </button>
-          }
-
-          <!-- Direction instruction (shown when compass is active) -->
-          @if (compassPermissionGranted()) {
-            <div class="instruction-card" [class.facing]="instruction() === 'You\'re facing Makkah'">
-              <p class="instruction-text">{{ instructionText() }}</p>
+          @if (loading() || !location()) {
+            <!-- Loading message in instruction card -->
+            <div class="instruction-card loading-card">
+              <p class="instruction-text">Getting quadrants...</p>
             </div>
+          } @else {
+            <!-- Enable Compass Button (shown when permission needed) -->
+            @if (needsPermissionButton() && compassAvailable()) {
+              <button
+                class="instruction-button"
+                (click)="enableCompass()"
+                type="button"
+                [disabled]="compassPermissionRequested()"
+              >
+                {{ compassPermissionRequested() ? 'Requesting Permission...' : 'Enable Compass' }}
+              </button>
+            }
+
+            <!-- Direction instruction (shown when compass is active) -->
+            @if (compassPermissionGranted()) {
+              <div class="instruction-card" [class.facing]="instruction() === 'You\'re facing Makkah'">
+                <p class="instruction-text">{{ instructionText() }}</p>
+              </div>
+            }
           }
         </div>
       </div>
