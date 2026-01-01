@@ -13,35 +13,47 @@
 
 /* Header styles moved to qibla-header component */
 
-.loading-state,
-.error-state {
+.loading-state {
   text-align: center;
   padding: 3rem 1rem;
   color: #6b7280;
 }
 
 .error-state {
-  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem 1rem;
 }
 
-.retry-button {
-  margin-top: 1rem;
-  padding: 12px 24px;
-  background: #ffb030;
-  color: #1f1f1f;
-  border: none;
-  border-radius: var(--border-radius-all);
+.error-content {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.error-title {
   font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f1f1f;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.5px;
 }
 
-.retry-button:hover {
-  background: #ff9900;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 176, 48, 0.3);
+.error-message {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+}
+
+.error-button {
+  width: 100%;
+  margin-top: 0;
 }
 
 .qibla-content {
