@@ -9,30 +9,22 @@ viewBox="0 0 745 740.19"
   <style type="text/css">
    <![CDATA[
     .str0 {stroke:#ffb030;stroke-width:5.34;stroke-miterlimit:2.61313}
-    .str4 {stroke:#ffb030;stroke-width:10.68;stroke-miterlimit:2.61313}
-    .str5 {stroke:#FAC84D;stroke-width:10.68;stroke-miterlimit:2.61313}
-    .str2 {stroke:#874d14;stroke-width:4.01;stroke-miterlimit:2.61313}
-    .str3 {stroke:#5498EB;stroke-width:32.04;stroke-miterlimit:2.61313}
-    .str7 {stroke:#874d14;stroke-width:13.35;stroke-miterlimit:2.61313}
-    .str9 {stroke:#FAC84D;stroke-width:13.35;stroke-miterlimit:2.61313}
     .str1 {stroke:#874d14;stroke-width:0.67;stroke-miterlimit:2.61313}
-    .str6 {stroke:#B3B3B3;stroke-width:0.67;stroke-miterlimit:2.61313}
-    .str8 {stroke:#FAC84D;stroke-width:0.67;stroke-miterlimit:2.61313}
-    .fil0 {fill:none}
-    .fil5 {fill:black}
-    .fil4 {fill:#292E31}
-    .fil3 {fill:#CCD7ED}
-    .fil8 {fill:#FAC84D}
-    .fil6 {fill:#FDAB31}
-    .fil7 {fill:#FED782}
-    .fil1 {fill:white}
-    .fil2 {fill:white}
+    .str2 {stroke:#874d14;stroke-width:4.01;stroke-miterlimit:2.61313}
+    .str3 {stroke:#ffb030;stroke-width:10.68;stroke-miterlimit:2.61313}
+    .str4 {stroke:#874d14;stroke-width:13.35;stroke-miterlimit:2.61313}
+    .str5 {stroke:#ffb030;stroke-width:0.67;stroke-miterlimit:2.61313}
+    .str6 {stroke:#ffb030;stroke-width:13.35;stroke-miterlimit:2.61313}
+    .fil0 {fill:none}    
+    .fil1 {fill:#ffb030}
+    .fil2 {fill:#ffffff}
+    .fil3 {fill:#874d14}
    ]]>
   </style>   
  </defs>
- <g id="Layer_x0020_1">
+ <g>
   <!-- Inner lines petals -->
-  <g id="_2238754262048">
+  <g>
    <g>
     <line class="fil0 str0" x1="666.29" y1="364.83" x2="74.02" y2= "364.83" />
     <line class="fil0 str0" x1="370.16" y1="67.28" x2="370.16" y2= "662.38" />
@@ -53,14 +45,21 @@ viewBox="0 0 745 740.19"
     <line class="fil0 str1" x1="574.06" y1="192.9" x2="166.25" y2= "536.75" />
     <line class="fil0 str1" x1="632.29" y1="318.38" x2="108.02" y2= "411.27" />
    </g>
-   <ellipse class="fil1 str2" cx="370.16" cy="364.83" rx="241.57" ry="244.02"/>
+   <ellipse class="fil2 str2" cx="370.16" cy="364.83" rx="241.57" ry="244.02"/>
   </g>
   <!-- Outer circle -->
-  <circle class="fil0 str4" cx="372.48" cy="366.6" r="297.77"/>
+  <circle class="fil0 str3" cx="372.48" cy="366.6" r="297.77"/>
   <!-- Islamic triangle -->
-  <polygon class="fil0 str7" points="209.99,199.31 302.4,199.31 370.34,130.35 437.28,199.31 532.4,199.31 532.4,297.32 597.47,364.36 532.4,430.41 532.4,529.03 435.24,529.03 368.63,596.64 303.02,529.03 209.99,529.03 209.99,433.17 141.51,362.62 209.99,293.11 "/>
+  <polygon class="fil0 str4" points="209.99,199.31 302.4,199.31 370.34,130.35 437.28,199.31 532.4,199.31 532.4,297.32 597.47,364.36 532.4,430.41 532.4,529.03 435.24,529.03 368.63,596.64 303.02,529.03 209.99,529.03 209.99,433.17 141.51,362.62 209.99,293.11 "/>
   <!-- Qibla pointer - start -->
-  <path class="fil8 str8" d="M369.76 202.4l-76.11 113.67c47.82,-47.51 97.27,-50.18 150.16,0l-74.05 -113.67z"/>
-  <ellipse class="fil1 str9" cx="368.75" cy="362.23" rx="84.01" ry="82.23"/>
+  <path class="fil1 str5" d="M369.76 202.4l-76.11 113.67c47.82,-47.51 97.27,-50.18 150.16,0l-74.05 -113.67z"/>
+  <ellipse class="fil2 str6" cx="368.75" cy="362.23" rx="84.01" ry="82.23"/>
+  <!-- Prayer mat -->
+  <g transform="translate(360 362) scale(0.5355) translate(-87 -371)">
+    <path class="fil3" d="M61.11,306.155c0-6.695,5.427-12.122,12.122-12.122c0.151,0,0.298,0.017,0.447,0.023
+			c0.439-21.88,24.359-22.002,29.237-33.848c4.878,11.846,28.798,11.968,29.237,33.848c0.15-0.005,0.296-0.023,0.447-0.023
+			c6.695,0,12.122,5.427,12.122,12.122c6.695,0,12.122,5.427,12.122,12.122v149.891H48.988V318.277
+			C48.988,311.582,54.415,306.155,61.11,306.155z"/>
+  </g>
  </g>
 </svg>
