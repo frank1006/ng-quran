@@ -58,6 +58,31 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         }, 200);
       }
     });
+
+    // Save player state when it changes (debounced)
+    let playerStateTimeout: number | null = null;
+    effect(() => {
+      if (this.chapterId) {
+        if (playerStateTimeout !== null) {
+          clearTimeout(playerStateTimeout);
+        }
+        
+        playerStateTimeout = window.setTimeout(() => {
+          const playerState = {
+            currentVerse: this.currentPlayingVerse(),
+            isPlaying: this.isPlaying(),
+            audioUrl: this.currentAudioUrl(),
+            currentTime: 0 // Will be updated by audio player if needed
+          };
+          this.quranStore.setPlayerState(this.chapterId!, playerState);
+        }, 300);
+      }
+    });
+
+    // Save scroll position on scroll
+    if (typeof document !== 'undefined') {
+      // Will be set up after view init
+    }
   }
 
   ngOnInit(): void {
@@ -83,9 +108,21 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
-    // Save current scroll position or last viewed verse
-    if (this.chapterId && this.verses().length > 0) {
-      // Could implement scroll position tracking here
+    // Save current scroll position
+    if (this.chapterId && this.versesContainerRef?.nativeElement) {
+      const scrollTop = this.versesContainerRef.nativeElement.scrollTop;
+      this.quranStore.setScrollPosition(this.chapterId, scrollTop);
+    }
+
+    // Save final player state
+    if (this.chapterId) {
+      const playerState = {
+        currentVerse: this.currentPlayingVerse(),
+        isPlaying: this.isPlaying(),
+        audioUrl: this.currentAudioUrl(),
+        currentTime: 0
+      };
+      this.quranStore.setPlayerState(this.chapterId, playerState);
     }
   }
 
@@ -106,6 +143,10 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
           translation: surahResponse.english[index] || ''
         }));
         this.verses.set(versesWithTranslations);
+        
+        // Restore player state and scroll position
+        this.restoreState(chapterId);
+        
         this.loading.set(false);
       },
       error: (err) => {
@@ -259,6 +300,37 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     if (prevVerse >= 1) {
       this.playVerse(prevVerse);
     }
+  }
+
+  private restoreState(chapterId: number): void {
+    const playerState = this.quranStore.getPlayerState(chapterId);
+    if (playerState && playerState.currentVerse && playerState.audioUrl) {
+      // Restore player state but keep audio paused (don't auto-play)
+      this.currentPlayingVerse.set(playerState.currentVerse);
+      this.currentAudioUrl.set(playerState.audioUrl);
+      this.isPlaying.set(false); // Always start paused
+      this.forcePause.set(true); // Keep paused
+    }
+  }
+
+  private setupScrollTracking(): void {
+    if (!this.versesContainerRef?.nativeElement || !this.chapterId) return;
+
+    const container = this.versesContainerRef.nativeElement;
+    let scrollTimeout: number | null = null;
+
+    container.addEventListener('scroll', () => {
+      // Debounce scroll position saves
+      if (scrollTimeout !== null) {
+        clearTimeout(scrollTimeout);
+      }
+      
+      scrollTimeout = window.setTimeout(() => {
+        if (this.chapterId) {
+          this.quranStore.setScrollPosition(this.chapterId, container.scrollTop);
+        }
+      }, 150);
+    });
   }
 
   protected scrollToVerse(verseNumber: number): void {

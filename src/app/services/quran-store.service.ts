@@ -7,10 +7,19 @@ export interface Bookmark {
   timestamp: number;
 }
 
+export interface PlayerState {
+  currentVerse: number | null;
+  isPlaying: boolean;
+  audioUrl: string | null;
+  currentTime: number;
+}
+
 interface StoredQuranData {
   selectedReciterId: number | null;
   bookmarks: Bookmark[];
   lastReadPositions: { [chapterId: number]: number }; // chapterId -> verseNumber
+  playerStates: { [chapterId: number]: PlayerState }; // chapterId -> player state
+  scrollPositions: { [chapterId: number]: number }; // chapterId -> scrollTop
   version: string;
 }
 
@@ -19,12 +28,14 @@ interface StoredQuranData {
 })
 export class QuranStoreService {
   private readonly STORAGE_KEY = 'quran-store';
-  private readonly VERSION = '1.0.0';
+  private readonly VERSION = '1.1.0';
 
   private readonly state = signal<StoredQuranData>({
     selectedReciterId: null,
     bookmarks: [],
     lastReadPositions: {},
+    playerStates: {},
+    scrollPositions: {},
     version: this.VERSION
   });
 
@@ -83,6 +94,26 @@ export class QuranStoreService {
     return this.state().lastReadPositions[chapterId] || null;
   }
 
+  setPlayerState(chapterId: number, playerState: PlayerState): void {
+    const playerStates = { ...this.state().playerStates };
+    playerStates[chapterId] = playerState;
+    this.updateState({ playerStates });
+  }
+
+  getPlayerState(chapterId: number): PlayerState | null {
+    return this.state().playerStates[chapterId] || null;
+  }
+
+  setScrollPosition(chapterId: number, scrollTop: number): void {
+    const scrollPositions = { ...this.state().scrollPositions };
+    scrollPositions[chapterId] = scrollTop;
+    this.updateState({ scrollPositions });
+  }
+
+  getScrollPosition(chapterId: number): number | null {
+    return this.state().scrollPositions[chapterId] ?? null;
+  }
+
   private updateState(partial: Partial<StoredQuranData>): void {
     const newState = { ...this.state(), ...partial };
     this.state.set(newState);
@@ -102,8 +133,18 @@ export class QuranStoreService {
 
       const data: StoredQuranData = JSON.parse(stored);
 
-      if (data.version !== this.VERSION) {
-        this.clearLocalStorage();
+      // Migrate old data format to new format
+      if (!data.version || data.version !== this.VERSION) {
+        const migratedData: StoredQuranData = {
+          selectedReciterId: data.selectedReciterId ?? null,
+          bookmarks: data.bookmarks ?? [],
+          lastReadPositions: data.lastReadPositions ?? {},
+          playerStates: (data as any).playerStates ?? {},
+          scrollPositions: (data as any).scrollPositions ?? {},
+          version: this.VERSION
+        };
+        this.state.set(migratedData);
+        this.saveToLocalStorage();
         return;
       }
 
@@ -148,6 +189,8 @@ export class QuranStoreService {
       selectedReciterId: null,
       bookmarks: [],
       lastReadPositions: {},
+      playerStates: {},
+      scrollPositions: {},
       version: this.VERSION
     });
     this.clearLocalStorage();
