@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, DestroyRef, inject } from '@angular/core';
 import { Observable, of, forkJoin } from 'rxjs';
 import { map, catchError, tap, switchMap } from 'rxjs/operators';
 import { PrayerTimeService } from '../services/prayer-time.service';
@@ -31,6 +31,9 @@ export class PrayerTimeStore {
   private readonly STORAGE_KEY = 'prayer-time-cache';
   private readonly CACHE_VERSION = '1.0.0';
   private readonly CACHE_EXPIRY_DAYS = 7; // Cache expires after 7 days
+  private readonly destroyRef = inject(DestroyRef);
+  private saveTimeout: number | null = null;
+  private readonly SAVE_DEBOUNCE_MS = 500;
   
   private readonly state = signal<StoreState>({
     cache: {},
@@ -280,26 +283,33 @@ export class PrayerTimeStore {
   }
 
   private saveToLocalStorage(): void {
-    try {
-      if (!this.isLocalStorageAvailable()) {
-        return;
-      }
-
-      const state = this.state();
-      const dataToStore: StoredCacheData = {
-        cache: state.cache,
-        currentLocation: state.currentLocation,
-        lastFetchDate: state.lastFetchDate ? state.lastFetchDate.toISOString() : null,
-        version: this.CACHE_VERSION
-      };
-
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dataToStore));
-    } catch (error) {
-      console.error('Error saving to local storage:', error);
-      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-        this.clearOldCache();
-      }
+    // Debounce localStorage writes to improve performance
+    if (this.saveTimeout !== null) {
+      clearTimeout(this.saveTimeout);
     }
+
+    this.saveTimeout = window.setTimeout(() => {
+      try {
+        if (!this.isLocalStorageAvailable()) {
+          return;
+        }
+
+        const state = this.state();
+        const dataToStore: StoredCacheData = {
+          cache: state.cache,
+          currentLocation: state.currentLocation,
+          lastFetchDate: state.lastFetchDate ? state.lastFetchDate.toISOString() : null,
+          version: this.CACHE_VERSION
+        };
+
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dataToStore));
+      } catch (error) {
+        console.error('Error saving to local storage:', error);
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+          this.clearOldCache();
+        }
+      }
+    }, this.SAVE_DEBOUNCE_MS);
   }
 
   private cleanExpiredCache(cache: PrayerTimeCache): PrayerTimeCache {

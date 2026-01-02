@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, effect, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, effect, ViewChild, ElementRef, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QuranApiService } from '../../../services/quran-api.service';
 import { QuranStoreService } from '../../../services/quran-store.service';
 import { ChapterWithVerses, Verse, AudioRecitation } from '../../../services/quran-api.types';
@@ -46,10 +47,15 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('versesContainer', { static: false }) versesContainerRef!: ElementRef<HTMLDivElement>;
 
+  private readonly destroyRef = inject(DestroyRef);
   private chapterId: number | null = null;
   private verseAudioCache: Map<number, string> = new Map();
   private previousReciterId: number | null = null;
   private routeSubscription?: Subscription;
+  private scrollHandler?: () => void;
+  private scrollTimeout: number | null = null;
+  private playerStateTimeout: number | null = null;
+  private autoScrollTimeouts: number[] = [];
   private isRestoringState = false; // Flag to prevent auto-scroll during state restoration
   private readonly TRANSLATION_LANGUAGE_STORAGE_KEY = 'quran-translation-language';
 
@@ -99,30 +105,32 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       const playingVerse = this.currentPlayingVerse();
       if (playingVerse && !this.isRestoringState) {
         // Wait for view to be initialized
-        setTimeout(() => {
-          if (this.versesContainerRef?.nativeElement) {
+        const timeoutId = window.setTimeout(() => {
+          if (this.versesContainerRef?.nativeElement && !this.destroyRef.destroyed) {
             this.scrollToVerse(playingVerse);
           }
         }, 200);
+        this.autoScrollTimeouts.push(timeoutId);
       }
     });
 
     // Save player state when it changes (debounced)
-    let playerStateTimeout: number | null = null;
     effect(() => {
       if (this.chapterId) {
-        if (playerStateTimeout !== null) {
-          clearTimeout(playerStateTimeout);
+        if (this.playerStateTimeout !== null) {
+          clearTimeout(this.playerStateTimeout);
         }
         
-        playerStateTimeout = window.setTimeout(() => {
-          const playerState = {
-            currentVerse: this.currentPlayingVerse(),
-            isPlaying: this.isPlaying(),
-            audioUrl: this.currentAudioUrl(),
-            currentTime: 0 // Will be updated by audio player if needed
-          };
-          this.quranStore.setPlayerState(this.chapterId!, playerState);
+        this.playerStateTimeout = window.setTimeout(() => {
+          if (this.chapterId) {
+            const playerState = {
+              currentVerse: this.currentPlayingVerse(),
+              isPlaying: this.isPlaying(),
+              audioUrl: this.currentAudioUrl(),
+              currentTime: 0 // Will be updated by audio player if needed
+            };
+            this.quranStore.setPlayerState(this.chapterId!, playerState);
+          }
         }, 300);
       }
     });
@@ -140,15 +148,17 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     // Initialize previous reciter ID from store
     this.previousReciterId = this.selectedReciterId();
     
-    this.routeSubscription = this.route.paramMap.subscribe(params => {
-      const id = params.get('surahId');
-      if (id) {
-        this.chapterId = parseInt(id, 10);
-        // Reset previous reciter ID when loading new chapter
-        this.previousReciterId = this.selectedReciterId();
-        this.loadChapter(this.chapterId);
-      }
-    });
+    this.routeSubscription = this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('surahId');
+        if (id) {
+          this.chapterId = parseInt(id, 10);
+          // Reset previous reciter ID when loading new chapter
+          this.previousReciterId = this.selectedReciterId();
+          this.loadChapter(this.chapterId);
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -159,27 +169,34 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       
       if (currentVerse) {
         // Scroll to the selected/playing verse
-        setTimeout(() => {
-          this.scrollToVerse(currentVerse);
+        const timeoutId1 = window.setTimeout(() => {
+          if (!this.destroyRef.destroyed) {
+            this.scrollToVerse(currentVerse);
+          }
         }, 400);
+        this.autoScrollTimeouts.push(timeoutId1);
       } else {
         // No selected verse, use saved scroll position
         const savedScrollPosition = this.quranStore.getScrollPosition(this.chapterId);
         
         if (savedScrollPosition !== null) {
           // Restore the exact scroll position that was saved
-          setTimeout(() => {
-            if (this.versesContainerRef?.nativeElement) {
+          const timeoutId2 = window.setTimeout(() => {
+            if (this.versesContainerRef?.nativeElement && !this.destroyRef.destroyed) {
               this.versesContainerRef.nativeElement.scrollTop = savedScrollPosition;
             }
           }, 400);
+          this.autoScrollTimeouts.push(timeoutId2);
         } else {
           // Fallback: scroll to last read verse if no scroll position is saved
           const lastVerse = this.quranStore.getLastReadPosition(this.chapterId);
           if (lastVerse) {
-            setTimeout(() => {
-              this.scrollToVerse(lastVerse);
+            const timeoutId3 = window.setTimeout(() => {
+              if (!this.destroyRef.destroyed) {
+                this.scrollToVerse(lastVerse);
+              }
             }, 300);
+            this.autoScrollTimeouts.push(timeoutId3);
           }
         }
       }
@@ -190,9 +207,30 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    // Clear all timeouts
+    this.autoScrollTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.autoScrollTimeouts = [];
+    
+    if (this.playerStateTimeout !== null) {
+      clearTimeout(this.playerStateTimeout);
+      this.playerStateTimeout = null;
+    }
+    
+    if (this.scrollTimeout !== null) {
+      clearTimeout(this.scrollTimeout);
+      this.scrollTimeout = null;
+    }
+    
+    // Remove scroll event listener
+    if (this.scrollHandler && this.versesContainerRef?.nativeElement) {
+      this.versesContainerRef.nativeElement.removeEventListener('scroll', this.scrollHandler);
+      this.scrollHandler = undefined;
+    }
+    
     // Unsubscribe from route params
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
+      this.routeSubscription = undefined;
     }
     
     // Stop audio playback before destroying
@@ -215,6 +253,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       };
       this.quranStore.setPlayerState(this.chapterId, playerState);
     }
+    
+    // Clear audio cache to free memory
+    this.verseAudioCache.clear();
   }
 
   private loadChapter(chapterId: number): void {
@@ -222,7 +263,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     this.error.set(null);
 
     // Use the cached service method instead of direct HTTP call
-    this.quranApi.getChapter(chapterId).subscribe({
+    this.quranApi.getChapter(chapterId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (chapterData) => {
         this.chapter.set(chapterData);
         
@@ -422,9 +465,12 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     
     // Scroll to the selected verse
-    setTimeout(() => {
-      this.scrollToVerse(verseNumber);
+    const timeoutId = window.setTimeout(() => {
+      if (!this.destroyRef.destroyed) {
+        this.scrollToVerse(verseNumber);
+      }
     }, 100);
+    this.autoScrollTimeouts.push(timeoutId);
   }
 
   protected playVerse(verseNumber: number): void {
@@ -473,9 +519,12 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentPlayingVerse.set(verseNumber);
       this.isPlaying.set(true);
       // Use setTimeout to ensure verse is set before URL change triggers play
-      setTimeout(() => {
-        this.currentAudioUrl.set(cachedUrl);
+      const timeoutId = window.setTimeout(() => {
+        if (!this.destroyRef.destroyed) {
+          this.currentAudioUrl.set(cachedUrl);
+        }
       }, 0);
+      this.autoScrollTimeouts.push(timeoutId);
       return;
     }
 
@@ -495,7 +544,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       this.chapterId,
       verseNumber,
       this.selectedReciterId()!
-    ).subscribe({
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (audioData: AudioRecitation) => {
         const audioUrl = audioData.audio_url;
         this.verseAudioCache.set(verseNumber, audioUrl);
@@ -570,9 +621,12 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     
     // Reset flag after a short delay to allow scroll position restoration to complete
-    setTimeout(() => {
-      this.isRestoringState = false;
+    const timeoutId = window.setTimeout(() => {
+      if (!this.destroyRef.destroyed) {
+        this.isRestoringState = false;
+      }
     }, 500);
+    this.autoScrollTimeouts.push(timeoutId);
   }
 
   private updateAudioForCurrentVerse(verseNumber: number, reciterId: number): void {
@@ -590,7 +644,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       this.chapterId,
       verseNumber,
       reciterId
-    ).subscribe({
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (audioData: AudioRecitation) => {
         const audioUrl = audioData.audio_url;
         // Cache the new audio URL
@@ -635,20 +691,22 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.versesContainerRef?.nativeElement || !this.chapterId) return;
 
     const container = this.versesContainerRef.nativeElement;
-    let scrollTimeout: number | null = null;
-
-    container.addEventListener('scroll', () => {
+    
+    // Store handler reference for cleanup
+    this.scrollHandler = () => {
       // Debounce scroll position saves
-      if (scrollTimeout !== null) {
-        clearTimeout(scrollTimeout);
+      if (this.scrollTimeout !== null) {
+        clearTimeout(this.scrollTimeout);
       }
       
-      scrollTimeout = window.setTimeout(() => {
-        if (this.chapterId) {
+      this.scrollTimeout = window.setTimeout(() => {
+        if (this.chapterId && !this.destroyRef.destroyed) {
           this.quranStore.setScrollPosition(this.chapterId, container.scrollTop);
         }
       }, 150);
-    });
+    };
+
+    container.addEventListener('scroll', this.scrollHandler, { passive: true });
   }
 
   protected scrollToVerse(verseNumber: number): void {

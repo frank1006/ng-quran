@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, signal, computed, effect, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, effect, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService, CompassInstruction } from './services/qibla.service';
 import { QiblaCompassComponent } from './components/qibla-compass.component';
@@ -29,7 +30,9 @@ export class QiblaComponent implements OnInit, OnDestroy {
   private headingSubscription: Subscription | null = null;
   private locationSubscription: Subscription | null = null;
   private lastLocationKey: string | null = null;
+  private locationTimeout: number | null = null;
 
+  private readonly destroyRef = inject(DestroyRef);
   private readonly prayerTimeStore = inject(PrayerTimeStore);
   private readonly qiblaService = inject(QiblaService);
   protected readonly location = computed(() => this.prayerTimeStore.currentLocation());
@@ -51,6 +54,10 @@ export class QiblaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.locationTimeout !== null) {
+      clearTimeout(this.locationTimeout);
+      this.locationTimeout = null;
+    }
     if (this.headingSubscription) {
       this.headingSubscription.unsubscribe();
       this.headingSubscription = null;
@@ -70,23 +77,30 @@ export class QiblaComponent implements OnInit, OnDestroy {
 
       if (!location) {
         const today = new Date();
-        this.prayerTimeStore.preloadPrayerTimes(today).subscribe({
-          next: () => {
-            setTimeout(() => {
-              location = this.location();
-              if (location) {
-                this.continueQiblaInitialization(location);
-              } else {
-                this.error.set('Location not available. Please enable location access.');
-                this.loading.set(false);
+        this.prayerTimeStore.preloadPrayerTimes(today)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              if (this.locationTimeout !== null) {
+                clearTimeout(this.locationTimeout);
               }
-            }, 300);
-          },
-          error: () => {
-            this.error.set('Location not available. Please enable location access.');
-            this.loading.set(false);
-          }
-        });
+              this.locationTimeout = window.setTimeout(() => {
+                if (!this.destroyRef.destroyed) {
+                  location = this.location();
+                  if (location) {
+                    this.continueQiblaInitialization(location);
+                  } else {
+                    this.error.set('Location not available. Please enable location access.');
+                    this.loading.set(false);
+                  }
+                }
+              }, 300);
+            },
+            error: () => {
+              this.error.set('Location not available. Please enable location access.');
+              this.loading.set(false);
+            }
+          });
         return;
       }
 
@@ -153,7 +167,9 @@ export class QiblaComponent implements OnInit, OnDestroy {
       this.headingSubscription.unsubscribe();
     }
 
-    this.headingSubscription = this.qiblaService.getDeviceHeading().subscribe({
+    this.headingSubscription = this.qiblaService.getDeviceHeading()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (heading) => {
         if (heading !== null) {
           this.compassPermissionGranted.set(true);
@@ -212,13 +228,15 @@ export class QiblaComponent implements OnInit, OnDestroy {
 
     try {
       const today = new Date();
-      this.locationSubscription = this.prayerTimeStore.preloadPrayerTimes(today).subscribe({
-        next: () => this.initializeQibla(),
-        error: (err) => {
-          this.error.set(err instanceof Error ? err.message : 'Failed to get location');
-          this.loading.set(false);
-        }
-      });
+      this.locationSubscription = this.prayerTimeStore.preloadPrayerTimes(today)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => this.initializeQibla(),
+          error: (err) => {
+            this.error.set(err instanceof Error ? err.message : 'Failed to get location');
+            this.loading.set(false);
+          }
+        });
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'Failed to request location');
       this.loading.set(false);

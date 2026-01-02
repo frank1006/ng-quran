@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { PrayerTimeData, PrayerTimings } from '../../services/prayer-time.types';
 import { SettingsService, TimeFormat } from '../../services/settings.service';
@@ -39,6 +40,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   protected readonly error = computed(() => this.prayerTimeStore.error());
   protected readonly prayerData = signal<PrayerTimeData | null>(null);
   protected readonly currentDate = signal<Date>(new Date());
+  private readonly destroyRef = inject(DestroyRef);
   private timeInterval: number | null = null;
 
   constructor(
@@ -275,10 +277,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   protected loadPrayerTimes(): void {
     const today = new Date();
-    this.prayerTimeStore.preloadPrayerTimes(today).subscribe({
-      next: () => this.updatePrayerDataForDate(today),
-      error: () => {}
-    });
+    this.prayerTimeStore.preloadPrayerTimes(today)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.updatePrayerDataForDate(today),
+        error: () => {}
+      });
   }
 
   private updatePrayerDataForDate(date: Date): void {
@@ -290,14 +294,16 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.prayerTimeStore.getPrayerTimes(date).subscribe({
-      next: (data) => {
-        if (data?.timings) {
-          this.prayerData.set(data);
-        }
-      },
-      error: () => {}
-    });
+    this.prayerTimeStore.getPrayerTimes(date)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          if (data?.timings) {
+            this.prayerData.set(data);
+          }
+        },
+        error: () => {}
+      });
   }
 
   private getDateKey(date: Date): string {
@@ -327,10 +333,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     if (!this.prayerTimeStore.hasDataForRange(date)) {
-      this.prayerTimeStore.preloadPrayerTimes(date).subscribe({
-        next: () => this.updatePrayerDataForDate(date),
-        error: () => {}
-      });
+      this.prayerTimeStore.preloadPrayerTimes(date)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => this.updatePrayerDataForDate(date),
+          error: () => {}
+        });
     } else {
       this.updatePrayerDataForDate(date);
     }

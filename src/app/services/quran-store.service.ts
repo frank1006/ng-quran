@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, DestroyRef, inject } from '@angular/core';
 import { Reciter } from './quran-api.types';
 
 export interface Bookmark {
@@ -29,6 +29,9 @@ interface StoredQuranData {
 export class QuranStoreService {
   private readonly STORAGE_KEY = 'quran-store';
   private readonly VERSION = '1.1.0';
+  private readonly destroyRef = inject(DestroyRef);
+  private saveTimeout: number | null = null;
+  private readonly SAVE_DEBOUNCE_MS = 300;
 
   private readonly state = signal<StoredQuranData>({
     selectedReciterId: null,
@@ -156,22 +159,29 @@ export class QuranStoreService {
   }
 
   private saveToLocalStorage(): void {
-    try {
-      if (typeof localStorage === 'undefined') {
-        return;
-      }
-
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state()));
-    } catch (error) {
-      console.error('Error saving Quran store to localStorage:', error);
-      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-        // Clear old bookmarks if storage is full
-        const state = this.state();
-        const sortedBookmarks = [...state.bookmarks].sort((a, b) => b.timestamp - a.timestamp);
-        const recentBookmarks = sortedBookmarks.slice(0, 100); // Keep 100 most recent
-        this.updateState({ bookmarks: recentBookmarks });
-      }
+    // Debounce localStorage writes to improve performance
+    if (this.saveTimeout !== null) {
+      clearTimeout(this.saveTimeout);
     }
+
+    this.saveTimeout = window.setTimeout(() => {
+      try {
+        if (typeof localStorage === 'undefined') {
+          return;
+        }
+
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state()));
+      } catch (error) {
+        console.error('Error saving Quran store to localStorage:', error);
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+          // Clear old bookmarks if storage is full
+          const state = this.state();
+          const sortedBookmarks = [...state.bookmarks].sort((a, b) => b.timestamp - a.timestamp);
+          const recentBookmarks = sortedBookmarks.slice(0, 100); // Keep 100 most recent
+          this.updateState({ bookmarks: recentBookmarks });
+        }
+      }
+    }, this.SAVE_DEBOUNCE_MS);
   }
 
   private clearLocalStorage(): void {

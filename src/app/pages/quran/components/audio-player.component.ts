@@ -38,6 +38,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
   private progressInterval: number | null = null;
   private previousUrl: string | null = null;
   private shouldAutoPlay = false;
+  private eventHandlers: { [key: string]: (e: Event) => void } = {};
 
   constructor() {
     // Handle audio URL changes - auto-play when URL changes (user clicked play)
@@ -89,7 +90,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     if (!this.audio) return;
 
     // Event handlers (defined once to prevent duplicate listeners)
-    const handleLoadedMetadata = () => {
+    this.eventHandlers['loadedmetadata'] = () => {
       if (this.audio) {
         this.state.update(s => ({ ...s, duration: this.audio!.duration }));
         // Auto-play when metadata is loaded if we should auto-play
@@ -103,7 +104,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
       }
     };
 
-    const handleCanPlay = () => {
+    this.eventHandlers['canplay'] = () => {
       // Auto-play when audio can play if we should auto-play
       if (this.shouldAutoPlay && this.audio && this.audio.readyState >= 2) {
         this.shouldAutoPlay = false;
@@ -114,19 +115,19 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
       }
     };
 
-    const handleTimeUpdate = () => {
+    this.eventHandlers['timeupdate'] = () => {
       if (this.audio) {
         this.state.update(s => ({ ...s, currentTime: this.audio!.currentTime }));
       }
     };
 
-    const handleEnded = () => {
+    this.eventHandlers['ended'] = () => {
       this.state.update(s => ({ ...s, isPlaying: false, currentTime: 0 }));
       this.stopProgressTracking();
       this.playNext.emit();
     };
 
-    const handleError = (e: Event) => {
+    this.eventHandlers['error'] = (e: Event) => {
       // Silently handle errors - audio errors are common during navigation/cleanup
       // Don't log to console to avoid noise
       if (this.audio) {
@@ -137,11 +138,9 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     };
 
     // Add event listeners
-    this.audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    this.audio.addEventListener('canplay', handleCanPlay);
-    this.audio.addEventListener('timeupdate', handleTimeUpdate);
-    this.audio.addEventListener('ended', handleEnded);
-    this.audio.addEventListener('error', handleError);
+    Object.entries(this.eventHandlers).forEach(([event, handler]) => {
+      this.audio!.addEventListener(event, handler);
+    });
   }
 
   private loadAudio(url: string): void {
@@ -261,6 +260,12 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     
     if (this.audio) {
       try {
+        // Remove all event listeners
+        Object.entries(this.eventHandlers).forEach(([event, handler]) => {
+          this.audio!.removeEventListener(event, handler);
+        });
+        this.eventHandlers = {};
+        
         // Pause audio if playing
         if (!this.audio.paused) {
           this.audio.pause();

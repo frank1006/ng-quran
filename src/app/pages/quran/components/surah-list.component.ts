@@ -1,5 +1,6 @@
-import { Component, OnInit, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, signal, computed, effect, DestroyRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { QuranApiService } from '../../../services/quran-api.service';
 import { QuranStoreService } from '../../../services/quran-store.service';
@@ -10,7 +11,8 @@ import { Chapter, Reciter } from '../../../services/quran-api.types';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './surah-list.component.html',
-  styleUrl: './surah-list.component.css'
+  styleUrl: './surah-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SurahListComponent implements OnInit {
   protected readonly chapters = signal<Chapter[]>([]);
@@ -39,6 +41,8 @@ export class SurahListComponent implements OnInit {
     });
   });
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private quranApi: QuranApiService,
     private quranStore: QuranStoreService,
@@ -54,35 +58,39 @@ export class SurahListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.quranApi.getChapters().subscribe({
-      next: (chapters) => {
-        this.chapters.set(chapters);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.message || 'Failed to load chapters');
-        this.loading.set(false);
-        console.error('Error loading chapters:', err);
-      }
-    });
+    this.quranApi.getChapters()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (chapters) => {
+          this.chapters.set(chapters);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set(err.message || 'Failed to load chapters');
+          this.loading.set(false);
+          console.error('Error loading chapters:', err);
+        }
+      });
   }
 
   private loadReciters(): void {
-    this.quranApi.getReciters().subscribe({
-      next: (reciters) => {
-        this.reciters.set(reciters);
-        
-        // Set default reciter only if no reciter is currently selected
-        // This must happen AFTER reciters are loaded to avoid race conditions
-        const currentReciterId = this.selectedReciterId();
-        if (reciters.length > 0 && currentReciterId === null) {
-          this.quranStore.setSelectedReciter(reciters[0].id);
+    this.quranApi.getReciters()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (reciters) => {
+          this.reciters.set(reciters);
+          
+          // Set default reciter only if no reciter is currently selected
+          // This must happen AFTER reciters are loaded to avoid race conditions
+          const currentReciterId = this.selectedReciterId();
+          if (reciters.length > 0 && currentReciterId === null) {
+            this.quranStore.setSelectedReciter(reciters[0].id);
+          }
+        },
+        error: (err) => {
+          console.error('Error loading reciters:', err);
         }
-      },
-      error: (err) => {
-        console.error('Error loading reciters:', err);
-      }
-    });
+      });
   }
 
   onSearchChange(event: Event): void {
