@@ -153,7 +153,19 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
+.verse-item.selected {
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  cursor: pointer;
+}
+
 .verse-item.playing {
+  border-color: #ffb030;
+  background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
+  box-shadow: 0 4px 20px rgba(255, 176, 48, 0.2);
+}
+
+.verse-item.selected.playing {
   border-color: #ffb030;
   background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
   box-shadow: 0 4px 20px rgba(255, 176, 48, 0.2);

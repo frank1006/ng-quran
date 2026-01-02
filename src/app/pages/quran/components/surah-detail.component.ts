@@ -31,6 +31,16 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   protected readonly currentAudioUrl = signal<string | null>(null);
   protected readonly isPlaying = signal<boolean>(false);
   protected readonly forcePause = signal<boolean>(false);
+  private pausedVerseNumber = signal<number | null>(null); // Track which verse has paused audio
+  
+  // Computed signal for audio player's current verse (shows paused verse if any, otherwise playing verse)
+  protected readonly audioPlayerVerse = computed(() => {
+    const pausedVerse = this.pausedVerseNumber();
+    if (pausedVerse !== null) {
+      return pausedVerse;
+    }
+    return this.currentPlayingVerse();
+  });
 
   protected readonly selectedReciterId = computed(() => this.quranStore.selectedReciterId());
 
@@ -247,37 +257,93 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.quranStore.isBookmarked(this.chapterId, verseNumber);
   }
 
+  protected isVerseHighlighted(verseNumber: number): boolean {
+    // Verse is highlighted if it has audio URL (either playing or paused)
+    const currentAudioUrl = this.currentAudioUrl();
+    const pausedVerse = this.pausedVerseNumber();
+    const currentVerse = this.currentPlayingVerse();
+    
+    // Highlight if it's the paused verse (has audio URL)
+    if (pausedVerse === verseNumber && currentAudioUrl) {
+      return true;
+    }
+    
+    // Highlight if it's the currently playing verse (has audio URL and is playing)
+    if (currentVerse === verseNumber && currentAudioUrl && this.isPlaying()) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  protected isVersePlayButtonActive(verseNumber: number): boolean {
+    // Play button is active (shows pause icon) if verse is currently playing
+    const currentVerse = this.currentPlayingVerse();
+    const currentAudioUrl = this.currentAudioUrl();
+    return currentVerse === verseNumber && !!currentAudioUrl && this.isPlaying();
+  }
+
+  protected selectVerse(verseNumber: number): void {
+    // Select verse without auto-playing
+    const currentVerse = this.currentPlayingVerse();
+    
+    // If a different verse is currently playing, pause it (but keep audio URL for highlighting)
+    if (this.isPlaying() && currentVerse && currentVerse !== verseNumber) {
+      this.forcePause.set(true);
+      this.isPlaying.set(false);
+      // Track which verse is paused (keep its audio URL so it stays highlighted)
+      this.pausedVerseNumber.set(currentVerse);
+      // Don't clear audio URL - keep it so the paused verse stays highlighted in player
+    }
+    
+    // Set the new verse as selected (but don't load audio - user must click play button)
+    this.currentPlayingVerse.set(verseNumber);
+    
+    // Scroll to the selected verse
+    setTimeout(() => {
+      this.scrollToVerse(verseNumber);
+    }, 100);
+  }
+
   protected playVerse(verseNumber: number): void {
     if (!this.chapterId || !this.selectedReciterId()) return;
 
-    // If clicking on the currently playing verse, toggle pause/play
     const currentVerse = this.currentPlayingVerse();
     const currentAudioUrl = this.currentAudioUrl();
+    const pausedVerse = this.pausedVerseNumber();
     
-    if (currentVerse === verseNumber && currentAudioUrl) {
-      // Toggle pause/play - use forcePause to pause without clearing URL (resume from same position)
-      if (this.isPlaying()) {
-        // Pause: keep URL but set forcePause flag
-        this.forcePause.set(true);
-        this.isPlaying.set(false);
-      } else {
-        // Resume playing: clear forcePause flag (audio will resume from paused position)
-        this.forcePause.set(false);
-        this.isPlaying.set(true);
-      }
+    // If clicking play on the currently playing verse, pause it
+    if (currentVerse === verseNumber && currentAudioUrl && this.isPlaying()) {
+      this.forcePause.set(true);
+      this.isPlaying.set(false);
+      this.pausedVerseNumber.set(verseNumber);
       return;
     }
     
-    // If it's the same verse but no audio URL (e.g., after navigation), fetch it
-    if (currentVerse === verseNumber && !currentAudioUrl) {
-      // Verse is set but no audio URL - fetch it (reciter might have changed or URL was cleared)
+    // If clicking play on a paused verse, resume it (paused verse has audio URL)
+    if (pausedVerse === verseNumber && currentAudioUrl && !this.isPlaying()) {
+      // Update currentPlayingVerse to the paused verse and resume
+      this.currentPlayingVerse.set(verseNumber);
+      this.pausedVerseNumber.set(null);
       this.forcePause.set(false);
-      // Continue to fetch audio below
+      this.isPlaying.set(true);
+      return;
+    }
+    
+    // If clicking play on the selected verse that has audio URL but is paused (edge case)
+    if (currentVerse === verseNumber && currentAudioUrl && !this.isPlaying() && pausedVerse === null) {
+      this.forcePause.set(false);
+      this.isPlaying.set(true);
+      return;
     }
 
-    // Clear forcePause when switching to a different verse (ensures auto-play works)
+    // For any other case (different verse or same verse without audio URL), load and play that verse
+    // Clear forcePause to ensure auto-play works
     this.forcePause.set(false);
 
+    // Clear paused verse when playing a new verse
+    this.pausedVerseNumber.set(null);
+    
     // Check cache first
     const cachedUrl = this.verseAudioCache.get(verseNumber);
     if (cachedUrl) {
@@ -332,6 +398,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         this.currentPlayingVerse.set(null);
         this.currentAudioUrl.set(null);
         this.isPlaying.set(false);
+        this.pausedVerseNumber.set(null);
       }
     });
   }
