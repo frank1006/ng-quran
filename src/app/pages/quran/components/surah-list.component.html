@@ -3,7 +3,7 @@
     <h1 class="page-title">Quran</h1>
     
     <div class="reciter-selector">
-      <label for="reciter-select" class="reciter-label">Reciter</label>
+      <span class="reciter-prefix">Reciter:</span>
       <select 
         id="reciter-select" 
         class="reciter-select"
@@ -33,7 +33,7 @@
         <input
           type="text"
           class="search-input"
-          placeholder="Search surahs..."
+          placeholder="Search surah by name or number..."
           [value]="searchQuery()"
           (input)="onSearchChange($event)"
         />
