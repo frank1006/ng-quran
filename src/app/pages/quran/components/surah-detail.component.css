@@ -95,6 +95,55 @@
   flex-wrap: wrap;
 }
 
+.translation-selector {
+  margin-top: 0.75rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+}
+
+.translation-icon {
+  color: #874d14;
+  flex-shrink: 0;
+  display: block;
+}
+
+.translation-select {
+  width: auto;
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 500;
+  color: #874d14;
+  background: transparent;
+  border: none;
+  padding: 0;
+  padding-right: 1rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23874d14' d='M5 7L1 3h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 10px;
+  min-width: 0;
+  max-width: fit-content;
+}
+
+.translation-select:focus {
+  outline: none;
+}
+
+.translation-select option {
+  text-transform: none;
+  color: #1f1f1f;
+  background: #ffffff;
+  padding: 0.5rem;
+}
+
 .surah-type {
   font-family: 'Poppins', sans-serif;
   font-size: 12px;

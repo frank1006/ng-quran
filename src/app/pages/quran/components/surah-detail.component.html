@@ -13,14 +13,7 @@
   }
 
   @if (!loading() && chapter()) {
-    <app-hero-header 
-      [backUrl]="'/quran'"
-      backLabel="Back to surah list"
-      [showActionButton]="true"
-      actionButtonLabel="Toggle translation"
-      [actionButtonActive]="showTranslation()"
-      [actionButtonClick]="toggleTranslation.bind(this)"
-    >
+    <app-hero-header>
       <div class="surah-title-wrapper">
         <div class="surah-title-left">
           <h1 class="surah-name-latin">{{ chapter()!.transliteration }}</h1>
@@ -28,6 +21,24 @@
           <div class="surah-meta">
             <span class="surah-type">{{ chapter()!.type }}</span>
             <span class="surah-info">{{ chapter()!.id }} • {{ chapter()!.total_verses }} ayahs</span>
+          </div>
+          <div class="translation-selector">
+            <svg class="translation-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="Translation">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <select 
+              id="translation-language"
+              class="translation-select"
+              [value]="selectedTranslationLanguage()"
+              (change)="onTranslationLanguageChange($event)"
+              aria-label="Select translation language"
+            >
+              <option value="english">English</option>
+              <option value="bengali">Bengali</option>
+              <option value="urdu">Urdu</option>
+            </select>
           </div>
         </div>
         <div class="surah-title-right">
@@ -99,7 +110,7 @@
             <div class="verse-arabic">
               {{ getArabicText(verse) }}
             </div>
-            @if (showTranslation() && verse.translation) {
+            @if (verse.translation) {
               <div class="verse-translation">
                 {{ verse.translation }}
               </div>

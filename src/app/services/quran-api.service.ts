@@ -101,10 +101,16 @@ export class QuranApiService {
       .pipe(
         map(response => {
           const chapter = this.mapSurahResponseToChapterWithVerses(response);
-          // Save to localStorage with translations
-          this.setCachedChapter(chapterId, chapter, response.english);
-          // Attach translations to chapter object for component use
+          // Save to localStorage with all translations
+          this.setCachedChapter(chapterId, chapter, {
+            english: response.english,
+            bengali: response.bengali,
+            urdu: response.urdu
+          });
+          // Attach all translations to chapter object for component use
           chapter._translations = response.english;
+          (chapter as any)._translations_bengali = response.bengali || [];
+          (chapter as any)._translations_urdu = response.urdu || [];
           return chapter;
         }),
         catchError(this.handleError),
@@ -440,7 +446,18 @@ export class QuranApiService {
       // Attach translations if available
       const chapter = data.chapter as ChapterWithVerses;
       if (data.translations) {
-        chapter._translations = data.translations;
+        // Handle both old format (string[]) and new format (object with english/bengali/urdu)
+        if (Array.isArray(data.translations)) {
+          // Old format - only english translations
+          chapter._translations = data.translations;
+          (chapter as any)._translations_bengali = [];
+          (chapter as any)._translations_urdu = [];
+        } else {
+          // New format - all translations
+          chapter._translations = data.translations.english || [];
+          (chapter as any)._translations_bengali = data.translations.bengali || [];
+          (chapter as any)._translations_urdu = data.translations.urdu || [];
+        }
       }
       return chapter;
     } catch (error) {
@@ -453,7 +470,11 @@ export class QuranApiService {
    * Save chapter to localStorage
    * Implements LRU-like behavior by limiting cache size
    */
-  private setCachedChapter(chapterId: number, chapter: ChapterWithVerses, translations?: string[]): void {
+  private setCachedChapter(
+    chapterId: number, 
+    chapter: ChapterWithVerses, 
+    translations?: { english?: string[]; bengali?: string[]; urdu?: string[] }
+  ): void {
     try {
       if (typeof localStorage === 'undefined') {
         return;
@@ -465,7 +486,7 @@ export class QuranApiService {
         chapter: ChapterWithVerses;
         timestamp: string;
         chapterId: number;
-        translations?: string[];
+        translations?: { english?: string[]; bengali?: string[]; urdu?: string[] };
       }
       
       const data: CacheData = {
@@ -475,7 +496,7 @@ export class QuranApiService {
         chapterId
       };
       
-      // Store translations separately
+      // Store all translations separately
       if (translations) {
         data.translations = translations;
       }
@@ -498,7 +519,7 @@ export class QuranApiService {
             chapter: ChapterWithVerses;
             timestamp: string;
             chapterId: number;
-            translations?: string[];
+            translations?: { english?: string[]; bengali?: string[]; urdu?: string[] };
           }
           const data: CacheData = {
             version: this.CACHE_VERSION,

@@ -26,7 +26,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   protected readonly verses = signal<VerseWithAudio[]>([]);
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly showTranslation = signal<boolean>(true);
+  protected readonly selectedTranslationLanguage = signal<'english' | 'bengali' | 'urdu'>('english');
   protected readonly currentPlayingVerse = signal<number | null>(null);
   protected readonly currentAudioUrl = signal<string | null>(null);
   protected readonly isPlaying = signal<boolean>(false);
@@ -51,6 +51,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private previousReciterId: number | null = null;
   private routeSubscription?: Subscription;
   private isRestoringState = false; // Flag to prevent auto-scroll during state restoration
+  private readonly TRANSLATION_LANGUAGE_STORAGE_KEY = 'quran-translation-language';
 
   constructor(
     private route: ActivatedRoute,
@@ -133,6 +134,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // Load saved translation language preference
+    this.loadTranslationLanguagePreference();
+    
     // Initialize previous reciter ID from store
     this.previousReciterId = this.selectedReciterId();
     
@@ -220,10 +224,18 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     // Use the cached service method instead of direct HTTP call
     this.quranApi.getChapter(chapterId).subscribe({
       next: (chapterData) => {
-        // Extract translations if available (stored as _translations in cached data)
-        const translations = chapterData._translations || [];
-        
         this.chapter.set(chapterData);
+        
+        // Verify translations are attached
+        if (!chapterData._translations && !(chapterData as any)._translations_bengali && !(chapterData as any)._translations_urdu) {
+          console.warn('No translations found in chapter data. Translations may not be available.');
+        }
+        
+        // Get translations for the selected language
+        const translations = this.getTranslationsForLanguage(
+          chapterData, 
+          this.selectedTranslationLanguage()
+        );
         
         // Map verses with translations
         this.verses.set(chapterData.verses.map((verse: Verse, index: number) => ({
@@ -244,8 +256,106 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  protected toggleTranslation(): void {
-    this.showTranslation.update(v => !v);
+  protected onTranslationLanguageChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const language = select.value as 'english' | 'bengali' | 'urdu';
+    
+    // Update the selected language
+    this.selectedTranslationLanguage.set(language);
+    
+    // Save preference to localStorage
+    this.saveTranslationLanguagePreference(language);
+    
+    // Update verses with new translation
+    this.updateVersesWithTranslation(language);
+    
+    console.log(`Translation language changed to: ${language}`);
+  }
+
+  private loadTranslationLanguagePreference(): void {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const saved = localStorage.getItem(this.TRANSLATION_LANGUAGE_STORAGE_KEY);
+        if (saved && (saved === 'english' || saved === 'bengali' || saved === 'urdu')) {
+          this.selectedTranslationLanguage.set(saved as 'english' | 'bengali' | 'urdu');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading translation language preference:', error);
+    }
+  }
+
+  private saveTranslationLanguagePreference(language: 'english' | 'bengali' | 'urdu'): void {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(this.TRANSLATION_LANGUAGE_STORAGE_KEY, language);
+      }
+    } catch (error) {
+      console.error('Error saving translation language preference:', error);
+    }
+  }
+
+  private updateVersesWithTranslation(language: 'english' | 'bengali' | 'urdu'): void {
+    const chapterData = this.chapter();
+    if (!chapterData) {
+      console.warn('Cannot update translations: chapter data not available');
+      return;
+    }
+
+    // Get translations from the chapter data
+    const translations = this.getTranslationsForLanguage(chapterData, language);
+    
+    if (translations.length === 0) {
+      console.warn(`No translations found for language: ${language}`, {
+        hasEnglish: !!chapterData._translations,
+        hasBengali: !!(chapterData as any)._translations_bengali,
+        hasUrdu: !!(chapterData as any)._translations_urdu
+      });
+    }
+    
+    // Update verses with the selected translation
+    this.verses.update(currentVerses => {
+      return currentVerses.map((verse, index) => ({
+        ...verse,
+        translation: translations[index] || ''
+      }));
+    });
+  }
+
+  private getTranslationsForLanguage(
+    chapter: ChapterWithVerses, 
+    language: 'english' | 'bengali' | 'urdu'
+  ): string[] {
+    // Check if translations are stored in the chapter object
+    if (language === 'english') {
+      if (chapter._translations && Array.isArray(chapter._translations)) {
+        return chapter._translations;
+      }
+    }
+    
+    // For bengali and urdu, check if they're stored in the chapter object
+    if (language === 'bengali') {
+      const bengaliTranslations = (chapter as any)._translations_bengali;
+      if (bengaliTranslations && Array.isArray(bengaliTranslations) && bengaliTranslations.length > 0) {
+        return bengaliTranslations;
+      }
+    }
+    
+    if (language === 'urdu') {
+      const urduTranslations = (chapter as any)._translations_urdu;
+      if (urduTranslations && Array.isArray(urduTranslations) && urduTranslations.length > 0) {
+        return urduTranslations;
+      }
+    }
+    
+    // Fallback: return empty array if translation not available
+    console.warn(`Translation not available for language: ${language}`, {
+      chapterId: chapter.id,
+      hasEnglish: !!chapter._translations,
+      hasBengali: !!(chapter as any)._translations_bengali,
+      hasUrdu: !!(chapter as any)._translations_urdu
+    });
+    return [];
   }
 
   protected toggleBookmark(verseNumber: number): void {

@@ -1,6 +1,6 @@
 .audio-player {
   position: absolute;
-  bottom: 1rem;
+  bottom: 1.20rem;
   right: -1rem;
   background: transparent;
   z-index: 100;
