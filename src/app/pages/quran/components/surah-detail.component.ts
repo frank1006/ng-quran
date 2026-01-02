@@ -312,7 +312,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     // Update verses with new translation
     this.updateVersesWithTranslation(language);
     
-    console.log(`Translation language changed to: ${language}`);
+    // Translation language changed
   }
 
   private loadTranslationLanguagePreference(): void {

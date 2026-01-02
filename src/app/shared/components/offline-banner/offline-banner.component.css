@@ -1,0 +1,86 @@
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: linear-gradient(135deg, #fff5e6 0%, #fffaf0 100%);
+  border-bottom: 2px solid #ffb030;
+  box-shadow: 0 2px 12px rgba(135, 77, 20, 0.2);
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+.offline-banner.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.offline-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  max-width: 100%;
+}
+
+.offline-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 176, 48, 0.15);
+  border-radius: 50%;
+  color: #874d14;
+}
+
+.offline-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.offline-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #874d14;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.4;
+}
+
+.offline-message {
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .offline-banner-content {
+    padding: 0.875rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .offline-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .offline-title {
+    font-size: 13px;
+  }
+
+  .offline-message {
+    font-size: 11px;
+  }
+}
+

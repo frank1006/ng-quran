@@ -47,7 +47,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 0;
+  height: 1.25rem;
   pointer-events: none;
   z-index: 1;
 }
@@ -150,15 +150,11 @@
   color: #ffb030;
 }
 
-@media (max-height: 740px) {
-  .prayer-list {
-    overflow-y: scroll;
-    max-height: 38dvh;
-  }
-
-  .prayer-list-container::before,
-  .prayer-list-container::after {
-    height: 1.25rem;
-  }
+/* Enable scrolling for all screen sizes - uses calculated height */
+.prayer-list {
+  overflow-y: auto;
+  max-height: calc(100dvh - 390px); /* Viewport height minus header, trajectory, date header, and bottom nav */
+  min-height: 200px; /* Minimum height to ensure usability */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
