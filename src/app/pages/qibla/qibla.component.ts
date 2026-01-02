@@ -152,13 +152,23 @@ export class QiblaComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const granted = await this.qiblaService.requestCompassPermission();
+    try {
+      const granted = await this.qiblaService.requestCompassPermission();
 
-    if (granted) {
-      this.startCompassListening();
-    } else {
+      if (granted) {
+        this.startCompassListening();
+      } else {
+        // Permission denied - restore button so user can try again
+        this.compassPermissionRequested.set(false);
+        this.needsPermissionButton.set(true);
+        this.error.set('Compass permission denied. Please enable in your browser settings.');
+      }
+    } catch (error) {
+      // Handle any errors during permission request
+      console.error('Error requesting compass permission:', error);
       this.compassPermissionRequested.set(false);
-      this.error.set('Compass permission denied. Please enable in your browser settings.');
+      this.needsPermissionButton.set(true);
+      this.error.set('Failed to request compass permission. Please try again.');
     }
   }
 
