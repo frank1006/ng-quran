@@ -181,11 +181,32 @@
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
   padding: 1.5rem 2rem;
+  padding-bottom: calc(1.5rem + 80px); /* Add extra bottom padding to prevent overlap with bottom nav */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   flex: 1;
   min-height: 0;
+}
+
+
+
+/* Fade effect at the top */
+.verses-container::before {
+  content: "";
+  position: sticky;
+  top: -1.5rem;
+  left: -2rem;
+  right: -2rem;
+  height: 2rem;
+  border-radius: var(--border-radius-tl);
+  background: #ffffff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 60%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 1;
+  margin-left: -2rem;
+  margin-right: -2rem;
+  display: block;
 }
 
 .verse-item {
@@ -327,6 +348,13 @@
   line-height: 1.8;
   padding-top: 1rem;
   border-top: 1px solid #f3f4f6;
+  direction: ltr;
+  text-align: left;
+}
+
+.verse-translation.rtl {
+  direction: rtl;
+  text-align: right;
 }
 
 .verse-item.playing .verse-translation {

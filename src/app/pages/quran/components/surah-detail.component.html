@@ -111,7 +111,10 @@
               {{ getArabicText(verse) }}
             </div>
             @if (verse.translation) {
-              <div class="verse-translation">
+              <div 
+                class="verse-translation"
+                [class.rtl]="selectedTranslationLanguage() === 'urdu'"
+              >
                 {{ verse.translation }}
               </div>
             }
