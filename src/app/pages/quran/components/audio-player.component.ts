@@ -127,10 +127,13 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     };
 
     const handleError = (e: Event) => {
-      console.error('Audio error:', e);
-      this.state.update(s => ({ ...s, isPlaying: false }));
-      this.stopProgressTracking();
-      this.shouldAutoPlay = false;
+      // Silently handle errors - audio errors are common during navigation/cleanup
+      // Don't log to console to avoid noise
+      if (this.audio) {
+        this.state.update(s => ({ ...s, isPlaying: false }));
+        this.stopProgressTracking();
+        this.shouldAutoPlay = false;
+      }
     };
 
     // Add event listeners
@@ -147,20 +150,26 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     }
 
     if (this.audio) {
-      // Pause current audio if playing
-      if (!this.audio.paused) {
-        this.audio.pause();
+      try {
+        // Pause current audio if playing
+        if (!this.audio.paused) {
+          this.audio.pause();
+        }
+        
+        // Stop progress tracking
+        this.stopProgressTracking();
+        
+        // Reset state
+        this.state.update(s => ({ ...s, currentTime: 0, duration: 0, isPlaying: false }));
+        
+        // Load new audio
+        this.audio.src = url;
+        this.audio.load();
+      } catch (error) {
+        // Silently handle errors during audio loading (might be due to navigation)
+        this.state.update(s => ({ ...s, isPlaying: false }));
+        this.stopProgressTracking();
       }
-      
-      // Stop progress tracking
-      this.stopProgressTracking();
-      
-      // Reset state
-      this.state.update(s => ({ ...s, currentTime: 0, duration: 0, isPlaying: false }));
-      
-      // Load new audio
-      this.audio.src = url;
-      this.audio.load();
     }
   }
 
@@ -180,14 +189,18 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     }
 
     return this.audio.play().then(() => {
-      this.state.update(s => ({ ...s, isPlaying: true }));
-      this.startProgressTracking();
-      this.playingStateChange.emit(true);
+      if (this.audio) { // Check if audio still exists (component might be destroyed)
+        this.state.update(s => ({ ...s, isPlaying: true }));
+        this.startProgressTracking();
+        this.playingStateChange.emit(true);
+      }
     }).catch((error) => {
-      console.error('Error playing audio:', error);
-      this.state.update(s => ({ ...s, isPlaying: false }));
-      this.playingStateChange.emit(false);
-      throw error;
+      // Silently handle play errors (might be due to navigation or user interaction)
+      if (this.audio) {
+        this.state.update(s => ({ ...s, isPlaying: false }));
+        this.playingStateChange.emit(false);
+      }
+      // Don't throw error to prevent unhandled promise rejection
     });
   }
 
@@ -247,11 +260,19 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     this.shouldAutoPlay = false;
     
     if (this.audio) {
-      // Remove all event listeners by removing src and pausing
-      this.audio.pause();
-      this.audio.src = '';
-      this.audio.load(); // Clear the audio element
-      this.audio = null;
+      try {
+        // Pause audio if playing
+        if (!this.audio.paused) {
+          this.audio.pause();
+        }
+        // Clear the audio source
+        this.audio.src = '';
+        // Remove the audio element reference
+        this.audio = null;
+      } catch (error) {
+        // Ignore any errors during cleanup (audio element might already be invalid)
+        this.audio = null;
+      }
     }
     
     this.previousUrl = null;

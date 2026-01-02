@@ -38,6 +38,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private chapterId: number | null = null;
   private verseAudioCache: Map<number, string> = new Map();
+  private previousReciterId: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -46,6 +47,41 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     private quranStore: QuranStoreService,
     private http: HttpClient
   ) {
+    // Handle reciter changes - clear cache, fetch new audio, and update state
+    effect(() => {
+      const reciterId = this.selectedReciterId();
+      if (reciterId !== null && this.chapterId) {
+        // Only handle reciter change if it actually changed (not on initial load)
+        if (this.previousReciterId !== null && this.previousReciterId !== reciterId) {
+          // Clear audio cache when reciter changes (cache is reciter-specific)
+          this.verseAudioCache.clear();
+          
+          // If there's a current playing verse, fetch new audio for it with new reciter
+          const currentVerse = this.currentPlayingVerse();
+          if (currentVerse) {
+            // Stop current playback first
+            this.currentAudioUrl.set(null);
+            this.isPlaying.set(false);
+            this.forcePause.set(false);
+            
+            // Fetch new audio for the current verse with new reciter
+            this.updateAudioForCurrentVerse(currentVerse, reciterId);
+          } else {
+            // Just stop playback if no current verse
+            if (this.currentAudioUrl()) {
+              this.currentAudioUrl.set(null);
+              this.isPlaying.set(false);
+              this.forcePause.set(false);
+            }
+          }
+        }
+        this.previousReciterId = reciterId;
+      } else if (reciterId === null && this.previousReciterId !== null) {
+        // Reciter was cleared
+        this.previousReciterId = null;
+      }
+    });
+
     // Auto-scroll to playing verse when it changes
     effect(() => {
       const playingVerse = this.currentPlayingVerse();
@@ -86,10 +122,15 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // Initialize previous reciter ID from store
+    this.previousReciterId = this.selectedReciterId();
+    
     this.route.paramMap.subscribe(params => {
       const id = params.get('surahId');
       if (id) {
         this.chapterId = parseInt(id, 10);
+        // Reset previous reciter ID when loading new chapter
+        this.previousReciterId = this.selectedReciterId();
         this.loadChapter(this.chapterId);
       }
     });
@@ -108,18 +149,22 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    // Stop audio playback before destroying
+    this.currentAudioUrl.set(null);
+    this.isPlaying.set(false);
+    
     // Save current scroll position
     if (this.chapterId && this.versesContainerRef?.nativeElement) {
       const scrollTop = this.versesContainerRef.nativeElement.scrollTop;
       this.quranStore.setScrollPosition(this.chapterId, scrollTop);
     }
 
-    // Save final player state
+    // Save final player state (keep audioUrl so it can be restored if reciter hasn't changed)
     if (this.chapterId) {
       const playerState = {
         currentVerse: this.currentPlayingVerse(),
-        isPlaying: this.isPlaying(),
-        audioUrl: this.currentAudioUrl(),
+        isPlaying: false, // Always save as not playing when leaving page
+        audioUrl: this.currentAudioUrl(), // Keep audio URL (will be cleared in restoreState if reciter changed)
         currentTime: 0
       };
       this.quranStore.setPlayerState(this.chapterId, playerState);
@@ -207,7 +252,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // If clicking on the currently playing verse, toggle pause/play
     const currentVerse = this.currentPlayingVerse();
-    if (currentVerse === verseNumber) {
+    const currentAudioUrl = this.currentAudioUrl();
+    
+    if (currentVerse === verseNumber && currentAudioUrl) {
       // Toggle pause/play - use forcePause to pause without clearing URL (resume from same position)
       if (this.isPlaying()) {
         // Pause: keep URL but set forcePause flag
@@ -219,6 +266,13 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         this.isPlaying.set(true);
       }
       return;
+    }
+    
+    // If it's the same verse but no audio URL (e.g., after navigation), fetch it
+    if (currentVerse === verseNumber && !currentAudioUrl) {
+      // Verse is set but no audio URL - fetch it (reciter might have changed or URL was cleared)
+      this.forcePause.set(false);
+      // Continue to fetch audio below
     }
 
     // Clear forcePause when switching to a different verse (ensures auto-play works)
@@ -304,13 +358,81 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private restoreState(chapterId: number): void {
     const playerState = this.quranStore.getPlayerState(chapterId);
-    if (playerState && playerState.currentVerse && playerState.audioUrl) {
-      // Restore player state but keep audio paused (don't auto-play)
+    if (playerState && playerState.currentVerse) {
+      // Restore verse number
       this.currentPlayingVerse.set(playerState.currentVerse);
-      this.currentAudioUrl.set(playerState.audioUrl);
+      
+      // If audio URL exists, restore it (will be cleared if reciter changed)
+      // The reciter change effect will handle clearing the cache and URL if reciter changed
+      if (playerState.audioUrl) {
+        this.currentAudioUrl.set(playerState.audioUrl);
+        // Add to cache if not already there
+        if (!this.verseAudioCache.has(playerState.currentVerse)) {
+          this.verseAudioCache.set(playerState.currentVerse, playerState.audioUrl);
+        }
+      } else {
+        this.currentAudioUrl.set(null);
+      }
+      
       this.isPlaying.set(false); // Always start paused
       this.forcePause.set(true); // Keep paused
     }
+  }
+
+  private updateAudioForCurrentVerse(verseNumber: number, reciterId: number): void {
+    if (!this.chapterId) return;
+
+    // Update loading state
+    this.verses.update(verses => {
+      return verses.map(v => 
+        v.verse_number === verseNumber ? { ...v, isLoadingAudio: true } : v
+      );
+    });
+
+    // Fetch new audio URL with new reciter
+    this.quranApi.getAudioRecitation(
+      this.chapterId,
+      verseNumber,
+      reciterId
+    ).subscribe({
+      next: (audioData: AudioRecitation) => {
+        const audioUrl = audioData.audio_url;
+        // Cache the new audio URL
+        this.verseAudioCache.set(verseNumber, audioUrl);
+        
+        // Update audio URL (but keep paused - don't auto-play)
+        this.currentAudioUrl.set(audioUrl);
+        this.isPlaying.set(false);
+        this.forcePause.set(true);
+        
+        // Update player state in localStorage with new audio URL
+        if (this.chapterId) {
+          const playerState = {
+            currentVerse: verseNumber,
+            isPlaying: false,
+            audioUrl: audioUrl,
+            currentTime: 0
+          };
+          this.quranStore.setPlayerState(this.chapterId, playerState);
+        }
+        
+        // Clear loading state
+        this.verses.update(verses => {
+          return verses.map(v => 
+            v.verse_number === verseNumber ? { ...v, isLoadingAudio: false } : v
+          );
+        });
+      },
+      error: (err) => {
+        console.error(`Error loading audio for verse ${verseNumber} with new reciter:`, err);
+        // Clear loading state
+        this.verses.update(verses => {
+          return verses.map(v => 
+            v.verse_number === verseNumber ? { ...v, isLoadingAudio: false } : v
+          );
+        });
+      }
+    });
   }
 
   private setupScrollTracking(): void {

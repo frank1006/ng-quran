@@ -43,17 +43,7 @@ export class SurahListComponent implements OnInit {
     private quranApi: QuranApiService,
     private quranStore: QuranStoreService,
     private router: Router
-  ) {
-    // Set default reciter when reciters are loaded
-    effect(() => {
-      const recitersList = this.reciters();
-      const currentReciterId = this.selectedReciterId();
-      
-      if (recitersList.length > 0 && currentReciterId === null) {
-        this.quranStore.setSelectedReciter(recitersList[0].id);
-      }
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.loadChapters();
@@ -81,6 +71,13 @@ export class SurahListComponent implements OnInit {
     this.quranApi.getReciters().subscribe({
       next: (reciters) => {
         this.reciters.set(reciters);
+        
+        // Set default reciter only if no reciter is currently selected
+        // This must happen AFTER reciters are loaded to avoid race conditions
+        const currentReciterId = this.selectedReciterId();
+        if (reciters.length > 0 && currentReciterId === null) {
+          this.quranStore.setSelectedReciter(reciters[0].id);
+        }
       },
       error: (err) => {
         console.error('Error loading reciters:', err);

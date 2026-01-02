@@ -7,14 +7,18 @@
       <select 
         id="reciter-select" 
         class="reciter-select"
-        [value]="selectedReciterId() ?? ''"
         (change)="onReciterChange($event)"
       >
         @if (reciters().length === 0) {
           <option value="">Loading reciters...</option>
         } @else {
           @for (reciter of reciters(); track reciter.id) {
-            <option [value]="reciter.id">{{ reciter.name }}</option>
+            <option 
+              [value]="reciter.id.toString()" 
+              [selected]="selectedReciterId() === reciter.id"
+            >
+              {{ reciter.name }}
+            </option>
           }
         }
       </select>
