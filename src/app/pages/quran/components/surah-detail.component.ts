@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, effect, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { QuranApiService } from '../../../services/quran-api.service';
 import { QuranStoreService } from '../../../services/quran-store.service';
-import { ChapterWithVerses, Verse, AudioRecitation, SurahResponse } from '../../../services/quran-api.types';
+import { ChapterWithVerses, Verse, AudioRecitation } from '../../../services/quran-api.types';
 import { AudioPlayerComponent } from './audio-player.component';
 import { HeroHeaderComponent } from '../../../shared/components/hero-header/hero-header.component';
 
@@ -49,13 +49,14 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private chapterId: number | null = null;
   private verseAudioCache: Map<number, string> = new Map();
   private previousReciterId: number | null = null;
+  private routeSubscription?: Subscription;
+  private isRestoringState = false; // Flag to prevent auto-scroll during state restoration
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private quranApi: QuranApiService,
-    private quranStore: QuranStoreService,
-    private http: HttpClient
+    private quranStore: QuranStoreService
   ) {
     // Handle reciter changes - clear cache, fetch new audio, and update state
     effect(() => {
@@ -92,10 +93,10 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Auto-scroll to playing verse when it changes
+    // Auto-scroll to playing verse when it changes (but not during state restoration)
     effect(() => {
       const playingVerse = this.currentPlayingVerse();
-      if (playingVerse) {
+      if (playingVerse && !this.isRestoringState) {
         // Wait for view to be initialized
         setTimeout(() => {
           if (this.versesContainerRef?.nativeElement) {
@@ -135,7 +136,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     // Initialize previous reciter ID from store
     this.previousReciterId = this.selectedReciterId();
     
-    this.route.paramMap.subscribe(params => {
+    this.routeSubscription = this.route.paramMap.subscribe(params => {
       const id = params.get('surahId');
       if (id) {
         this.chapterId = parseInt(id, 10);
@@ -147,18 +148,49 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Scroll to last read position after view is initialized
-    if (this.chapterId && this.verses().length > 0) {
-      const lastVerse = this.quranStore.getLastReadPosition(this.chapterId);
-      if (lastVerse) {
+    // Restore scroll position after view is initialized
+    if (this.chapterId && this.versesContainerRef?.nativeElement) {
+      // Check if there's a selected verse (from player state) - prioritize scrolling to it
+      const currentVerse = this.currentPlayingVerse();
+      
+      if (currentVerse) {
+        // Scroll to the selected/playing verse
         setTimeout(() => {
-          this.scrollToVerse(lastVerse);
-        }, 300);
+          this.scrollToVerse(currentVerse);
+        }, 400);
+      } else {
+        // No selected verse, use saved scroll position
+        const savedScrollPosition = this.quranStore.getScrollPosition(this.chapterId);
+        
+        if (savedScrollPosition !== null) {
+          // Restore the exact scroll position that was saved
+          setTimeout(() => {
+            if (this.versesContainerRef?.nativeElement) {
+              this.versesContainerRef.nativeElement.scrollTop = savedScrollPosition;
+            }
+          }, 400);
+        } else {
+          // Fallback: scroll to last read verse if no scroll position is saved
+          const lastVerse = this.quranStore.getLastReadPosition(this.chapterId);
+          if (lastVerse) {
+            setTimeout(() => {
+              this.scrollToVerse(lastVerse);
+            }, 300);
+          }
+        }
       }
+      
+      // Setup scroll tracking
+      this.setupScrollTracking();
     }
   }
 
   ngOnDestroy(): void {
+    // Unsubscribe from route params
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+    
     // Stop audio playback before destroying
     this.currentAudioUrl.set(null);
     this.isPlaying.set(false);
@@ -185,19 +217,19 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // Fetch the raw surah response to get translations
-    this.http.get<SurahResponse>(`https://quranapi.pages.dev/api/${chapterId}.json`).subscribe({
-      next: (surahResponse) => {
-        // Convert to ChapterWithVerses format
-        const chapterData = this.mapSurahResponseToChapter(surahResponse);
+    // Use the cached service method instead of direct HTTP call
+    this.quranApi.getChapter(chapterId).subscribe({
+      next: (chapterData) => {
+        // Extract translations if available (stored as _translations in cached data)
+        const translations = chapterData._translations || [];
+        
         this.chapter.set(chapterData);
         
         // Map verses with translations
-        const versesWithTranslations = chapterData.verses.map((verse, index) => ({
+        this.verses.set(chapterData.verses.map((verse: Verse, index: number) => ({
           ...verse,
-          translation: surahResponse.english[index] || ''
-        }));
-        this.verses.set(versesWithTranslations);
+          translation: translations[index] || ''
+        })));
         
         // Restore player state and scroll position
         this.restoreState(chapterId);
@@ -210,31 +242,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         console.error('Error loading chapter:', err);
       }
     });
-  }
-
-  private mapSurahResponseToChapter(response: SurahResponse): ChapterWithVerses {
-    const verses: Verse[] = response.english.map((translation, index) => {
-      const verseNumber = index + 1;
-      return {
-        id: verseNumber,
-        verse_number: verseNumber,
-        chapter_id: response.surahNo,
-        verse_key: `${response.surahNo}:${verseNumber}`,
-        text_uthmani: response.arabic1[index] || '',
-        text_simple: response.arabic2[index] || '',
-        text_indopak: response.arabic1[index] || ''
-      };
-    });
-
-    return {
-      id: response.surahNo,
-      name: response.surahNameArabic,
-      transliteration: response.surahName,
-      translation: response.surahNameTranslation,
-      type: response.revelationPlace === 'Mecca' ? 'Meccan' : 'Medinan',
-      total_verses: response.totalAyah,
-      verses
-    };
   }
 
   protected toggleTranslation(): void {
@@ -298,6 +305,11 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     
     // Set the new verse as selected (but don't load audio - user must click play button)
     this.currentPlayingVerse.set(verseNumber);
+    
+    // Save as last read position
+    if (this.chapterId) {
+      this.quranStore.setLastReadPosition(this.chapterId, verseNumber);
+    }
     
     // Scroll to the selected verse
     setTimeout(() => {
@@ -424,6 +436,8 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private restoreState(chapterId: number): void {
+    this.isRestoringState = true; // Prevent auto-scroll during restoration
+    
     const playerState = this.quranStore.getPlayerState(chapterId);
     if (playerState && playerState.currentVerse) {
       // Restore verse number
@@ -444,6 +458,11 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       this.isPlaying.set(false); // Always start paused
       this.forcePause.set(true); // Keep paused
     }
+    
+    // Reset flag after a short delay to allow scroll position restoration to complete
+    setTimeout(() => {
+      this.isRestoringState = false;
+    }, 500);
   }
 
   private updateAudioForCurrentVerse(verseNumber: number, reciterId: number): void {

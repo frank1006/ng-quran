@@ -132,6 +132,7 @@ export interface Tafsir {
 
 export interface ChapterWithVerses extends Chapter {
   verses: Verse[];
+  _translations?: string[]; // Optional translations array attached by service
 }
 
 export interface Reciter {
