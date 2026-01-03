@@ -108,5 +108,135 @@
       </div>
     </div>
   </section>
+
+  <!-- About App Card -->
+  <section class="settings-section">
+    <h2 class="section-title">About App</h2>
+    
+    <!-- App Information -->
+    <div class="app-info">
+      <div class="app-info-item">
+        <span class="app-info-label">App Name</span>
+        <span class="app-info-value">{{ appName() }}</span>
+      </div>
+      <div class="app-info-item">
+        <span class="app-info-label">Version</span>
+        <span class="app-info-value">{{ appVersion() }}</span>
+      </div>
+      @if (buildNumber()) {
+        <div class="app-info-item">
+          <span class="app-info-label">Build Number</span>
+          <span class="app-info-value">{{ buildNumber() }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- App Features -->
+    <div class="app-features">
+      <p class="app-features-text">
+        This app provides accurate prayer times based on your location, an interactive Qibla compass 
+        to find the direction of Mecca, and access to the complete Quran with audio recitation. 
+        All features work offline, and your data is stored locally on your device for privacy and security.
+      </p>
+    </div>
+
+    <!-- Accordion Sections -->
+    <div class="accordion-container">
+      <!-- Our Mission Accordion -->
+      <div class="accordion-item">
+        <button
+          class="accordion-header"
+          type="button"
+          [attr.aria-expanded]="expandedSections().mission"
+          [attr.aria-controls]="'mission-content'"
+          (click)="toggleAccordion('mission')"
+        >
+          <span class="accordion-title">Our Mission</span>
+          <svg
+            class="accordion-icon"
+            [class.expanded]="expandedSections().mission"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 7.5L10 12.5L15 7.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <div
+          class="accordion-content"
+          [class.expanded]="expandedSections().mission"
+          id="mission-content"
+          [attr.aria-hidden]="!expandedSections().mission"
+        >
+          <div class="accordion-content-inner">
+            <p class="accordion-text">
+              Our mission is to provide a beautiful, accessible, and accurate Islamic prayer time application 
+              that helps Muslims around the world stay connected to their daily prayers. We strive to create 
+              a seamless experience that combines modern design with traditional values, making it easy to 
+              track prayer times, read the Quran, and find the Qibla direction.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy Policy Accordion -->
+      <div class="accordion-item">
+        <button
+          class="accordion-header"
+          type="button"
+          [attr.aria-expanded]="expandedSections().privacy"
+          [attr.aria-controls]="'privacy-content'"
+          (click)="toggleAccordion('privacy')"
+        >
+          <span class="accordion-title">Privacy Policy</span>
+          <svg
+            class="accordion-icon"
+            [class.expanded]="expandedSections().privacy"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 7.5L10 12.5L15 7.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <div
+          class="accordion-content"
+          [class.expanded]="expandedSections().privacy"
+          id="privacy-content"
+          [attr.aria-hidden]="!expandedSections().privacy"
+        >
+          <div class="accordion-content-inner">
+            <p class="accordion-text">
+              We respect your privacy and are committed to protecting your personal information. This app 
+              stores data locally on your device, including prayer time preferences and location settings. 
+              We do not collect, share, or transmit any personal data to external servers. All information 
+              remains on your device and can be cleared at any time through the settings.
+            </p>
+            <p class="accordion-text">
+              For more detailed information about our privacy practices, please review our full privacy policy.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 

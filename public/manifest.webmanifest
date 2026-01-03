@@ -1,6 +1,6 @@
 {
-  "name": "Quran App",
-  "short_name": "Quran",
+  "name": "QuranFlow",
+  "short_name": "QuranFlow",
   "description": "Islamic prayer times, Quran reading, and Qibla direction finder",
   "display": "standalone",
   "theme_color": "#fff9f0",

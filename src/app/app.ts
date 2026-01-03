@@ -11,5 +11,5 @@ import { OfflineBannerComponent } from './shared/components/offline-banner/offli
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('ng-quran');
+  protected readonly title = signal('QuranFlow');
 }

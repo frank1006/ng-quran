@@ -20,6 +20,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly requestingCompass = signal<boolean>(false);
   protected readonly clearingData = signal<boolean>(false);
 
+  // App Information
+  protected readonly appName = signal<string>('QuranFlow');
+  protected readonly appVersion = signal<string>('Beta-v1');
+  protected readonly buildNumber = signal<string | null>(null);
+
+  // Accordion state
+  protected readonly expandedSections = signal<{ mission: boolean; privacy: boolean }>({
+    mission: false,
+    privacy: false
+  });
+
   private verifyInterval: number | null = null;
 
   constructor(
@@ -101,6 +112,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
       default:
         return 'status-not-requested';
     }
+  }
+
+  /**
+   * Toggle accordion section
+   */
+  protected toggleAccordion(section: 'mission' | 'privacy'): void {
+    const current = this.expandedSections();
+    this.expandedSections.set({
+      ...current,
+      [section]: !current[section]
+    });
   }
 
   /**
