@@ -6,6 +6,7 @@ import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService, CompassInstruction } from './services/qibla.service';
 import { QiblaCompassComponent } from './components/qibla-compass.component';
 import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-header.component';
+import { PermissionsService } from '../../services/permissions.service';
 
 @Component({
   selector: 'app-qibla',
@@ -26,16 +27,21 @@ export class QiblaComponent implements OnInit, OnDestroy {
   protected readonly compassPermissionRequested = signal<boolean>(false);
   protected readonly compassAvailable = signal<boolean>(false);
   protected readonly needsPermissionButton = signal<boolean>(false);
+  protected readonly compassError = signal<string | null>(null);
 
   private headingSubscription: Subscription | null = null;
   private locationSubscription: Subscription | null = null;
   private lastLocationKey: string | null = null;
   private locationTimeout: number | null = null;
+  private compassInitialCheckTimeout: number | null = null;
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly prayerTimeStore = inject(PrayerTimeStore);
   private readonly qiblaService = inject(QiblaService);
+  private readonly permissionsService = inject(PermissionsService);
   protected readonly location = computed(() => this.prayerTimeStore.currentLocation());
+  private compassDataTimeout: number | null = null;
+  private lastHeadingReceivedTime: number | null = null;
 
   constructor() {
     effect(() => {
@@ -57,6 +63,14 @@ export class QiblaComponent implements OnInit, OnDestroy {
     if (this.locationTimeout !== null) {
       clearTimeout(this.locationTimeout);
       this.locationTimeout = null;
+    }
+    if (this.compassDataTimeout !== null) {
+      clearTimeout(this.compassDataTimeout);
+      this.compassDataTimeout = null;
+    }
+    if (this.compassInitialCheckTimeout !== null) {
+      clearTimeout(this.compassInitialCheckTimeout);
+      this.compassInitialCheckTimeout = null;
     }
     if (this.headingSubscription) {
       this.headingSubscription.unsubscribe();
@@ -156,12 +170,13 @@ export class QiblaComponent implements OnInit, OnDestroy {
       const granted = await this.qiblaService.requestCompassPermission();
 
       if (granted) {
+        this.compassError.set(null); // Clear any previous errors
         this.startCompassListening();
       } else {
         // Permission denied - restore button so user can try again
         this.compassPermissionRequested.set(false);
         this.needsPermissionButton.set(true);
-        this.error.set('Compass permission denied. Please enable in your browser settings.');
+        this.compassError.set('Compass permission denied. Please enable in your browser settings.');
       }
     } catch (error) {
       // Handle any errors during permission request
@@ -177,39 +192,128 @@ export class QiblaComponent implements OnInit, OnDestroy {
       this.headingSubscription.unsubscribe();
     }
 
+    if (this.compassDataTimeout !== null) {
+      clearTimeout(this.compassDataTimeout);
+      this.compassDataTimeout = null;
+    }
+
+    this.lastHeadingReceivedTime = null;
+
+    // Monitor for compass data not being received
+    this.startCompassHealthCheck();
+
     this.headingSubscription = this.qiblaService.getDeviceHeading()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
       next: (heading) => {
         if (heading !== null) {
+          this.lastHeadingReceivedTime = Date.now();
           this.compassPermissionGranted.set(true);
           this.compassPermissionRequested.set(false);
           this.needsPermissionButton.set(false);
+          this.compassError.set(null); // Clear errors when compass is working
           this.currentHeading.set(heading);
           this.updateInstruction();
         } else {
           const wasGranted = this.qiblaService.isCompassPermissionGranted();
           if (!wasGranted) {
-            this.compassPermissionGranted.set(false);
-            this.compassPermissionRequested.set(false);
-            this.currentHeading.set(null);
-            this.needsPermissionButton.set(true);
+            this.handleCompassNotWorking('Permission not granted');
+          } else {
+            // Permission granted but no data - compass might have stopped working
+            this.handleCompassNotWorking('Compass data not available');
           }
         }
       },
       error: (err) => {
         console.error('Compass error:', err);
-        const wasGranted = this.qiblaService.isCompassPermissionGranted();
-        if (wasGranted) {
-          this.needsPermissionButton.set(true);
-        } else {
-          this.compassPermissionGranted.set(false);
-          this.compassPermissionRequested.set(false);
-          this.currentHeading.set(null);
-          this.needsPermissionButton.set(true);
-        }
+        this.handleCompassNotWorking('Compass error occurred');
       }
     });
+  }
+
+  /**
+   * Handle compass not working scenarios
+   */
+  private handleCompassNotWorking(reason: string): void {
+    console.warn('Compass stopped working:', reason);
+    
+    // Update permission state to reflect actual functionality
+    this.permissionsService.markCompassAsNotWorking();
+    
+    this.compassPermissionGranted.set(false);
+    this.compassPermissionRequested.set(false);
+    this.currentHeading.set(null);
+    this.needsPermissionButton.set(true);
+    
+    // Set user-friendly error message
+    if (reason === 'Permission not granted') {
+      this.compassError.set(null); // No error, just needs permission
+    } else if (reason === 'Compass data not available' || reason === 'No compass data received' || reason === 'Compass not responding') {
+      this.compassError.set('Compass stopped working. Please enable it again.');
+    } else {
+      this.compassError.set('Compass access was lost. Please try enabling it again.');
+    }
+    
+    // Clear health check timeout
+    if (this.compassDataTimeout !== null) {
+      clearTimeout(this.compassDataTimeout);
+      this.compassDataTimeout = null;
+    }
+  }
+
+  /**
+   * Monitor compass health - detect if data stops being received
+   */
+  private startCompassHealthCheck(): void {
+    // Don't start if component is destroyed
+    if (this.destroyRef.destroyed) {
+      return;
+    }
+
+    if (this.compassDataTimeout !== null) {
+      clearTimeout(this.compassDataTimeout);
+    }
+
+    this.compassDataTimeout = window.setTimeout(() => {
+      // Don't check if component is destroyed
+      if (this.destroyRef.destroyed) {
+        return;
+      }
+
+      // Check if we haven't received data in the last 5 seconds
+      if (this.lastHeadingReceivedTime !== null) {
+        const timeSinceLastData = Date.now() - this.lastHeadingReceivedTime;
+        if (timeSinceLastData > 5000) {
+          // No data for 5 seconds - compass likely stopped working
+          this.handleCompassNotWorking('No compass data received');
+          return;
+        }
+      } else {
+        // Never received data - check after initial delay
+        const initialDelay = 3000;
+        if (this.compassPermissionGranted() && !this.loading()) {
+          // Clear any existing initial check timeout
+          if (this.compassInitialCheckTimeout !== null) {
+            clearTimeout(this.compassInitialCheckTimeout);
+          }
+          // Permission granted but no data after delay
+          this.compassInitialCheckTimeout = window.setTimeout(() => {
+            if (this.destroyRef.destroyed) {
+              return;
+            }
+            if (!this.lastHeadingReceivedTime && this.compassPermissionGranted()) {
+              this.handleCompassNotWorking('Compass not responding');
+            }
+            this.compassInitialCheckTimeout = null;
+          }, initialDelay);
+        }
+      }
+
+      // Continue monitoring only if compass is still active
+      if (this.compassPermissionGranted() && !this.destroyRef.destroyed) {
+        this.startCompassHealthCheck();
+      }
+    }, 3000);
   }
 
   private updateInstruction(): void {

@@ -147,7 +147,19 @@ export class PermissionsService {
       // Check localStorage for previously granted permission
       const wasGranted = this.isCompassPermissionGranted();
       if (wasGranted) {
-        this.compassPermission.set(PermissionStatus.GRANTED);
+        // Verify compass is actually working
+        this.verifyCompassFunctionality().then(isWorking => {
+          if (!isWorking) {
+            // Permission was granted but compass not working - likely revoked or blocked
+            this.compassPermission.set(PermissionStatus.DENIED);
+            this.saveCompassPermission(false);
+          } else {
+            this.compassPermission.set(PermissionStatus.GRANTED);
+          }
+        }).catch(() => {
+          // If verification fails, assume it's still granted but log it
+          this.compassPermission.set(PermissionStatus.GRANTED);
+        });
       } else {
         this.compassPermission.set(PermissionStatus.NOT_REQUESTED);
       }
@@ -155,6 +167,51 @@ export class PermissionsService {
       // Non-iOS devices, permission is implicit
       this.compassPermission.set(PermissionStatus.GRANTED);
     }
+  }
+
+  /**
+   * Verify that compass is actually working (not just permission granted)
+   */
+  private async verifyCompassFunctionality(): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      if (!this.compassSupported()) {
+        resolve(false);
+        return;
+      }
+
+      let hasReceivedData = false;
+      let timeoutId: number | null = null;
+
+      const eventName = 'ondeviceorientationabsolute' in window
+        ? 'deviceorientationabsolute'
+        : 'deviceorientation';
+
+      const handleOrientation = (event: DeviceOrientationEvent) => {
+        // Check if we're receiving valid data
+        const hasValidData = event.alpha !== null && 
+                            !isNaN(event.alpha) || 
+                            ((event as any).webkitCompassHeading !== undefined && 
+                             (event as any).webkitCompassHeading !== null);
+
+        if (hasValidData) {
+          hasReceivedData = true;
+          if (timeoutId !== null) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+          window.removeEventListener(eventName, handleOrientation);
+          resolve(true);
+        }
+      };
+
+      window.addEventListener(eventName, handleOrientation, { passive: true });
+
+      // If no data received within 2 seconds, consider it not working
+      timeoutId = window.setTimeout(() => {
+        window.removeEventListener(eventName, handleOrientation);
+        resolve(hasReceivedData);
+      }, 2000);
+    });
   }
 
   /**
@@ -244,6 +301,15 @@ export class PermissionsService {
       default:
         return 'Unknown';
     }
+  }
+
+  /**
+   * Update compass permission state when it stops working
+   * Called from components when compass errors occur
+   */
+  markCompassAsNotWorking(): void {
+    this.compassPermission.set(PermissionStatus.DENIED);
+    this.saveCompassPermission(false);
   }
 }
 

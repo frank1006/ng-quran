@@ -94,7 +94,7 @@
 }
 
 .instruction-card {
-  padding: 1.5rem 2rem;
+  padding: 1rem;
   background: #ffffff;
   border-radius: var(--border-radius-all);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -142,7 +142,7 @@
 
 .instruction-button {
   width: 100%;
-  padding: 1.5rem 2rem;
+  padding: 1rem;
   background: #ffb030;
   color: #1f1f1f;
   border: 2px solid #ffb030;
@@ -173,4 +173,18 @@
   cursor: not-allowed;
   background: #ffb030;
   border-color: #ffb030;
+}
+
+.compass-error-message {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--border-radius-all);
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #991b1b;
+  text-align: center;
+  line-height: 1.5;
 }

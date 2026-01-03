@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SettingsService, TimeFormat } from '../../services/settings.service';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
@@ -11,7 +11,7 @@ import { PrayerTimeStore } from '../../store/prayer-time.store';
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css'
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly TimeFormat = TimeFormat;
   protected readonly PermissionStatus = PermissionStatus;
   protected readonly timeFormat = computed(() => this.settingsService.currentTimeFormat());
@@ -19,6 +19,8 @@ export class SettingsComponent implements OnInit {
   
   protected readonly requestingCompass = signal<boolean>(false);
   protected readonly clearingData = signal<boolean>(false);
+
+  private verifyInterval: number | null = null;
 
   constructor(
     private settingsService: SettingsService,
@@ -29,6 +31,20 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {
     // Refresh compass permission status on component load
     this.permissionsService.checkPermissions();
+    
+    // Re-verify compass functionality periodically while on settings page
+    // This ensures status reflects actual compass state
+    this.verifyInterval = window.setInterval(() => {
+      this.permissionsService.checkPermissions();
+    }, 5000); // Check every 5 seconds
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup interval on component destroy
+    if (this.verifyInterval !== null) {
+      clearInterval(this.verifyInterval);
+      this.verifyInterval = null;
+    }
   }
 
   /**
