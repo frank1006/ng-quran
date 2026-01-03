@@ -52,6 +52,8 @@
   user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
 }
 
 /* Allow text selection for input fields and text areas */
@@ -62,6 +64,8 @@ textarea,
   -moz-user-select: auto;
   -ms-user-select: auto;
   user-select: auto;
+  touch-action: auto;
+  -ms-touch-action: auto;
 }
 
 body {
@@ -70,8 +74,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #fff9f0;
   color: #1f1f1f;
-  touch-action: pan-x pan-y;
+  touch-action: manipulation;
   -webkit-touch-callout: none;
+}
+
+html {
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
 }
 
 html, body, .main {
@@ -90,4 +99,5 @@ html, body, .main {
   font-family: 'Poppins', sans-serif;
   max-width: var(--app-max-width);
   margin-inline: auto;
+  touch-action: manipulation;
 }
