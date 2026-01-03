@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { QuranApiService } from '../../../services/quran-api.service';
 import { QuranStoreService } from '../../../services/quran-store.service';
 import { Chapter, Reciter } from '../../../services/quran-api.types';
+import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
 
 @Component({
   selector: 'app-surah-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConnectionErrorComponent],
   templateUrl: './surah-list.component.html',
   styleUrl: './surah-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

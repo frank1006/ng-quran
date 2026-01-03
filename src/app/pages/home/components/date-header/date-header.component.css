@@ -21,7 +21,19 @@
   flex-shrink: 0;
 }
 
-.nav-button:hover {
+.nav-button:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.nav-button.disabled,
+.nav-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
+.nav-button.disabled:hover,
+.nav-button:disabled:hover {
   background: #f3f4f6;
 }
 

@@ -1,15 +1,12 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
-import { NetworkStatusService } from '../services/network-status.service';
 
 /**
  * Global HTTP error interceptor
  * Handles HTTP errors consistently across the application
+ * Note: Offline banner is only shown for verse audio playback errors, not for general HTTP errors
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const networkStatus = inject(NetworkStatusService);
-  
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       let errorMessage = 'An unexpected error occurred';
@@ -17,18 +14,23 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       if (error.error instanceof ErrorEvent) {
         // Client-side error
-        errorMessage = error.error.message || 'Client-side error occurred';
+        const clientMessage = error.error.message || '';
         // Check if it's a network-related error
-        if (error.error.message?.includes('Failed to fetch') || 
-            error.error.message?.includes('NetworkError') ||
+        if (clientMessage.includes('Failed to fetch') || 
+            clientMessage.includes('NetworkError') ||
+            clientMessage.includes('network') ||
+            clientMessage.includes('connection') ||
             !navigator.onLine) {
           isNetworkError = true;
+          errorMessage = 'No internet connection. Please check your network and try again.';
+        } else {
+          errorMessage = clientMessage || 'Client-side error occurred';
         }
       } else {
         // Server-side error
         switch (error.status) {
           case 0:
-            errorMessage = 'Network error. Please check your internet connection.';
+            errorMessage = 'No internet connection. Please check your network and try again.';
             isNetworkError = true;
             break;
           case 400:
@@ -57,10 +59,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      // Show offline banner if it's a network error (auto-hides after 2 seconds)
-      if (isNetworkError) {
-        networkStatus.showOfflineBanner();
-      }
+      // Note: Offline banner is only shown for verse audio playback errors, not for general HTTP errors
 
       // Log error in development mode only
       if (!isProduction()) {

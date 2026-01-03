@@ -9,9 +9,11 @@ import { CommonModule } from '@angular/common';
     <div class="date-header">
       <button 
         class="nav-button" 
+        [class.disabled]="!canNavigatePrevious()"
+        [disabled]="!canNavigatePrevious()"
         (click)="onPrevious()" 
         type="button"
-        aria-label="Previous day"
+        [attr.aria-label]="canNavigatePrevious() ? 'Previous day' : 'Previous day (not available)'"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <polyline points="15 18 9 12 15 6"></polyline>
@@ -29,9 +31,11 @@ import { CommonModule } from '@angular/common';
 
       <button 
         class="nav-button" 
+        [class.disabled]="!canNavigateNext()"
+        [disabled]="!canNavigateNext()"
         (click)="onNext()" 
         type="button"
-        aria-label="Next day"
+        [attr.aria-label]="canNavigateNext() ? 'Next day' : 'Next day (not available)'"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <polyline points="9 18 15 12 9 6"></polyline>
@@ -44,14 +48,20 @@ import { CommonModule } from '@angular/common';
 export class DateHeaderComponent {
   readonly formattedDate = input<string>('');
   readonly hijriDate = input<string>('');
+  readonly canNavigatePrevious = input<boolean>(true);
+  readonly canNavigateNext = input<boolean>(true);
   readonly dateNavigate = output<number>();
 
   onPrevious(): void {
-    this.dateNavigate.emit(-1);
+    if (this.canNavigatePrevious()) {
+      this.dateNavigate.emit(-1);
+    }
   }
 
   onNext(): void {
-    this.dateNavigate.emit(1);
+    if (this.canNavigateNext()) {
+      this.dateNavigate.emit(1);
+    }
   }
 }
 

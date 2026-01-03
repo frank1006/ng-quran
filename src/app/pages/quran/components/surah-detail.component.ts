@@ -8,6 +8,8 @@ import { QuranStoreService } from '../../../services/quran-store.service';
 import { ChapterWithVerses, Verse, AudioRecitation } from '../../../services/quran-api.types';
 import { AudioPlayerComponent } from './audio-player.component';
 import { HeroHeaderComponent } from '../../../shared/components/hero-header/hero-header.component';
+import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
+import { NetworkStatusService } from '../../../services/network-status.service';
 
 interface VerseWithAudio extends Verse {
   translation?: string;
@@ -18,7 +20,7 @@ interface VerseWithAudio extends Verse {
 @Component({
   selector: 'app-surah-detail',
   standalone: true,
-  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent],
+  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent, ConnectionErrorComponent],
   templateUrl: './surah-detail.component.html',
   styleUrl: './surah-detail.component.css'
 })
@@ -58,6 +60,8 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private autoScrollTimeouts: number[] = [];
   private isRestoringState = false; // Flag to prevent auto-scroll during state restoration
   private readonly TRANSLATION_LANGUAGE_STORAGE_KEY = 'quran-translation-language';
+
+  private readonly networkStatus = inject(NetworkStatusService);
 
   constructor(
     private route: ActivatedRoute,
@@ -269,9 +273,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       next: (chapterData) => {
         this.chapter.set(chapterData);
         
-        // Verify translations are attached
+        // Verify translations are attached (silently handle missing translations)
         if (!chapterData._translations && !(chapterData as any)._translations_bengali && !(chapterData as any)._translations_urdu) {
-          console.warn('No translations found in chapter data. Translations may not be available.');
+          // Translations may not be available - continue without them
         }
         
         // Get translations for the selected language
@@ -294,7 +298,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       error: (err) => {
         this.error.set(err.message || 'Failed to load chapter');
         this.loading.set(false);
-        console.error('Error loading chapter:', err);
       }
     });
   }
@@ -324,7 +327,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }
     } catch (error) {
-      console.error('Error loading translation language preference:', error);
+      // Silently handle localStorage errors
     }
   }
 
@@ -334,26 +337,28 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         localStorage.setItem(this.TRANSLATION_LANGUAGE_STORAGE_KEY, language);
       }
     } catch (error) {
-      console.error('Error saving translation language preference:', error);
+      // Silently handle localStorage errors
     }
   }
 
   private updateVersesWithTranslation(language: 'english' | 'bengali' | 'urdu'): void {
     const chapterData = this.chapter();
     if (!chapterData) {
-      console.warn('Cannot update translations: chapter data not available');
       return;
     }
 
     // Get translations from the chapter data
     const translations = this.getTranslationsForLanguage(chapterData, language);
     
+    // If no translations found, update verses with empty translations
     if (translations.length === 0) {
-      console.warn(`No translations found for language: ${language}`, {
-        hasEnglish: !!chapterData._translations,
-        hasBengali: !!(chapterData as any)._translations_bengali,
-        hasUrdu: !!(chapterData as any)._translations_urdu
+      this.verses.update(currentVerses => {
+        return currentVerses.map(verse => ({
+          ...verse,
+          translation: ''
+        }));
       });
+      return;
     }
     
     // Update verses with the selected translation
@@ -392,12 +397,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     
     // Fallback: return empty array if translation not available
-    console.warn(`Translation not available for language: ${language}`, {
-      chapterId: chapter.id,
-      hasEnglish: !!chapter._translations,
-      hasBengali: !!(chapter as any)._translations_bengali,
-      hasUrdu: !!(chapter as any)._translations_urdu
-    });
     return [];
   }
 
@@ -441,6 +440,23 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     const currentVerse = this.currentPlayingVerse();
     const currentAudioUrl = this.currentAudioUrl();
     return currentVerse === verseNumber && !!currentAudioUrl && this.isPlaying();
+  }
+
+  protected onPlayingStateChange(isPlaying: boolean): void {
+    // Sync state when audio player play/pause state changes
+    this.isPlaying.set(isPlaying);
+    
+    const currentVerse = this.currentPlayingVerse();
+    
+    if (!isPlaying && currentVerse !== null) {
+      // When paused from audio player, set forcePause and track paused verse
+      this.forcePause.set(true);
+      this.pausedVerseNumber.set(currentVerse);
+    } else if (isPlaying && currentVerse !== null) {
+      // When playing, clear forcePause and paused verse
+      this.forcePause.set(false);
+      this.pausedVerseNumber.set(null);
+    }
   }
 
   protected selectVerse(verseNumber: number): void {
@@ -518,6 +534,8 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       // Set verse first, then URL (triggers auto-play in audio player)
       this.currentPlayingVerse.set(verseNumber);
       this.isPlaying.set(true);
+      // Clear forcePause to ensure audio can play
+      this.forcePause.set(false);
       // Use setTimeout to ensure verse is set before URL change triggers play
       const timeoutId = window.setTimeout(() => {
         if (!this.destroyRef.destroyed) {
@@ -561,7 +579,19 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         });
       },
       error: (err) => {
-        console.error(`Error loading audio for verse ${verseNumber}:`, err);
+        // Check if it's a network error
+        const errorMessage = err?.message || '';
+        const isNetworkError = errorMessage.includes('No internet connection') ||
+                              errorMessage.includes('network') ||
+                              errorMessage.includes('connection') ||
+                              errorMessage.includes('Failed to fetch') ||
+                              !navigator.onLine;
+        
+        if (isNetworkError) {
+          // Show offline banner when audio fetch fails due to network issues
+          this.networkStatus.showOfflineBanner();
+        }
+        
         this.verses.update(verses => {
           return verses.map(v => 
             v.verse_number === verseNumber ? { ...v, isLoadingAudio: false } : v
@@ -676,7 +706,19 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         });
       },
       error: (err) => {
-        console.error(`Error loading audio for verse ${verseNumber} with new reciter:`, err);
+        // Check if it's a network error
+        const errorMessage = err?.message || '';
+        const isNetworkError = errorMessage.includes('No internet connection') ||
+                              errorMessage.includes('network') ||
+                              errorMessage.includes('connection') ||
+                              errorMessage.includes('Failed to fetch') ||
+                              !navigator.onLine;
+        
+        if (isNetworkError) {
+          // Show offline banner when audio fetch fails due to network issues
+          this.networkStatus.showOfflineBanner();
+        }
+        
         // Clear loading state
         this.verses.update(verses => {
           return verses.map(v => 

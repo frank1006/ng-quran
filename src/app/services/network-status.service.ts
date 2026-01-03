@@ -21,7 +21,7 @@ export class NetworkStatusService implements OnDestroy {
   }
 
   /**
-   * Show the offline banner for 2 seconds (typically called by HTTP interceptor on network error)
+   * Show the offline banner for 5 seconds (typically called by HTTP interceptor on network error)
    */
   showOfflineBanner(): void {
     // Clear any existing timeout
@@ -33,11 +33,11 @@ export class NetworkStatusService implements OnDestroy {
     // Show the banner
     this.showBanner.set(true);
 
-    // Auto-hide after 2 seconds
+    // Auto-hide after 5 seconds
     this.hideBannerTimeoutId = setTimeout(() => {
       this.showBanner.set(false);
       this.hideBannerTimeoutId = null;
-    }, 2000);
+    }, 5000);
   }
 
   /**

@@ -303,17 +303,56 @@ export class QuranApiService {
    * @returns Error observable
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'An unknown error occurred';
+    let errorMessage = 'Unable to load content. Please try again.';
     
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
-      errorMessage = `Error: ${error.error.message}`;
+      // Client-side error (network issues, CORS, etc.)
+      const clientMessage = error.error.message || '';
+      
+      // Check for network-related errors
+      if (clientMessage.includes('Failed to fetch') || 
+          clientMessage.includes('NetworkError') ||
+          clientMessage.includes('network') ||
+          !navigator.onLine) {
+        errorMessage = 'No internet connection. Please check your network and try again.';
+      } else if (clientMessage) {
+        errorMessage = clientMessage;
+      }
     } else {
       // Server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      switch (error.status) {
+        case 0:
+          errorMessage = 'No internet connection. Please check your network and try again.';
+          break;
+        case 404:
+          errorMessage = 'Content not found. Please try again later.';
+          break;
+        case 429:
+          errorMessage = 'Too many requests. Please try again in a moment.';
+          break;
+        case 500:
+        case 502:
+        case 503:
+          errorMessage = 'Service temporarily unavailable. Please try again later.';
+          break;
+        default:
+          // Use the error message if available, otherwise use a generic message
+          if (error.message && error.message !== 'Http failure response') {
+            errorMessage = error.message;
+          }
+      }
     }
     
-    console.error('Quran API Error:', errorMessage);
+    // Log detailed error for debugging (only in development)
+    if (typeof console !== 'undefined' && console.error) {
+      console.error('Quran API Error:', {
+        status: error.status,
+        message: error.message,
+        url: error.url,
+        userMessage: errorMessage
+      });
+    }
+    
     return throwError(() => new Error(errorMessage));
   }
 

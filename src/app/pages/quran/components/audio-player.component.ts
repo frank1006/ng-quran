@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, input, output, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, input, output, signal, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NetworkStatusService } from '../../../services/network-status.service';
 
 export interface AudioPlayerState {
   isPlaying: boolean;
@@ -39,6 +40,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
   private previousUrl: string | null = null;
   private shouldAutoPlay = false;
   private eventHandlers: { [key: string]: (e: Event) => void } = {};
+  private readonly networkStatus = inject(NetworkStatusService);
 
   constructor() {
     // Handle audio URL changes - auto-play when URL changes (user clicked play)
@@ -121,19 +123,54 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
       }
     };
 
+    this.eventHandlers['pause'] = () => {
+      // Sync state when audio is paused (either by user or programmatically)
+      if (this.audio) {
+        this.state.update(s => ({ ...s, isPlaying: false }));
+        this.stopProgressTracking();
+        this.playingStateChange.emit(false);
+      }
+    };
+
+    this.eventHandlers['play'] = () => {
+      // Sync state when audio starts playing
+      if (this.audio) {
+        this.state.update(s => ({ ...s, isPlaying: true }));
+        this.startProgressTracking();
+        this.playingStateChange.emit(true);
+      }
+    };
+
     this.eventHandlers['ended'] = () => {
       this.state.update(s => ({ ...s, isPlaying: false, currentTime: 0 }));
       this.stopProgressTracking();
+      this.playingStateChange.emit(false);
       this.playNext.emit();
     };
 
     this.eventHandlers['error'] = (e: Event) => {
-      // Silently handle errors - audio errors are common during navigation/cleanup
-      // Don't log to console to avoid noise
       if (this.audio) {
         this.state.update(s => ({ ...s, isPlaying: false }));
         this.stopProgressTracking();
         this.shouldAutoPlay = false;
+        
+        // Check if it's a network error
+        const audioError = this.audio.error;
+        if (audioError) {
+          // MediaError codes: MEDIA_ERR_NETWORK = 2, MEDIA_ERR_SRC_NOT_SUPPORTED = 4
+          // Network errors typically result in MEDIA_ERR_NETWORK (2) or MEDIA_ERR_SRC_NOT_SUPPORTED (4) when offline
+          const isNetworkError = audioError.code === 2 || // MEDIA_ERR_NETWORK
+                                 audioError.code === 4 || // MEDIA_ERR_SRC_NOT_SUPPORTED (when network fails)
+                                 !navigator.onLine;
+          
+          if (isNetworkError) {
+            // Show offline banner when audio fails to load due to network issues
+            this.networkStatus.showOfflineBanner();
+          }
+        } else if (!navigator.onLine) {
+          // Also check navigator.onLine as fallback
+          this.networkStatus.showOfflineBanner();
+        }
       }
     };
 
@@ -194,10 +231,27 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
         this.playingStateChange.emit(true);
       }
     }).catch((error) => {
-      // Silently handle play errors (might be due to navigation or user interaction)
+      // Handle play errors
       if (this.audio) {
         this.state.update(s => ({ ...s, isPlaying: false }));
         this.playingStateChange.emit(false);
+        
+        // Check if it's a network error
+        const audioError = this.audio.error;
+        if (audioError) {
+          // MediaError codes: MEDIA_ERR_NETWORK = 2, MEDIA_ERR_SRC_NOT_SUPPORTED = 4
+          const isNetworkError = audioError.code === 2 || // MEDIA_ERR_NETWORK
+                                 audioError.code === 4 || // MEDIA_ERR_SRC_NOT_SUPPORTED (when network fails)
+                                 !navigator.onLine;
+          
+          if (isNetworkError) {
+            // Show offline banner when play fails due to network issues
+            this.networkStatus.showOfflineBanner();
+          }
+        } else if (!navigator.onLine) {
+          // Also check navigator.onLine as fallback
+          this.networkStatus.showOfflineBanner();
+        }
       }
       // Don't throw error to prevent unhandled promise rejection
     });

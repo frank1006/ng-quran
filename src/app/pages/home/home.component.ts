@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
@@ -11,6 +11,7 @@ import { DateHeaderComponent } from './components/date-header/date-header.compon
 import { PrayerListComponent } from './components/prayer-list/prayer-list.component';
 import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
 import { TrajectoryData } from './components/trajectory/prayer-trajectory.types';
+import { NetworkStatusService } from '../../services/network-status.service';
 
 interface PrayerItem {
   name: string;
@@ -41,13 +42,46 @@ export class HomeComponent implements OnInit, OnDestroy {
   protected readonly prayerData = signal<PrayerTimeData | null>(null);
   protected readonly currentDate = signal<Date>(new Date());
   private readonly destroyRef = inject(DestroyRef);
+  private readonly networkStatus = inject(NetworkStatusService);
   private timeInterval: number | null = null;
 
   constructor(
     private prayerTimeStore: PrayerTimeStore,
     private trajectoryService: PrayerTrajectoryService,
     private settingsService: SettingsService
-  ) {}
+  ) {
+    // Show offline banner when there's a network error but we have cached data
+    effect(() => {
+      const error = this.error();
+      const prayers = this.prayers();
+      
+      if (error && prayers.length > 0) {
+        // Check if it's a network error
+        const errorMessage = error || '';
+        const isNetworkError = errorMessage.includes('No internet connection') ||
+                              errorMessage.includes('network') ||
+                              errorMessage.includes('connection') ||
+                              errorMessage.includes('Failed to fetch') ||
+                              !navigator.onLine;
+        
+        if (isNetworkError) {
+          // Show offline banner when we have cached data but network request failed
+          this.networkStatus.showOfflineBanner();
+        }
+      }
+    });
+
+    // Show offline banner when navigation buttons are disabled (no cached data available)
+    effect(() => {
+      const canNavigatePrev = this.canNavigatePrevious();
+      const canNavigateNext = this.canNavigateNext();
+      
+      // If either button is disabled and we're offline, show the banner
+      if ((!canNavigatePrev || !canNavigateNext) && !navigator.onLine) {
+        this.networkStatus.showOfflineBanner();
+      }
+    });
+  }
 
   private createPrayerList(data: PrayerTimeData, timeFormat: TimeFormat): PrayerItem[] {
     return [
@@ -245,6 +279,34 @@ export class HomeComponent implements OnInit, OnDestroy {
     return `${dayName} ${day}${daySuffix} ${month}`;
   });
 
+  protected readonly canNavigatePrevious = computed<boolean>(() => {
+    // When online, always allow navigation (can fetch new data)
+    if (navigator.onLine) {
+      return true;
+    }
+    
+    // When offline, only allow if cached data exists
+    const currentDate = this.currentDate();
+    const previousDate = new Date(currentDate);
+    previousDate.setDate(previousDate.getDate() - 1);
+    const previousDateKey = this.getDateKey(previousDate);
+    return this.prayerTimeStore.getCachedPrayerTimes(previousDateKey) !== null;
+  });
+
+  protected readonly canNavigateNext = computed<boolean>(() => {
+    // When online, always allow navigation (can fetch new data)
+    if (navigator.onLine) {
+      return true;
+    }
+    
+    // When offline, only allow if cached data exists
+    const currentDate = this.currentDate();
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    const nextDateKey = this.getDateKey(nextDate);
+    return this.prayerTimeStore.getCachedPrayerTimes(nextDateKey) !== null;
+  });
+
   protected readonly hijriDate = computed<string>(() => {
     const data = this.prayerData();
     if (!data?.hijriDate) return '';
@@ -316,6 +378,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   navigateDate(days: number): void {
     const newDate = new Date(this.currentDate());
     newDate.setDate(newDate.getDate() + days);
+    
+    // When offline, check if cached data exists before navigating
+    if (!navigator.onLine) {
+      const newDateKey = this.getDateKey(newDate);
+      const hasCachedData = this.prayerTimeStore.getCachedPrayerTimes(newDateKey) !== null;
+
+      // If trying to navigate to a date without cached data while offline, show banner and prevent navigation
+      if (!hasCachedData) {
+        this.networkStatus.showOfflineBanner();
+        return;
+      }
+    }
+
+    // When online or when offline with cached data, allow navigation
     this.currentDate.set(newDate);
 
     if (days !== 0) {

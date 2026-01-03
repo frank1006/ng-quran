@@ -7,8 +7,7 @@
   flex-direction: column;
 }
 
-.loading-state,
-.error-state {
+.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -20,29 +19,6 @@
   flex: 1;
 }
 
-.error-state {
-  color: #dc2626;
-}
-
-.retry-button {
-  margin-top: var(--space-md);
-  padding: var(--space-sm) var(--space-lg);
-  background: #ffb030;
-  color: #1f1f1f;
-  border: none;
-  border-radius: var(--border-radius-all);
-  font-family: 'Poppins', sans-serif;
-  font-size: var(--font-xs);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.retry-button:hover {
-  background: #ff9900;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 176, 48, 0.3);
-}
 
 
 .surah-title-wrapper {

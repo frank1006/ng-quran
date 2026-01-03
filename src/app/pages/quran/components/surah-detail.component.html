@@ -6,10 +6,10 @@
   }
 
   @if (error()) {
-    <div class="error-state">
-      <p>{{ error() }}</p>
-      <button class="retry-button" (click)="retry()">Retry</button>
-    </div>
+    <app-connection-error 
+      [errorMessage]="error()!" 
+      (retry)="retry()"
+    />
   }
 
   @if (!loading() && chapter()) {
@@ -53,7 +53,7 @@
         [forcePause]="forcePause()"
         (playNext)="onPlayNext()"
         (playPrevious)="onPlayPrevious()"
-        (playingStateChange)="isPlaying.set($event)"
+        (playingStateChange)="onPlayingStateChange($event)"
       />
     </app-hero-header>
 

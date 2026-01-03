@@ -53,10 +53,10 @@
   }
 
   @if (error()) {
-    <div class="error-state">
-      <p>{{ error() }}</p>
-      <button class="retry-button" (click)="retry()">Retry</button>
-    </div>
+    <app-connection-error 
+      [errorMessage]="error()!" 
+      (retry)="retry()"
+    />
   }
 
   @if (!loading() && !error()) {

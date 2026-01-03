@@ -16,6 +16,8 @@
   <app-date-header
     [formattedDate]="formattedDate()"
     [hijriDate]="hijriDate()"
+    [canNavigatePrevious]="canNavigatePrevious()"
+    [canNavigateNext]="canNavigateNext()"
     (dateNavigate)="navigateDate($event)"
   />
 

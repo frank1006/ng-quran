@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
 
 /**
  * Prayer item for list display
@@ -14,7 +15,7 @@ interface PrayerItem {
 @Component({
   selector: 'app-prayer-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConnectionErrorComponent],
   template: `
     @if (loading()) {
       <div class="loading-state">
@@ -22,11 +23,11 @@ interface PrayerItem {
       </div>
     }
 
-    @if (error()) {
-      <div class="error-state">
-        <p>{{ error() }}</p>
-        <button class="retry-button" (click)="onRetry()">Retry</button>
-      </div>
+    @if (error() && prayers().length === 0) {
+      <app-connection-error 
+        [errorMessage]="error()!" 
+        (retry)="onRetry()"
+      />
     }
 
     @if (!loading() && prayers().length > 0) {
