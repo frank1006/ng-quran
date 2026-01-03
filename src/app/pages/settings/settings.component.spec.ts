@@ -14,11 +14,11 @@ describe('SettingsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render settings title', () => {
+  it('should render profile title', () => {
     const fixture = TestBed.createComponent(SettingsComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Settings');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Profile');
   });
 });
 

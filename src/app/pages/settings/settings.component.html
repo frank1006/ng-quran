@@ -1,105 +1,111 @@
 <div class="settings-container">
-  <h1 class="settings-title">Settings</h1>
+  <h1 class="settings-title">Profile</h1>
 
-  <!-- Time Format Section -->
+  <!-- Settings Card: Time Format and App Permissions -->
   <section class="settings-section">
-    <h2 class="section-title">Time Format</h2>
-    <p class="section-description">Choose how prayer times are displayed</p>
+    <h2 class="section-title">Settings</h2>
     
-    <div class="format-options">
-      <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWELVE_HOUR">
-        <input
-          type="radio"
-          name="timeFormat"
-          [value]="TimeFormat.TWELVE_HOUR"
-          [checked]="timeFormat() === TimeFormat.TWELVE_HOUR"
-          (change)="onTimeFormatChange(TimeFormat.TWELVE_HOUR)"
-        />
-        <div class="format-content">
-          <span class="format-label">12-hour format</span>
-          <span class="format-example">12:00 AM / PM</span>
-        </div>
-      </label>
+    <!-- Time Format Section -->
+    <div class="settings-card-section">
+      <h3 class="subsection-title">Time Format</h3>
+      <p class="subsection-description">Choose how prayer times are displayed</p>
+      
+      <div class="format-options" role="radiogroup" aria-label="Time format options">
+        <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWELVE_HOUR">
+          <input
+            type="radio"
+            name="timeFormat"
+            [value]="TimeFormat.TWELVE_HOUR"
+            [checked]="timeFormat() === TimeFormat.TWELVE_HOUR"
+            (change)="onTimeFormatChange(TimeFormat.TWELVE_HOUR)"
+            aria-label="12-hour time format"
+          />
+          <div class="format-content">
+            <span class="format-label">12-hour format</span>
+            <span class="format-example">12:00 AM / PM</span>
+          </div>
+        </label>
 
-      <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR">
-        <input
-          type="radio"
-          name="timeFormat"
-          [value]="TimeFormat.TWENTY_FOUR_HOUR"
-          [checked]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR"
-          (change)="onTimeFormatChange(TimeFormat.TWENTY_FOUR_HOUR)"
-        />
-        <div class="format-content">
-          <span class="format-label">24-hour format</span>
-          <span class="format-example">24:00</span>
-        </div>
-      </label>
+        <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR">
+          <input
+            type="radio"
+            name="timeFormat"
+            [value]="TimeFormat.TWENTY_FOUR_HOUR"
+            [checked]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR"
+            (change)="onTimeFormatChange(TimeFormat.TWENTY_FOUR_HOUR)"
+            aria-label="24-hour time format"
+          />
+          <div class="format-content">
+            <span class="format-label">24-hour format</span>
+            <span class="format-example">24:00</span>
+          </div>
+        </label>
+      </div>
     </div>
-  </section>
 
-  <!-- App Permissions Section -->
-  <section class="settings-section">
-    <h2 class="section-title">App Permissions</h2>
-    <p class="section-description">Manage app access to device features</p>
+    <!-- App Permissions Section -->
+    <div class="settings-card-section">
+      <h3 class="subsection-title">App Permissions</h3>
+      <p class="subsection-description">Manage app access to device features</p>
 
-    <div class="permissions-list">
-      <!-- Compass Permission -->
-      <div class="permission-item">
-        <div class="permission-info">
-          <h3 class="permission-name">Compass / Motion Sensor Access</h3>
-          <p class="permission-description">Required for Qibla compass feature</p>
-        </div>
-        <div class="permission-status">
-          @if (compassState().isSupported) {
-            @if (compassState().status !== PermissionStatus.NOT_REQUESTED && compassState().status !== PermissionStatus.PROMPT) {
-              <span class="status-badge" [class]="getPermissionStatusClass(compassState().status)">
+      <div class="permissions-list">
+        <!-- Compass Permission -->
+        <div class="permission-item">
+          <div class="permission-info">
+            <h3 class="permission-name">Compass / Motion Sensor Access</h3>
+            <p class="permission-description">Required for Qibla compass feature</p>
+          </div>
+          <div class="permission-status">
+            @if (compassState().isSupported) {
+              @if (compassState().status !== PermissionStatus.NOT_REQUESTED && compassState().status !== PermissionStatus.PROMPT) {
+                <span class="status-badge" [class]="getPermissionStatusClass(compassState().status)">
+                  {{ getPermissionStatusText(compassState().status) }}
+                </span>
+              }
+              @if (compassState().canRequest || compassState().status === PermissionStatus.NOT_REQUESTED || compassState().status === PermissionStatus.PROMPT) {
+                <button
+                  class="permission-button"
+                  type="button"
+                  (click)="requestCompassPermission()"
+                  [disabled]="requestingCompass()"
+                  [attr.aria-label]="requestingCompass() ? 'Requesting compass permission' : 'Enable motion sensor access for Qibla compass'"
+                >
+                  {{ requestingCompass() ? 'Requesting...' : 'Enable Motion Access' }}
+                </button>
+              }
+            } @else {
+              <span class="status-badge status-not-supported">
                 {{ getPermissionStatusText(compassState().status) }}
               </span>
             }
-            @if (compassState().canRequest || compassState().status === PermissionStatus.NOT_REQUESTED || compassState().status === PermissionStatus.PROMPT) {
-              <button
-                class="permission-button"
-                type="button"
-                (click)="requestCompassPermission()"
-                [disabled]="requestingCompass()"
-              >
-                {{ requestingCompass() ? 'Requesting...' : 'Enable Motion Access' }}
-              </button>
-            }
-          } @else {
-            <span class="status-badge status-not-supported">
-              {{ getPermissionStatusText(compassState().status) }}
-            </span>
-          }
+          </div>
+        </div>
+
+        <!-- Reset Data & Permissions -->
+        <div class="permission-item permission-item-danger">
+          <div class="permission-info">
+            <h3 class="permission-name">Reset Data & Permissions</h3>
+            <p class="permission-description">Clear all stored data, API cache, and reset permissions. This action cannot be undone.</p>
+            <ul class="clear-data-list">
+              <li>Prayer times cache</li>
+              <li>Time format preference</li>
+              <li>Permission preferences</li>
+              <li>Location data</li>
+            </ul>
+          </div>
+          <div class="permission-status">
+            <button
+              class="clear-data-button"
+              type="button"
+              (click)="resetDataAndPermissions()"
+              [disabled]="clearingData()"
+              [attr.aria-label]="clearingData() ? 'Resetting data and permissions' : 'Reset all data and permissions. This action cannot be undone.'"
+            >
+              {{ clearingData() ? 'Resetting...' : 'Reset Data & Permissions' }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Reset Data & Permissions Section -->
-  <section class="settings-section danger-section">
-    <h2 class="section-title">Reset Data & Permissions</h2>
-    <p class="section-description">Clear all stored data, API cache, and reset permissions</p>
-    
-    <div class="clear-data-content">
-      <div class="clear-data-info">
-        <p class="clear-data-warning">⚠️ This action cannot be undone</p>
-        <ul class="clear-data-list">
-          <li>Prayer times cache</li>
-          <li>Time format preference</li>
-          <li>Permission preferences</li>
-          <li>Location data</li>
-        </ul>
-      </div>
-      
-      <button
-        class="clear-data-button"
-        type="button"
-        (click)="resetDataAndPermissions()"
-        [disabled]="clearingData()"
-      >
-        {{ clearingData() ? 'Resetting...' : 'Reset Data & Permissions' }}
-      </button>
     </div>
   </section>
 </div>
