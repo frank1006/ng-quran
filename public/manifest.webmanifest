@@ -3,7 +3,7 @@
   "short_name": "Quran",
   "description": "Islamic prayer times, Quran reading, and Qibla direction finder",
   "display": "standalone",
-  "theme_color": "#874d14",
+  "theme_color": "#fff9f0",
   "background_color": "#ffffff",
   "orientation": "portrait-primary",
   "scope": "./",

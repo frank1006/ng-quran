@@ -181,7 +181,7 @@
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
   padding: 1.5rem 2rem;
-  padding-bottom: calc(1.5rem + 80px); /* Add extra bottom padding to prevent overlap with bottom nav */
+  padding-bottom: calc(1.5rem + 87px); /* Add extra bottom padding to prevent overlap with bottom nav */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;

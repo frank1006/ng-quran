@@ -29,7 +29,7 @@ body {
   font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #ffffff;
+  background: #fff9f0;
   color: #1f1f1f;
   touch-action: pan-x pan-y;
   -webkit-touch-callout: none;
@@ -42,7 +42,10 @@ html, body, .main {
 
 .main {
   min-height: 100dvh;
+  min-height: calc(100dvh + env(safe-area-inset-top, 0));
   background: linear-gradient(180deg, #fff9f0 0%, #ffffff 40%);
-  padding-bottom: 85px;
+  background-attachment: fixed;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0));
   font-family: 'Poppins', sans-serif;
 }
