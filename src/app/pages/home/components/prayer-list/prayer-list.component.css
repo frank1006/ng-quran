@@ -1,7 +1,7 @@
 .loading-state,
 .error-state {
   text-align: center;
-  padding: 40px 20px;
+  padding: var(--space-2xl) var(--space-xl);
   color: #6b7280;
 }
 
@@ -10,14 +10,14 @@
 }
 
 .retry-button {
-  margin-top: 16px;
-  padding: 12px 24px;
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
   background: #ffb030;
   color: #1f1f1f;
   border: none;
   border-radius: var(--border-radius-all);
   font-family: 'Poppins', sans-serif;
-  font-size: 12px;
+  font-size: var(--font-xs);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -32,7 +32,7 @@
 .prayer-list {
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  padding: var(--space-md) var(--space-lg);
   gap: 0.65rem;
 }
 
@@ -74,10 +74,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 1.5rem;
+  padding: var(--space-xs) var(--space-lg);
   background: #ffffff;
   border-radius: var(--border-radius-all);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
   border: 2px solid transparent;
   transition: all 0.3s ease;
 }
@@ -104,7 +104,7 @@
 .prayer-title,
 .prayer-time {
   font-family: 'Poppins', sans-serif;
-  font-size: 16px;
+  font-size: var(--font-md);
   font-weight: 600;
   color: #1f1f1f;
 }
@@ -125,8 +125,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: var(--space-xl);
+  height: var(--space-xl);
   border: none;
   background: #f9fafb;
   border-radius: var(--border-radius-all);
@@ -153,8 +153,8 @@
 /* Enable scrolling for all screen sizes - uses calculated height */
 .prayer-list {
   overflow-y: auto;
-  max-height: calc(100dvh - 397px); /* Viewport height minus header, trajectory, date header, and bottom nav */
-  min-height: 200px; /* Minimum height to ensure usability */
+  max-height: calc(100dvh - 24.8125rem); /* Viewport height minus header, trajectory, date header, and bottom nav (397px = 24.8125rem) */
+  min-height: 12.5rem; /* Minimum height to ensure usability (200px = 12.5rem) */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 

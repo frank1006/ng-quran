@@ -12,17 +12,17 @@
 
 .prayer-name {
   font-family: 'Poppins', sans-serif;
-  font-size: 32px;
+  font-size: var(--font-2xl);
   font-weight: 700;
   color: #1f1f1f;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.03125rem; /* -0.5px */
   margin: 0;
 }
 
 .time-remaining {
   font-family: 'Poppins', sans-serif;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: var(--font-sm);
   font-weight: 500;
   color: #874d14;
   margin: 0;

@@ -86,18 +86,18 @@
 
 .time-display {
   font-family: 'Poppins', sans-serif;
-  font-size: 10px;
+  font-size: 0.625rem; /* 10px */
   font-weight: 500;
   color: #6b7280;
-  min-width: 2rem;
+  min-width: var(--space-xl);
   text-align: center;
 }
 
 .seek-bar {
   flex: 1;
-  height: 3px;
+  height: 0.1875rem; /* 3px */
   background: rgba(243, 244, 246, 0.6);
-  border-radius: 2px;
+  border-radius: 0.125rem; /* 2px */
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -107,8 +107,8 @@
 .seek-bar::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 0.75rem; /* 12px */
+  height: 0.75rem; /* 12px */
   background: #ffb030;
   border-radius: 50%;
   cursor: pointer;
@@ -121,8 +121,8 @@
 }
 
 .seek-bar::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: 0.75rem; /* 12px */
+  height: 0.75rem; /* 12px */
   background: #ffb030;
   border: none;
   border-radius: 50%;

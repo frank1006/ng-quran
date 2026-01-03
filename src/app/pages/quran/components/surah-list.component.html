@@ -74,7 +74,7 @@
             </div>
             <p class="surah-translation">{{ chapter.translation }}</p>
             <div class="surah-meta">
-              <span class="surah-type">{{ chapter.type }}</span>
+              <span class="surah-type" [class.surah-type-meccan]="chapter.type === 'Meccan'" [class.surah-type-medinan]="chapter.type === 'Medinan'">{{ chapter.type }}</span>
               <span class="surah-verses">{{ chapter.total_verses }} ayahs</span>
             </div>
           </div>

@@ -1,6 +1,45 @@
 :root {
-  --border-radius-all: 1.5rem;
-  --border-radius-tl: 1.5rem 1.5rem 0 0;
+  /* Layout */
+  --app-max-width: 52rem; /* ~834px iPad width */
+  
+  /* Spacing scale */
+  --space-xxs: 0.25rem;  /* 4px */
+  --space-xs: 0.5rem;    /* 8px */
+  --space-sm: 0.75rem;   /* 12px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  
+  /* Typography scale */
+  --font-xs: 0.75rem;    /* 12px */
+  --font-sm: 0.875rem;   /* 14px */
+  --font-md: 1rem;       /* 16px */
+  --font-lg: 1.125rem;   /* 18px */
+  --font-xl: 1.375rem;   /* 22px */
+  --font-2xl: 2rem;      /* 32px */
+  
+  /* Radius */
+  --radius-sm: 0.5rem;   /* 8px */
+  --radius-md: 0.75rem;  /* 12px */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.5rem;   /* 24px */
+  
+  /* Legacy border radius (maintain compatibility) */
+  --border-radius-all: var(--radius-xl);
+  --border-radius-tl: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+/* Extra small screens - reduce font sizes */
+@media (max-width: 410px) {
+  :root {
+    --font-xs: 0.6875rem;    /* 11px */
+    --font-sm: 0.8125rem;     /* 13px */
+    --font-md: 0.9375rem;     /* 15px */
+    --font-lg: 1rem;          /* 16px */
+    --font-xl: 1.25rem;       /* 20px */
+    --font-2xl: 1.75rem;      /* 28px */
+  }
 }
 
 * {
@@ -47,6 +86,8 @@ html, body, .main {
   background: linear-gradient(180deg, #fff9f0 0%, #ffffff 40%);
   background-attachment: fixed;
   padding-top: env(safe-area-inset-top, 0);
-  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0));
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0)); /* 92px = 5.75rem */
   font-family: 'Poppins', sans-serif;
+  max-width: var(--app-max-width);
+  margin-inline: auto;
 }

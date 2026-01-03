@@ -8,7 +8,9 @@
   background: #ffffff;
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
-  padding: 2rem;
+  padding: var(--space-xl);
+  max-width: var(--app-max-width);
+  margin-inline: auto;
 }
 
 .location-title {
@@ -18,29 +20,29 @@
 
 .city-name {
   font-family: 'Poppins', sans-serif;
-  font-size: 32px;
+  font-size: var(--font-2xl);
   font-weight: 700;
   color: #1f1f1f;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.03125rem; /* -0.5px */
   margin: 0;
 }
 
 .location-label {
   font-family: 'Poppins', sans-serif;
-  font-size: 14px;
+  font-size: var(--font-sm);
   font-weight: 500;
   color: #874d14;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03125rem; /* 0.5px */
   margin: 0;
 }
 
 .loading-state {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: var(--space-2xl) var(--space-md);
   color: #6b7280;
   font-family: 'Poppins', sans-serif;
-  font-size: 16px;
+  font-size: var(--font-md);
   font-weight: 400;
 }
 
@@ -49,31 +51,31 @@
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: 2rem 1rem;
+  padding: var(--space-xl) var(--space-md);
 }
 
 .error-content {
   width: 100%;
-  max-width: 400px;
+  max-width: 25rem; /* 400px */
   text-align: center;
 }
 
 .error-title {
   font-family: 'Poppins', sans-serif;
-  font-size: 24px;
+  font-size: 1.5rem; /* 24px */
   font-weight: 700;
   color: #1f1f1f;
-  margin: 0 0 1rem 0;
-  letter-spacing: -0.5px;
+  margin: 0 0 var(--space-md) 0;
+  letter-spacing: -0.03125rem; /* -0.5px */
 }
 
 .error-message {
   font-family: 'Poppins', sans-serif;
-  font-size: 16px;
+  font-size: var(--font-md);
   font-weight: 400;
   color: #6b7280;
   line-height: 1.6;
-  margin: 0 0 2rem 0;
+  margin: 0 0 var(--space-xl) 0;
 }
 
 .error-button {
@@ -90,14 +92,14 @@
 
 .instruction-section {
   width: 100%;
-  max-width: 400px;
+  max-width: 25rem; /* 400px */
 }
 
 .instruction-card {
-  padding: 1rem;
+  padding: var(--space-md);
   background: #ffffff;
   border-radius: var(--border-radius-all);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
   border: 2px solid transparent;
   transition: all 0.3s ease;
   text-align: center;
@@ -111,7 +113,7 @@
 
 .instruction-text {
   font-family: 'Poppins', sans-serif;
-  font-size: 18px;
+  font-size: var(--font-lg);
   font-weight: 600;
   color: #1f1f1f;
   margin: 0;
@@ -142,17 +144,17 @@
 
 .instruction-button {
   width: 100%;
-  padding: 1rem;
+  padding: var(--space-md);
   background: #ffb030;
   color: #1f1f1f;
   border: 2px solid #ffb030;
   border-radius: var(--border-radius-all);
   font-family: 'Poppins', sans-serif;
-  font-size: 18px;
+  font-size: var(--font-lg);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(255, 176, 48, 0.3);
+  box-shadow: 0 0.25rem 1.25rem rgba(255, 176, 48, 0.3);
   text-align: center;
 }
 
@@ -176,13 +178,13 @@
 }
 
 .compass-error-message {
-  margin-top: 0.75rem;
-  padding: 0.75rem 1rem;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: var(--border-radius-all);
   font-family: 'Poppins', sans-serif;
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13px */
   font-weight: 500;
   color: #991b1b;
   text-align: center;
