@@ -28,7 +28,11 @@ export const routes: Routes = [
     component: QiblaComponent
   },
   {
-    path: 'settings',
+    path: 'profile',
     component: SettingsComponent
+  },
+  {
+    path: '**',
+    redirectTo: 'prayer'
   }
 ];
