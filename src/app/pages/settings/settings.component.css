@@ -200,6 +200,13 @@
   line-height: 1.5;
 }
 
+.permission-description .location-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.25rem;
+  flex-shrink: 0;
+}
+
 .permission-status {
   display: flex;
   align-items: center;

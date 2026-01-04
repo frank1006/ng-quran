@@ -13,6 +13,8 @@ import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
 import { TrajectoryData } from './components/trajectory/prayer-trajectory.types';
 import { NetworkStatusService } from '../../services/network-status.service';
 import { QiblaService } from '../qibla/services/qibla.service';
+import { NotificationService } from '../../services/notification.service';
+import { BackgroundSyncService } from '../../services/background-sync.service';
 
 interface PrayerItem {
   name: string;
@@ -47,6 +49,8 @@ export class PrayerComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly networkStatus = inject(NetworkStatusService);
   private readonly qiblaService = inject(QiblaService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly backgroundSync = inject(BackgroundSyncService);
   private timeInterval: number | null = null;
   private locationInfoLoaded = false;
 
@@ -86,6 +90,39 @@ export class PrayerComponent implements OnInit, OnDestroy {
         this.networkStatus.showOfflineBanner();
       }
     });
+
+    // Schedule notifications when prayer data or date changes
+    effect(() => {
+      const data = this.prayerData();
+      const date = this.currentDate();
+      
+      if (data && date) {
+        this.updateNotifications(data, date);
+      }
+    });
+  }
+
+  /**
+   * Update notifications for current prayer data and date
+   */
+  private async updateNotifications(data: PrayerTimeData, date: Date): Promise<void> {
+    try {
+      // Only schedule for today's date
+      const today = new Date();
+      const isToday = 
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear();
+
+      if (isToday) {
+        await this.notificationService.scheduleNotificationsForDate(date, data);
+      }
+    } catch (error) {
+      // Silently fail - notifications are not critical
+      if (isDevMode()) {
+        console.warn('Failed to update notifications:', error);
+      }
+    }
   }
 
   private createPrayerList(data: PrayerTimeData, timeFormat: TimeFormat): PrayerItem[] {
@@ -353,6 +390,9 @@ export class PrayerComponent implements OnInit, OnDestroy {
     this.timeInterval = window.setInterval(() => {
       this.trajectoryService.updateCurrentTime();
     }, TIME_UPDATE_INTERVAL_MS) as unknown as number;
+
+    // Check for date rollover and sync if needed
+    this.backgroundSync.handleDateRollover();
   }
 
   private async loadLocationInfo(): Promise<void> {

@@ -43,43 +43,61 @@
       </div>
     </div>
 
-    <!-- Location Information Section -->
-    <div class="settings-card-section">
-      <h3 class="subsection-title">Current Location</h3>
-      <p class="subsection-description">Your detected location for prayer times and Qibla</p>
-      
-      <div class="location-info-display">
-        @if (loadingLocation()) {
-          <p class="location-loading">Loading location...</p>
-        } @else if (locationInfo()) {
-          <div class="location-details">
-            @if (locationInfo()!.quadrant) {
-              <div class="location-detail-item">
-                <span class="location-label">Area:</span>
-                <span class="location-value">{{ locationInfo()!.quadrant }}</span>
-              </div>
-            }
-            <div class="location-detail-item">
-              <span class="location-label">City:</span>
-              <span class="location-value">{{ locationInfo()!.city }}</span>
-            </div>
-            <div class="location-detail-item">
-              <span class="location-label">Country:</span>
-              <span class="location-value">{{ locationInfo()!.country }}</span>
-            </div>
-          </div>
-        } @else {
-          <p class="location-unavailable">Location not available</p>
-        }
-      </div>
-    </div>
-
     <!-- App Permissions Section -->
     <div class="settings-card-section">
       <h3 class="subsection-title">App Permissions</h3>
       <p class="subsection-description">Manage app access to device features</p>
 
       <div class="permissions-list">
+        <!-- Location Permission -->
+        <div class="permission-item">
+          <div class="permission-info">
+            <h3 class="permission-name">Location Access</h3>
+            <p class="permission-description">Required for accurate prayer times and Qibla direction.</p>
+            
+            <!-- Current Location Display -->
+            @if (loadingLocation()) {
+              <p class="permission-description">Loading location...</p>
+            } @else if (locationInfo()) {
+              <p class="permission-description">
+                <svg width="10" height="10" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="location-icon" style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;">
+                  <path fill="#1f1f1f" d="M122,231.3l-24.3-73l-73-24.3c-6.3-2-10.5-4.6-12.8-7.7c-2.3-3.1-2.5-6.4-0.6-9.8c1.8-3.4,5.8-6.4,11.7-9l202.3-94.3c9.1-4,15.3-4.3,18.6-1.1s2.9,9.5-1.1,18.6L148,233c-2.6,6-5.5,9.9-8.7,11.7c-3.3,1.9-6.5,1.6-9.6-0.6C126.5,241.9,124,237.6,122,231.3z"></path>
+                </svg>
+                @if (locationInfo()!.quadrant) {
+                  {{ locationInfo()!.quadrant }}, 
+                }
+                {{ locationInfo()!.city }}, {{ locationInfo()!.country }}
+              </p>
+            } @else {
+              <p class="permission-description">Location not available</p>
+            }
+          </div>
+          <div class="permission-status">
+            @if (locationState().status !== PermissionStatus.NOT_SUPPORTED) {
+              @if (locationState().status !== PermissionStatus.NOT_REQUESTED && locationState().status !== PermissionStatus.PROMPT) {
+                <span class="status-badge" [class]="getPermissionStatusClass(locationState().status)">
+                  {{ getPermissionStatusText(locationState().status) }}
+                </span>
+              }
+              @if (locationState().canRequest || locationState().status === PermissionStatus.NOT_REQUESTED || locationState().status === PermissionStatus.PROMPT) {
+                <button
+                  class="permission-button"
+                  type="button"
+                  (click)="requestLocationPermission()"
+                  [disabled]="requestingLocation()"
+                  [attr.aria-label]="requestingLocation() ? 'Requesting location permission' : 'Enable location access for prayer times and Qibla'"
+                >
+                  {{ requestingLocation() ? 'Requesting...' : 'Enable Location' }}
+                </button>
+              }
+            } @else {
+              <span class="status-badge status-not-supported">
+                {{ getPermissionStatusText(locationState().status) }}
+              </span>
+            }
+          </div>
+        </div>
+
         <!-- Compass Permission -->
         <div class="permission-item">
           <div class="permission-info">
@@ -107,6 +125,25 @@
             } @else {
               <span class="status-badge status-not-supported">
                 {{ getPermissionStatusText(compassState().status) }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Notification Permission -->
+        <div class="permission-item">
+          <div class="permission-info">
+            <h3 class="permission-name">Prayer Time Notifications</h3>
+            <p class="permission-description">Get notified at each prayer time. Enable notifications for specific prayers on the Prayer page.</p>
+          </div>
+          <div class="permission-status">
+            @if (notificationPermission()) {
+              <span class="status-badge status-allowed">
+                Allowed
+              </span>
+            } @else {
+              <span class="status-badge" [class]="notificationStatus() === 'denied' ? 'status-denied' : 'status-not-requested'">
+                {{ notificationStatus() === 'denied' ? 'Denied' : 'Not Requested' }}
               </span>
             }
           </div>

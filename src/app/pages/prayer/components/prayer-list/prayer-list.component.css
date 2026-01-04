@@ -119,6 +119,16 @@
   color: #ffb030;
 }
 
+.notification-button.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.notification-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* Enable scrolling for all screen sizes - uses calculated height */
 .prayer-list {
   overflow-y: auto;

@@ -1,7 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
+import { NotificationService } from '../../../../services/notification.service';
+import { DeviceDetectionService } from '../../../../services/device-detection.service';
 
 /**
  * Prayer item for list display
@@ -41,9 +43,12 @@ interface PrayerItem {
               <button 
                 class="notification-button" 
                 type="button" 
-                [class.active]="true"
+                [class.active]="isNotificationEnabled(prayer.key)"
+                [class.loading]="notificationLoadingStates()[prayer.key]"
+                [disabled]="notificationLoadingStates()[prayer.key]"
+                (click)="onNotificationToggle(prayer)"
                 [attr.aria-label]="'Toggle notifications for ' + prayer.name"
-                [attr.aria-pressed]="true"
+                [attr.aria-pressed]="isNotificationEnabled(prayer.key)"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -63,6 +68,72 @@ export class PrayerListComponent {
   readonly loading = input<boolean>(false);
   readonly error = input<string | null>(null);
   readonly retry = output<void>();
+
+  private readonly notificationService = inject(NotificationService);
+  private readonly deviceDetection = inject(DeviceDetectionService);
+  readonly notificationLoadingStates = signal<Record<string, boolean>>({});
+
+  isNotificationEnabled(prayerKey: string): boolean {
+    return this.notificationService.isPrayerNotificationEnabled(prayerKey);
+  }
+
+  async onNotificationToggle(prayer: PrayerItem): Promise<void> {
+    const deviceInfo = this.deviceDetection.deviceInfo();
+
+    // Check if installation is required (iOS)
+    if (deviceInfo.requiresInstallation) {
+      this.showInstallationPrompt();
+      return;
+    }
+
+    const currentState = this.isNotificationEnabled(prayer.key);
+    const newState = !currentState;
+
+    // Set loading state
+    this.notificationLoadingStates.set({
+      ...this.notificationLoadingStates(),
+      [prayer.key]: true
+    });
+
+    try {
+      // Request permission if not granted
+      if (newState && !this.notificationService.isPermissionGranted()) {
+        const permission = await this.notificationService.requestPermission();
+        if (permission !== 'granted') {
+          throw new Error('Permission denied');
+        }
+      }
+
+      await this.notificationService.togglePrayerNotification(prayer.key, newState);
+    } catch (error: any) {
+      if (error.message === 'INSTALLATION_REQUIRED') {
+        this.showInstallationPrompt();
+      } else if (error.message === 'Permission denied') {
+        this.showPermissionDeniedMessage();
+      } else {
+        console.error('Failed to toggle notification:', error);
+        // You can add a toast/alert here to show error to user
+      }
+    } finally {
+      // Clear loading state
+      const loadingStates = { ...this.notificationLoadingStates() };
+      delete loadingStates[prayer.key];
+      this.notificationLoadingStates.set(loadingStates);
+    }
+  }
+
+  private showInstallationPrompt(): void {
+    const message = this.deviceDetection.getInstallationMessage();
+    if (message) {
+      alert(message);
+    }
+  }
+
+  private showPermissionDeniedMessage(): void {
+    alert(
+      'Notifications were denied. Please enable them in your browser settings to receive prayer time reminders.'
+    );
+  }
 
   onRetry(): void {
     this.retry.emit();

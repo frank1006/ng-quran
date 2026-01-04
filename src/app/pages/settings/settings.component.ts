@@ -1,9 +1,12 @@
 import { Component, OnInit, OnDestroy, signal, computed, isDevMode, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { take } from 'rxjs/operators';
 import { SettingsService, TimeFormat } from '../../services/settings.service';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService } from '../qibla/services/qibla.service';
+import { NotificationService } from '../../services/notification.service';
+import { NotificationPermissionStatus } from '../../services/notification.types';
 
 @Component({
   selector: 'app-settings',
@@ -17,9 +20,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly PermissionStatus = PermissionStatus;
   protected readonly timeFormat = computed(() => this.settingsService.currentTimeFormat());
   protected readonly compassState = computed(() => this.permissionsService.compassState());
+  protected readonly locationState = computed(() => this.permissionsService.locationState());
   
   protected readonly requestingCompass = signal<boolean>(false);
+  protected readonly requestingLocation = signal<boolean>(false);
   protected readonly clearingData = signal<boolean>(false);
+  protected readonly notificationPermission = computed(() => this.notificationService.isPermissionGranted());
+  protected readonly notificationStatus = computed(() => {
+    const permission = this.notificationService.isPermissionGranted();
+    return permission ? 'granted' : Notification.permission;
+  });
 
   // Location Information
   protected readonly locationInfo = signal<{ quadrant: string; city: string; country: string } | null>(null);
@@ -39,6 +49,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private verifyInterval: number | null = null;
 
   private readonly qiblaService = inject(QiblaService);
+  private readonly notificationService = inject(NotificationService);
 
   constructor(
     private settingsService: SettingsService,
@@ -127,6 +138,37 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } finally {
       this.requestingCompass.set(false);
     }
+  }
+
+  /**
+   * Request location permission
+   */
+  protected requestLocationPermission(): void {
+    this.requestingLocation.set(true);
+    
+    // Use take(1) to auto-unsubscribe after completion
+    this.permissionsService.requestLocationPermission()
+      .pipe(take(1))
+      .subscribe({
+        next: (granted) => {
+          if (granted) {
+            // Permission granted - refresh status and reload location info
+            this.permissionsService.checkPermissions();
+            this.loadLocationInfo();
+          } else {
+            // Permission denied
+            this.permissionsService.checkPermissions();
+          }
+          this.requestingLocation.set(false);
+        },
+        error: (error) => {
+          if (isDevMode()) {
+            console.error('Error requesting location permission:', error);
+          }
+          this.permissionsService.checkPermissions();
+          this.requestingLocation.set(false);
+        }
+      });
   }
 
   /**
