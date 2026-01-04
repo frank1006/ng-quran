@@ -18,7 +18,10 @@
     [hijriDate]="hijriDate()"
     [canNavigatePrevious]="canNavigatePrevious()"
     [canNavigateNext]="canNavigateNext()"
+    [locationName]="locationName()"
+    [isToday]="isCurrentDateToday()"
     (dateNavigate)="navigateDate($event)"
+    (goToToday)="goToToday()"
   />
 
   <app-prayer-list

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, effect, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
@@ -12,6 +12,7 @@ import { PrayerListComponent } from './components/prayer-list/prayer-list.compon
 import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
 import { TrajectoryData } from './components/trajectory/prayer-trajectory.types';
 import { NetworkStatusService } from '../../services/network-status.service';
+import { QiblaService } from '../qibla/services/qibla.service';
 
 interface PrayerItem {
   name: string;
@@ -41,9 +42,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   protected readonly error = computed(() => this.prayerTimeStore.error());
   protected readonly prayerData = signal<PrayerTimeData | null>(null);
   protected readonly currentDate = signal<Date>(new Date());
+  protected readonly cityName = signal<string>('Current Location');
   private readonly destroyRef = inject(DestroyRef);
   private readonly networkStatus = inject(NetworkStatusService);
+  private readonly qiblaService = inject(QiblaService);
   private timeInterval: number | null = null;
+  private locationInfoLoaded = false;
 
   constructor(
     private prayerTimeStore: PrayerTimeStore,
@@ -95,6 +99,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private isToday(date: Date): boolean {
+    return this.isTodayDate(date);
+  }
+
+  private isTodayDate(date: Date): boolean {
     const today = new Date();
     return (
       date.getDate() === today.getDate() &&
@@ -323,11 +331,53 @@ export class HomeComponent implements OnInit, OnDestroy {
     return '';
   });
 
+  protected readonly isCurrentDateToday = computed<boolean>(() => {
+    return this.isTodayDate(this.currentDate());
+  });
+
+  protected readonly locationName = computed<string>(() => {
+    return this.cityName();
+  });
+
   ngOnInit(): void {
     this.loadPrayerTimes();
+    this.loadLocationInfo();
     this.timeInterval = window.setInterval(() => {
       this.trajectoryService.updateCurrentTime();
     }, TIME_UPDATE_INTERVAL_MS) as unknown as number;
+  }
+
+  private async loadLocationInfo(): Promise<void> {
+    if (this.locationInfoLoaded) {
+      return;
+    }
+
+    const location = this.prayerTimeStore.currentLocation();
+    if (!location) {
+      // Wait a bit for location to be available, then try again
+      setTimeout(() => {
+        const retryLocation = this.prayerTimeStore.currentLocation();
+        if (retryLocation && !this.locationInfoLoaded) {
+          this.fetchLocationInfo(retryLocation);
+        }
+      }, 1000);
+      return;
+    }
+
+    await this.fetchLocationInfo(location);
+  }
+
+  private async fetchLocationInfo(location: { latitude: number; longitude: number }): Promise<void> {
+    try {
+      const locationInfo = await this.qiblaService.getLocationInfo(location.latitude, location.longitude);
+      this.cityName.set(locationInfo.city);
+      this.locationInfoLoaded = true;
+    } catch (error) {
+      // Keep default "Current Location" if geocoding fails
+      if (isDevMode()) {
+        console.warn('Failed to load location info:', error);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -418,5 +468,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     } else {
       this.updatePrayerDataForDate(date);
     }
+  }
+
+  protected goToToday(): void {
+    const today = new Date();
+    this.currentDate.set(today);
+    this.loadPrayerTimesForDate(today);
   }
 }

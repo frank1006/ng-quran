@@ -1,4 +1,5 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { isDevMode } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 
 /**
@@ -62,7 +63,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // Note: Offline banner is only shown for verse audio playback errors, not for general HTTP errors
 
       // Log error in development mode only
-      if (!isProduction()) {
+      if (isDevMode()) {
         console.error('HTTP Error:', {
           url: req.url,
           status: error.status,
@@ -75,10 +76,4 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
-
-function isProduction(): boolean {
-  return typeof window !== 'undefined' && 
-         (window.location.hostname === 'localhost' || 
-          window.location.hostname === '127.0.0.1') === false;
-}
 

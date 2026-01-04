@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SettingsService, TimeFormat } from '../../services/settings.service';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
@@ -84,7 +84,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.permissionsService.checkPermissions();
       }
     } catch (error) {
-      console.error('Error requesting compass permission:', error);
+      if (isDevMode()) {
+        console.error('Error requesting compass permission:', error);
+      }
       this.permissionsService.checkPermissions();
     } finally {
       this.requestingCompass.set(false);
@@ -160,7 +162,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         window.location.reload();
       }, 500);
     } catch (error) {
-      console.error('Error resetting data and permissions:', error);
+      if (isDevMode()) {
+        console.error('Error resetting data and permissions:', error);
+      }
       alert('Failed to reset data and permissions. Please try again.');
       this.clearingData.set(false);
     }

@@ -122,7 +122,7 @@
 /* Enable scrolling for all screen sizes - uses calculated height */
 .prayer-list {
   overflow-y: auto;
-  max-height: calc(100dvh - 24.8125rem); /* Viewport height minus header, trajectory, date header, and bottom nav (397px = 24.8125rem) */
+  max-height: calc(100dvh - 26.3125rem); /* Viewport height minus header, trajectory, date header (with location badge), and bottom nav (421px = 26.3125rem) */
   min-height: 12.5rem; /* Minimum height to ensure usability (200px = 12.5rem) */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }

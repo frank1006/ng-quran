@@ -1,4 +1,4 @@
-import { Injectable, ErrorHandler } from '@angular/core';
+import { Injectable, ErrorHandler, isDevMode } from '@angular/core';
 
 /**
  * Global error handler service
@@ -10,7 +10,7 @@ import { Injectable, ErrorHandler } from '@angular/core';
 export class GlobalErrorHandler implements ErrorHandler {
   handleError(error: Error | unknown): void {
     // Only log detailed errors in development
-    if (this.isDevelopment()) {
+    if (isDevMode()) {
       console.error('Global Error Handler:', error);
     }
 
@@ -19,20 +19,16 @@ export class GlobalErrorHandler implements ErrorHandler {
       ? error.message 
       : 'An unexpected error occurred';
 
-    // Log to console in production (without stack trace)
-    console.error('Application Error:', errorMessage);
-
-    // In production, you could send errors to an error tracking service
+    // Log to console in production (without stack trace) - intentional for critical errors
+    // In production, you could send errors to an error tracking service instead
     // Example: Sentry, LogRocket, etc.
-    // if (this.isProduction()) {
-    //   this.errorTrackingService.logError(error);
-    // }
-  }
-
-  private isDevelopment(): boolean {
-    return typeof window !== 'undefined' && 
-           (window.location.hostname === 'localhost' || 
-            window.location.hostname === '127.0.0.1');
+    if (!isDevMode()) {
+      // In production, only log error message without full error object
+      console.error('Application Error:', errorMessage);
+    } else {
+      // In development, log full error details
+      console.error('Application Error:', errorMessage, error);
+    }
   }
 }
 

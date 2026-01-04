@@ -43,11 +43,42 @@
 }
 
 .location-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xs);
+  gap: var(--space-xxs);
   margin-bottom: var(--space-xs);
+  background: #f9fafb;
+  border: none;
+  border-radius: var(--border-radius-all);
+  padding: var(--space-xs) var(--space-sm);
+  cursor: default;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  color: #1f1f1f;
+}
+
+.location-badge.clickable {
+  cursor: pointer;
+}
+
+.location-badge.clickable:hover {
+  background: #f3f4f6;
+}
+
+.location-badge.not-today {
+  opacity: 0.7;
+}
+
+.location-badge.not-today:hover {
+  opacity: 0.9;
+}
+
+.back-arrow {
+  color: #1f1f1f;
+  flex-shrink: 0;
+  display: block;
+  margin-right: var(--space-xxs);
 }
 
 .today-label {
@@ -59,11 +90,25 @@
   letter-spacing: 0.0625rem; /* 1px */
 }
 
+.separator {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 400;
+  color: #1f1f1f;
+  margin: 0 var(--space-xxs);
+  opacity: 0.3;
+}
+
+.location-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
 .location {
   font-family: 'Poppins', sans-serif;
   font-size: var(--font-xs);
   font-weight: 500;
-  color: #6b7280;
+  color: #1f1f1f;
 }
 
 .date-text {

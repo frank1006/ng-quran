@@ -42,6 +42,18 @@
   }
 }
 
+/* Extra small mobiles - further reduce font sizes */
+@media (max-width: 375px) {
+  :root {
+    --font-xs: 0.625rem;      /* 10px */
+    --font-sm: 0.75rem;       /* 12px */
+    --font-md: 0.875rem;      /* 14px */
+    --font-lg: 0.9375rem;     /* 15px */
+    --font-xl: 1.125rem;      /* 18px */
+    --font-2xl: 1.5rem;       /* 24px */
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
