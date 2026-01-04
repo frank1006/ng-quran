@@ -24,7 +24,7 @@ interface PrayerItem {
 const TIME_UPDATE_INTERVAL_MS = 1000;
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-prayer',
   standalone: true,
   imports: [
     CommonModule,
@@ -34,10 +34,10 @@ const TIME_UPDATE_INTERVAL_MS = 1000;
     PrayerListComponent
   ],
   providers: [PrayerTrajectoryService],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  templateUrl: './prayer.component.html',
+  styleUrl: './prayer.component.css'
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class PrayerComponent implements OnInit, OnDestroy {
   protected readonly loading = computed(() => this.prayerTimeStore.loading());
   protected readonly error = computed(() => this.prayerTimeStore.error());
   protected readonly prayerData = signal<PrayerTimeData | null>(null);

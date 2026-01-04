@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { HomeComponent } from './home.component';
+import { PrayerComponent } from './prayer.component';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 
-describe('HomeComponent', () => {
-  let component: HomeComponent;
+describe('PrayerComponent', () => {
+  let component: PrayerComponent;
   let store: PrayerTimeStore;
   let trajectoryService: PrayerTrajectoryService;
 
@@ -26,7 +26,7 @@ describe('HomeComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [HomeComponent],
+      imports: [PrayerComponent],
       providers: [
         { provide: PrayerTimeStore, useValue: storeSpy },
         { provide: PrayerTrajectoryService, useValue: trajectoryServiceSpy }
@@ -35,7 +35,7 @@ describe('HomeComponent', () => {
 
     store = TestBed.inject(PrayerTimeStore);
     trajectoryService = TestBed.inject(PrayerTrajectoryService);
-    const fixture = TestBed.createComponent(HomeComponent);
+    const fixture = TestBed.createComponent(PrayerComponent);
     component = fixture.componentInstance;
   });
 

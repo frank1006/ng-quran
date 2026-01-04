@@ -10,6 +10,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './bottom-nav.component.css'
 })
 export class BottomNavComponent {
-  activeRoute = input<string>('home');
+  activeRoute = input<string>('prayer');
 }
 
