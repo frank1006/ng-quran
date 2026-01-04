@@ -43,6 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   protected readonly prayerData = signal<PrayerTimeData | null>(null);
   protected readonly currentDate = signal<Date>(new Date());
   protected readonly cityName = signal<string>('Current Location');
+  protected readonly quadrant = signal<string>('');
   private readonly destroyRef = inject(DestroyRef);
   private readonly networkStatus = inject(NetworkStatusService);
   private readonly qiblaService = inject(QiblaService);
@@ -336,7 +337,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   });
 
   protected readonly locationName = computed<string>(() => {
-    return this.cityName();
+    const quadrant = this.quadrant();
+    const city = this.cityName();
+    
+    // Show quadrant if available, otherwise show city
+    if (quadrant && quadrant !== city) {
+      return `${quadrant}, ${city}`;
+    }
+    return city;
   });
 
   ngOnInit(): void {
@@ -371,6 +379,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     try {
       const locationInfo = await this.qiblaService.getLocationInfo(location.latitude, location.longitude);
       this.cityName.set(locationInfo.city);
+      this.quadrant.set(locationInfo.quadrant || '');
       this.locationInfoLoaded = true;
     } catch (error) {
       // Keep default "Current Location" if geocoding fails

@@ -20,6 +20,7 @@ export class QiblaComponent implements OnInit, OnDestroy {
   protected readonly error = signal<string | null>(null);
   protected readonly cityName = signal<string>('Loading...');
   protected readonly countryName = signal<string>('Loading...');
+  protected readonly quadrant = signal<string>('');
   protected readonly qiblaBearing = signal<number>(0);
   protected readonly currentHeading = signal<number | null>(null);
   protected readonly instruction = signal<CompassInstruction>(CompassInstruction.TURN_LEFT);
@@ -136,6 +137,7 @@ export class QiblaComponent implements OnInit, OnDestroy {
         const locationInfo = await this.qiblaService.getLocationInfo(location.latitude, location.longitude);
         this.cityName.set(locationInfo.city);
         this.countryName.set(locationInfo.country);
+        this.quadrant.set(locationInfo.quadrant || '');
       }
 
       this.compassAvailable.set(this.qiblaService.isDeviceOrientationSupported());

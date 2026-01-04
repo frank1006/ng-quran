@@ -43,6 +43,37 @@
       </div>
     </div>
 
+    <!-- Location Information Section -->
+    <div class="settings-card-section">
+      <h3 class="subsection-title">Current Location</h3>
+      <p class="subsection-description">Your detected location for prayer times and Qibla</p>
+      
+      <div class="location-info-display">
+        @if (loadingLocation()) {
+          <p class="location-loading">Loading location...</p>
+        } @else if (locationInfo()) {
+          <div class="location-details">
+            @if (locationInfo()!.quadrant) {
+              <div class="location-detail-item">
+                <span class="location-label">Area:</span>
+                <span class="location-value">{{ locationInfo()!.quadrant }}</span>
+              </div>
+            }
+            <div class="location-detail-item">
+              <span class="location-label">City:</span>
+              <span class="location-value">{{ locationInfo()!.city }}</span>
+            </div>
+            <div class="location-detail-item">
+              <span class="location-label">Country:</span>
+              <span class="location-value">{{ locationInfo()!.country }}</span>
+            </div>
+          </div>
+        } @else {
+          <p class="location-unavailable">Location not available</p>
+        }
+      </div>
+    </div>
+
     <!-- App Permissions Section -->
     <div class="settings-card-section">
       <h3 class="subsection-title">App Permissions</h3>

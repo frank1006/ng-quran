@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, signal, computed, isDevMode } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, isDevMode, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SettingsService, TimeFormat } from '../../services/settings.service';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
+import { QiblaService } from '../qibla/services/qibla.service';
 
 @Component({
   selector: 'app-settings',
@@ -20,6 +21,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly requestingCompass = signal<boolean>(false);
   protected readonly clearingData = signal<boolean>(false);
 
+  // Location Information
+  protected readonly locationInfo = signal<{ quadrant: string; city: string; country: string } | null>(null);
+  protected readonly loadingLocation = signal<boolean>(false);
+
   // App Information
   protected readonly appName = signal<string>('QuranFlow');
   protected readonly appVersion = signal<string>('Beta-v1');
@@ -33,6 +38,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   private verifyInterval: number | null = null;
 
+  private readonly qiblaService = inject(QiblaService);
+
   constructor(
     private settingsService: SettingsService,
     private permissionsService: PermissionsService,
@@ -43,11 +50,40 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Refresh compass permission status on component load
     this.permissionsService.checkPermissions();
     
+    // Load location information
+    this.loadLocationInfo();
+    
     // Re-verify compass functionality periodically while on settings page
     // This ensures status reflects actual compass state
     this.verifyInterval = window.setInterval(() => {
       this.permissionsService.checkPermissions();
     }, 5000); // Check every 5 seconds
+  }
+
+  /**
+   * Load current location information
+   */
+  private async loadLocationInfo(): Promise<void> {
+    const location = this.prayerTimeStore.currentLocation();
+    if (!location) {
+      return;
+    }
+
+    this.loadingLocation.set(true);
+    try {
+      const locationInfo = await this.qiblaService.getLocationInfo(location.latitude, location.longitude);
+      this.locationInfo.set({
+        quadrant: locationInfo.quadrant || '',
+        city: locationInfo.city,
+        country: locationInfo.country
+      });
+    } catch (error) {
+      if (isDevMode()) {
+        console.warn('Failed to load location info in settings:', error);
+      }
+    } finally {
+      this.loadingLocation.set(false);
+    }
   }
 
   ngOnDestroy(): void {
@@ -149,6 +185,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         localStorage.removeItem('app_time_format');
         // Clear compass permission
         localStorage.removeItem('qibla_compass_permission_granted');
+        // Clear location info cache
+        localStorage.removeItem('location-info-cache');
       }
 
       // Reset time format to default
