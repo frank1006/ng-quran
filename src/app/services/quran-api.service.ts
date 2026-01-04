@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
@@ -344,7 +344,7 @@ export class QuranApiService {
     }
     
     // Log detailed error for debugging (only in development)
-    if (typeof console !== 'undefined' && console.error) {
+    if (isDevMode()) {
       console.error('Quran API Error:', {
         status: error.status,
         message: error.message,
@@ -380,7 +380,9 @@ export class QuranApiService {
 
       return data.chapters;
     } catch (error) {
-      console.error('Error reading chapters from localStorage:', error);
+      if (isDevMode()) {
+        console.error('Error reading chapters from localStorage:', error);
+      }
       return null;
     }
   }
@@ -402,7 +404,9 @@ export class QuranApiService {
 
       localStorage.setItem(this.STORAGE_KEY_CHAPTERS, JSON.stringify(data));
     } catch (error) {
-      console.error('Error saving chapters to localStorage:', error);
+      if (isDevMode()) {
+        console.error('Error saving chapters to localStorage:', error);
+      }
       // Silently fail - in-memory cache will still work
     }
   }
@@ -431,7 +435,9 @@ export class QuranApiService {
 
       return data.reciters;
     } catch (error) {
-      console.error('Error reading reciters from localStorage:', error);
+      if (isDevMode()) {
+        console.error('Error reading reciters from localStorage:', error);
+      }
       return null;
     }
   }
@@ -453,7 +459,9 @@ export class QuranApiService {
 
       localStorage.setItem(this.STORAGE_KEY_RECITERS, JSON.stringify(data));
     } catch (error) {
-      console.error('Error saving reciters to localStorage:', error);
+      if (isDevMode()) {
+        console.error('Error saving reciters to localStorage:', error);
+      }
       // Silently fail - in-memory cache will still work
     }
   }
@@ -500,7 +508,9 @@ export class QuranApiService {
       }
       return chapter;
     } catch (error) {
-      console.error(`Error reading chapter ${chapterId} from localStorage:`, error);
+      if (isDevMode()) {
+        console.error(`Error reading chapter ${chapterId} from localStorage:`, error);
+      }
       return null;
     }
   }
@@ -545,7 +555,9 @@ export class QuranApiService {
 
       localStorage.setItem(key, JSON.stringify(data));
     } catch (error) {
-      console.error(`Error saving chapter ${chapterId} to localStorage:`, error);
+      if (isDevMode()) {
+        console.error(`Error saving chapter ${chapterId} to localStorage:`, error);
+      }
       // Silently fail - in-memory cache will still work
       
       // If quota exceeded, try cleaning up and retry once
@@ -624,7 +636,9 @@ export class QuranApiService {
         }
       }
     } catch (error) {
-      console.error('Error cleaning up old chapters:', error);
+      if (isDevMode()) {
+        console.error('Error cleaning up old chapters:', error);
+      }
     }
   }
 

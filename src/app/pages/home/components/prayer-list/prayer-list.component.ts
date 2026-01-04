@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
+import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 
 /**
  * Prayer item for list display
@@ -15,12 +16,10 @@ interface PrayerItem {
 @Component({
   selector: 'app-prayer-list',
   standalone: true,
-  imports: [CommonModule, ConnectionErrorComponent],
+  imports: [CommonModule, ConnectionErrorComponent, LoadingSpinnerComponent],
   template: `
     @if (loading()) {
-      <div class="loading-state">
-        <p>Loading prayer times...</p>
-      </div>
+      <app-loading-spinner />
     }
 
     @if (error() && prayers().length === 0) {

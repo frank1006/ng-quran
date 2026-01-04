@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, effect, DestroyRef, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, computed, effect, DestroyRef, inject, ChangeDetectionStrategy, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -6,11 +6,12 @@ import { QuranApiService } from '../../../services/quran-api.service';
 import { QuranStoreService } from '../../../services/quran-store.service';
 import { Chapter, Reciter } from '../../../services/quran-api.types';
 import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-surah-list',
   standalone: true,
-  imports: [CommonModule, ConnectionErrorComponent],
+  imports: [CommonModule, ConnectionErrorComponent, LoadingSpinnerComponent],
   templateUrl: './surah-list.component.html',
   styleUrl: './surah-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -69,7 +70,9 @@ export class SurahListComponent implements OnInit {
         error: (err) => {
           this.error.set(err.message || 'Failed to load chapters');
           this.loading.set(false);
-          console.error('Error loading chapters:', err);
+          if (isDevMode()) {
+            console.error('Error loading chapters:', err);
+          }
         }
       });
   }
@@ -89,7 +92,9 @@ export class SurahListComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.error('Error loading reciters:', err);
+          if (isDevMode()) {
+            console.error('Error loading reciters:', err);
+          }
         }
       });
   }

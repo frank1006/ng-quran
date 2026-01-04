@@ -9,6 +9,7 @@ import { ChapterWithVerses, Verse, AudioRecitation } from '../../../services/qur
 import { AudioPlayerComponent } from './audio-player.component';
 import { HeroHeaderComponent } from '../../../shared/components/hero-header/hero-header.component';
 import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { NetworkStatusService } from '../../../services/network-status.service';
 
 interface VerseWithAudio extends Verse {
@@ -20,7 +21,7 @@ interface VerseWithAudio extends Verse {
 @Component({
   selector: 'app-surah-detail',
   standalone: true,
-  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent, ConnectionErrorComponent],
+  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent, ConnectionErrorComponent, LoadingSpinnerComponent],
   templateUrl: './surah-detail.component.html',
   styleUrl: './surah-detail.component.css'
 })

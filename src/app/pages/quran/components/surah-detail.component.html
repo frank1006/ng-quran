@@ -1,8 +1,6 @@
 <div class="surah-detail-container">
   @if (loading()) {
-    <div class="loading-state">
-      <p>Loading surah...</p>
-    </div>
+    <app-loading-spinner [fullHeight]="true" />
   }
 
   @if (error()) {

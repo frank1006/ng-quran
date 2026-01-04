@@ -36,13 +36,13 @@
 .compass-svg {
   width: 100%;
   height: 100%;
-  object-fit: contain;
   /* Smooth rendering */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
   /* Prevent dragging */
   user-select: none;
   pointer-events: none;
+  display: block;
 }
 
 /* Performance optimizations */
@@ -68,8 +68,8 @@
 .qibla-point-svg {
   width: 3.75rem; /* 60px */
   height: 3.75rem; /* 60px */
-  object-fit: contain;
   /* Qibla point stays static - no rotation */
   transform: translateY(-120%);
+  display: block;
 }
 

@@ -7,20 +7,6 @@
   flex-direction: column;
 }
 
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2xl) var(--space-xl);
-  color: #6b7280;
-  font-family: 'Poppins', sans-serif;
-  font-size: var(--font-sm);
-  flex: 1;
-}
-
-
-
 .surah-title-wrapper {
   display: flex;
   align-items: flex-start;

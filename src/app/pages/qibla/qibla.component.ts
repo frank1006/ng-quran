@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, effect, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, effect, inject, DestroyRef, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -180,7 +180,9 @@ export class QiblaComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       // Handle any errors during permission request
-      console.error('Error requesting compass permission:', error);
+      if (isDevMode()) {
+        console.error('Error requesting compass permission:', error);
+      }
       this.compassPermissionRequested.set(false);
       this.needsPermissionButton.set(true);
       this.error.set('Failed to request compass permission. Please try again.');
@@ -225,7 +227,9 @@ export class QiblaComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Compass error:', err);
+        if (isDevMode()) {
+          console.error('Compass error:', err);
+        }
         this.handleCompassNotWorking('Compass error occurred');
       }
     });
@@ -235,7 +239,9 @@ export class QiblaComponent implements OnInit, OnDestroy {
    * Handle compass not working scenarios
    */
   private handleCompassNotWorking(reason: string): void {
-    console.warn('Compass stopped working:', reason);
+    if (isDevMode()) {
+      console.warn('Compass stopped working:', reason);
+    }
     
     // Update permission state to reflect actual functionality
     this.permissionsService.markCompassAsNotWorking();

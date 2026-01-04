@@ -47,9 +47,7 @@
   </div>
 
   @if (loading()) {
-    <div class="loading-state">
-      <p>Loading surahs...</p>
-    </div>
+    <app-loading-spinner />
   }
 
   @if (error()) {
