@@ -9,12 +9,15 @@ import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-he
 import { PrayerTrajectoryComponent } from './components/trajectory/prayer-trajectory.component';
 import { DateHeaderComponent } from './components/date-header/date-header.component';
 import { PrayerListComponent } from './components/prayer-list/prayer-list.component';
+import { MasjidListComponent } from './components/masjid-list/masjid-list.component';
+import { RadiusFilterComponent } from './components/radius-filter/radius-filter.component';
 import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
 import { TrajectoryData } from './components/trajectory/prayer-trajectory.types';
 import { NetworkStatusService } from '../../services/network-status.service';
 import { QiblaService } from '../qibla/services/qibla.service';
 import { NotificationService } from '../../services/notification.service';
 import { BackgroundSyncService } from '../../services/background-sync.service';
+import { MasjidService } from '../../services/masjid.service';
 
 interface PrayerItem {
   name: string;
@@ -33,7 +36,9 @@ const TIME_UPDATE_INTERVAL_MS = 1000;
     HeroHeaderComponent,
     PrayerTrajectoryComponent,
     DateHeaderComponent,
-    PrayerListComponent
+    PrayerListComponent,
+    MasjidListComponent,
+    RadiusFilterComponent
   ],
   providers: [PrayerTrajectoryService],
   templateUrl: './prayer.component.html',
@@ -46,11 +51,15 @@ export class PrayerComponent implements OnInit, OnDestroy {
   protected readonly currentDate = signal<Date>(new Date());
   protected readonly cityName = signal<string>('Current Location');
   protected readonly quadrant = signal<string>('');
+  protected readonly showMasjidList = signal<boolean>(false);
+  protected readonly masjidSearchRadius = signal<number>(1);
+  protected readonly masjidListRefreshTrigger = signal<number>(0);
   private readonly destroyRef = inject(DestroyRef);
   private readonly networkStatus = inject(NetworkStatusService);
   private readonly qiblaService = inject(QiblaService);
   private readonly notificationService = inject(NotificationService);
   private readonly backgroundSync = inject(BackgroundSyncService);
+  private readonly masjidService = inject(MasjidService);
   private timeInterval: number | null = null;
   private locationInfoLoaded = false;
 
@@ -59,6 +68,9 @@ export class PrayerComponent implements OnInit, OnDestroy {
     private trajectoryService: PrayerTrajectoryService,
     private settingsService: SettingsService
   ) {
+    // Load last selected radius from localStorage
+    const lastRadius = this.loadLastSelectedRadius();
+    this.masjidSearchRadius.set(lastRadius);
     // Show offline banner when there's a network error but we have cached data
     effect(() => {
       const error = this.error();
@@ -442,7 +454,12 @@ export class PrayerComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.updatePrayerDataForDate(today),
-        error: () => {}
+        error: (err) => {
+          // Errors are already handled by the store's error signal
+          if (isDevMode()) {
+            console.warn('Failed to preload prayer times:', err);
+          }
+        }
       });
   }
 
@@ -463,7 +480,12 @@ export class PrayerComponent implements OnInit, OnDestroy {
             this.prayerData.set(data);
           }
         },
-        error: () => {}
+        error: (err) => {
+          // Errors are already handled by the store's error signal
+          if (isDevMode()) {
+            console.warn('Failed to get prayer times:', err);
+          }
+        }
       });
   }
 
@@ -512,7 +534,12 @@ export class PrayerComponent implements OnInit, OnDestroy {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => this.updatePrayerDataForDate(date),
-          error: () => {}
+          error: (err) => {
+            // Errors are already handled by the store's error signal
+            if (isDevMode()) {
+              console.warn('Failed to preload prayer times for date:', err);
+            }
+          }
         });
     } else {
       this.updatePrayerDataForDate(date);
@@ -524,4 +551,76 @@ export class PrayerComponent implements OnInit, OnDestroy {
     this.currentDate.set(today);
     this.loadPrayerTimesForDate(today);
   }
+
+  /**
+   * Display masjid list view
+   * Force refresh to get latest data
+   */
+  protected displayMasjidList(): void {
+    this.showMasjidList.set(true);
+    // Force refresh to get latest data
+    this.masjidListRefreshTrigger.set(Date.now());
+  }
+
+  /**
+   * Show prayer list view
+   */
+  protected showPrayerList(): void {
+    this.showMasjidList.set(false);
+  }
+
+  /**
+   * Handle radius change from masjid list
+   */
+  protected onMasjidRadiusChange(radius: number): void {
+    this.masjidSearchRadius.set(radius);
+    this.saveLastSelectedRadius(radius);
+  }
+
+  /**
+   * Load last selected radius from localStorage
+   */
+  private loadLastSelectedRadius(): number {
+    try {
+      if (typeof localStorage === 'undefined') {
+        return 5; // Default
+      }
+      const stored = localStorage.getItem('masjid-last-radius');
+      if (stored) {
+        const radius = parseInt(stored, 10);
+        // Validate radius is within acceptable range (1-50)
+        if (radius >= 1 && radius <= 50) {
+          return radius;
+        }
+      }
+    } catch (error) {
+      if (isDevMode()) {
+        console.warn('Error loading last selected radius:', error);
+      }
+    }
+    return 1; // Default
+  }
+
+  /**
+   * Save last selected radius to localStorage
+   */
+  private saveLastSelectedRadius(radius: number): void {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('masjid-last-radius', radius.toString());
+      }
+    } catch (error) {
+      if (isDevMode()) {
+        console.warn('Error saving last selected radius:', error);
+      }
+    }
+  }
+
+  /**
+   * Get current location coordinates for masjid search
+   */
+  protected readonly currentLocation = computed(() => {
+    const location = this.prayerTimeStore.currentLocation();
+    return location ? { latitude: location.latitude, longitude: location.longitude } : null;
+  });
 }

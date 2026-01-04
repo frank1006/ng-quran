@@ -1,0 +1,52 @@
+@if (loading()) {
+  <app-loading-spinner />
+}
+
+@if (error() && masjids().length === 0) {
+  <app-connection-error 
+    [errorMessage]="error()!" 
+    (retry)="loadMasjids()"
+  />
+}
+
+@if (!loading() && masjids().length > 0) {
+  <div class="prayer-list-container">
+    <div class="prayer-list">
+      @for (masjid of masjids(); track masjid.id) {
+        <div class="prayer-card masjid-card">
+          <div class="prayer-info">
+            <h3 class="prayer-title">{{ masjid.name }}</h3>
+            <div class="masjid-time">
+              @if (masjid.distance !== undefined) {
+                <span class="masjid-distance">
+                  {{ formatDistance(masjid.distance) }}
+                </span>
+              }
+            </div>
+          </div>
+          <button
+            class="notification-button directions-button"
+            type="button"
+            (click)="openDirections(masjid)"
+            [attr.aria-label]="'Get directions to ' + masjid.name"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (!loading() && masjids().length === 0 && !error()) {
+  <div class="masjid-empty">
+    <svg class="empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <p class="empty-message">No mosques found in this area</p>
+    <p class="empty-hint">Try increasing the search radius</p>
+  </div>
+}

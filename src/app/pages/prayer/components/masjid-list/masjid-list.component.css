@@ -1,0 +1,165 @@
+/* Prayer list container and list styles - same as prayer-list component */
+.prayer-list-container {
+  position: relative;
+}
+
+/* Inner shadow at the top and bottom */
+.prayer-list-container::before,
+.prayer-list-container::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.25rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.prayer-list-container::before {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.prayer-list-container::after {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.prayer-list {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md) var(--space-lg);
+  gap: 0.65rem;
+  overflow-y: auto;
+  max-height: calc(100dvh - 26.3125rem); /* Viewport height minus header, trajectory, date header (with location badge), and bottom nav (421px = 26.3125rem) */
+  min-height: 12.5rem; /* Minimum height to ensure usability (200px = 12.5rem) */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Prayer card styles - same as prayer-list component */
+.prayer-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) var(--space-lg);
+  background: #ffffff;
+  border-radius: var(--border-radius-all);
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.prayer-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.prayer-info {
+  flex: 1;
+  display: flex;
+  min-width: 0; /* Allow flex item to shrink below content size */
+  overflow: hidden;
+}
+
+.prayer-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: #1f1f1f;
+  flex: 1;
+  min-width: 0; /* Allow flex item to shrink below content size */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Masjid-specific styles */
+.masjid-card {
+  /* Inherits all prayer-card styles */
+}
+
+.masjid-time {
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; /* Prevent distance from shrinking */
+}
+
+.masjid-distance {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.notification-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-xl);
+  height: var(--space-xl);
+  border: none;
+  background: #f9fafb;
+  border-radius: var(--border-radius-all);
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.notification-button svg {
+  scale: 0.8;
+}
+
+.notification-button:hover {
+  background: #f3f4f6;
+  transform: scale(1.1);
+}
+
+.directions-button {
+  /* Inherits notification-button styles */
+  color: #6b7280;
+}
+
+.directions-button:hover {
+  background: #f3f4f6;
+  color: #ffb030;
+}
+
+/* Empty State */
+.masjid-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  gap: var(--space-md);
+  text-align: center;
+}
+
+.empty-icon {
+  color: #d1d5db;
+}
+
+.empty-message {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.empty-hint {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-sm);
+  color: #6b7280;
+  margin: 0;
+}
+
