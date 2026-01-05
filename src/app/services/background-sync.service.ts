@@ -50,22 +50,56 @@ export class BackgroundSyncService {
    * Register periodic background sync (updates every 24 hours)
    */
   private async registerPeriodicSync(): Promise<void> {
-    if (!this.syncRegistration || !('periodicSync' in (this.syncRegistration as any))) {
-      // Periodic Sync API is not widely supported yet
-      // Fall back to one-time sync
+    if (!this.syncRegistration) {
+      return;
+    }
+
+    // Check if Periodic Background Sync API is supported
+    const hasPeriodicSync = 
+      'periodicSync' in navigator.serviceWorker &&
+      'periodicSync' in (this.syncRegistration as any) &&
+      typeof (this.syncRegistration as any).periodicSync === 'object' &&
+      (this.syncRegistration as any).periodicSync !== null;
+
+    if (!hasPeriodicSync) {
+      // Periodic Sync API is not supported
+      // Fall back to one-time sync (handled by registerOneTimeSync)
       return;
     }
 
     try {
-      const status = await (this.syncRegistration as any).periodicSync.getStatus();
+      const periodicSync = (this.syncRegistration as any).periodicSync;
+      
+      // Check if getStatus method exists before calling it
+      if (typeof periodicSync.getStatus !== 'function') {
+        // getStatus is not available, but periodicSync exists
+        // Try to register directly (some browsers may not have getStatus)
+        try {
+          await periodicSync.register(this.SYNC_TAG, {
+            minInterval: this.SYNC_INTERVAL_HOURS * 60 * 60 * 1000 // 24 hours in ms
+          });
+          console.log('Periodic background sync registered');
+        } catch (registerError) {
+          // Registration failed, fall back silently
+          console.warn('Periodic sync registration failed, using one-time sync');
+        }
+        return;
+      }
+
+      // getStatus is available, check permission first
+      const status = await periodicSync.getStatus();
       if (status === 'granted') {
-        await (this.syncRegistration as any).periodicSync.register(this.SYNC_TAG, {
+        await periodicSync.register(this.SYNC_TAG, {
           minInterval: this.SYNC_INTERVAL_HOURS * 60 * 60 * 1000 // 24 hours in ms
         });
         console.log('Periodic background sync registered');
+      } else {
+        console.warn('Periodic sync permission not granted, using one-time sync');
       }
     } catch (error) {
-      console.warn('Periodic sync not available, using one-time sync:', error);
+      // Silently fall back to one-time sync - this is expected in many browsers
+      // The fallback to one-time sync will handle the sync functionality
+      // No need to log this error as it's expected behavior when periodicSync is not available
     }
   }
 
