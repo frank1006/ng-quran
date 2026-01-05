@@ -60,6 +60,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private playerStateTimeout: number | null = null;
   private autoScrollTimeouts: number[] = [];
   private isRestoringState = false; // Flag to prevent auto-scroll during state restoration
+  private targetVerseFromFragment: number | null = null; // Verse to scroll to from URL fragment
 
   private readonly networkStatus = inject(NetworkStatusService);
 
@@ -104,10 +105,11 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Auto-scroll to playing verse when it changes (but not during state restoration)
+    // Auto-scroll to playing verse when it changes (but not during state restoration or when fragment target exists)
     effect(() => {
       const playingVerse = this.currentPlayingVerse();
-      if (playingVerse && !this.isRestoringState) {
+      // Skip auto-scroll if there's a fragment target (bookmark navigation takes priority)
+      if (playingVerse && !this.isRestoringState && !this.targetVerseFromFragment) {
         // Wait for view to be initialized
         const timeoutId = window.setTimeout(() => {
           if (this.versesContainerRef?.nativeElement && !this.destroyRef.destroyed) {
@@ -155,14 +157,44 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     // Initialize previous reciter ID from store
     this.previousReciterId = this.selectedReciterId();
     
+    // Check for URL fragment (verse to scroll to) - check immediately and subscribe for changes
+    const currentFragment = this.route.snapshot.fragment;
+    if (currentFragment && currentFragment.startsWith('verse-')) {
+      const verseNumber = parseInt(currentFragment.replace('verse-', ''), 10);
+      if (!isNaN(verseNumber)) {
+        this.targetVerseFromFragment = verseNumber;
+      }
+    }
+    
+    this.route.fragment
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(fragment => {
+        if (fragment && fragment.startsWith('verse-')) {
+          const verseNumber = parseInt(fragment.replace('verse-', ''), 10);
+          if (!isNaN(verseNumber)) {
+            this.targetVerseFromFragment = verseNumber;
+          }
+        } else {
+          this.targetVerseFromFragment = null;
+        }
+      });
+    
     this.routeSubscription = this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
         const id = params.get('surahId');
         if (id) {
-          this.chapterId = parseInt(id, 10);
+          const newChapterId = parseInt(id, 10);
+          const chapterChanged = this.chapterId !== null && this.chapterId !== newChapterId;
+          this.chapterId = newChapterId;
           // Reset previous reciter ID when loading new chapter
           this.previousReciterId = this.selectedReciterId();
+          // Only reset fragment target if chapter actually changed AND there's no fragment in URL
+          // This preserves fragment when navigating to bookmark on same or different chapter
+          const hasFragment = this.route.snapshot.fragment && this.route.snapshot.fragment.startsWith('verse-');
+          if (chapterChanged && !hasFragment) {
+            this.targetVerseFromFragment = null;
+          }
           this.loadChapter(this.chapterId);
         }
       });
@@ -171,10 +203,36 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     // Restore scroll position after view is initialized
     if (this.chapterId && this.versesContainerRef?.nativeElement) {
-      // Check if there's a selected verse (from player state) - prioritize scrolling to it
+      // Priority order:
+      // 1. URL fragment (verse from bookmark link) - highest priority
+      // 2. Player state (currently playing verse)
+      // 3. Saved scroll position
+      // 4. Last read position
+      
+      // Check fragment one more time to ensure we have the latest value
+      const fragment = this.route.snapshot.fragment;
+      if (fragment && fragment.startsWith('verse-')) {
+        const verseNumber = parseInt(fragment.replace('verse-', ''), 10);
+        if (!isNaN(verseNumber)) {
+          this.targetVerseFromFragment = verseNumber;
+        }
+      }
+      
+      const fragmentVerse = this.targetVerseFromFragment;
       const currentVerse = this.currentPlayingVerse();
       
-      if (currentVerse) {
+      if (fragmentVerse) {
+        // Scroll to verse from URL fragment (bookmark navigation)
+        // Use longer delay to ensure all content is rendered and any other scrolls have completed
+        const timeoutId = window.setTimeout(() => {
+          if (!this.destroyRef.destroyed && this.targetVerseFromFragment) {
+            this.scrollToVerse(this.targetVerseFromFragment);
+            // Clear fragment target after scrolling
+            this.targetVerseFromFragment = null;
+          }
+        }, 800); // Longer delay to ensure content is fully loaded and rendered
+        this.autoScrollTimeouts.push(timeoutId);
+      } else if (currentVerse) {
         // Scroll to the selected/playing verse
         const timeoutId1 = window.setTimeout(() => {
           if (!this.destroyRef.destroyed) {
@@ -297,6 +355,29 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         this.restoreState(chapterId);
         
         this.loading.set(false);
+        
+        // Check fragment again after chapter loads (in case it was set during navigation)
+        const fragment = this.route.snapshot.fragment;
+        if (fragment && fragment.startsWith('verse-')) {
+          const verseNumber = parseInt(fragment.replace('verse-', ''), 10);
+          if (!isNaN(verseNumber)) {
+            this.targetVerseFromFragment = verseNumber;
+          }
+        }
+        
+        // If there's a fragment verse to scroll to, handle it after view is ready
+        // This handles the case when navigating to a bookmark on an already loaded chapter
+        // Only add timeout if ngAfterViewInit hasn't already handled it
+        if (this.targetVerseFromFragment && this.versesContainerRef?.nativeElement) {
+          // Use a small delay to check if ngAfterViewInit will handle it first
+          const timeoutId = window.setTimeout(() => {
+            if (!this.destroyRef.destroyed && this.targetVerseFromFragment && this.versesContainerRef?.nativeElement) {
+              // Double-check that ngAfterViewInit hasn't already scrolled
+              this.scrollToVerse(this.targetVerseFromFragment);
+            }
+          }, 700); // Slightly longer than ngAfterViewInit to avoid duplicate scrolls
+          this.autoScrollTimeouts.push(timeoutId);
+        }
       },
       error: (err) => {
         this.error.set(err.message || 'Failed to load chapter');

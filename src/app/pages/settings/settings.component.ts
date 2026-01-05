@@ -1,5 +1,7 @@
-import { Component, OnInit, OnDestroy, signal, computed, isDevMode, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, isDevMode, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { SettingsService, TimeFormat } from '../../services/settings.service';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
@@ -7,6 +9,9 @@ import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService } from '../qibla/services/qibla.service';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationPermissionStatus } from '../../services/notification.types';
+import { UserStoreService, Bookmark } from '../../services/user-store.service';
+import { QuranApiService } from '../../services/quran-api.service';
+import { Chapter } from '../../services/quran-api.types';
 
 @Component({
   selector: 'app-settings',
@@ -35,6 +40,77 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly locationInfo = signal<{ quadrant: string; city: string; country: string } | null>(null);
   protected readonly loadingLocation = signal<boolean>(false);
 
+  // Bookmarks
+  protected readonly bookmarks = computed(() => this.userStore.bookmarks());
+  protected readonly chapters = signal<Chapter[]>([]);
+  protected readonly loadingChapters = signal<boolean>(false);
+  
+  protected readonly groupedBookmarks = computed(() => {
+    const bookmarksList = this.bookmarks();
+    const chaptersMap = this.chapters();
+    
+    if (chaptersMap.length === 0 || bookmarksList.length === 0) {
+      return [];
+    }
+    
+    // Group bookmarks by chapterId
+    const grouped = new Map<number, {
+      chapterId: number;
+      chapterName: string;
+      chapterTransliteration: string;
+      chapterTranslation: string;
+      verses: Array<Bookmark & {
+        chapterName: string;
+        chapterTransliteration: string;
+        chapterTranslation: string;
+      }>;
+    }>();
+    
+    bookmarksList.forEach(bookmark => {
+      const chapter = chaptersMap.find(c => c.id === bookmark.chapterId);
+      const chapterName = chapter ? chapter.name : `Chapter ${bookmark.chapterId}`;
+      const chapterTransliteration = chapter ? chapter.transliteration : '';
+      const chapterTranslation = chapter ? chapter.translation : '';
+      
+      if (!grouped.has(bookmark.chapterId)) {
+        grouped.set(bookmark.chapterId, {
+          chapterId: bookmark.chapterId,
+          chapterName,
+          chapterTransliteration,
+          chapterTranslation,
+          verses: []
+        });
+      }
+      
+      const group = grouped.get(bookmark.chapterId);
+      if (group) {
+        group.verses.push({
+          ...bookmark,
+          chapterName,
+          chapterTransliteration,
+          chapterTranslation
+        });
+      }
+    });
+    
+    // Sort verses within each group by timestamp (most recent first)
+    grouped.forEach(group => {
+      group.verses.sort((a, b) => b.timestamp - a.timestamp);
+    });
+    
+    // Convert to array and sort by most recent bookmark timestamp (most recent first)
+    return Array.from(grouped.values()).sort((a, b) => {
+      // Handle empty verses arrays safely
+      if (a.verses.length === 0 && b.verses.length === 0) return 0;
+      if (a.verses.length === 0) return 1; // Empty groups go to end
+      if (b.verses.length === 0) return -1; // Empty groups go to end
+      
+      const aLatest = Math.max(...a.verses.map(v => v.timestamp));
+      const bLatest = Math.max(...b.verses.map(v => v.timestamp));
+      return bLatest - aLatest;
+    });
+  });
+
   // App Information
   protected readonly appName = signal<string>('QuranFlow');
   protected readonly appVersion = signal<string>('Beta-v1');
@@ -50,6 +126,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   private readonly qiblaService = inject(QiblaService);
   private readonly notificationService = inject(NotificationService);
+  private readonly userStore = inject(UserStoreService);
+  private readonly quranApi = inject(QuranApiService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private settingsService: SettingsService,
@@ -64,11 +144,55 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Load location information
     this.loadLocationInfo();
     
+    // Load chapters for bookmark display
+    this.loadChapters();
+    
     // Re-verify compass functionality periodically while on settings page
     // This ensures status reflects actual compass state
     this.verifyInterval = window.setInterval(() => {
       this.permissionsService.checkPermissions();
     }, 5000); // Check every 5 seconds
+  }
+
+  /**
+   * Load chapters for bookmark display
+   */
+  private loadChapters(): void {
+    this.loadingChapters.set(true);
+    this.quranApi.getChapters()
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (chapters) => {
+          this.chapters.set(chapters);
+          this.loadingChapters.set(false);
+        },
+        error: (error) => {
+          if (isDevMode()) {
+            console.error('Error loading chapters for bookmarks:', error);
+          }
+          this.loadingChapters.set(false);
+        }
+      });
+  }
+
+  /**
+   * Navigate to bookmarked verse
+   */
+  protected navigateToBookmark(bookmark: Bookmark): void {
+    this.router.navigate(['/quran', bookmark.chapterId], {
+      fragment: `verse-${bookmark.verseNumber}`
+    });
+  }
+
+  /**
+   * Remove bookmark
+   */
+  protected removeBookmark(bookmark: Bookmark, event: Event): void {
+    event.stopPropagation(); // Prevent navigation when clicking remove
+    this.userStore.removeBookmark(bookmark.chapterId, bookmark.verseNumber);
   }
 
   /**

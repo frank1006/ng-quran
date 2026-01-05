@@ -302,6 +302,31 @@
   font-weight: 600;
 }
 
+/* Bookmarks */
+.bookmarks-loading,.bookmarks-empty-hint{font-size:var(--font-sm);color:#6b7280;margin:0}
+.bookmarks-loading{text-align:center;padding:var(--space-lg)}
+.bookmarks-empty{text-align:center;padding:var(--space-xl) var(--space-lg)}
+.bookmarks-empty-text{font-size:var(--font-base);font-weight:600;color:#1f1f1f;margin:0 0 var(--space-xs) 0}
+.bookmarks-empty-hint{line-height:1.6}
+.bookmarks-groups{display:flex;flex-direction:column;}
+.bookmark-group{padding-bottom:var(--space-md);border-bottom:1px solid #f3f4f6;margin-bottom:var(--space-md)}
+.bookmark-group:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.bookmark-group-header{padding:var(--space-sm) var(--space-md);background:#f3f4f6;border-radius:var(--border-radius-all);margin-bottom:var(--space-sm);display:flex;align-items:center;justify-content:space-between;gap:var(--space-md)}
+.bookmark-group-title-left{display:flex;flex-direction:column;gap:0.125rem;flex:1}
+.bookmark-group-transliteration{font-size:var(--font-sm);font-weight:600;color:#1f1f1f;line-height:1.4}
+.bookmark-group-translation{font-size:var(--font-xs);font-weight:400;color:#6b7280;line-height:1.4}
+.bookmark-group-title-arabic{font-size:var(--font-lg);font-weight:600;color:#1f1f1f;margin:0;line-height:1.4;direction:rtl;text-align:right}
+.bookmarks-list{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-xs)}
+.bookmark-item{display:flex;align-items:center;justify-content:space-between;padding:0.375rem var(--space-sm);background:#f9fafb;border:1px solid #e5e7eb;border-radius:var(--border-radius-all);cursor:pointer;transition:.2s;gap:var(--space-xs)}
+.bookmark-item:hover{background:#f3f4f6;border-color:#d1d5db;box-shadow:0 2px 8px rgba(0,0,0,.06);transform:translateY(-1px)}
+.bookmark-content{flex:1;min-width:0}
+.bookmark-header{display:flex;align-items:baseline;gap:var(--space-xs);flex-wrap:wrap}
+.bookmark-verse{font-size:var(--font-xs);font-weight:500;color:#6b7280;white-space:nowrap}
+.bookmark-remove-button{flex-shrink:0;width:1.5rem;height:1.5rem;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid #e5e7eb;border-radius:var(--border-radius-all);color:#6b7280;cursor:pointer;transition:.2s;padding:0}
+.bookmark-remove-button:hover{background:#fee2e2;border-color:#fca5a5;color:#dc2626;transform:scale(1.05)}
+.bookmark-remove-button:active{transform:scale(.95)}
+.bookmark-remove-button svg{width:10px;height:10px}
+
 .clear-data-button {
   padding: 0.625rem 1.25rem;
   background: #dc2626;

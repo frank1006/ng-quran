@@ -1,6 +1,62 @@
 <div class="settings-container">
   <h1 class="settings-title">Profile</h1>
 
+  <!-- Quran Bookmarks Card -->
+  <section class="settings-section">
+    <h2 class="section-title">Quran Bookmarks</h2>
+    
+    <div class="settings-card-section">
+      @if (loadingChapters()) {
+        <p class="bookmarks-loading">Loading bookmarks...</p>
+      } @else if (groupedBookmarks().length === 0) {
+        <div class="bookmarks-empty">
+          <p class="bookmarks-empty-text">No bookmarks yet</p>
+          <p class="bookmarks-empty-hint">Bookmark verses while reading the Quran to see them here</p>
+        </div>
+      } @else {
+        <div class="bookmarks-groups">
+          @for (group of groupedBookmarks(); track group.chapterId) {
+            <div class="bookmark-group">
+              <div class="bookmark-group-header">
+                <div class="bookmark-group-title-left">
+                  @if (group.chapterTransliteration) {
+                    <span class="bookmark-group-transliteration">{{ group.chapterTransliteration }}</span>
+                  }
+                  @if (group.chapterTranslation) {
+                    <span class="bookmark-group-translation">{{ group.chapterTranslation }}</span>
+                  }
+                </div>
+                <h3 class="bookmark-group-title-arabic" dir="rtl">{{ group.chapterName }}</h3>
+              </div>
+              <div class="bookmarks-list">
+                @for (bookmark of group.verses; track bookmark.chapterId + '-' + bookmark.verseNumber) {
+                  <div class="bookmark-item" (click)="navigateToBookmark(bookmark)">
+                    <div class="bookmark-content">
+                      <div class="bookmark-header">
+                        <span class="bookmark-verse">Verse {{ bookmark.verseNumber }}</span>
+                      </div>
+                    </div>
+                    <button
+                      class="bookmark-remove-button"
+                      type="button"
+                      (click)="removeBookmark(bookmark, $event)"
+                      [attr.aria-label]="'Remove bookmark for ' + group.chapterName + ' verse ' + bookmark.verseNumber"
+                      title="Remove bookmark"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
   <!-- Settings Card: Time Format and App Permissions -->
   <section class="settings-section">
     <h2 class="section-title">Settings</h2>
