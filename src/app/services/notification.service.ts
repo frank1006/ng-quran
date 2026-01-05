@@ -9,17 +9,18 @@ import {
 } from './notification.types';
 import { DeviceDetectionService } from './device-detection.service';
 import { PrayerTimeStore } from '../store/prayer-time.store';
+import { UserStoreService } from './user-store.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
   private readonly STORAGE_KEY = 'prayer_notification_settings';
-  private readonly SCHEDULED_NOTIFICATIONS_KEY = 'prayer_scheduled_notifications';
   private readonly DEFAULT_ADVANCE_MINUTES = 0; // Notify at exact prayer time
 
   private readonly deviceDetection = inject(DeviceDetectionService);
   private readonly prayerTimeStore = inject(PrayerTimeStore);
+  private readonly userStore = inject(UserStoreService);
 
   private readonly settings = signal<NotificationSettings>({
     enabled: false,
@@ -590,20 +591,7 @@ export class NotificationService {
    * Get scheduled notifications from storage
    */
   private getScheduledNotifications(): ScheduledNotification[] {
-    if (typeof localStorage === 'undefined') {
-      return [];
-    }
-
-    try {
-      const stored = localStorage.getItem(this.SCHEDULED_NOTIFICATIONS_KEY);
-      if (stored) {
-        return JSON.parse(stored) as ScheduledNotification[];
-      }
-    } catch (error) {
-      console.warn('Failed to load scheduled notifications:', error);
-    }
-
-    return [];
+    return this.userStore.prayerScheduledNotifications();
   }
 
   /**
@@ -612,18 +600,7 @@ export class NotificationService {
   private saveScheduledNotifications(
     notifications: ScheduledNotification[]
   ): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
-    try {
-      localStorage.setItem(
-        this.SCHEDULED_NOTIFICATIONS_KEY,
-        JSON.stringify(notifications)
-      );
-    } catch (error) {
-      console.warn('Failed to save scheduled notifications:', error);
-    }
+    this.userStore.setPrayerScheduledNotifications(notifications);
   }
 
   /**

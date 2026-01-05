@@ -1,4 +1,4 @@
-import { TimeFormat } from './settings.service';
+import { TimeFormat } from './time-format.types';
 
 /**
  * Convert 24-hour time string (HH:MM) to 12-hour format (h:MM AM/PM)

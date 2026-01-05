@@ -206,10 +206,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Reset data and permissions - clears local storage, API cache, and resets permissions
+   * Reset permissions and clear all cache data (preserves user-store with user preferences)
    */
   protected resetDataAndPermissions(): void {
-    if (!confirm('Are you sure you want to reset all data and permissions? This will remove prayer times cache, settings, and all stored preferences. This action cannot be undone.')) {
+    if (!confirm('Are you sure you want to reset permissions and clear all cache data? This will clear API cache and reset permissions, but your preferences (time format, bookmarks, etc.) will be preserved. This action cannot be undone.')) {
       return;
     }
 
@@ -219,20 +219,37 @@ export class SettingsComponent implements OnInit, OnDestroy {
       // Clear prayer times cache (API cache)
       this.prayerTimeStore.clearCache();
 
-      // Clear app-specific localStorage items
+      // Clear app-specific localStorage items (EXCEPT user-store)
       if (typeof localStorage !== 'undefined') {
         // Clear prayer times cache
         localStorage.removeItem('prayer-time-cache');
-        // Clear time format preference
-        localStorage.removeItem('app_time_format');
         // Clear compass permission
         localStorage.removeItem('qibla_compass_permission_granted');
         // Clear location info cache
         localStorage.removeItem('location-info-cache');
+        // Clear masjid cache
+        localStorage.removeItem('masjid-cache');
+        // Clear quran cache
+        localStorage.removeItem('quran-cache');
+        // Clear notification settings (separate from user-store)
+        localStorage.removeItem('prayer_notification_settings');
+        // Clear old cache keys
+        localStorage.removeItem('masjid-last-radius');
+        localStorage.removeItem('quran-api-chapters');
+        localStorage.removeItem('quran-api-reciters');
+        // Clear old chapter keys
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('quran-api-chapter-')) {
+            localStorage.removeItem(key);
+          }
+        }
       }
 
-      // Reset time format to default
-      this.settingsService.setTimeFormat(TimeFormat.TWENTY_FOUR_HOUR);
+      // Disable and cancel all notifications
+      this.notificationService.setNotificationsEnabled(false).catch(() => {
+        // Silently handle if notifications are not available
+      });
 
       // Refresh permission statuses
       this.permissionsService.checkPermissions();

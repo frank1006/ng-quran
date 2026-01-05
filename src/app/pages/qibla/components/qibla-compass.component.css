@@ -1,7 +1,9 @@
 .compass-wrapper {
   position: relative;
-  width: 20rem; /* 320px */
-  height: 20rem; /* 320px */
+  width: 90%;
+  max-width: 18rem; /* 288px max on larger screens */
+  min-width: 18rem; /* 288px min on small screens */
+  aspect-ratio: 1 / 1; /* Maintain square shape */
   margin: calc(-1 * var(--space-md)) auto 0;
 }
 
@@ -58,16 +60,16 @@
   transform: translateX(-50%);
   z-index: 20;
   pointer-events: none;
-  width: 3.75rem; /* 60px */
-  height: 3.75rem; /* 60px */
+  width: clamp(3rem, 18.75%, 3.75rem); /* Responsive: 48px to 60px */
+  height: clamp(3rem, 18.75%, 3.75rem); /* Responsive: 48px to 60px */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .qibla-point-svg {
-  width: 3.75rem; /* 60px */
-  height: 3.75rem; /* 60px */
+  width: 100%;
+  height: 100%;
   /* Qibla point stays static - no rotation */
   transform: translateY(-120%);
   display: block;

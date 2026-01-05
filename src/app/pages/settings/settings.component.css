@@ -287,6 +287,21 @@
   margin-bottom: 0.25rem;
 }
 
+.clear-data-note {
+  font-size: var(--font-xs);
+  color: #059669;
+  margin: var(--space-sm) 0 0 0;
+  padding: var(--space-xs);
+  background: #d1fae5;
+  border-radius: var(--border-radius-all);
+  line-height: 1.6;
+}
+
+.clear-data-note strong {
+  color: #047857;
+  font-weight: 600;
+}
+
 .clear-data-button {
   padding: 0.625rem 1.25rem;
   background: #dc2626;

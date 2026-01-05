@@ -557,6 +557,11 @@ export class PrayerComponent implements OnInit, OnDestroy {
    * Force refresh to get latest data
    */
   protected displayMasjidList(): void {
+    // Prevent click if masjid list is already active
+    if (this.showMasjidList()) {
+      return;
+    }
+    
     this.showMasjidList.set(true);
     // Force refresh to get latest data
     this.masjidListRefreshTrigger.set(Date.now());
@@ -583,13 +588,36 @@ export class PrayerComponent implements OnInit, OnDestroy {
   private loadLastSelectedRadius(): number {
     try {
       if (typeof localStorage === 'undefined') {
-        return 5; // Default
+        return 1; // Default
       }
-      const stored = localStorage.getItem('masjid-last-radius');
-      if (stored) {
-        const radius = parseInt(stored, 10);
+
+      // Try to load from new unified masjid-cache structure
+      const cacheStored = localStorage.getItem('masjid-cache');
+      if (cacheStored) {
+        try {
+          const cache: { lastRadius?: number; searchCache?: any; version?: string } = JSON.parse(cacheStored);
+          if (cache.lastRadius !== undefined) {
+            const radius = parseInt(cache.lastRadius.toString(), 10);
+            // Validate radius is within acceptable range (1-50)
+            if (radius >= 1 && radius <= 50) {
+              return radius;
+            }
+          }
+        } catch (error) {
+          // Invalid cache structure, continue to migration check
+        }
+      }
+
+      // Migration: Check for old key and migrate to new structure
+      const oldStored = localStorage.getItem('masjid-last-radius');
+      if (oldStored) {
+        const radius = parseInt(oldStored, 10);
         // Validate radius is within acceptable range (1-50)
         if (radius >= 1 && radius <= 50) {
+          // Migrate to new structure
+          this.saveLastSelectedRadius(radius);
+          // Remove old key
+          localStorage.removeItem('masjid-last-radius');
           return radius;
         }
       }
@@ -607,7 +635,28 @@ export class PrayerComponent implements OnInit, OnDestroy {
   private saveLastSelectedRadius(radius: number): void {
     try {
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('masjid-last-radius', radius.toString());
+        // Load existing unified cache or create new
+        let cache: { version?: string; lastRadius?: number; searchCache?: any } = {};
+        const cacheStored = localStorage.getItem('masjid-cache');
+        if (cacheStored) {
+          try {
+            cache = JSON.parse(cacheStored);
+          } catch (error) {
+            // Invalid cache, create new
+            cache = {};
+          }
+        }
+
+        // Preserve version and searchCache if they exist
+        if (!cache.version) {
+          cache.version = '1.0.0';
+        }
+
+        // Update cache
+        cache.lastRadius = radius;
+        
+        // Save to masjid-cache (preserves searchCache if it exists)
+        localStorage.setItem('masjid-cache', JSON.stringify(cache));
       }
     } catch (error) {
       if (isDevMode()) {

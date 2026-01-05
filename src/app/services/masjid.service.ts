@@ -60,6 +60,13 @@ interface MasjidCacheData {
   [cacheKey: string]: MasjidCacheEntry;
 }
 
+// Unified cache structure interface
+interface UnifiedMasjidCache {
+  version?: string;
+  lastRadius?: number;
+  searchCache?: MasjidCacheData;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -219,22 +226,63 @@ export class MasjidService {
         return null;
       }
 
-      const data: { version: string; cache: MasjidCacheData } = JSON.parse(stored);
-      
-      // Check version compatibility
-      if (data.version !== this.CACHE_VERSION) {
-        this.clearCache();
+      try {
+        const data: UnifiedMasjidCache = JSON.parse(stored);
+        
+        // Check version compatibility
+        if (data.version !== this.CACHE_VERSION) {
+          // Migrate old structure if needed
+          if ((data as any).cache && typeof (data as any).cache === 'object') {
+            // Old structure - migrate to new
+            const oldData = data as any;
+            const unifiedCache: UnifiedMasjidCache = {
+              version: this.CACHE_VERSION,
+              searchCache: oldData.cache
+            };
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(unifiedCache));
+            data.searchCache = oldData.cache;
+          } else {
+            this.clearCache();
+            return null;
+          }
+        }
+
+        // Use new unified structure
+        if (!data.searchCache) {
+          return null;
+        }
+
+        const entry = data.searchCache[cacheKey];
+        if (entry && !this.isCacheExpired(entry)) {
+          // Update in-memory cache
+          this.inMemoryCache.set(cacheKey, entry);
+          return entry.masjids;
+        }
+
+        return null;
+      } catch (error) {
+        // Try to parse as old structure for migration
+        try {
+          const oldData: { version: string; cache: MasjidCacheData } = JSON.parse(stored);
+          if (oldData.version === this.CACHE_VERSION && oldData.cache) {
+            // Migrate to new structure
+            const unifiedCache: UnifiedMasjidCache = {
+              version: this.CACHE_VERSION,
+              searchCache: oldData.cache
+            };
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(unifiedCache));
+            
+            const entry = oldData.cache[cacheKey];
+            if (entry && !this.isCacheExpired(entry)) {
+              this.inMemoryCache.set(cacheKey, entry);
+              return entry.masjids;
+            }
+          }
+        } catch (migrationError) {
+          // Both parsing attempts failed
+        }
         return null;
       }
-
-      const entry = data.cache[cacheKey];
-      if (entry && !this.isCacheExpired(entry)) {
-        // Update in-memory cache
-        this.inMemoryCache.set(cacheKey, entry);
-        return entry.masjids;
-      }
-
-      return null;
     } catch (error) {
       if (isDevMode()) {
         console.warn('Error reading masjid cache:', error);
@@ -278,36 +326,57 @@ export class MasjidService {
         return;
       }
 
-      let cacheData: { version: string; cache: MasjidCacheData } = {
+      // Load existing unified cache
+      let unifiedCache: UnifiedMasjidCache = {
         version: this.CACHE_VERSION,
-        cache: {}
+        searchCache: {}
       };
 
-      // Load existing cache
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         try {
           const existing = JSON.parse(stored);
-          if (existing.version === this.CACHE_VERSION && existing.cache) {
-            cacheData.cache = existing.cache;
+          
+          // Migrate from old structure if needed
+          if (existing.version === this.CACHE_VERSION) {
+            if (existing.cache && typeof existing.cache === 'object') {
+              // Old structure - migrate
+              unifiedCache = {
+                version: this.CACHE_VERSION,
+                lastRadius: existing.lastRadius,
+                searchCache: existing.cache
+              };
+            } else if (existing.searchCache) {
+              // New structure
+              unifiedCache = {
+                version: this.CACHE_VERSION,
+                lastRadius: existing.lastRadius,
+                searchCache: existing.searchCache
+              };
+            }
           }
         } catch (e) {
           // If parsing fails, start fresh
         }
       }
 
+      // Initialize searchCache if it doesn't exist
+      if (!unifiedCache.searchCache) {
+        unifiedCache.searchCache = {};
+      }
+
       // Add/update entry
-      cacheData.cache[cacheKey] = entry;
+      unifiedCache.searchCache[cacheKey] = entry;
 
       // Clean up old entries (keep last 20 entries)
-      const entries = Object.entries(cacheData.cache);
+      const entries = Object.entries(unifiedCache.searchCache);
       if (entries.length > 20) {
         // Sort by timestamp and keep most recent
         const sorted = entries.sort((a, b) => b[1].timestamp - a[1].timestamp);
-        cacheData.cache = Object.fromEntries(sorted.slice(0, 20));
+        unifiedCache.searchCache = Object.fromEntries(sorted.slice(0, 20));
       }
 
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cacheData));
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(unifiedCache));
     } catch (error) {
       if (isDevMode()) {
         console.warn('Error saving masjid cache:', error);
@@ -317,13 +386,28 @@ export class MasjidService {
   }
 
   /**
-   * Clear all masjid cache
+   * Clear all masjid cache (search results only, preserves lastRadius)
    */
   clearCache(): void {
     this.inMemoryCache.clear();
     try {
       if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(this.STORAGE_KEY);
+        const stored = localStorage.getItem(this.STORAGE_KEY);
+        if (stored) {
+          try {
+            const existing: UnifiedMasjidCache = JSON.parse(stored);
+            // Clear only search cache, preserve lastRadius
+            const clearedCache: UnifiedMasjidCache = {
+              version: this.CACHE_VERSION,
+              lastRadius: existing.lastRadius,
+              searchCache: {}
+            };
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(clearedCache));
+          } catch (e) {
+            // If parsing fails, remove entire cache
+            localStorage.removeItem(this.STORAGE_KEY);
+          }
+        }
       }
     } catch (error) {
       if (isDevMode()) {

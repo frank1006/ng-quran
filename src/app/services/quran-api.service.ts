@@ -24,9 +24,10 @@ import {
 })
 export class QuranApiService {
   private readonly baseUrl = 'https://quranapi.pages.dev/api/';
-  private readonly STORAGE_KEY_RECITERS = 'quran-api-reciters';
-  private readonly STORAGE_KEY_CHAPTERS = 'quran-api-chapters';
-  private readonly STORAGE_KEY_CHAPTER_PREFIX = 'quran-api-chapter-'; // Prefix for individual chapter cache keys
+  private readonly STORAGE_KEY_CACHE = 'quran-cache'; // Unified cache key
+  private readonly STORAGE_KEY_RECITERS = 'quran-api-reciters'; // Old key for migration
+  private readonly STORAGE_KEY_CHAPTERS = 'quran-api-chapters'; // Old key for migration
+  private readonly STORAGE_KEY_CHAPTER_PREFIX = 'quran-api-chapter-'; // Old key prefix for migration
   private readonly CACHE_VERSION = '1.0.0';
   private readonly MAX_CACHED_CHAPTERS = 20; // Limit number of chapters cached in localStorage to prevent storage bloat
 
@@ -365,20 +366,37 @@ export class QuranApiService {
         return null;
       }
 
-      const stored = localStorage.getItem(this.STORAGE_KEY_CHAPTERS);
-      if (!stored) {
-        return null;
+      // Try to load from new quran-cache structure
+      const cacheStored = localStorage.getItem(this.STORAGE_KEY_CACHE);
+      if (cacheStored) {
+        try {
+          const cache = JSON.parse(cacheStored);
+          if (cache.chapters && cache.version === this.CACHE_VERSION) {
+            return cache.chapters;
+          }
+        } catch (error) {
+          // Invalid cache structure, continue to migration check
+        }
       }
 
-      const data = JSON.parse(stored);
-      
-      // Check version compatibility
-      if (data.version !== this.CACHE_VERSION) {
-        localStorage.removeItem(this.STORAGE_KEY_CHAPTERS);
-        return null;
+      // Migration: Check for old key and migrate to new structure
+      const oldStored = localStorage.getItem(this.STORAGE_KEY_CHAPTERS);
+      if (oldStored) {
+        try {
+          const data = JSON.parse(oldStored);
+          if (data.version === this.CACHE_VERSION && data.chapters) {
+            // Migrate to new structure
+            this.setCachedChapters(data.chapters);
+            // Remove old key
+            localStorage.removeItem(this.STORAGE_KEY_CHAPTERS);
+            return data.chapters;
+          }
+        } catch (error) {
+          // Invalid old data, ignore
+        }
       }
 
-      return data.chapters;
+      return null;
     } catch (error) {
       if (isDevMode()) {
         console.error('Error reading chapters from localStorage:', error);
@@ -396,13 +414,24 @@ export class QuranApiService {
         return;
       }
 
-      const data = {
-        version: this.CACHE_VERSION,
-        chapters,
-        timestamp: new Date().toISOString()
-      };
+      // Load existing cache or create new
+      let cache: { version?: string; chapters?: Chapter[]; reciters?: Reciter[]; chapterCache?: Record<string, any>; timestamp?: string } = {};
+      const cacheStored = localStorage.getItem(this.STORAGE_KEY_CACHE);
+      if (cacheStored) {
+        try {
+          cache = JSON.parse(cacheStored);
+        } catch (error) {
+          // Invalid cache, create new
+          cache = {};
+        }
+      }
 
-      localStorage.setItem(this.STORAGE_KEY_CHAPTERS, JSON.stringify(data));
+      // Update cache
+      cache.version = this.CACHE_VERSION;
+      cache.chapters = chapters;
+      cache.timestamp = new Date().toISOString();
+
+      localStorage.setItem(this.STORAGE_KEY_CACHE, JSON.stringify(cache));
     } catch (error) {
       if (isDevMode()) {
         console.error('Error saving chapters to localStorage:', error);
@@ -420,20 +449,37 @@ export class QuranApiService {
         return null;
       }
 
-      const stored = localStorage.getItem(this.STORAGE_KEY_RECITERS);
-      if (!stored) {
-        return null;
+      // Try to load from new quran-cache structure
+      const cacheStored = localStorage.getItem(this.STORAGE_KEY_CACHE);
+      if (cacheStored) {
+        try {
+          const cache = JSON.parse(cacheStored);
+          if (cache.reciters && cache.version === this.CACHE_VERSION) {
+            return cache.reciters;
+          }
+        } catch (error) {
+          // Invalid cache structure, continue to migration check
+        }
       }
 
-      const data = JSON.parse(stored);
-      
-      // Check version compatibility
-      if (data.version !== this.CACHE_VERSION) {
-        localStorage.removeItem(this.STORAGE_KEY_RECITERS);
-        return null;
+      // Migration: Check for old key and migrate to new structure
+      const oldStored = localStorage.getItem(this.STORAGE_KEY_RECITERS);
+      if (oldStored) {
+        try {
+          const data = JSON.parse(oldStored);
+          if (data.version === this.CACHE_VERSION && data.reciters) {
+            // Migrate to new structure
+            this.setCachedReciters(data.reciters);
+            // Remove old key
+            localStorage.removeItem(this.STORAGE_KEY_RECITERS);
+            return data.reciters;
+          }
+        } catch (error) {
+          // Invalid old data, ignore
+        }
       }
 
-      return data.reciters;
+      return null;
     } catch (error) {
       if (isDevMode()) {
         console.error('Error reading reciters from localStorage:', error);
@@ -451,13 +497,24 @@ export class QuranApiService {
         return;
       }
 
-      const data = {
-        version: this.CACHE_VERSION,
-        reciters,
-        timestamp: new Date().toISOString()
-      };
+      // Load existing cache or create new
+      let cache: { version?: string; chapters?: Chapter[]; reciters?: Reciter[]; chapterCache?: Record<string, any>; timestamp?: string } = {};
+      const cacheStored = localStorage.getItem(this.STORAGE_KEY_CACHE);
+      if (cacheStored) {
+        try {
+          cache = JSON.parse(cacheStored);
+        } catch (error) {
+          // Invalid cache, create new
+          cache = {};
+        }
+      }
 
-      localStorage.setItem(this.STORAGE_KEY_RECITERS, JSON.stringify(data));
+      // Update cache
+      cache.version = this.CACHE_VERSION;
+      cache.reciters = reciters;
+      cache.timestamp = new Date().toISOString();
+
+      localStorage.setItem(this.STORAGE_KEY_CACHE, JSON.stringify(cache));
     } catch (error) {
       if (isDevMode()) {
         console.error('Error saving reciters to localStorage:', error);
@@ -476,37 +533,71 @@ export class QuranApiService {
         return null;
       }
 
-      const key = `${this.STORAGE_KEY_CHAPTER_PREFIX}${chapterId}`;
-      const stored = localStorage.getItem(key);
-      if (!stored) {
-        return null;
-      }
-
-      const data = JSON.parse(stored);
-      
-      // Check version compatibility
-      if (data.version !== this.CACHE_VERSION) {
-        localStorage.removeItem(key);
-        return null;
-      }
-
-      // Attach translations if available
-      const chapter = data.chapter as ChapterWithVerses;
-      if (data.translations) {
-        // Handle both old format (string[]) and new format (object with english/bengali/urdu)
-        if (Array.isArray(data.translations)) {
-          // Old format - only english translations
-          chapter._translations = data.translations;
-          (chapter as any)._translations_bengali = [];
-          (chapter as any)._translations_urdu = [];
-        } else {
-          // New format - all translations
-          chapter._translations = data.translations.english || [];
-          (chapter as any)._translations_bengali = data.translations.bengali || [];
-          (chapter as any)._translations_urdu = data.translations.urdu || [];
+      // Try to load from new quran-cache structure
+      const cacheStored = localStorage.getItem(this.STORAGE_KEY_CACHE);
+      if (cacheStored) {
+        try {
+          const cache = JSON.parse(cacheStored);
+          if (cache.chapterCache && cache.chapterCache[chapterId.toString()] && cache.version === this.CACHE_VERSION) {
+            const data = cache.chapterCache[chapterId.toString()];
+            const chapter = data.chapter as ChapterWithVerses;
+            if (data.translations) {
+              // Handle both old format (string[]) and new format (object with english/bengali/urdu)
+              if (Array.isArray(data.translations)) {
+                // Old format - only english translations
+                chapter._translations = data.translations;
+                (chapter as any)._translations_bengali = [];
+                (chapter as any)._translations_urdu = [];
+              } else {
+                // New format - all translations
+                chapter._translations = data.translations.english || [];
+                (chapter as any)._translations_bengali = data.translations.bengali || [];
+                (chapter as any)._translations_urdu = data.translations.urdu || [];
+              }
+            }
+            return chapter;
+          }
+        } catch (error) {
+          // Invalid cache structure, continue to migration check
         }
       }
-      return chapter;
+
+      // Migration: Check for old key and migrate to new structure
+      const oldKey = `${this.STORAGE_KEY_CHAPTER_PREFIX}${chapterId}`;
+      const oldStored = localStorage.getItem(oldKey);
+      if (oldStored) {
+        try {
+          const data = JSON.parse(oldStored);
+          if (data.version === this.CACHE_VERSION && data.chapter) {
+            // Migrate to new structure
+            this.setCachedChapter(chapterId, data.chapter, data.translations);
+            // Remove old key
+            localStorage.removeItem(oldKey);
+            
+            // Attach translations if available
+            const chapter = data.chapter as ChapterWithVerses;
+            if (data.translations) {
+              // Handle both old format (string[]) and new format (object with english/bengali/urdu)
+              if (Array.isArray(data.translations)) {
+                // Old format - only english translations
+                chapter._translations = data.translations;
+                (chapter as any)._translations_bengali = [];
+                (chapter as any)._translations_urdu = [];
+              } else {
+                // New format - all translations
+                chapter._translations = data.translations.english || [];
+                (chapter as any)._translations_bengali = data.translations.bengali || [];
+                (chapter as any)._translations_urdu = data.translations.urdu || [];
+              }
+            }
+            return chapter;
+          }
+        } catch (error) {
+          // Invalid old data, ignore
+        }
+      }
+
+      return null;
     } catch (error) {
       if (isDevMode()) {
         console.error(`Error reading chapter ${chapterId} from localStorage:`, error);
@@ -529,8 +620,25 @@ export class QuranApiService {
         return;
       }
 
-      const key = `${this.STORAGE_KEY_CHAPTER_PREFIX}${chapterId}`;
-      interface CacheData {
+      // Load existing cache or create new
+      let cache: { version?: string; chapters?: Chapter[]; reciters?: Reciter[]; chapterCache?: Record<string, any>; timestamp?: string } = {};
+      const cacheStored = localStorage.getItem(this.STORAGE_KEY_CACHE);
+      if (cacheStored) {
+        try {
+          cache = JSON.parse(cacheStored);
+        } catch (error) {
+          // Invalid cache, create new
+          cache = {};
+        }
+      }
+
+      // Initialize chapterCache if it doesn't exist
+      if (!cache.chapterCache) {
+        cache.chapterCache = {};
+      }
+
+      // Prepare chapter data
+      interface ChapterCacheData {
         version: string;
         chapter: ChapterWithVerses;
         timestamp: string;
@@ -538,7 +646,7 @@ export class QuranApiService {
         translations?: { english?: string[]; bengali?: string[]; urdu?: string[] };
       }
       
-      const data: CacheData = {
+      const chapterData: ChapterCacheData = {
         version: this.CACHE_VERSION,
         chapter,
         timestamp: new Date().toISOString(),
@@ -547,13 +655,18 @@ export class QuranApiService {
       
       // Store all translations separately
       if (translations) {
-        data.translations = translations;
+        chapterData.translations = translations;
       }
 
-      // Clean up old chapters if cache limit is exceeded
-      this.cleanupOldChapters();
+      // Update cache
+      cache.version = this.CACHE_VERSION;
+      cache.chapterCache[chapterId.toString()] = chapterData;
+      cache.timestamp = new Date().toISOString();
 
-      localStorage.setItem(key, JSON.stringify(data));
+      // Clean up old chapters if cache limit is exceeded
+      this.cleanupOldChapters(cache);
+
+      localStorage.setItem(this.STORAGE_KEY_CACHE, JSON.stringify(cache));
     } catch (error) {
       if (isDevMode()) {
         console.error(`Error saving chapter ${chapterId} to localStorage:`, error);
@@ -562,26 +675,38 @@ export class QuranApiService {
       
       // If quota exceeded, try cleaning up and retry once
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-        this.cleanupOldChapters(true); // Force cleanup
         try {
-          const key = `${this.STORAGE_KEY_CHAPTER_PREFIX}${chapterId}`;
-          interface CacheData {
-            version: string;
-            chapter: ChapterWithVerses;
-            timestamp: string;
-            chapterId: number;
-            translations?: { english?: string[]; bengali?: string[]; urdu?: string[] };
+          // Load cache again
+          const cacheStored = localStorage.getItem(this.STORAGE_KEY_CACHE);
+          if (cacheStored) {
+            const cache = JSON.parse(cacheStored);
+            this.cleanupOldChapters(cache, true); // Force cleanup
+            
+            // Retry saving
+            if (!cache.chapterCache) {
+              cache.chapterCache = {};
+            }
+            interface ChapterCacheData {
+              version: string;
+              chapter: ChapterWithVerses;
+              timestamp: string;
+              chapterId: number;
+              translations?: { english?: string[]; bengali?: string[]; urdu?: string[] };
+            }
+            const chapterData: ChapterCacheData = {
+              version: this.CACHE_VERSION,
+              chapter,
+              timestamp: new Date().toISOString(),
+              chapterId
+            };
+            if (translations) {
+              chapterData.translations = translations;
+            }
+            cache.version = this.CACHE_VERSION;
+            cache.chapterCache[chapterId.toString()] = chapterData;
+            cache.timestamp = new Date().toISOString();
+            localStorage.setItem(this.STORAGE_KEY_CACHE, JSON.stringify(cache));
           }
-          const data: CacheData = {
-            version: this.CACHE_VERSION,
-            chapter,
-            timestamp: new Date().toISOString(),
-            chapterId
-          };
-          if (translations) {
-            data.translations = translations;
-          }
-          localStorage.setItem(key, JSON.stringify(data));
         } catch (retryError) {
           // Give up after retry
         }
@@ -593,34 +718,44 @@ export class QuranApiService {
    * Clean up old chapters from localStorage to prevent storage bloat
    * Keeps the most recently accessed chapters
    */
-  private cleanupOldChapters(force: boolean = false): void {
+  private cleanupOldChapters(cache?: { chapterCache?: Record<string, any> }, force: boolean = false): void {
     try {
       if (typeof localStorage === 'undefined') {
         return;
       }
 
-      const chapters: Array<{ key: string; timestamp: string; chapterId: number }> = [];
+      // Load cache if not provided
+      if (!cache) {
+        const cacheStored = localStorage.getItem(this.STORAGE_KEY_CACHE);
+        if (!cacheStored) {
+          return;
+        }
+        try {
+          cache = JSON.parse(cacheStored);
+        } catch (error) {
+          return;
+        }
+      }
+
+      // Type guard: ensure cache is defined
+      if (!cache || !cache.chapterCache) {
+        return;
+      }
+
+      const chapters: Array<{ chapterId: string; timestamp: string }> = [];
       
       // Collect all cached chapters with their timestamps
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(this.STORAGE_KEY_CHAPTER_PREFIX)) {
-          try {
-            const stored = localStorage.getItem(key);
-            if (stored) {
-              const data = JSON.parse(stored);
-              if (data.version === this.CACHE_VERSION && data.timestamp) {
-                chapters.push({
-                  key,
-                  timestamp: data.timestamp,
-                  chapterId: data.chapterId || parseInt(key.replace(this.STORAGE_KEY_CHAPTER_PREFIX, ''), 10)
-                });
-              }
-            }
-          } catch (error) {
-            // Skip invalid entries
-            continue;
+      for (const [chapterId, data] of Object.entries(cache.chapterCache)) {
+        try {
+          if (data && data.version === this.CACHE_VERSION && data.timestamp) {
+            chapters.push({
+              chapterId,
+              timestamp: data.timestamp
+            });
           }
+        } catch (error) {
+          // Skip invalid entries
+          continue;
         }
       }
 
@@ -629,10 +764,20 @@ export class QuranApiService {
 
       // Remove oldest chapters if over limit
       const limit = force ? Math.max(1, Math.floor(this.MAX_CACHED_CHAPTERS / 2)) : this.MAX_CACHED_CHAPTERS;
-      if (chapters.length > limit) {
+      if (chapters.length > limit && cache && cache.chapterCache) {
         const toRemove = chapters.slice(limit);
         for (const item of toRemove) {
-          localStorage.removeItem(item.key);
+          delete cache.chapterCache[item.chapterId];
+        }
+        // Save updated cache
+        localStorage.setItem(this.STORAGE_KEY_CACHE, JSON.stringify(cache));
+      }
+
+      // Also clean up any remaining old keys (migration cleanup)
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(this.STORAGE_KEY_CHAPTER_PREFIX)) {
+          localStorage.removeItem(key);
         }
       }
     } catch (error) {

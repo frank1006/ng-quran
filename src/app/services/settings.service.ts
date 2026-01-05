@@ -1,58 +1,23 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, computed, inject } from '@angular/core';
+import { UserStoreService } from './user-store.service';
+import { TimeFormat } from './time-format.types';
 
-export enum TimeFormat {
-  TWELVE_HOUR = '12h',
-  TWENTY_FOUR_HOUR = '24h'
-}
-
-const TIME_FORMAT_KEY = 'app_time_format';
+export { TimeFormat } from './time-format.types';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SettingsService {
-  private readonly timeFormat = signal<TimeFormat>(this.loadTimeFormat());
-  readonly currentTimeFormat = computed(() => this.timeFormat());
-
-  constructor() {
-    const savedFormat = this.loadTimeFormat();
-    if (savedFormat) {
-      this.timeFormat.set(savedFormat);
-    }
-  }
+  private readonly userStore = inject(UserStoreService);
+  
+  readonly currentTimeFormat = computed(() => {
+    const storedFormat = this.userStore.timeFormat();
+    // Return stored format or default to 24-hour format
+    return storedFormat ?? TimeFormat.TWENTY_FOUR_HOUR;
+  });
 
   setTimeFormat(format: TimeFormat): void {
-    this.timeFormat.set(format);
-    this.saveTimeFormat(format);
-  }
-
-  private loadTimeFormat(): TimeFormat {
-    if (typeof localStorage === 'undefined') {
-      return TimeFormat.TWENTY_FOUR_HOUR;
-    }
-
-    try {
-      const stored = localStorage.getItem(TIME_FORMAT_KEY);
-      if (stored === TimeFormat.TWELVE_HOUR || stored === TimeFormat.TWENTY_FOUR_HOUR) {
-        return stored as TimeFormat;
-      }
-    } catch (e) {
-      console.warn('Failed to load time format from localStorage', e);
-    }
-
-    return TimeFormat.TWENTY_FOUR_HOUR;
-  }
-
-  private saveTimeFormat(format: TimeFormat): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
-    try {
-      localStorage.setItem(TIME_FORMAT_KEY, format);
-    } catch (e) {
-      console.warn('Failed to save time format to localStorage', e);
-    }
+    this.userStore.setTimeFormat(format);
   }
 }
 

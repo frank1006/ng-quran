@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QuranApiService } from '../../../services/quran-api.service';
-import { QuranStoreService } from '../../../services/quran-store.service';
+import { UserStoreService } from '../../../services/user-store.service';
 import { ChapterWithVerses, Verse, AudioRecitation } from '../../../services/quran-api.types';
 import { AudioPlayerComponent } from './audio-player.component';
 import { HeroHeaderComponent } from '../../../shared/components/hero-header/hero-header.component';
@@ -46,7 +46,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.currentPlayingVerse();
   });
 
-  protected readonly selectedReciterId = computed(() => this.quranStore.selectedReciterId());
+  protected readonly selectedReciterId = computed(() => this.userStore.selectedReciterId());
 
   @ViewChild('versesContainer', { static: false }) versesContainerRef!: ElementRef<HTMLDivElement>;
 
@@ -60,7 +60,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private playerStateTimeout: number | null = null;
   private autoScrollTimeouts: number[] = [];
   private isRestoringState = false; // Flag to prevent auto-scroll during state restoration
-  private readonly TRANSLATION_LANGUAGE_STORAGE_KEY = 'quran-translation-language';
 
   private readonly networkStatus = inject(NetworkStatusService);
 
@@ -68,7 +67,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private quranApi: QuranApiService,
-    private quranStore: QuranStoreService
+    private userStore: UserStoreService
   ) {
     // Handle reciter changes - clear cache, fetch new audio, and update state
     effect(() => {
@@ -134,7 +133,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
               audioUrl: this.currentAudioUrl(),
               currentTime: 0 // Will be updated by audio player if needed
             };
-            this.quranStore.setPlayerState(this.chapterId!, playerState);
+            this.userStore.setPlayerState(this.chapterId!, playerState);
           }
         }, 300);
       }
@@ -147,8 +146,11 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Load saved translation language preference
-    this.loadTranslationLanguagePreference();
+    // Load saved translation language preference from user store
+    const savedLanguage = this.userStore.quranTranslationLanguage();
+    if (savedLanguage && (savedLanguage === 'english' || savedLanguage === 'bengali' || savedLanguage === 'urdu')) {
+      this.selectedTranslationLanguage.set(savedLanguage);
+    }
     
     // Initialize previous reciter ID from store
     this.previousReciterId = this.selectedReciterId();
@@ -182,7 +184,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         this.autoScrollTimeouts.push(timeoutId1);
       } else {
         // No selected verse, use saved scroll position
-        const savedScrollPosition = this.quranStore.getScrollPosition(this.chapterId);
+        const savedScrollPosition = this.userStore.getScrollPosition(this.chapterId);
         
         if (savedScrollPosition !== null) {
           // Restore the exact scroll position that was saved
@@ -194,7 +196,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
           this.autoScrollTimeouts.push(timeoutId2);
         } else {
           // Fallback: scroll to last read verse if no scroll position is saved
-          const lastVerse = this.quranStore.getLastReadPosition(this.chapterId);
+          const lastVerse = this.userStore.getLastReadPosition(this.chapterId);
           if (lastVerse) {
             const timeoutId3 = window.setTimeout(() => {
               if (!this.destroyRef.destroyed) {
@@ -245,7 +247,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     // Save current scroll position
     if (this.chapterId && this.versesContainerRef?.nativeElement) {
       const scrollTop = this.versesContainerRef.nativeElement.scrollTop;
-      this.quranStore.setScrollPosition(this.chapterId, scrollTop);
+      this.userStore.setScrollPosition(this.chapterId, scrollTop);
     }
 
     // Save final player state (keep audioUrl so it can be restored if reciter hasn't changed)
@@ -256,7 +258,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         audioUrl: this.currentAudioUrl(), // Keep audio URL (will be cleared in restoreState if reciter changed)
         currentTime: 0
       };
-      this.quranStore.setPlayerState(this.chapterId, playerState);
+      this.userStore.setPlayerState(this.chapterId, playerState);
     }
     
     // Clear audio cache to free memory
@@ -310,36 +312,11 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     // Update the selected language
     this.selectedTranslationLanguage.set(language);
     
-    // Save preference to localStorage
-    this.saveTranslationLanguagePreference(language);
+    // Save preference to user store
+    this.userStore.setQuranTranslationLanguage(language);
     
     // Update verses with new translation
     this.updateVersesWithTranslation(language);
-    
-    // Translation language changed
-  }
-
-  private loadTranslationLanguagePreference(): void {
-    try {
-      if (typeof localStorage !== 'undefined') {
-        const saved = localStorage.getItem(this.TRANSLATION_LANGUAGE_STORAGE_KEY);
-        if (saved && (saved === 'english' || saved === 'bengali' || saved === 'urdu')) {
-          this.selectedTranslationLanguage.set(saved as 'english' | 'bengali' | 'urdu');
-        }
-      }
-    } catch (error) {
-      // Silently handle localStorage errors
-    }
-  }
-
-  private saveTranslationLanguagePreference(language: 'english' | 'bengali' | 'urdu'): void {
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(this.TRANSLATION_LANGUAGE_STORAGE_KEY, language);
-      }
-    } catch (error) {
-      // Silently handle localStorage errors
-    }
   }
 
   private updateVersesWithTranslation(language: 'english' | 'bengali' | 'urdu'): void {
@@ -404,17 +381,17 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   protected toggleBookmark(verseNumber: number): void {
     if (!this.chapterId) return;
 
-    const isBookmarked = this.quranStore.isBookmarked(this.chapterId, verseNumber);
+    const isBookmarked = this.userStore.isBookmarked(this.chapterId, verseNumber);
     if (isBookmarked) {
-      this.quranStore.removeBookmark(this.chapterId, verseNumber);
+      this.userStore.removeBookmark(this.chapterId, verseNumber);
     } else {
-      this.quranStore.addBookmark(this.chapterId, verseNumber);
+      this.userStore.addBookmark(this.chapterId, verseNumber);
     }
   }
 
   protected isBookmarked(verseNumber: number): boolean {
     if (!this.chapterId) return false;
-    return this.quranStore.isBookmarked(this.chapterId, verseNumber);
+    return this.userStore.isBookmarked(this.chapterId, verseNumber);
   }
 
   protected isVerseHighlighted(verseNumber: number): boolean {
@@ -478,7 +455,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     
     // Save as last read position
     if (this.chapterId) {
-      this.quranStore.setLastReadPosition(this.chapterId, verseNumber);
+      this.userStore.setLastReadPosition(this.chapterId, verseNumber);
     }
     
     // Scroll to the selected verse
@@ -630,7 +607,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private restoreState(chapterId: number): void {
     this.isRestoringState = true; // Prevent auto-scroll during restoration
     
-    const playerState = this.quranStore.getPlayerState(chapterId);
+    const playerState = this.userStore.getPlayerState(chapterId);
     if (playerState && playerState.currentVerse) {
       // Restore verse number
       this.currentPlayingVerse.set(playerState.currentVerse);
@@ -696,7 +673,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
             audioUrl: audioUrl,
             currentTime: 0
           };
-          this.quranStore.setPlayerState(this.chapterId, playerState);
+          this.userStore.setPlayerState(this.chapterId, playerState);
         }
         
         // Clear loading state
@@ -744,7 +721,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       
       this.scrollTimeout = window.setTimeout(() => {
         if (this.chapterId && !this.destroyRef.destroyed) {
-          this.quranStore.setScrollPosition(this.chapterId, container.scrollTop);
+          this.userStore.setScrollPosition(this.chapterId, container.scrollTop);
         }
       }, 150);
     };
@@ -779,7 +756,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected onVerseVisible(verseNumber: number): void {
     if (this.chapterId) {
-      this.quranStore.setLastReadPosition(this.chapterId, verseNumber);
+      this.userStore.setLastReadPosition(this.chapterId, verseNumber);
     }
   }
 

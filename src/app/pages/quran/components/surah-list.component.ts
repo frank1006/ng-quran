@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { QuranApiService } from '../../../services/quran-api.service';
-import { QuranStoreService } from '../../../services/quran-store.service';
+import { UserStoreService } from '../../../services/user-store.service';
 import { Chapter, Reciter } from '../../../services/quran-api.types';
 import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -23,7 +23,7 @@ export class SurahListComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly searchQuery = signal<string>('');
 
-  protected readonly selectedReciterId = computed(() => this.quranStore.selectedReciterId());
+  protected readonly selectedReciterId = computed(() => this.userStore.selectedReciterId());
 
   protected readonly filteredChapters = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
@@ -47,7 +47,7 @@ export class SurahListComponent implements OnInit {
 
   constructor(
     private quranApi: QuranApiService,
-    private quranStore: QuranStoreService,
+    private userStore: UserStoreService,
     private router: Router
   ) {}
 
@@ -88,7 +88,7 @@ export class SurahListComponent implements OnInit {
           // This must happen AFTER reciters are loaded to avoid race conditions
           const currentReciterId = this.selectedReciterId();
           if (reciters.length > 0 && currentReciterId === null) {
-            this.quranStore.setSelectedReciter(reciters[0].id);
+            this.userStore.setSelectedReciter(reciters[0].id);
           }
         },
         error: (err) => {
@@ -107,7 +107,7 @@ export class SurahListComponent implements OnInit {
   onReciterChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const reciterId = select.value ? parseInt(select.value, 10) : null;
-    this.quranStore.setSelectedReciter(reciterId);
+    this.userStore.setSelectedReciter(reciterId);
   }
 
   navigateToSurah(chapterId: number): void {
