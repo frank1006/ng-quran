@@ -35,6 +35,7 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   private lastRefreshTrigger: number = 0;
   private isLoading = false;
   private cancelPreviousRequest$ = new Subject<void>();
+  private abortController: AbortController | null = null;
 
   ngOnInit(): void {
     // Don't load here - let ngOnChanges handle it to avoid duplicate calls
@@ -96,7 +97,7 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    // Cancel any previous ongoing request
+    // Cancel any previous ongoing request (both RxJS subscription and HTTP request)
     this.cancelPreviousRequest();
 
     this.error.set(null);
@@ -116,7 +117,11 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
     const cancel$ = new Subject<void>();
     this.cancelPreviousRequest$ = cancel$;
 
-    this.masjidService.getNearbyMasjids(this.latitude, this.longitude, this.radius, forceRefresh)
+    // Create new AbortController for HTTP request cancellation
+    this.abortController = new AbortController();
+    const abortSignal = this.abortController.signal;
+
+    this.masjidService.getNearbyMasjids(this.latitude, this.longitude, this.radius, forceRefresh, abortSignal)
       .pipe(
         takeUntil(cancel$), // Cancel if new request is made
         takeUntilDestroyed(this.destroyRef) // Clean up on component destroy
@@ -141,8 +146,14 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
           }
         },
         error: (err) => {
-          // Check if this request was cancelled
-          if (cancel$.closed) {
+          // Check if this request was cancelled (either via RxJS or HTTP abort)
+          if (cancel$.closed || abortSignal.aborted) {
+            return;
+          }
+
+          // Don't show error if request was aborted
+          const errorMessage = err?.message || '';
+          if (errorMessage.includes('Request aborted') || errorMessage.includes('REQUEST_ABORTED')) {
             return;
           }
 
@@ -158,12 +169,19 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Cancel previous ongoing request
+   * Cancel previous ongoing request (both RxJS subscription and HTTP request)
    */
   private cancelPreviousRequest(): void {
+    // Cancel RxJS subscription
     if (!this.cancelPreviousRequest$.closed) {
       this.cancelPreviousRequest$.next();
       this.cancelPreviousRequest$.complete();
+    }
+    
+    // Abort HTTP request
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
     }
   }
 
@@ -179,7 +197,7 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Cancel any ongoing requests when component is destroyed
+    // Cancel any ongoing requests when component is destroyed (both RxJS subscription and HTTP request)
     this.cancelPreviousRequest();
   }
 }

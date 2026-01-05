@@ -127,12 +127,14 @@ export class MasjidService {
    * @param longitude - User's longitude
    * @param radiusKm - Search radius in kilometers
    * @param forceRefresh - If true, bypass cache and fetch fresh data
+   * @param abortSignal - Optional AbortSignal to cancel the request
    */
   getNearbyMasjids(
     latitude: number,
     longitude: number,
     radiusKm: number = this.DEFAULT_RADIUS_KM,
-    forceRefresh: boolean = false
+    forceRefresh: boolean = false,
+    abortSignal?: AbortSignal
   ): Observable<Masjid[]> {
     // Clamp radius to valid range
     const clampedRadius = Math.max(
@@ -176,7 +178,7 @@ export class MasjidService {
     `.trim();
 
     // Create the request observable with shareReplay to deduplicate concurrent requests
-    const request$ = this.tryEndpointsSequentially(query, latitude, longitude, clampedRadius).pipe(
+    const request$ = this.tryEndpointsSequentially(query, latitude, longitude, clampedRadius, abortSignal).pipe(
       tap((masjids) => {
         // Cache the results after successful fetch
         this.setCachedMasjids(latitude, longitude, clampedRadius, masjids);
@@ -423,7 +425,8 @@ export class MasjidService {
     query: string,
     latitude: number,
     longitude: number,
-    radiusKm: number
+    radiusKm: number,
+    abortSignal?: AbortSignal
   ): Observable<Masjid[]> {
     let currentEndpointIndex = 0;
 
@@ -438,6 +441,11 @@ export class MasjidService {
         console.log(`Trying Overpass API endpoint ${endpointIndex + 1}/${this.OVERPASS_API_URLS.length}: ${apiUrl}`);
       }
 
+      // Check if request was aborted before making the fetch
+      if (abortSignal?.aborted) {
+        return throwError(() => new Error('REQUEST_ABORTED'));
+      }
+
       return from(
         fetch(apiUrl, {
           method: 'POST',
@@ -445,6 +453,7 @@ export class MasjidService {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: `data=${encodeURIComponent(query)}`,
+          signal: abortSignal, // Pass abort signal to fetch
         }).then(async (response) => {
           if (!response.ok) {
             // For 504 Gateway Timeout or 429 Too Many Requests, try next endpoint
@@ -458,6 +467,10 @@ export class MasjidService {
           // Sort by distance (nearest first)
           return masjids.sort((a, b) => (a.distance || 0) - (b.distance || 0));
         }).catch((error) => {
+          // Handle aborted requests
+          if (error.name === 'AbortError' || abortSignal?.aborted) {
+            throw new Error('REQUEST_ABORTED');
+          }
           // Handle network errors
           if (error instanceof TypeError && error.message.includes('fetch')) {
             throw new Error('NETWORK_ERROR');
@@ -471,6 +484,11 @@ export class MasjidService {
           errors.pipe(
             mergeMap((error, attempt) => {
               const errorMessage = error.message || '';
+              
+              // If request was aborted, don't retry
+              if (errorMessage.includes('REQUEST_ABORTED') || abortSignal?.aborted) {
+                return throwError(() => error);
+              }
               
               // If server is busy (504/429), try next endpoint immediately
               if (errorMessage.includes('SERVER_BUSY')) {
@@ -499,6 +517,12 @@ export class MasjidService {
           )
         ),
         catchError((error) => {
+          // If request was aborted, don't try other endpoints
+          const errorMessage = error.message || '';
+          if (errorMessage.includes('REQUEST_ABORTED') || abortSignal?.aborted) {
+            return throwError(() => error);
+          }
+          
           // If this endpoint failed, try next one
           const nextIndex = endpointIndex + 1;
           if (nextIndex < this.OVERPASS_API_URLS.length) {
@@ -506,7 +530,6 @@ export class MasjidService {
           }
           
           // All endpoints failed
-          const errorMessage = error.message || '';
           if (errorMessage.includes('NETWORK_ERROR')) {
             return throwError(() => new Error('Network error. Please check your internet connection.'));
           }
