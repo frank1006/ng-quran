@@ -1,7 +1,7 @@
 # QuranFlow App Summary
 
 ## Overview
-**QuranFlow** is a Progressive Web Application (PWA) designed to help Muslims with their daily religious practices. The app provides prayer times, Quran reading with audio recitation, and a Qibla compass feature, all optimized for offline use.
+**QuranFlow** is a Progressive Web Application (PWA) designed to help Muslims with their daily religious practices. The app provides prayer times with nearby mosque finder, Quran reading with audio recitation, and a Qibla compass feature, all optimized for offline use.
 
 ## Core Functionality
 
@@ -15,6 +15,16 @@
 - **Hijri Date Display**: Shows Islamic calendar date alongside Gregorian date
 - **City Name Display**: Shows current location city name
 - **Offline Support**: Caches prayer times for offline access
+- **Masjid Finder**: Find nearby mosques/masjids with:
+  - **Find Masjid Button**: Prominent button to discover nearby mosques
+  - **Nearby Mosque List**: Displays all mosques within selected radius
+  - **Radius Selector**: Adjustable search radius (1km, 2km, 3km, 5km, 10km)
+  - **Distance Display**: Shows distance to each mosque
+  - **Directions Integration**: Opens Google Maps for navigation to selected mosque
+  - **Toggle View**: Seamlessly switches between prayers and masjid list
+  - **Location Info**: Shows mosque name, address, phone (if available)
+  - **Smart Caching**: Caches search results for 24 hours with offline support
+  - **Multiple API Endpoints**: Automatic fallback to alternative Overpass API servers
 
 ### 2. Quran Reading
 - **Complete Quran**: Access to all 114 chapters (Surahs)
@@ -61,9 +71,11 @@
   - Prayer times: 1-day cache with freshness strategy
   - Quran data: 30-day cache with performance strategy
   - Geocoding: 7-day cache
+  - Masjid search results: 24-hour cache with location-based keys
 - **LocalStorage Management**: Efficient cache with version control
 - **Graceful Degradation**: App works with cached data when offline
-- **Cache Size Management**: Automatic cleanup of old cached chapters
+- **Cache Size Management**: Automatic cleanup of old cached chapters and masjid search results (keeps last 20 entries)
+- **Request Deduplication**: Prevents duplicate API calls for concurrent requests
 
 ### User Experience
 - **Bottom Navigation**: Easy navigation between main sections
@@ -104,6 +116,7 @@
 - **Aladhan API** (`api.aladhan.com`): Prayer times and Hijri dates
 - **Quran API** (`quranapi.pages.dev`): Quran text, translations, and audio
 - **OpenStreetMap Nominatim**: Reverse geocoding for location names
+- **OpenStreetMap Overpass API**: Mosque/masjid location data with multiple endpoint fallbacks
 
 ### Styling
 - **CSS**: Custom styling with modern design
@@ -127,7 +140,7 @@
 ### Service Layer
 - **Injectable Services**: Root-level services for dependency injection
 - **Store Pattern**: Centralized state management (PrayerTimeStore)
-- **API Services**: Separate services for different APIs (PrayerTimeService, QuranApiService, QiblaService)
+- **API Services**: Separate services for different APIs (PrayerTimeService, QuranApiService, QiblaService, MasjidService)
 
 ### Error Handling
 - **Global Error Handler**: Centralized error handling
@@ -141,6 +154,8 @@
   3. Service Worker cache (network layer)
 - **Cache Versioning**: Version control for cache invalidation
 - **LRU Cache**: Automatic cleanup of old cached data
+- **Location-based Cache Keys**: Masjid search results cached by location coordinates and radius
+- **Request Cancellation**: AbortController support for canceling in-flight requests
 
 ## Project Structure
 ```
@@ -149,7 +164,10 @@ src/
 │   ├── core/              # Core utilities (logger, error handler)
 │   ├── interceptors/      # HTTP interceptors
 │   ├── pages/             # Feature pages
-│   │   ├── home/          # Prayer times page
+│   │   ├── prayer/        # Prayer times page (includes masjid finder)
+│   │   │   ├── components/
+│   │   │   │   ├── masjid-list/    # Nearby mosques list component
+│   │   │   │   └── radius-filter/  # Search radius selector
 │   │   ├── quran/         # Quran reading page
 │   │   ├── qibla/         # Qibla compass page
 │   │   └── settings/      # Settings page
@@ -168,6 +186,7 @@ src/
   - Device Orientation API (for compass)
   - LocalStorage
   - Fetch API
+  - AbortController (for request cancellation)
 
 ## Security & Privacy
 - **No User Data Collection**: App uses location only for prayer times
@@ -182,6 +201,8 @@ src/
   - Prayer times: 20 entries
   - Quran chapters: 20 entries
   - Geocoding: 100 entries
+  - Masjid search results: 20 entries (24-hour expiry)
+- **API Resilience**: Multiple Overpass API endpoints with automatic fallback and retry logic
 
 ## Development
 - **Development Server**: `ng serve` (runs on port 4200)
