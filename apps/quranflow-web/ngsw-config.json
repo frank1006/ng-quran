@@ -1,0 +1,84 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**",
+    "/prayer",
+    "/quran",
+    "/qibla",
+    "/profile"
+  ],
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.csr.html",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js",
+          "/offline.html"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+        ],
+        "urls": [
+          "https://fonts.googleapis.com/**",
+          "https://fonts.gstatic.com/**"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "prayer-times-api",
+      "urls": [
+        "https://api.aladhan.com/v1/timings/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxAge": "1d",
+        "maxEntries": 20,
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "quran-api",
+      "urls": [
+        "https://quranapi.pages.dev/api/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxAge": "30d",
+        "maxEntries": 50,
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "geocoding-api",
+      "urls": [
+        "https://nominatim.openstreetmap.org/reverse**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxAge": "7d",
+        "maxEntries": 100,
+        "timeout": "5s"
+      }
+    }
+  ]
+}

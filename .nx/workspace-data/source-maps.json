@@ -1,0 +1,736 @@
+{
+  "apps/quranflow-web": {
+    "root": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "angular.json",
+      "@nx/angular/plugin"
+    ],
+    "prefix": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "generators": [
+      "angular.json",
+      "nx-angular-json-plugin"
+    ],
+    "targets.build": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.executor": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.defaultConfiguration": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.outputPath": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.index": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.browser": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.tsConfig": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.assets": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.styles": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.serviceWorker": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.budgets": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.outputHashing": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.optimization": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.sourceMap": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.namedChunks": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.extractLicenses": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.optimization": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.extractLicenses": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.sourceMap": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.defaultConfiguration": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.buildTarget": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.buildTarget": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.executor": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:app": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:web": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.outputs": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.polyfills": [
+      "apps/quranflow-web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.dependsOn": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.build.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.build.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.build.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "apps/quranflow-api": {
+    "root": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:app": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:api": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.executor": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.outputs": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.defaultConfiguration": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.target": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.compiler": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.outputPath": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.main": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.tsConfig": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.assets": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.isolatedConfig": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.webpackConfig": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.optimization": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.sourceMap": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.extractLicenses": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.production.vendorChunk": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.defaultConfiguration": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.buildTarget": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.watch": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.inspect": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.buildTarget": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.watch": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.inspect": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.buildTarget": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.watch": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.inspect": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.executor": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.outputs": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.passWithNoTests": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.reportsDirectory": [
+      "apps/quranflow-api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.dependsOn": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.build.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.build.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.build.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/ai-contracts": {
+    "root": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:lib": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:ai": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:contracts": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/ai-contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/prayer-domain": {
+    "root": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:lib": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:domain": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.domain:prayer": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/prayer-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/quran-domain": {
+    "root": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:lib": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:domain": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.domain:quran": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/quran-domain/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/shared-ui": {
+    "root": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:lib": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:shared": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:ui": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/shared-ui/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/shared-utils": {
+    "root": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:lib": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:shared": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/shared-utils/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  }
+}

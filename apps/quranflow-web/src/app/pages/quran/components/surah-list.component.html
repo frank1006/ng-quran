@@ -1,0 +1,90 @@
+<div class="surah-list-container">
+  <div class="header-section">
+    <h1 class="page-title">Quran</h1>
+    
+    <div class="reciter-selector">
+      <svg class="reciter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="Reciter">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" y1="19" x2="12" y2="23"></line>
+        <line x1="8" y1="23" x2="16" y2="23"></line>
+      </svg>
+      <select 
+        id="reciter-select" 
+        class="reciter-select"
+        (change)="onReciterChange($event)"
+      >
+        @if (reciters().length === 0) {
+          <option value="">Loading reciters...</option>
+        } @else {
+          @for (reciter of reciters(); track reciter.id) {
+            <option 
+              [value]="reciter.id.toString()" 
+              [selected]="selectedReciterId() === reciter.id"
+            >
+              {{ reciter.name }}
+            </option>
+          }
+        }
+      </select>
+    </div>
+
+    <div class="search-section">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search surah by name or number..."
+          [value]="searchQuery()"
+          (input)="onSearchChange($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  }
+
+  @if (error()) {
+    <app-connection-error 
+      [errorMessage]="error()!" 
+      (retry)="retry()"
+    />
+  }
+
+  @if (!loading() && !error()) {
+    <div class="surah-grid">
+      @for (chapter of filteredChapters(); track chapter.id) {
+        <button 
+          class="surah-card"
+          (click)="navigateToSurah(chapter.id)"
+        >
+          <div class="surah-number">{{ chapter.id }}</div>
+          <div class="surah-info">
+            <div class="surah-names">
+              <h3 class="surah-name-latin">{{ chapter.transliteration }}</h3>
+              <h4 class="surah-name-arabic">{{ chapter.name }}</h4>
+            </div>
+            <p class="surah-translation">{{ chapter.translation }}</p>
+            <div class="surah-meta">
+              <span class="surah-type" [class.surah-type-meccan]="chapter.type === 'Meccan'" [class.surah-type-medinan]="chapter.type === 'Medinan'">{{ chapter.type }}</span>
+              <span class="surah-verses">{{ chapter.total_verses }} ayahs</span>
+            </div>
+          </div>
+        </button>
+      }
+    </div>
+
+    @if (filteredChapters().length === 0) {
+      <div class="empty-state">
+        <p>No surahs found matching your search.</p>
+      </div>
+    }
+  }
+</div>
+

@@ -1,0 +1,1568 @@
+{
+  "version": "6.0",
+  "nxVersion": "22.3.3",
+  "pathMappings": {
+    "@quranflow-web/*": [
+      "apps/quranflow-web/src/*"
+    ],
+    "@quran-domain": [
+      "libs/quran-domain/src/index.ts"
+    ],
+    "@quran-domain/*": [
+      "libs/quran-domain/src/*"
+    ],
+    "@prayer-domain": [
+      "libs/prayer-domain/src/index.ts"
+    ],
+    "@prayer-domain/*": [
+      "libs/prayer-domain/src/*"
+    ],
+    "@shared-utils": [
+      "libs/shared-utils/src/index.ts"
+    ],
+    "@shared-utils/*": [
+      "libs/shared-utils/src/*"
+    ],
+    "@shared-ui": [
+      "libs/shared-ui/src/index.ts"
+    ],
+    "@shared-ui/*": [
+      "libs/shared-ui/src/*"
+    ]
+  },
+  "nxJsonPlugins": [
+    {
+      "name": "@nx/angular/plugin",
+      "options": {
+        "analog": false
+      }
+    }
+  ],
+  "fileMap": {
+    "projectFileMap": {
+      "quranflow-api": [
+        {
+          "file": "apps/quranflow-api/README.md",
+          "hash": "2448787204728031311"
+        },
+        {
+          "file": "apps/quranflow-api/project.json",
+          "hash": "18121237742201540225"
+        },
+        {
+          "file": "apps/quranflow-api/src/app/app.controller.ts",
+          "hash": "14001528333832241776",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/app/app.module.ts",
+          "hash": "7804623356270676392",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/app/app.service.ts",
+          "hash": "6124805636940363845",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/database/database.module.ts",
+          "hash": "14448268737222721366",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm",
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/ingestion/ingestion.controller.ts",
+          "hash": "9701194345658418998",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/ingestion/ingestion.module.ts",
+          "hash": "9700927931755660501",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/ingestion/quran.ingestion.service.ts",
+          "hash": "3698115369866159895",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm",
+            "npm:typeorm"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/main.ts",
+          "hash": "4740096652814571514",
+          "deps": [
+            "npm:@nestjs/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/quran/entities/ayah.entity.ts",
+          "hash": "14908465300930236876",
+          "deps": [
+            "npm:typeorm"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/quran/entities/index.ts",
+          "hash": "6773193431460083147"
+        },
+        {
+          "file": "apps/quranflow-api/src/quran/entities/surah.entity.ts",
+          "hash": "7888430044143493175",
+          "deps": [
+            "npm:typeorm"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/quran/entities/translation.entity.ts",
+          "hash": "18101364470119748102",
+          "deps": [
+            "npm:typeorm"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/quran/quran.controller.ts",
+          "hash": "17412051966343590630",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/quran/quran.module.ts",
+          "hash": "16086290416795853828",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/quran/quran.repository.ts",
+          "hash": "11097169128049065363",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm",
+            "npm:typeorm"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/src/quran/quran.service.ts",
+          "hash": "10740794381486522982",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-api/tsconfig.app.json",
+          "hash": "8383597575996028592"
+        },
+        {
+          "file": "apps/quranflow-api/tsconfig.json",
+          "hash": "8350462356649319291"
+        },
+        {
+          "file": "apps/quranflow-api/webpack.config.js",
+          "hash": "4602260618644398547",
+          "deps": [
+            "npm:@nx/webpack"
+          ]
+        }
+      ],
+      "quranflow-web": [
+        {
+          "file": "apps/quranflow-web/ngsw-config.json",
+          "hash": "13287436319678041088"
+        },
+        {
+          "file": "apps/quranflow-web/project.json",
+          "hash": "9772793455040141022"
+        },
+        {
+          "file": "apps/quranflow-web/public/Qibla.svg",
+          "hash": "1201392775116212171"
+        },
+        {
+          "file": "apps/quranflow-web/public/background-sync-handler.js",
+          "hash": "17788824959794966"
+        },
+        {
+          "file": "apps/quranflow-web/public/favicon.ico",
+          "hash": "3118246801832427110"
+        },
+        {
+          "file": "apps/quranflow-web/public/icons/icon-128x128.png",
+          "hash": "3770893637984724736"
+        },
+        {
+          "file": "apps/quranflow-web/public/icons/icon-144x144.png",
+          "hash": "7900713348877003381"
+        },
+        {
+          "file": "apps/quranflow-web/public/icons/icon-152x152.png",
+          "hash": "4565276705312172715"
+        },
+        {
+          "file": "apps/quranflow-web/public/icons/icon-192x192.png",
+          "hash": "6458659887076879484"
+        },
+        {
+          "file": "apps/quranflow-web/public/icons/icon-384x384.png",
+          "hash": "14616636783270562747"
+        },
+        {
+          "file": "apps/quranflow-web/public/icons/icon-512x512.png",
+          "hash": "15229388796113646901"
+        },
+        {
+          "file": "apps/quranflow-web/public/icons/icon-72x72.png",
+          "hash": "295401833842352063"
+        },
+        {
+          "file": "apps/quranflow-web/public/icons/icon-96x96.png",
+          "hash": "9355535575316876416"
+        },
+        {
+          "file": "apps/quranflow-web/public/kaaba.svg",
+          "hash": "7899670689717992346"
+        },
+        {
+          "file": "apps/quranflow-web/public/manifest.webmanifest",
+          "hash": "4753128678466747293"
+        },
+        {
+          "file": "apps/quranflow-web/public/notification-handler.js",
+          "hash": "14675106741088643641"
+        },
+        {
+          "file": "apps/quranflow-web/public/offline.html",
+          "hash": "16226881824035704826"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/app.config.ts",
+          "hash": "12161099284401183031",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@angular/common",
+            "npm:@angular/service-worker"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/app.css",
+          "hash": "12435002661893580297"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/app.html",
+          "hash": "5535462823716174891"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/app.routes.ts",
+          "hash": "17611778545910315776",
+          "deps": [
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/app.spec.ts",
+          "hash": "2198835187416225128",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/app.ts",
+          "hash": "6829798122986824330",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/core/error-handler.service.ts",
+          "hash": "6775312598796130463",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/core/location.util.ts",
+          "hash": "8487563133900870369"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/core/logger.util.ts",
+          "hash": "8026175622877236841",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/interceptors/error.interceptor.ts",
+          "hash": "863298556025546027",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/date-header/date-header.component.css",
+          "hash": "2768325129412530428"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/date-header/date-header.component.ts",
+          "hash": "13129984475102665528",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/masjid-list/masjid-list.component.css",
+          "hash": "4344641548382977560"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/masjid-list/masjid-list.component.html",
+          "hash": "5931800782037903237"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/masjid-list/masjid-list.component.ts",
+          "hash": "3200044812365978035",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/prayer-list/prayer-list.component.css",
+          "hash": "17266680275082576243"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/prayer-list/prayer-list.component.ts",
+          "hash": "646889214144316055",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/radius-filter/radius-filter.component.css",
+          "hash": "3567113556928237967"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/radius-filter/radius-filter.component.html",
+          "hash": "3191685934361354000"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/radius-filter/radius-filter.component.ts",
+          "hash": "4372615764224843966",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.component.css",
+          "hash": "14831851199667666305"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.component.ts",
+          "hash": "17658551894358737817",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.constants.ts",
+          "hash": "1723261091419005138"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.types.ts",
+          "hash": "8023617111948349731"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.utils.ts",
+          "hash": "1372556871045269633"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/prayer.component.css",
+          "hash": "4210010789751671871"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/prayer.component.html",
+          "hash": "6716504208822682276"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/prayer.component.spec.ts",
+          "hash": "3753138438838018660",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs",
+            "npm:vitest"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/prayer.component.ts",
+          "hash": "17862851489854830836",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "prayer-domain"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/prayer/services/prayer-trajectory.service.ts",
+          "hash": "3176520683368802084",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/qibla/components/qibla-compass.component.css",
+          "hash": "10541874294360953917"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/qibla/components/qibla-compass.component.ts",
+          "hash": "13393465119955793073",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/qibla/qibla.component.css",
+          "hash": "18315511898879104566"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/qibla/qibla.component.html",
+          "hash": "17762755875545099089"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/qibla/qibla.component.spec.ts",
+          "hash": "4352951134608305006",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs",
+            "npm:vitest"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/qibla/qibla.component.ts",
+          "hash": "1045182102771755264",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/qibla/services/qibla.service.ts",
+          "hash": "5963018500573711311",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/audio-player.component.css",
+          "hash": "9559370173011580661"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/audio-player.component.html",
+          "hash": "15967610483580777655"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/audio-player.component.ts",
+          "hash": "14798899404779347457",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/surah-detail.component.css",
+          "hash": "9062587706492187263"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/surah-detail.component.html",
+          "hash": "9982589664249959117"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/surah-detail.component.ts",
+          "hash": "1301897346100767099",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:@angular/router",
+            "npm:rxjs",
+            "quran-domain"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/surah-list.component.css",
+          "hash": "17530737081040404336"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/surah-list.component.html",
+          "hash": "16579544833799924521"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/components/surah-list.component.ts",
+          "hash": "12849497272258029015",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:@angular/router",
+            "quran-domain"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/quran.component.css",
+          "hash": "13459772249471449190"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/quran.component.html",
+          "hash": "14992977062759392441"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/quran.component.spec.ts",
+          "hash": "15434669708737547561",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/quran/quran.component.ts",
+          "hash": "16527367420110934195",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/settings/settings.component.css",
+          "hash": "8025097184596413276"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/settings/settings.component.html",
+          "hash": "2653025372380628452"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/settings/settings.component.spec.ts",
+          "hash": "15177274266377766838",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/pages/settings/settings.component.ts",
+          "hash": "17073204140099513735",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:@angular/router",
+            "npm:rxjs",
+            "shared-utils",
+            "quran-domain"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/background-sync.service.ts",
+          "hash": "17364675080151989523",
+          "deps": [
+            "npm:@angular/core",
+            "prayer-domain"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/device-detection.service.ts",
+          "hash": "13774139676417002860",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/masjid.service.ts",
+          "hash": "3482472157732129981",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/network-status.service.ts",
+          "hash": "4081474461730703675",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/notification-worker.service.ts",
+          "hash": "9174332729913711544",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/service-worker",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/notification.service.ts",
+          "hash": "16596120342248018798",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs",
+            "prayer-domain",
+            "shared-utils"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/notification.types.ts",
+          "hash": "11804985505627626921"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/permissions.service.ts",
+          "hash": "16715942826550111699",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/prayer-time.service.spec.ts",
+          "hash": "14234854337382422951",
+          "deps": [
+            "npm:@angular/core",
+            "prayer-domain",
+            "npm:vitest"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/prayer-time.service.ts",
+          "hash": "1183156673127209975",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs",
+            "prayer-domain"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/prayer-time.types.ts",
+          "hash": "488689665004763994"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/quran-api.service.spec.ts",
+          "hash": "8823929248711865566",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "quran-domain",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/quran-api.service.ts",
+          "hash": "3924324635961297234",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:rxjs",
+            "quran-domain"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/quran-api.types.ts",
+          "hash": "215717861886616915"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/settings.service.ts",
+          "hash": "4741026734367982720",
+          "deps": [
+            "npm:@angular/core",
+            "shared-utils"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/time-format.types.ts",
+          "hash": "5834265321538503593"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/time-format.util.ts",
+          "hash": "17918351372894725281",
+          "deps": [
+            "shared-utils"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/services/user-store.service.ts",
+          "hash": "4382989386056561530",
+          "deps": [
+            "npm:@angular/core",
+            "quran-domain",
+            "shared-utils"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/bottom-nav/bottom-nav.component.css",
+          "hash": "15862641237997197701"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/bottom-nav/bottom-nav.component.html",
+          "hash": "15175190284069386457"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/bottom-nav/bottom-nav.component.spec.ts",
+          "hash": "7441318066044467546",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/bottom-nav/bottom-nav.component.ts",
+          "hash": "8067615965178945902",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/connection-error/connection-error.component.css",
+          "hash": "14171973332140640266"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/connection-error/connection-error.component.html",
+          "hash": "296776248258723703"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/connection-error/connection-error.component.ts",
+          "hash": "12986052205654126527",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/hero-header/hero-header.component.css",
+          "hash": "17410421814212162656"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/hero-header/hero-header.component.html",
+          "hash": "7849694127587214256"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/hero-header/hero-header.component.ts",
+          "hash": "12094285109595446217",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/loading-spinner/loading-spinner.component.css",
+          "hash": "17932692512655089926"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/loading-spinner/loading-spinner.component.ts",
+          "hash": "14696343165183806611",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/offline-banner/offline-banner.component.css",
+          "hash": "13626958419615968876"
+        },
+        {
+          "file": "apps/quranflow-web/src/app/shared/components/offline-banner/offline-banner.component.ts",
+          "hash": "332344647564682757",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/store/prayer-time.store.spec.ts",
+          "hash": "6503371567740966476",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs",
+            "prayer-domain",
+            "npm:vitest"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/app/store/prayer-time.store.ts",
+          "hash": "17370242990397972618",
+          "deps": [
+            "npm:@angular/core",
+            "npm:rxjs",
+            "prayer-domain"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/index.html",
+          "hash": "3833974239736783852"
+        },
+        {
+          "file": "apps/quranflow-web/src/main.ts",
+          "hash": "12241538474971493669",
+          "deps": [
+            "npm:@angular/platform-browser",
+            "npm:@vercel/analytics"
+          ]
+        },
+        {
+          "file": "apps/quranflow-web/src/styles.css",
+          "hash": "4549395420024826783"
+        },
+        {
+          "file": "apps/quranflow-web/tsconfig.app.json",
+          "hash": "7657331652414938307"
+        },
+        {
+          "file": "apps/quranflow-web/tsconfig.json",
+          "hash": "3848628102144884735"
+        },
+        {
+          "file": "apps/quranflow-web/tsconfig.spec.json",
+          "hash": "6483227046143156077"
+        }
+      ],
+      "quran-domain": [
+        {
+          "file": "libs/quran-domain/project.json",
+          "hash": "2942075868552662045"
+        },
+        {
+          "file": "libs/quran-domain/src/index.ts",
+          "hash": "12087840712427266073"
+        },
+        {
+          "file": "libs/quran-domain/src/lib/quran-api.types.ts",
+          "hash": "215717861886616915"
+        },
+        {
+          "file": "libs/quran-domain/tsconfig.json",
+          "hash": "11491112344937650512"
+        },
+        {
+          "file": "libs/quran-domain/tsconfig.lib.json",
+          "hash": "6169066321133638846"
+        }
+      ],
+      "ai-contracts": [
+        {
+          "file": "libs/ai-contracts/project.json",
+          "hash": "4613233667836452115"
+        },
+        {
+          "file": "libs/ai-contracts/src/index.ts",
+          "hash": "15631430082834746663"
+        },
+        {
+          "file": "libs/ai-contracts/tsconfig.json",
+          "hash": "11491112344937650512"
+        },
+        {
+          "file": "libs/ai-contracts/tsconfig.lib.json",
+          "hash": "6169066321133638846"
+        }
+      ],
+      "shared-utils": [
+        {
+          "file": "libs/shared-utils/project.json",
+          "hash": "17061540117404942766"
+        },
+        {
+          "file": "libs/shared-utils/src/index.ts",
+          "hash": "3229058411314188275"
+        },
+        {
+          "file": "libs/shared-utils/src/lib/notification.types.ts",
+          "hash": "11804985505627626921"
+        },
+        {
+          "file": "libs/shared-utils/src/lib/time-format.types.ts",
+          "hash": "5834265321538503593"
+        },
+        {
+          "file": "libs/shared-utils/tsconfig.json",
+          "hash": "11491112344937650512"
+        },
+        {
+          "file": "libs/shared-utils/tsconfig.lib.json",
+          "hash": "6169066321133638846"
+        }
+      ],
+      "shared-ui": [
+        {
+          "file": "libs/shared-ui/project.json",
+          "hash": "6178543720605768773"
+        },
+        {
+          "file": "libs/shared-ui/src/index.ts",
+          "hash": "258396263756448836"
+        },
+        {
+          "file": "libs/shared-ui/tsconfig.json",
+          "hash": "11491112344937650512"
+        },
+        {
+          "file": "libs/shared-ui/tsconfig.lib.json",
+          "hash": "6169066321133638846"
+        }
+      ],
+      "prayer-domain": [
+        {
+          "file": "libs/prayer-domain/project.json",
+          "hash": "12948254924569520871"
+        },
+        {
+          "file": "libs/prayer-domain/src/index.ts",
+          "hash": "7708094389129460328"
+        },
+        {
+          "file": "libs/prayer-domain/src/lib/prayer-time.types.ts",
+          "hash": "488689665004763994"
+        },
+        {
+          "file": "libs/prayer-domain/tsconfig.json",
+          "hash": "11491112344937650512"
+        },
+        {
+          "file": "libs/prayer-domain/tsconfig.lib.json",
+          "hash": "6169066321133638846"
+        }
+      ]
+    },
+    "nonProjectFiles": [
+      {
+        "file": ".editorconfig",
+        "hash": "4165385352547808172"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "8394194427371471827"
+      },
+      {
+        "file": ".vscode/extensions.json",
+        "hash": "5331566439708925252"
+      },
+      {
+        "file": ".vscode/launch.json",
+        "hash": "17038929134016848735"
+      },
+      {
+        "file": ".vscode/tasks.json",
+        "hash": "1370608409982315224"
+      },
+      {
+        "file": "APP_SUMMARY.md",
+        "hash": "1104095960091127669"
+      },
+      {
+        "file": "CACHE_FUNCTIONALITY_SUMMARY.md",
+        "hash": "3669995759328623482"
+      },
+      {
+        "file": "CACHE_REGRESSION_TEST.md",
+        "hash": "14625723057114554710"
+      },
+      {
+        "file": "COMPASS_BUTTON_FIX.md",
+        "hash": "2220267503292586853"
+      },
+      {
+        "file": "HARDCODED_VALUES.md",
+        "hash": "4194564595278779106"
+      },
+      {
+        "file": "IMPACT_ANALYSIS_USER_STORE.md",
+        "hash": "606914534250675953"
+      },
+      {
+        "file": "LOCATION_ENHANCEMENT_SUMMARY.md",
+        "hash": "6160183393804212203"
+      },
+      {
+        "file": "MASJID_FINDER_IMPLEMENTATION.md",
+        "hash": "7159471466567693775"
+      },
+      {
+        "file": "MIGRATION_SUMMARY.md",
+        "hash": "17279425283095861432"
+      },
+      {
+        "file": "OFFLINE_MODE_REGRESSION_TEST.md",
+        "hash": "16447942768508817308"
+      },
+      {
+        "file": "PRAYER_NOTIFICATIONS.md",
+        "hash": "1009783658804687603"
+      },
+      {
+        "file": "PRODUCTION_BUILD_TEST_REPORT.md",
+        "hash": "6921988308922936291"
+      },
+      {
+        "file": "PRODUCTION_OPTIMIZATIONS.md",
+        "hash": "14061848056809258027"
+      },
+      {
+        "file": "PRODUCTION_READINESS_ASSESSMENT.md",
+        "hash": "7164711924277536854"
+      },
+      {
+        "file": "PRODUCTION_READINESS_CHECKLIST.md",
+        "hash": "16889019043431851543"
+      },
+      {
+        "file": "PRODUCTION_READINESS_REVIEW.md",
+        "hash": "15333277027349314155"
+      },
+      {
+        "file": "PRODUCTION_READINESS_REVIEW_2026.md",
+        "hash": "13234006800465082450"
+      },
+      {
+        "file": "PRODUCTION_READY_FINAL.md",
+        "hash": "13973833233670662092"
+      },
+      {
+        "file": "PROFILE_PAGE_PRODUCTION_READY.md",
+        "hash": "4488914090598797890"
+      },
+      {
+        "file": "PROFILE_PAGE_REGRESSION_TEST.md",
+        "hash": "7016340438113157604"
+      },
+      {
+        "file": "PWA_COMPASS_PERMISSIONS.md",
+        "hash": "13774133682146106086"
+      },
+      {
+        "file": "PWA_IMPLEMENTATION.md",
+        "hash": "8022194875640147126"
+      },
+      {
+        "file": "QIBLA_COMPASS_IMPLEMENTATION.md",
+        "hash": "9544439849641686935"
+      },
+      {
+        "file": "QURAN_API_IMPLEMENTATION.md",
+        "hash": "2031570687155213141"
+      },
+      {
+        "file": "README.md",
+        "hash": "13478432176698355115"
+      },
+      {
+        "file": "REGRESSION_TEST_REPORT.md",
+        "hash": "11816431967786905554"
+      },
+      {
+        "file": "REGRESSION_TEST_STATUS.md",
+        "hash": "6022315953501254200"
+      },
+      {
+        "file": "REGRESSION_TEST_USER_STORE.md",
+        "hash": "5414768026353315753"
+      },
+      {
+        "file": "SERVICE_WORKER_OFFLINE_IMPACT.md",
+        "hash": "7777844771174566936"
+      },
+      {
+        "file": "angular.json",
+        "hash": "6793179363327131315"
+      },
+      {
+        "file": "ngsw-config.json",
+        "hash": "13287436319678041088"
+      },
+      {
+        "file": "nx.json",
+        "hash": "8881481095973732319"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "16465065461680302969"
+      },
+      {
+        "file": "package.json",
+        "hash": "9978643864618844948"
+      },
+      {
+        "file": "public/Qibla.svg",
+        "hash": "1201392775116212171"
+      },
+      {
+        "file": "public/background-sync-handler.js",
+        "hash": "17788824959794966"
+      },
+      {
+        "file": "public/favicon.ico",
+        "hash": "3118246801832427110"
+      },
+      {
+        "file": "public/icons/icon-128x128.png",
+        "hash": "3770893637984724736"
+      },
+      {
+        "file": "public/icons/icon-144x144.png",
+        "hash": "7900713348877003381"
+      },
+      {
+        "file": "public/icons/icon-152x152.png",
+        "hash": "4565276705312172715"
+      },
+      {
+        "file": "public/icons/icon-192x192.png",
+        "hash": "6458659887076879484"
+      },
+      {
+        "file": "public/icons/icon-384x384.png",
+        "hash": "14616636783270562747"
+      },
+      {
+        "file": "public/icons/icon-512x512.png",
+        "hash": "15229388796113646901"
+      },
+      {
+        "file": "public/icons/icon-72x72.png",
+        "hash": "295401833842352063"
+      },
+      {
+        "file": "public/icons/icon-96x96.png",
+        "hash": "9355535575316876416"
+      },
+      {
+        "file": "public/kaaba.svg",
+        "hash": "7899670689717992346"
+      },
+      {
+        "file": "public/manifest.webmanifest",
+        "hash": "4753128678466747293"
+      },
+      {
+        "file": "public/notification-handler.js",
+        "hash": "14675106741088643641"
+      },
+      {
+        "file": "public/offline.html",
+        "hash": "16226881824035704826"
+      },
+      {
+        "file": "src/app/app.config.ts",
+        "hash": "12161099284401183031"
+      },
+      {
+        "file": "src/app/app.css",
+        "hash": "12435002661893580297"
+      },
+      {
+        "file": "src/app/app.html",
+        "hash": "5535462823716174891"
+      },
+      {
+        "file": "src/app/app.routes.ts",
+        "hash": "17611778545910315776"
+      },
+      {
+        "file": "src/app/app.spec.ts",
+        "hash": "2198835187416225128"
+      },
+      {
+        "file": "src/app/app.ts",
+        "hash": "6829798122986824330"
+      },
+      {
+        "file": "src/app/core/error-handler.service.ts",
+        "hash": "6775312598796130463"
+      },
+      {
+        "file": "src/app/core/location.util.ts",
+        "hash": "8487563133900870369"
+      },
+      {
+        "file": "src/app/core/logger.util.ts",
+        "hash": "8026175622877236841"
+      },
+      {
+        "file": "src/app/interceptors/error.interceptor.ts",
+        "hash": "863298556025546027"
+      },
+      {
+        "file": "src/app/pages/prayer/components/date-header/date-header.component.css",
+        "hash": "2768325129412530428"
+      },
+      {
+        "file": "src/app/pages/prayer/components/date-header/date-header.component.ts",
+        "hash": "13129984475102665528"
+      },
+      {
+        "file": "src/app/pages/prayer/components/masjid-list/masjid-list.component.css",
+        "hash": "4344641548382977560"
+      },
+      {
+        "file": "src/app/pages/prayer/components/masjid-list/masjid-list.component.html",
+        "hash": "5931800782037903237"
+      },
+      {
+        "file": "src/app/pages/prayer/components/masjid-list/masjid-list.component.ts",
+        "hash": "3200044812365978035"
+      },
+      {
+        "file": "src/app/pages/prayer/components/prayer-list/prayer-list.component.css",
+        "hash": "17266680275082576243"
+      },
+      {
+        "file": "src/app/pages/prayer/components/prayer-list/prayer-list.component.ts",
+        "hash": "646889214144316055"
+      },
+      {
+        "file": "src/app/pages/prayer/components/radius-filter/radius-filter.component.css",
+        "hash": "3567113556928237967"
+      },
+      {
+        "file": "src/app/pages/prayer/components/radius-filter/radius-filter.component.html",
+        "hash": "3191685934361354000"
+      },
+      {
+        "file": "src/app/pages/prayer/components/radius-filter/radius-filter.component.ts",
+        "hash": "4372615764224843966"
+      },
+      {
+        "file": "src/app/pages/prayer/components/trajectory/prayer-trajectory.component.css",
+        "hash": "14831851199667666305"
+      },
+      {
+        "file": "src/app/pages/prayer/components/trajectory/prayer-trajectory.component.ts",
+        "hash": "17658551894358737817"
+      },
+      {
+        "file": "src/app/pages/prayer/components/trajectory/prayer-trajectory.constants.ts",
+        "hash": "1723261091419005138"
+      },
+      {
+        "file": "src/app/pages/prayer/components/trajectory/prayer-trajectory.types.ts",
+        "hash": "8023617111948349731"
+      },
+      {
+        "file": "src/app/pages/prayer/components/trajectory/prayer-trajectory.utils.ts",
+        "hash": "1372556871045269633"
+      },
+      {
+        "file": "src/app/pages/prayer/prayer.component.css",
+        "hash": "4210010789751671871"
+      },
+      {
+        "file": "src/app/pages/prayer/prayer.component.html",
+        "hash": "6716504208822682276"
+      },
+      {
+        "file": "src/app/pages/prayer/prayer.component.spec.ts",
+        "hash": "3753138438838018660"
+      },
+      {
+        "file": "src/app/pages/prayer/prayer.component.ts",
+        "hash": "396207423818605558"
+      },
+      {
+        "file": "src/app/pages/prayer/services/prayer-trajectory.service.ts",
+        "hash": "3176520683368802084"
+      },
+      {
+        "file": "src/app/pages/qibla/components/qibla-compass.component.css",
+        "hash": "10541874294360953917"
+      },
+      {
+        "file": "src/app/pages/qibla/components/qibla-compass.component.ts",
+        "hash": "13393465119955793073"
+      },
+      {
+        "file": "src/app/pages/qibla/qibla.component.css",
+        "hash": "18315511898879104566"
+      },
+      {
+        "file": "src/app/pages/qibla/qibla.component.html",
+        "hash": "17762755875545099089"
+      },
+      {
+        "file": "src/app/pages/qibla/qibla.component.spec.ts",
+        "hash": "4352951134608305006"
+      },
+      {
+        "file": "src/app/pages/qibla/qibla.component.ts",
+        "hash": "1045182102771755264"
+      },
+      {
+        "file": "src/app/pages/qibla/services/qibla.service.ts",
+        "hash": "5963018500573711311"
+      },
+      {
+        "file": "src/app/pages/quran/components/audio-player.component.css",
+        "hash": "9559370173011580661"
+      },
+      {
+        "file": "src/app/pages/quran/components/audio-player.component.html",
+        "hash": "15967610483580777655"
+      },
+      {
+        "file": "src/app/pages/quran/components/audio-player.component.ts",
+        "hash": "14798899404779347457"
+      },
+      {
+        "file": "src/app/pages/quran/components/surah-detail.component.css",
+        "hash": "9062587706492187263"
+      },
+      {
+        "file": "src/app/pages/quran/components/surah-detail.component.html",
+        "hash": "9982589664249959117"
+      },
+      {
+        "file": "src/app/pages/quran/components/surah-detail.component.ts",
+        "hash": "5404309902938916534"
+      },
+      {
+        "file": "src/app/pages/quran/components/surah-list.component.css",
+        "hash": "17530737081040404336"
+      },
+      {
+        "file": "src/app/pages/quran/components/surah-list.component.html",
+        "hash": "16579544833799924521"
+      },
+      {
+        "file": "src/app/pages/quran/components/surah-list.component.ts",
+        "hash": "3333010006906271500"
+      },
+      {
+        "file": "src/app/pages/quran/quran.component.css",
+        "hash": "13459772249471449190"
+      },
+      {
+        "file": "src/app/pages/quran/quran.component.html",
+        "hash": "14992977062759392441"
+      },
+      {
+        "file": "src/app/pages/quran/quran.component.spec.ts",
+        "hash": "15434669708737547561"
+      },
+      {
+        "file": "src/app/pages/quran/quran.component.ts",
+        "hash": "16527367420110934195"
+      },
+      {
+        "file": "src/app/pages/settings/settings.component.css",
+        "hash": "8025097184596413276"
+      },
+      {
+        "file": "src/app/pages/settings/settings.component.html",
+        "hash": "2653025372380628452"
+      },
+      {
+        "file": "src/app/pages/settings/settings.component.spec.ts",
+        "hash": "15177274266377766838"
+      },
+      {
+        "file": "src/app/pages/settings/settings.component.ts",
+        "hash": "9012647112168436059"
+      },
+      {
+        "file": "src/app/services/background-sync.service.ts",
+        "hash": "30471937995344706"
+      },
+      {
+        "file": "src/app/services/device-detection.service.ts",
+        "hash": "13774139676417002860"
+      },
+      {
+        "file": "src/app/services/masjid.service.ts",
+        "hash": "15161619227502517776"
+      },
+      {
+        "file": "src/app/services/network-status.service.ts",
+        "hash": "4081474461730703675"
+      },
+      {
+        "file": "src/app/services/notification-worker.service.ts",
+        "hash": "9174332729913711544"
+      },
+      {
+        "file": "src/app/services/notification.service.ts",
+        "hash": "7565425361865726057"
+      },
+      {
+        "file": "src/app/services/notification.types.ts",
+        "hash": "11804985505627626921"
+      },
+      {
+        "file": "src/app/services/permissions.service.ts",
+        "hash": "16715942826550111699"
+      },
+      {
+        "file": "src/app/services/prayer-time.service.spec.ts",
+        "hash": "8329587807534203946"
+      },
+      {
+        "file": "src/app/services/prayer-time.service.ts",
+        "hash": "1622704145304447183"
+      },
+      {
+        "file": "src/app/services/prayer-time.types.ts",
+        "hash": "488689665004763994"
+      },
+      {
+        "file": "src/app/services/quran-api.service.spec.ts",
+        "hash": "12500146139141535648"
+      },
+      {
+        "file": "src/app/services/quran-api.service.ts",
+        "hash": "15251051409724856720"
+      },
+      {
+        "file": "src/app/services/quran-api.types.ts",
+        "hash": "215717861886616915"
+      },
+      {
+        "file": "src/app/services/settings.service.ts",
+        "hash": "15444683539103376971"
+      },
+      {
+        "file": "src/app/services/time-format.types.ts",
+        "hash": "5834265321538503593"
+      },
+      {
+        "file": "src/app/services/time-format.util.ts",
+        "hash": "8664236274669702962"
+      },
+      {
+        "file": "src/app/services/user-store.service.ts",
+        "hash": "14801220884893504411"
+      },
+      {
+        "file": "src/app/shared/components/bottom-nav/bottom-nav.component.css",
+        "hash": "15862641237997197701"
+      },
+      {
+        "file": "src/app/shared/components/bottom-nav/bottom-nav.component.html",
+        "hash": "15175190284069386457"
+      },
+      {
+        "file": "src/app/shared/components/bottom-nav/bottom-nav.component.spec.ts",
+        "hash": "7441318066044467546"
+      },
+      {
+        "file": "src/app/shared/components/bottom-nav/bottom-nav.component.ts",
+        "hash": "8067615965178945902"
+      },
+      {
+        "file": "src/app/shared/components/connection-error/connection-error.component.css",
+        "hash": "14171973332140640266"
+      },
+      {
+        "file": "src/app/shared/components/connection-error/connection-error.component.html",
+        "hash": "296776248258723703"
+      },
+      {
+        "file": "src/app/shared/components/connection-error/connection-error.component.ts",
+        "hash": "12986052205654126527"
+      },
+      {
+        "file": "src/app/shared/components/hero-header/hero-header.component.css",
+        "hash": "17410421814212162656"
+      },
+      {
+        "file": "src/app/shared/components/hero-header/hero-header.component.html",
+        "hash": "7849694127587214256"
+      },
+      {
+        "file": "src/app/shared/components/hero-header/hero-header.component.ts",
+        "hash": "12094285109595446217"
+      },
+      {
+        "file": "src/app/shared/components/loading-spinner/loading-spinner.component.css",
+        "hash": "17932692512655089926"
+      },
+      {
+        "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
+        "hash": "14696343165183806611"
+      },
+      {
+        "file": "src/app/shared/components/offline-banner/offline-banner.component.css",
+        "hash": "13626958419615968876"
+      },
+      {
+        "file": "src/app/shared/components/offline-banner/offline-banner.component.ts",
+        "hash": "332344647564682757"
+      },
+      {
+        "file": "src/app/store/prayer-time.store.spec.ts",
+        "hash": "4132333123956755465"
+      },
+      {
+        "file": "src/app/store/prayer-time.store.ts",
+        "hash": "8153278794618094797"
+      },
+      {
+        "file": "src/index.html",
+        "hash": "3833974239736783852"
+      },
+      {
+        "file": "src/main.ts",
+        "hash": "12241538474971493669"
+      },
+      {
+        "file": "src/styles.css",
+        "hash": "4549395420024826783"
+      },
+      {
+        "file": "test-serve.sh",
+        "hash": "2524937212371070558"
+      },
+      {
+        "file": "test-user-store-migration.js",
+        "hash": "9692571058794942213"
+      },
+      {
+        "file": "tools/scripts/README.md",
+        "hash": "1808775562796134706"
+      },
+      {
+        "file": "tsconfig.app.json",
+        "hash": "8369321240499881643"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "3968086495856200158"
+      },
+      {
+        "file": "tsconfig.json",
+        "hash": "10605621223344665858"
+      },
+      {
+        "file": "tsconfig.spec.json",
+        "hash": "17063073924005338580"
+      }
+    ]
+  },
+  "externalNodesHash": "3429510214386433975"
+}

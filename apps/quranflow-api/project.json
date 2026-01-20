@@ -1,0 +1,63 @@
+{
+  "name": "quranflow-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/quranflow-api/src",
+  "projectType": "application",
+  "tags": ["type:app", "scope:api"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/quranflow-api",
+        "main": "apps/quranflow-api/src/main.ts",
+        "tsConfig": "apps/quranflow-api/tsconfig.app.json",
+        "assets": [],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/quranflow-api/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "optimization": true,
+          "sourceMap": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "quranflow-api:build",
+        "watch": true,
+        "inspect": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "quranflow-api:build:development",
+          "watch": true,
+          "inspect": false
+        },
+        "production": {
+          "buildTarget": "quranflow-api:build:production",
+          "watch": false,
+          "inspect": false
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/apps/quranflow-api"
+      }
+    }
+  }
+}
+

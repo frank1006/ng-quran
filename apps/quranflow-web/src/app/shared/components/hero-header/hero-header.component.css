@@ -1,0 +1,138 @@
+.hero-section {
+  height: 14.25rem; /* 228px */
+  padding: var(--space-lg) var(--space-xl);
+  margin-bottom: calc(-1 * var(--space-lg));
+  position: relative;
+  background: linear-gradient(180deg, #fff9f0 0%, #fff5e6 50%, #ffe8cc 100%);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  max-width: var(--app-max-width);
+  margin-inline: auto;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.6;
+}
+
+.curve-timeline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 7.5rem; /* 120px */
+  animation: floatBackground 8s ease-in-out infinite;
+}
+
+.curve-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  animation: waveSvg 12s ease-in-out infinite;
+}
+
+.curve-svg path {
+  animation: pulseOpacity 10s ease-in-out infinite;
+}
+
+@keyframes floatBackground {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.75rem); /* -12px */
+  }
+}
+
+@keyframes waveSvg {
+  0%, 100% {
+    transform: scaleY(1) translateY(0);
+  }
+  25% {
+    transform: scaleY(1.05) translateY(-0.1875rem); /* -3px */
+  }
+  50% {
+    transform: scaleY(0.98) translateY(-0.375rem); /* -6px */
+  }
+  75% {
+    transform: scaleY(1.03) translateY(-0.1875rem); /* -3px */
+  }
+}
+
+@keyframes pulseOpacity {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.back-button,
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(243, 244, 246, 0.8);
+  border-radius: var(--border-radius-all);
+  color: #1f1f1f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  text-decoration: none;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #ffb030;
+  transform: translateX(-2px);
+}
+
+.action-button {
+  background: rgba(249, 250, 251, 0.9);
+  border-color: transparent;
+  color: #6b7280;
+}
+
+.action-button:hover {
+  background: rgba(243, 244, 246, 0.9);
+}
+
+.action-button.active {
+  background: rgba(255, 245, 230, 0.9);
+  border-color: #ffb030;
+  color: #ffb030;
+}
+
+.hero-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+}
+

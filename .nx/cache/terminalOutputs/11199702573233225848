@@ -1,0 +1,7 @@
+webpack compiled [1m[32msuccessfully[39m[22m (f12acc7fdf12efcb)
+[Nest] 53707  - 01/06/2026, 1:06:49 PM     LOG [NestFactory] Starting Nest application...
+[Nest] 53707  - 01/06/2026, 1:06:49 PM     LOG [InstanceLoader] AppModule dependencies initialized +4ms
+[Nest] 53707  - 01/06/2026, 1:06:49 PM     LOG [RoutesResolver] AppController {/}: +1ms
+[Nest] 53707  - 01/06/2026, 1:06:49 PM     LOG [RouterExplorer] Mapped {/, GET} route +1ms
+[Nest] 53707  - 01/06/2026, 1:06:49 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 53707  - 01/06/2026, 1:06:49 PM     LOG [NestApplication] Nest application successfully started +1ms

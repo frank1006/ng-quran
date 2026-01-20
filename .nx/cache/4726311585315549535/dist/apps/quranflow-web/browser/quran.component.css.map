@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["apps/quranflow-web/src/app/pages/quran/quran.component.css"],
+  "sourcesContent": [".quran-container {\n  padding:1.5rem 2rem;\n}\n\n"],
+  "mappings": ";AAAA,CAAC;AACC,WAAQ,OAAO;AACjB;",
+  "names": []
+}

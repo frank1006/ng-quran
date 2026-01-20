@@ -9,24 +9,27 @@
     "ng-quran": {
       "projectType": "application",
       "schematics": {},
-      "root": "",
-      "sourceRoot": "src",
+      "root": "apps/quranflow-web",
+      "sourceRoot": "apps/quranflow-web/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/main.ts",
-            "tsConfig": "tsconfig.app.json",
+            "outputPath": "dist/apps/quranflow-web",
+            "index": "apps/quranflow-web/src/index.html",
+            "browser": "apps/quranflow-web/src/main.ts",
+            "tsConfig": "apps/quranflow-web/tsconfig.app.json",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "apps/quranflow-web/public"
               }
             ],
             "styles": [
-              "src/styles.css"
-            ]
+              "apps/quranflow-web/src/styles.css"
+            ],
+            "serviceWorker": "apps/quranflow-web/ngsw-config.json"
           },
           "configurations": {
             "production": {
@@ -53,8 +56,7 @@
               },
               "sourceMap": false,
               "namedChunks": false,
-              "extractLicenses": true,
-              "serviceWorker": "ngsw-config.json"
+              "extractLicenses": true
             },
             "development": {
               "optimization": false,

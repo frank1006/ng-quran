@@ -1,0 +1,1991 @@
+{
+  "17513928794144506860": {
+    ".": {
+      "projectType": "application",
+      "sourceRoot": "src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{projectRoot}/dist/ng-quran"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "4693021597806480990": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "11411322424467779874": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "3546470133328161660": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "18279024743784098296": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "10285037005225600639": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "18025524138011513680": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "15026277378991189859": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "4363471894273610172": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "10159999798298234072": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "16911211768792483194": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "17639637363319920101": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "17333406954766039765": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "10281999183456654493": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "16476462248963913881": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "10014596101077021735": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  },
+  "10224811222384355148": {
+    "apps/quranflow-web": {
+      "projectType": "application",
+      "sourceRoot": "apps/quranflow-web/src",
+      "targets": {
+        "build": {
+          "command": "ng build",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"build\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:build --help",
+              "example": {
+                "options": {
+                  "localize": true
+                }
+              }
+            }
+          },
+          "dependsOn": [
+            "^build"
+          ],
+          "outputs": [
+            "{workspaceRoot}/dist/apps/quranflow-web"
+          ],
+          "cache": true,
+          "inputs": [
+            "production",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli"
+              ]
+            }
+          ],
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:build:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:build:development"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "command": "ng serve",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"serve\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:serve --help",
+              "example": {
+                "options": {
+                  "port": 4201
+                }
+              }
+            }
+          },
+          "continuous": true,
+          "configurations": {
+            "production": {
+              "command": "ng run ng-quran:serve:production"
+            },
+            "development": {
+              "command": "ng run ng-quran:serve:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "command": "ng test",
+          "options": {
+            "cwd": "."
+          },
+          "metadata": {
+            "technologies": [
+              "angular"
+            ],
+            "description": "Run the \"test\" target for \"ng-quran\".",
+            "help": {
+              "command": "npx ng run ng-quran:test --help",
+              "example": {
+                "options": {
+                  "coverage": true
+                }
+              }
+            }
+          },
+          "cache": true,
+          "inputs": [
+            "default",
+            "^production",
+            {
+              "externalDependencies": [
+                "@angular/cli",
+                "vitest"
+              ]
+            }
+          ],
+          "outputs": [
+            "{workspaceRoot}/coverage/ng-quran"
+          ]
+        }
+      }
+    }
+  }
+}

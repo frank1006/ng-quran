@@ -1,0 +1,18 @@
+❯ Building...
+✔ Building...
+Application bundle generation failed. [1.835 seconds] - 2026-01-06T09:00:02.724Z
+
+✘ [ERROR] TS2304: Cannot find name 'Logger'. [plugin angular-compiler]
+
+    apps/quranflow-web/src/app/pages/quran/components/surah-list.component.ts:74:12:
+      74 │             Logger.error('Error loading chapters:', err);
+         ╵             ~~~~~~
+
+
+✘ [ERROR] TS2304: Cannot find name 'Logger'. [plugin angular-compiler]
+
+    apps/quranflow-web/src/app/pages/quran/components/surah-list.component.ts:96:12:
+      96 │             Logger.error('Error loading reciters:', err);
+         ╵             ~~~~~~
+
+

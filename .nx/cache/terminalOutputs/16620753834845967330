@@ -1,0 +1,12 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names         |  Raw size | Estimated transfer size
+main-5A3RABSZ.js    | main          | 486.71 kB |               113.28 kB
+styles-246T2SMM.css | styles        |   1.82 kB |               545 bytes
+
+                    | Initial total | 488.53 kB |               113.82 kB
+
+Application bundle generation complete. [2.523 seconds] - 2026-01-06T09:00:15.268Z
+
+Output location: /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/dist/apps/quranflow-web
+

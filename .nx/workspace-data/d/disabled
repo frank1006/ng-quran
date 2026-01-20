@@ -1,0 +1,26 @@
+Daemon process terminated and closed the connection
+
+Messages from the log:
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - Done responding to the client handleGetNxConsoleStatus
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - Handled json message GET_NX_CONSOLE_STATUS. Handling time: 0. Response time: 0.
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.092Z - Established a connection. Number of open connections: 2
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.092Z - Closed a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.096Z - Closed a connection. Number of open connections: 0
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.103Z - Established a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.105Z - Closed a connection. Number of open connections: 0
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.105Z - Established a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.118Z - Received raw message of length 32
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.118Z - Received json message of type REQUEST_PROJECT_GRAPH
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.119Z - [REQUEST]: Client Request for Project Graph Received
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.127Z - [WATCHER]: Processing file changes in outputs
+Time for 'plugin worker 37395 code loading' 4.698375000000002
+Time for 'plugin worker 37394 code loading' 2.8044169999999937
+Time for 'plugin worker 37396 code loading' 3.360999999999997
+Time for 'plugin worker 37397 code loading' 3.204499999999996
+Time for 'plugin worker 37398 code loading' 41.410583
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.297Z - Closed a connection. Number of open connections: 0
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.297Z - [WATCHER]: Stopping the watcher for /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran (sources)
+
+
+
+More information: /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/.nx/workspace-data/d/daemon.log

@@ -1,0 +1,13 @@
+{
+  "name": "ai-contracts",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ai-contracts/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:ai", "scope:contracts"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
+

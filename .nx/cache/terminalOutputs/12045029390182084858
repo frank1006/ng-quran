@@ -1,0 +1,12 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names         |  Raw size | Estimated transfer size
+main-UOPSPNJX.js    | main          | 486.76 kB |               113.31 kB
+styles-246T2SMM.css | styles        |   1.82 kB |               545 bytes
+
+                    | Initial total | 488.57 kB |               113.85 kB
+
+Application bundle generation complete. [2.701 seconds] - 2026-01-06T08:59:37.944Z
+
+Output location: /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/dist/apps/quranflow-web
+

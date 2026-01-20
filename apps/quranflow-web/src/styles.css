@@ -1,0 +1,115 @@
+:root {
+  /* Layout */
+  --app-max-width: 52rem; /* ~834px iPad width */
+  
+  /* Spacing scale */
+  --space-xxs: 0.25rem;  /* 4px */
+  --space-xs: 0.5rem;    /* 8px */
+  --space-sm: 0.75rem;   /* 12px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  
+  /* Typography scale */
+  --font-xs: 0.75rem;    /* 12px */
+  --font-sm: 0.875rem;   /* 14px */
+  --font-md: 1rem;       /* 16px */
+  --font-lg: 1.125rem;   /* 18px */
+  --font-xl: 1.375rem;   /* 22px */
+  --font-2xl: 2rem;      /* 32px */
+  
+  /* Radius */
+  --radius-sm: 0.5rem;   /* 8px */
+  --radius-md: 0.75rem;  /* 12px */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.5rem;   /* 24px */
+  
+  /* Legacy border radius (maintain compatibility) */
+  --border-radius-all: var(--radius-xl);
+  --border-radius-tl: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+/* Extra small screens - reduce font sizes */
+@media (max-width: 410px) {
+  :root {
+    --font-xs: 0.6875rem;    /* 11px */
+    --font-sm: 0.8125rem;     /* 13px */
+    --font-md: 0.9375rem;     /* 15px */
+    --font-lg: 1rem;          /* 16px */
+    --font-xl: 1.25rem;       /* 20px */
+    --font-2xl: 1.75rem;      /* 28px */
+  }
+}
+
+/* Extra small mobiles - further reduce font sizes */
+@media (max-width: 375px) {
+  :root {
+    --font-xs: 0.625rem;      /* 10px */
+    --font-sm: 0.75rem;       /* 12px */
+    --font-md: 0.875rem;      /* 14px */
+    --font-lg: 0.9375rem;     /* 15px */
+    --font-xl: 1.125rem;      /* 18px */
+    --font-2xl: 1.5rem;       /* 24px */
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+}
+
+/* Allow text selection for input fields and text areas */
+input,
+textarea,
+[contenteditable] {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  touch-action: auto;
+  -ms-touch-action: auto;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #fff9f0;
+  color: #1f1f1f;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+
+html {
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+}
+
+html, body, .main {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.main {
+  min-height: 100dvh;
+  min-height: calc(100dvh + env(safe-area-inset-top, 0));
+  background: linear-gradient(180deg, #fff9f0 0%, #ffffff 40%);
+  background-attachment: fixed;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0)); /* 92px = 5.75rem */
+  font-family: 'Poppins', sans-serif;
+  max-width: var(--app-max-width);
+  margin-inline: auto;
+  touch-action: manipulation;
+}

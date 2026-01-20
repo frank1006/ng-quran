@@ -1,0 +1,13 @@
+{
+  "name": "quran-domain",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/quran-domain/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:domain", "domain:quran"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
+

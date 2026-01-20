@@ -1,0 +1,266 @@
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.059Z - Started listening on: /private/var/folders/8f/5zpyymm12wnfryrdmfhg14nw0000gn/T/57093877582aca5f6824/d.sock
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.061Z - [WATCHER]: Subscribed to changes within: /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran (native)
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.061Z - [NX-CONSOLE]: Pulling latest Nx (latest) to check console status...
+Fetching nx...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.066Z - Established a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.066Z - Established a connection. Number of open connections: 2
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.067Z - Closed a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - Received raw message of length 32
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - Received json message of type GET_NX_CONSOLE_STATUS
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - Serializing response for GET_NX_CONSOLE_STATUS message in json mode
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - Responding to GET_NX_CONSOLE_STATUS message
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - [REQUEST]: Responding to the client. handleGetNxConsoleStatus
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - Done responding to the client handleGetNxConsoleStatus
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.073Z - Handled json message GET_NX_CONSOLE_STATUS. Handling time: 0. Response time: 0.
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.092Z - Established a connection. Number of open connections: 2
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.092Z - Closed a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.096Z - Closed a connection. Number of open connections: 0
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.103Z - Established a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.105Z - Closed a connection. Number of open connections: 0
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.105Z - Established a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.118Z - Received raw message of length 32
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.118Z - Received json message of type REQUEST_PROJECT_GRAPH
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.119Z - [REQUEST]: Client Request for Project Graph Received
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.127Z - [WATCHER]: Processing file changes in outputs
+Time for 'plugin worker 37395 code loading' 4.698375000000002
+Time for 'plugin worker 37394 code loading' 2.8044169999999937
+Time for 'plugin worker 37396 code loading' 3.360999999999997
+Time for 'plugin worker 37397 code loading' 3.204499999999996
+Time for 'plugin worker 37398 code loading' 41.410583
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.297Z - Closed a connection. Number of open connections: 0
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.297Z - [WATCHER]: Stopping the watcher for /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran (sources)
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.298Z - [WATCHER]: Stopping the watcher for /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran (outputs)
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.299Z - Server stopped because: "this process is no longer the current daemon (native)"
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.298Z - Started listening on: /private/var/folders/8f/5zpyymm12wnfryrdmfhg14nw0000gn/T/f6348ce1e8595386a67d/d.sock
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.303Z - [WATCHER]: Subscribed to changes within: /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran (native)
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.303Z - [NX-CONSOLE]: Pulling latest Nx (latest) to check console status...
+Fetching nx...
+Time for 'plugin worker 37405 code loading' 4.079667000000001
+Time for 'plugin worker 37406 code loading' 3.3089580000000005
+Time for 'plugin worker 37409 code loading' 2.966583
+Time for 'plugin worker 37408 code loading' 2.225958000000002
+Time for 'plugin worker 37407 code loading' 12.520583000000002
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.716Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.716Z - [REQUEST]: 
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.716Z - [REQUEST]: 
+Time for 'nx/core/project-json:createNodes' 0.10795899999999392
+Time for 'nx-angular-json-plugin:createNodes' 1.0196669999999983
+Time for 'nx/core/package-json:createNodes' 1.5210830000000044
+Time for '@nx/angular/plugin:createNodes' 12.691208999999986
+Time for 'workspace context init' 1.9724580000000174
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 20.858791999999994
+Time for 'build typescript dependencies' 25.647707999999966
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:37.840Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.964Z - Established a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.965Z - Established a connection. Number of open connections: 2
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.965Z - Closed a connection. Number of open connections: 1
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.966Z - Received raw message of length 225
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.966Z - Received json message of type MULTI_GLOB
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.967Z - Serializing response for MULTI_GLOB message in json mode
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.967Z - Responding to MULTI_GLOB message
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.968Z - [REQUEST]: Responding to the client. handleMultiGlob
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.968Z - Done responding to the client handleMultiGlob
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:38.968Z - Handled json message MULTI_GLOB. Handling time: 1. Response time: 1.
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.021Z - Received raw message of length 67
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.021Z - Received json message of type GET_NX_WORKSPACE_FILES
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.022Z - Serializing response for GET_NX_WORKSPACE_FILES message in json mode
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.022Z - Responding to GET_NX_WORKSPACE_FILES message
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.022Z - [REQUEST]: Responding to the client. handleNxWorkspaceFiles
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.022Z - Done responding to the client handleNxWorkspaceFiles
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.022Z - Handled json message GET_NX_WORKSPACE_FILES. Handling time: 1. Response time: 0.
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.086Z - Received raw message of length 32
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.086Z - Received json message of type GET_CONTEXT_FILE_DATA
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.086Z - Serializing response for GET_CONTEXT_FILE_DATA message in json mode
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.086Z - Responding to GET_CONTEXT_FILE_DATA message
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.086Z - [REQUEST]: Responding to the client. handleContextFileData
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.086Z - Done responding to the client handleContextFileData
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.086Z - Handled json message GET_CONTEXT_FILE_DATA. Handling time: 0. Response time: 0.
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.087Z - Closed a connection. Number of open connections: 0
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.532Z - [NX-CONSOLE]: Successfully pulled latest Nx to /private/var/folders/8f/5zpyymm12wnfryrdmfhg14nw0000gn/T/tmp-37392-lesfVFqxziNV
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.583Z - [NX-CONSOLE]: Using local implementation (NX_USE_LOCAL=true or inner call)
+DEBUG nx::native::ide::install: Detected editor: Cursor
+DEBUG nx::native::ide::install: Checking if Nx Console extension is installed with: cursor --list-extensions
+DEBUG nx::native::ide::install: Command 'cursor' not found, cannot check extension status
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:39.584Z - [NX-CONSOLE]: Console status check completed, shouldPrompt: true
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.238Z - [WATCHER]: 107 file(s) created or restored, 0 file(s) modified, 0 file(s) deleted
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.238Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.239Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.289Z - [WATCHER]: 2 file(s) created or restored, 0 file(s) modified, 0 file(s) deleted
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.289Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.341Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.341Z - [REQUEST]: apps/quranflow-web/src/app/pages/prayer/components/prayer-list/prayer-list.component.ts,apps/quranflow-web/src/app/pages/quran/quran.component.html,apps/quranflow-web/src/app/interceptors/error.interceptor.ts,apps/quranflow-web/src/main.ts,apps/quranflow-web/src/app/pages/quran/components/surah-detail.component.ts,apps/quranflow-web/src/app/services/prayer-time.types.ts,apps/quranflow-web/src/index.html,apps/quranflow-web/src/app/pages/prayer/components/date-header/date-header.component.css,apps/quranflow-web/src/app/pages/quran/quran.component.css,apps/quranflow-web/public/kaaba.svg,apps/quranflow-web/src/app/services/device-detection.service.ts,apps/quranflow-web/src/app/shared/components/offline-banner/offline-banner.component.ts,apps/quranflow-web/src/app/services/notification.types.ts,apps/quranflow-web/src/app/pages/quran/components/surah-list.component.css,apps/quranflow-web/public/icons/icon-384x384.png,apps/quranflow-web/public/offline.html,apps/quranflow-web/src/app/pages/qibla/qibla.component.html,apps/quranflow-web/src/app/app.config.ts,apps/quranflow-web/src/app/services/time-format.util.ts,apps/quranflow-web/src/app/pages/prayer/components/masjid-list/masjid-list.component.html,apps/quranflow-web/public/icons/icon-128x128.png,apps/quranflow-web/src/app/pages/quran/components/surah-list.component.html,apps/quranflow-web/src/app/pages/quran/quran.component.spec.ts,apps/quranflow-web/src/app/shared/components/bottom-nav/bottom-nav.component.spec.ts,apps/quranflow-web/src/app/services/notification-worker.service.ts,apps/quranflow-web/src/app/services/quran-api.service.ts,apps/quranflow-web/src/app/services/notification.service.ts,apps/quranflow-web/src/app/store/prayer-time.store.spec.ts,apps/quranflow-web/public/background-sync-handler.js,apps/quranflow-web/src/styles.css,apps/quranflow-web/src/app/shared/components/bottom-nav/bottom-nav.component.ts,apps/quranflow-web/src/app/shared/components/connection-error/connection-error.component.css,apps/quranflow-web/src/app/pages/prayer/components/radius-filter/radius-filter.component.css,apps/quranflow-web/src/app/services/network-status.service.ts,apps/quranflow-web/src/app/pages/prayer/components/date-header/date-header.component.ts,apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.types.ts,apps/quranflow-web/src/app/shared/components/hero-header/hero-header.component.ts,apps/quranflow-web/src/app/shared/components/loading-spinner/loading-spinner.component.ts,apps/quranflow-web/src/app/pages/quran/components/audio-player.component.css,apps/quranflow-web/src/app/pages/qibla/services/qibla.service.ts,apps/quranflow-web/public/icons/icon-72x72.png,apps/quranflow-web/src/app/services/time-format.types.ts,apps/quranflow-web/src/app/pages/quran/components/surah-detail.component.css,apps/quranflow-web/src/app/pages/prayer/components/masjid-list/masjid-list.component.css,apps/quranflow-web/src/app/services/quran-api.types.ts,apps/quranflow-web/src/app/shared/components/hero-header/hero-header.component.css,apps/quranflow-web/ngsw-config.json,apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.component.css,apps/quranflow-web/src/app/pages/quran/quran.component.ts,apps/quranflow-web/public/icons/icon-512x512.png,apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.constants.ts,apps/quranflow-web/src/app/shared/components/bottom-nav/bottom-nav.component.css,apps/quranflow-web/src/app/pages/prayer/components/prayer-list/prayer-list.component.css,apps/quranflow-web/src/app/pages/prayer/prayer.component.ts,apps/quranflow-web/src/app/pages/settings/settings.component.css,apps/quranflow-web/src/app/pages/qibla/components/qibla-compass.component.css,apps/quranflow-web/src/app/services/quran-api.service.spec.ts,apps/quranflow-web/src/app/services/permissions.service.ts,apps/quranflow-web/src/app/app.routes.ts,apps/quranflow-web/src/app/services/prayer-time.service.ts,apps/quranflow-web/public/Qibla.svg,apps/quranflow-web/public/icons/icon-152x152.png,apps/quranflow-web/src/app/shared/components/connection-error/connection-error.component.ts,apps/quranflow-web/src/app/core/location.util.ts,apps/quranflow-web/src/app/pages/quran/components/surah-list.component.ts,apps/quranflow-web/src/app/pages/qibla/qibla.component.css,apps/quranflow-web/public/favicon.ico,apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.component.ts,apps/quranflow-web/src/app/core/logger.util.ts,apps/quranflow-web/src/app/pages/prayer/components/trajectory/prayer-trajectory.utils.ts,apps/quranflow-web/src/app/services/masjid.service.ts,apps/quranflow-web/src/app/services/background-sync.service.ts,apps/quranflow-web/src/app/app.css,apps/quranflow-web/src/app/pages/prayer/components/radius-filter/radius-filter.component.ts,apps/quranflow-web/public/notification-handler.js,apps/quranflow-web/src/app/app.ts,apps/quranflow-web/src/app/shared/components/loading-spinner/loading-spinner.component.css,apps/quranflow-web/public/manifest.webmanifest,apps/quranflow-web/public/icons/icon-144x144.png,apps/quranflow-web/src/app/pages/qibla/components/qibla-compass.component.ts,apps/quranflow-web/src/app/pages/settings/settings.component.spec.ts,apps/quranflow-web/src/app/app.spec.ts,apps/quranflow-web/src/app/shared/components/offline-banner/offline-banner.component.css,apps/quranflow-web/src/app/pages/prayer/prayer.component.html,apps/quranflow-web/src/app/pages/quran/components/audio-player.component.ts,apps/quranflow-web/src/app/services/user-store.service.ts,apps/quranflow-web/public/icons/icon-96x96.png,apps/quranflow-web/src/app/shared/components/hero-header/hero-header.component.html,apps/quranflow-web/src/app/pages/settings/settings.component.html,apps/quranflow-web/src/app/pages/prayer/services/prayer-trajectory.service.ts,apps/quranflow-web/src/app/pages/quran/components/audio-player.component.html,apps/quranflow-web/src/app/pages/prayer/components/masjid-list/masjid-list.component.ts,apps/quranflow-web/src/app/app.html,apps/quranflow-web/src/app/store/prayer-time.store.ts,apps/quranflow-web/src/app/pages/qibla/qibla.component.ts,apps/quranflow-web/src/app/shared/components/bottom-nav/bottom-nav.component.html,apps/quranflow-web/src/app/services/prayer-time.service.spec.ts,apps/quranflow-web/src/app/core/error-handler.service.ts,apps/quranflow-web/src/app/services/settings.service.ts,apps/quranflow-web/src/app/pages/qibla/qibla.component.spec.ts,apps/quranflow-web/src/app/pages/settings/settings.component.ts,apps/quranflow-web/src/app/pages/quran/components/surah-detail.component.html,apps/quranflow-web/public/icons/icon-192x192.png,apps/quranflow-web/src/app/pages/prayer/prayer.component.spec.ts,apps/quranflow-web/src/app/pages/prayer/components/radius-filter/radius-filter.component.html,apps/quranflow-web/src/app/pages/prayer/prayer.component.css,apps/quranflow-web/src/app/shared/components/connection-error/connection-error.component.html
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.342Z - [REQUEST]: 
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.343Z - Time taken for 'hash changed files from watcher' 1.3474999999998545ms
+Time for 'nx/core/package-json:createNodes' 0.2748329999994894
+Time for 'nx/core/project-json:createNodes' 0.31970800000090094
+Time for 'nx-angular-json-plugin:createNodes' 0.46587499999986903
+Time for '@nx/angular/plugin:createNodes' 1.412666000000172
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 5.20770900000025
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.356Z - Time taken for 'build-project-configs' 9.72870900000089ms
+Time for 'build typescript dependencies' 9.502457999999024
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.380Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.380Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.380Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:44:52.380Z - Time taken for 'total execution time for createProjectGraph()' 25.858000000000175ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.803Z - [WATCHER]: apps/quranflow-web/project.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.803Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.804Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.857Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.858Z - [WATCHER]: apps/quranflow-web/project.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.858Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.906Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.906Z - [REQUEST]: apps/quranflow-web/project.json
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.906Z - [REQUEST]: 
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.908Z - Time taken for 'hash changed files from watcher' 0.4323340000009921ms
+Time for 'nx-angular-json-plugin:createNodes' 0.16762500000186265
+Time for 'nx/core/package-json:createNodes' 0.20320799999899464
+Time for 'nx/core/project-json:createNodes' 0.6179159999992407
+Time for '@nx/angular/plugin:createNodes' 1.208041999998386
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 5.052958000000217
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.923Z - Time taken for 'build-project-configs' 11.543125000000146ms
+Time for 'build typescript dependencies' 5.467333000000508
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.944Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.944Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:01.944Z - Time taken for 'total execution time for createProjectGraph()' 23.10099999999875ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.616Z - [WATCHER]: apps/quranflow-web/tsconfig.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.617Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.617Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.674Z - [WATCHER]: apps/quranflow-web/tsconfig.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.674Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.674Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.719Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.719Z - [REQUEST]: apps/quranflow-web/tsconfig.json
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.719Z - [REQUEST]: 
+Time for 'nx-angular-json-plugin:createNodes' 0.2102500000000873
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.722Z - Time taken for 'hash changed files from watcher' 0.3087500000001455ms
+Time for 'nx/core/package-json:createNodes' 0.18762499999866122
+Time for 'nx/core/project-json:createNodes' 0.15979100000186008
+Time for '@nx/angular/plugin:createNodes' 2.2927080000008573
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 6.111124999999447
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.735Z - Time taken for 'build-project-configs' 10.60858300000109ms
+Time for 'build typescript dependencies' 1.2722079999984999
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.755Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.755Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.756Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:04.756Z - Time taken for 'total execution time for createProjectGraph()' 22.7288750000007ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.618Z - [WATCHER]: apps/quranflow-web/tsconfig.app.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.618Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.618Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.670Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.670Z - [WATCHER]: apps/quranflow-web/tsconfig.app.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.670Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.720Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.720Z - [REQUEST]: apps/quranflow-web/tsconfig.app.json
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.720Z - [REQUEST]: 
+Time for 'nx-angular-json-plugin:createNodes' 0.14858300000196323
+Time for 'nx/core/package-json:createNodes' 0.24499999999898137
+Time for 'nx/core/project-json:createNodes' 0.13095800000155577
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.722Z - Time taken for 'hash changed files from watcher' 0.21687499999825377ms
+Time for '@nx/angular/plugin:createNodes' 1.5280000000020664
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 4.2430420000018785
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.732Z - Time taken for 'build-project-configs' 8.434499999999389ms
+Time for 'build typescript dependencies' 1.2009579999976268
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.743Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.743Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.743Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:06.743Z - Time taken for 'total execution time for createProjectGraph()' 12.138083000001643ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:07.995Z - [WATCHER]: apps/quranflow-web/tsconfig.spec.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:07.995Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:07.995Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.049Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.050Z - [WATCHER]: apps/quranflow-web/tsconfig.spec.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.050Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.095Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.095Z - [REQUEST]: apps/quranflow-web/tsconfig.spec.json
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.095Z - [REQUEST]: 
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.096Z - Time taken for 'hash changed files from watcher' 0.28962500000125146ms
+Time for 'nx-angular-json-plugin:createNodes' 0.17383399999744142
+Time for 'nx/core/project-json:createNodes' 0.2880829999994603
+Time for 'nx/core/package-json:createNodes' 0.1900420000019949
+Time for '@nx/angular/plugin:createNodes' 1.194707999999082
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 4.397417000000132
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.108Z - Time taken for 'build-project-configs' 8.854624999999942ms
+Time for 'build typescript dependencies' 1.3123330000016722
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.118Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.118Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.118Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:08.118Z - Time taken for 'total execution time for createProjectGraph()' 11.981167000001733ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.308Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.309Z - [WATCHER]: tsconfig.base.json was created or restored
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.309Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.410Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.410Z - [REQUEST]: tsconfig.base.json
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.410Z - [REQUEST]: 
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.411Z - Time taken for 'hash changed files from watcher' 0.21499999999650754ms
+Time for 'nx/core/project-json:createNodes' 0.17124999999941792
+Time for 'nx-angular-json-plugin:createNodes' 0.522000000004482
+Time for 'nx/core/package-json:createNodes' 0.432874999998603
+Time for '@nx/angular/plugin:createNodes' 1.256999999997788
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 4.21337499999936
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.422Z - Time taken for 'build-project-configs' 8.172500000000582ms
+Time for 'build typescript dependencies' 1.3798749999987194
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.435Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.435Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.435Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:14.435Z - Time taken for 'total execution time for createProjectGraph()' 14.132041999997455ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.386Z - [WATCHER]: angular.json was modified
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.386Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.386Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.589Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.589Z - [REQUEST]: angular.json
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.589Z - [REQUEST]: 
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.590Z - Time taken for 'hash changed files from watcher' 0.19129200000315905ms
+Time for 'nx/core/package-json:createNodes' 0.1928330000009737
+Time for 'nx/core/project-json:createNodes' 0.16391699999803677
+Time for 'nx-angular-json-plugin:createNodes' 0.17045900000084657
+Time for '@nx/angular/plugin:createNodes' 1.5766660000008414
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 4.186999999998079
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.601Z - Time taken for 'build-project-configs' 8.318833000004815ms
+Time for 'build typescript dependencies' 1.0997090000018943
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.612Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.612Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:26.612Z - Time taken for 'total execution time for createProjectGraph()' 12.461416999998619ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.185Z - [WATCHER]: tsconfig.json was modified
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.185Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.185Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.588Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.588Z - [REQUEST]: tsconfig.json
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.588Z - [REQUEST]: 
+Time for 'nx-angular-json-plugin:createNodes' 0.15270800000143936
+Time for 'nx/core/package-json:createNodes' 0.19262499999604188
+Time for 'nx/core/project-json:createNodes' 0.13216600000305334
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.593Z - Time taken for 'hash changed files from watcher' 0.7327080000031856ms
+Time for '@nx/angular/plugin:createNodes' 2.3352500000037253
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 7.581082999997307
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.617Z - Time taken for 'build-project-configs' 17.03691699999763ms
+Time for 'build typescript dependencies' 4.778666999998677
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.660Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.661Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.661Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:33.661Z - Time taken for 'total execution time for createProjectGraph()' 48.09270899999683ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:45.280Z - [WATCHER]: apps/quranflow-web/tsconfig.json was modified
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:45.280Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:45.280Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.081Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.082Z - [REQUEST]: apps/quranflow-web/tsconfig.json
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.082Z - [REQUEST]: 
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.084Z - Time taken for 'hash changed files from watcher' 0.4507500000036089ms
+Time for 'nx-angular-json-plugin:createNodes' 0.4450419999920996
+Time for 'nx/core/package-json:createNodes' 0.5057919999962905
+Time for 'nx/core/project-json:createNodes' 0.6822079999983544
+Time for '@nx/angular/plugin:createNodes' 2.576499999995576
+Time for 'nx/js/dependencies-and-lockfile:createNodes' 8.303916999997455
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.104Z - Time taken for 'build-project-configs' 15.63145899999654ms
+Time for 'build typescript dependencies' 1.5174580000020796
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.124Z - [SYNC]: collect registered sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.124Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.124Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:45:46.124Z - Time taken for 'total execution time for createProjectGraph()' 22.664290999993682ms
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:46:10.010Z - [WATCHER]: package.json was modified
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:46:10.010Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:46:10.010Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:46:10.185Z - [WATCHER]: Processing file changes in outputs
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:46:10.185Z - [WATCHER]: Stopping the watcher for /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran (sources)
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:46:10.185Z - [WATCHER]: Stopping the watcher for /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran (outputs)
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:46:10.186Z - [NX-CONSOLE]: Cleaning up latest Nx installation from /private/var/folders/8f/5zpyymm12wnfryrdmfhg14nw0000gn/T/tmp-37392-lesfVFqxziNV
+[NX v22.3.3 Daemon Server] - 2026-01-06T08:46:10.186Z - Server stopped because: "LOCK_FILES_CHANGED"

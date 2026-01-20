@@ -1,0 +1,19 @@
+❯ Building...
+✔ Building...
+Application bundle generation failed. [1.938 seconds] - 2026-01-06T08:50:05.571Z
+
+▲ [WARNING] TypeScript compiler option 'isolatedModules' may prevent the 'emitDecoratorMetadata' option from emitting all metadata. [plugin angular-compiler]
+
+  The 'emitDecoratorMetadata' option is not required by Angularand can be removed if not explictly required by the project.
+
+
+✘ [ERROR] TS6053: File '/Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/node_modules/@angular/service-worker/config.d.ts' not found.
+  The file is in the program because:
+    Root file specified for compilation [plugin angular-compiler]
+
+
+✘ [ERROR] TS6053: File '/Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/node_modules/@nx/angular/typings/src/index.d.ts' not found.
+  The file is in the program because:
+    Root file specified for compilation [plugin angular-compiler]
+
+

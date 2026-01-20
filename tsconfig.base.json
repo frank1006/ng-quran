@@ -1,0 +1,30 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "bundler",
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "lib": ["ES2022", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@quranflow-web/*": ["apps/quranflow-web/src/*"],
+      "@quran-domain": ["libs/quran-domain/src/index.ts"],
+      "@quran-domain/*": ["libs/quran-domain/src/*"],
+      "@prayer-domain": ["libs/prayer-domain/src/index.ts"],
+      "@prayer-domain/*": ["libs/prayer-domain/src/*"],
+      "@shared-utils": ["libs/shared-utils/src/index.ts"],
+      "@shared-utils/*": ["libs/shared-utils/src/*"],
+      "@shared-ui": ["libs/shared-ui/src/index.ts"],
+      "@shared-ui/*": ["libs/shared-ui/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
+

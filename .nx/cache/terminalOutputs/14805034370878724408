@@ -1,0 +1,24 @@
+[1m[31mERROR[39m[22m in [1m./src/app/app.controller.ts[39m[22m [1m[32m[39m[22m
+[1m[tsl] [1m[31mERROR[39m[22m[1m
+      TS5095: Option 'bundler' can only be used when 'module' is set to 'preserve' or to 'es2015' or later.[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/app/app.module.ts[39m[22m [1m[32m[39m[22m
+[1m[tsl] [1m[31mERROR[39m[22m[1m
+      TS5095: Option 'bundler' can only be used when 'module' is set to 'preserve' or to 'es2015' or later.[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/app/app.service.ts[39m[22m [1m[32m[39m[22m
+[1m[tsl] [1m[31mERROR[39m[22m[1m
+      TS5095: Option 'bundler' can only be used when 'module' is set to 'preserve' or to 'es2015' or later.[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/main.ts[39m[22m [1m[32m[39m[22m
+[1m[tsl] [1m[31mERROR[39m[22m[1m
+      TS5095: Option 'bundler' can only be used when 'module' is set to 'preserve' or to 'es2015' or later.[39m[22m
+
+[1m[31mERROR[39m[22m in [1m/Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/apps/quranflow-api/tsconfig.app.json[39m[22m
+[1m./src/main.ts[39m[22m [1m[32m/Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/apps/quranflow-api/tsconfig.app.json[39m[22m
+[1m[tsl] [1m[31mERROR[39m[22m[1m
+      TS5095: Option 'bundler' can only be used when 'module' is set to 'preserve' or to 'es2015' or later.[39m[22m
+
+[1m[31mERROR[39m[22m in [1munable to locate '/Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/apps/quranflow-api/src/assets/**/*' glob[39m[22m
+
+webpack compiled with [1m[31m6 errors[39m[22m (427891e92d577b7c)

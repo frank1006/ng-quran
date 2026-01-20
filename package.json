@@ -3,11 +3,13 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0",
-    "start:https": "ng serve --host 0.0.0.0 --port 4200 --ssl --ssl-cert ssl/server.crt --ssl-key ssl/server.key",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "start": "nx serve quranflow-web --host 0.0.0.0",
+    "start:https": "nx serve quranflow-web --host 0.0.0.0 --port 4200 --ssl --ssl-cert ssl/server.crt --ssl-key ssl/server.key",
+    "build": "nx build quranflow-web",
+    "build:api": "nx build quranflow-api",
+    "serve:api": "nx serve quranflow-api",
+    "watch": "nx build quranflow-web --watch --configuration development",
+    "test": "nx test quranflow-web"
   },
   "prettier": {
     "printWidth": 100,
@@ -31,16 +33,33 @@
     "@angular/platform-browser": "^21.0.0",
     "@angular/router": "^21.0.0",
     "@angular/service-worker": "^21.0.0",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/typeorm": "^11.0.0",
     "@vercel/analytics": "^1.6.1",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "pg": "^8.16.3",
+    "tslib": "^2.3.0",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@angular/build": "^21.0.4",
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.0",
     "@angular/pwa": "^21.0.4",
+    "@nestjs/common": "^11.1.11",
+    "@nestjs/core": "^11.1.11",
+    "@nestjs/platform-express": "^11.1.11",
+    "@nx/angular": "^22.3.3",
+    "@nx/js": "^22.3.3",
+    "@nx/nest": "^22.3.3",
+    "@nx/node": "^22.3.3",
+    "@nx/webpack": "^22.3.3",
+    "@nx/workspace": "^22.3.3",
     "jsdom": "^27.1.0",
+    "nx": "^22.3.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
   }

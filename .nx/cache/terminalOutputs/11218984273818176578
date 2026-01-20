@@ -1,0 +1,12 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names         | Raw size
+main.js             | main          |  1.89 MB | 
+styles.css          | styles        |  2.32 kB | 
+
+                    | Initial total |  1.89 MB
+
+Application bundle generation complete. [1.760 seconds] - 2026-01-06T08:55:17.677Z
+
+Output location: /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/dist/apps/quranflow-web
+

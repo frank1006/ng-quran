@@ -1,0 +1,192 @@
+.qibla-container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff9f0 0%, #ffffff 40%);
+}
+
+.qibla-content-section {
+  position: relative;
+  background: #ffffff;
+  border-radius: var(--border-radius-tl);
+  box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
+  padding: var(--space-xl);
+  max-width: var(--app-max-width);
+  margin-inline: auto;
+}
+
+.location-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.city-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  color: #1f1f1f;
+  letter-spacing: -0.03125rem; /* -0.5px */
+  margin: 0;
+}
+
+.location-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: #874d14;
+  text-transform: uppercase;
+  letter-spacing: 0.03125rem; /* 0.5px */
+  margin: 0;
+}
+
+.loading-state {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-md);
+  color: #6b7280;
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-md);
+  font-weight: 400;
+}
+
+.error-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: var(--space-xl) var(--space-md);
+}
+
+.error-content {
+  width: 100%;
+  max-width: 25rem; /* 400px */
+  text-align: center;
+}
+
+.error-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem; /* 24px */
+  font-weight: 700;
+  color: #1f1f1f;
+  margin: 0 0 var(--space-md) 0;
+  letter-spacing: -0.03125rem; /* -0.5px */
+}
+
+.error-message {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-md);
+  font-weight: 400;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 var(--space-xl) 0;
+}
+
+.error-button {
+  width: 100%;
+  margin-top: 0;
+}
+
+.qibla-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.instruction-section {
+  width: 100%;
+  max-width: 25rem; /* 400px */
+}
+
+.instruction-card {
+  padding: var(--space-md);
+  background: #ffffff;
+  border-radius: var(--border-radius-all);
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.instruction-card.facing {
+  border-color: #ffb030;
+  background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
+  box-shadow: 0 4px 20px rgba(255, 176, 48, 0.2);
+}
+
+.instruction-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: #1f1f1f;
+  margin: 0;
+}
+
+.instruction-card.facing .instruction-text {
+  color: #874d14;
+}
+
+.instruction-card.loading-card {
+  opacity: 0.7;
+}
+
+.instruction-card.loading-card .instruction-text {
+  color: #6b7280;
+  font-weight: 500;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.instruction-button {
+  width: 100%;
+  padding: var(--space-md);
+  background: #ffb030;
+  color: #1f1f1f;
+  border: 2px solid #ffb030;
+  border-radius: var(--border-radius-all);
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0.25rem 1.25rem rgba(255, 176, 48, 0.3);
+  text-align: center;
+}
+
+.instruction-button:hover:not(:disabled) {
+  background: #ff9900;
+  border-color: #ff9900;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 176, 48, 0.4);
+}
+
+.instruction-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 20px rgba(255, 176, 48, 0.3);
+}
+
+.instruction-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: #ffb030;
+  border-color: #ffb030;
+}
+
+.compass-error-message {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--border-radius-all);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  color: #991b1b;
+  text-align: center;
+  line-height: 1.5;
+}

@@ -1,0 +1,17 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names         | Raw size
+main.js             | main          |  1.89 MB | 
+styles.css          | styles        |  2.32 kB | 
+
+                    | Initial total |  1.89 MB
+
+Application bundle generation complete. [1.625 seconds] - 2026-01-06T08:50:20.048Z
+
+▲ [WARNING] TypeScript compiler option 'isolatedModules' may prevent the 'emitDecoratorMetadata' option from emitting all metadata. [plugin angular-compiler]
+
+  The 'emitDecoratorMetadata' option is not required by Angularand can be removed if not explictly required by the project.
+
+
+Output location: /Users/farhanbashir/Data-Drive/Dev/quran-app/ng-quran/dist/apps/quranflow-web
+

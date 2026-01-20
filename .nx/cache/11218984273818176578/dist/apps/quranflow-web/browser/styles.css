@@ -1,0 +1,105 @@
+/* apps/quranflow-web/src/styles.css */
+:root {
+  --app-max-width: 52rem;
+  --space-xxs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --font-xs: 0.75rem;
+  --font-sm: 0.875rem;
+  --font-md: 1rem;
+  --font-lg: 1.125rem;
+  --font-xl: 1.375rem;
+  --font-2xl: 2rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --border-radius-all: var(--radius-xl);
+  --border-radius-tl: var(--radius-xl) var(--radius-xl) 0 0;
+}
+@media (max-width: 410px) {
+  :root {
+    --font-xs: 0.6875rem;
+    --font-sm: 0.8125rem;
+    --font-md: 0.9375rem;
+    --font-lg: 1rem;
+    --font-xl: 1.25rem;
+    --font-2xl: 1.75rem;
+  }
+}
+@media (max-width: 375px) {
+  :root {
+    --font-xs: 0.625rem;
+    --font-sm: 0.75rem;
+    --font-md: 0.875rem;
+    --font-lg: 0.9375rem;
+    --font-xl: 1.125rem;
+    --font-2xl: 1.5rem;
+  }
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+}
+input,
+textarea,
+[contenteditable] {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  touch-action: auto;
+  -ms-touch-action: auto;
+}
+body {
+  font-family: "Poppins", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #fff9f0;
+  color: #1f1f1f;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+html {
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+}
+html,
+body,
+.main {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+.main {
+  min-height: 100dvh;
+  min-height: calc(100dvh + env(safe-area-inset-top, 0));
+  background:
+    linear-gradient(
+      180deg,
+      #fff9f0 0%,
+      #ffffff 40%);
+  background-attachment: fixed;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0));
+  font-family: "Poppins", sans-serif;
+  max-width: var(--app-max-width);
+  margin-inline: auto;
+  touch-action: manipulation;
+}
+
+/* angular:styles/global:styles */
+/*# sourceMappingURL=styles.css.map */

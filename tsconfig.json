@@ -24,10 +24,20 @@
   "files": [],
   "references": [
     {
-      "path": "./tsconfig.app.json"
+      "path": "./apps/quranflow-web"
     },
     {
-      "path": "./tsconfig.spec.json"
+      "path": "./apps/quranflow-api"
+    },
+    {
+      "path": "./libs/quran-domain"
+    },
+    {
+      "path": "./libs/prayer-domain"
+    },
+    {
+      "path": "./libs/shared-utils"
     }
-  ]
+  ],
+  "extends": "./tsconfig.base.json"
 }

@@ -1,0 +1,146 @@
+{
+  "configVersion": 1,
+  "timestamp": 1767689420047,
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/background-sync-handler.js",
+        "/favicon.ico",
+        "/index.html",
+        "/main.js",
+        "/manifest.webmanifest",
+        "/notification-handler.js",
+        "/offline.html",
+        "/styles.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/Qibla.svg",
+        "/icons/icon-128x128.png",
+        "/icons/icon-144x144.png",
+        "/icons/icon-152x152.png",
+        "/icons/icon-192x192.png",
+        "/icons/icon-384x384.png",
+        "/icons/icon-512x512.png",
+        "/icons/icon-72x72.png",
+        "/icons/icon-96x96.png",
+        "/kaaba.svg"
+      ],
+      "patterns": [
+        "https:\\/\\/fonts\\.googleapis\\.com\\/.*",
+        "https:\\/\\/fonts\\.gstatic\\.com\\/.*"
+      ]
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "prayer-times-api",
+      "patterns": [
+        "https:\\/\\/api\\.aladhan\\.com\\/v1\\/timings\\/.*"
+      ],
+      "strategy": "freshness",
+      "maxAge": 86400000,
+      "timeoutMs": 10000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    },
+    {
+      "name": "quran-api",
+      "patterns": [
+        "https:\\/\\/quranapi\\.pages\\.dev\\/api\\/.*"
+      ],
+      "strategy": "performance",
+      "maxAge": 2592000000,
+      "timeoutMs": 10000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    },
+    {
+      "name": "geocoding-api",
+      "patterns": [
+        "https:\\/\\/nominatim\\.openstreetmap\\.org\\/reverse[^/]*[^/]*"
+      ],
+      "strategy": "performance",
+      "maxAge": 604800000,
+      "timeoutMs": 5000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    }
+  ],
+  "hashTable": {
+    "/Qibla.svg": "b12528259949e2705a21c943231b29116905b181",
+    "/background-sync-handler.js": "5b5d8dfb050f431b55782daca20ac1243828f596",
+    "/favicon.ico": "216d0bad67340b9af6193e18b2b81c0db8bf77d1",
+    "/icons/icon-128x128.png": "7cd701ccc632482133f984de0434e6514850e658",
+    "/icons/icon-144x144.png": "f3ae575ec1803be1e23428afb8f63692b1fea002",
+    "/icons/icon-152x152.png": "775bebaaa6051f263dd9290894766e55082d1431",
+    "/icons/icon-192x192.png": "ab9f6a32bfb8518a755d423e7a07d39e369920aa",
+    "/icons/icon-384x384.png": "80b343c330b1e15c3549df69ce39dc1ee13cf58e",
+    "/icons/icon-512x512.png": "3020e1c6e883512de187bf8614fa4781176c5134",
+    "/icons/icon-72x72.png": "769e83d49165d45db0a2b9cbd496b081ac048eea",
+    "/icons/icon-96x96.png": "d6cf1d12e4457b79507bdbf0cb6e64521470f28e",
+    "/index.html": "6779cb9b0d672027cc0e2d778215529ff58929cb",
+    "/kaaba.svg": "9d58a592b87f00ae35677db5aa0a974af90b178c",
+    "/main.js": "24f2c0773c5d326891f860138b2b7b28b89a981b",
+    "/manifest.webmanifest": "9c60b9948a8125ee106273468ce631a16925bd3a",
+    "/notification-handler.js": "38aab8c07e7a55c6ac54ff626b4ea708f20dc725",
+    "/offline.html": "77735c289f1947baf15f0db565e83d99538ea222",
+    "/styles.css": "e28e01e428a679cfc4234b454f3a085327d6a63f"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/prayer$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/quran$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/qibla$"
+    },
+    {
+      "positive": true,
+      "regex": "^\\/profile$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}

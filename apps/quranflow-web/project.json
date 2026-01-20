@@ -1,0 +1,81 @@
+{
+  "name": "quranflow-web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/quranflow-web/src",
+  "prefix": "app",
+  "tags": ["type:app", "scope:web"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/quranflow-web",
+        "index": "apps/quranflow-web/src/index.html",
+        "browser": "apps/quranflow-web/src/main.ts",
+        "polyfills": [],
+        "tsConfig": "apps/quranflow-web/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/quranflow-web/public"
+          }
+        ],
+        "styles": [
+          "apps/quranflow-web/src/styles.css"
+        ],
+        "serviceWorker": "apps/quranflow-web/ngsw-config.json"
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kB",
+              "maximumError": "1MB"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "12kB",
+              "maximumError": "15kB"
+            }
+          ],
+          "outputHashing": "all",
+          "optimization": {
+            "scripts": true,
+            "styles": {
+              "minify": true,
+              "inlineCritical": true
+            },
+            "fonts": true
+          },
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "quranflow-web:build:production"
+        },
+        "development": {
+          "buildTarget": "quranflow-web:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "test": {
+      "executor": "@angular/build:unit-test"
+    }
+  }
+}
+
