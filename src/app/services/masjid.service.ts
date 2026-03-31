@@ -545,6 +545,39 @@ export class MasjidService {
   }
 
   /**
+   * Deduplicate nearby masjids that are likely the same physical place.
+   *
+   * OSM often stores one mosque as both a node (pin) and a way/relation
+   * (building outline). The node usually has no name tag, so the service
+   * assigns it the "Masjid" fallback. Both end up at the same displayed
+   * distance (already rounded to 0.1 km by processOverpassResponse).
+   *
+   * Rule: if a named entry and a "Masjid"-fallback entry share the same
+   * rounded distance, the fallback is dropped. Entries with real names are
+   * always kept, and fallbacks are kept only when no named entry exists at
+   * that distance.
+   */
+  private deduplicateByLocation(masjids: Masjid[]): Masjid[] {
+    const FALLBACK_NAME = 'Masjid';
+
+    // Collect every distance value that has at least one named entry.
+    const distancesWithName = new Set<number>();
+    for (const m of masjids) {
+      if (m.name !== FALLBACK_NAME && m.distance !== undefined) {
+        distancesWithName.add(m.distance);
+      }
+    }
+
+    // Drop fallback entries whose distance is already covered by a named entry.
+    return masjids.filter(m => {
+      if (m.name === FALLBACK_NAME && m.distance !== undefined) {
+        return !distancesWithName.has(m.distance);
+      }
+      return true;
+    });
+  }
+
+  /**
    * Process Overpass API response and convert to Masjid objects
    */
   private async processOverpassResponse(
@@ -617,7 +650,7 @@ export class MasjidService {
       masjids.push(masjid);
     }
 
-    return masjids;
+    return this.deduplicateByLocation(masjids);
   }
 
   /**

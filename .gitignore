@@ -1,5 +1,8 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# Local documentation (implementation notes, reviews, summaries)
+/.docs/
+
 # Compiled output
 /dist
 /tmp
@@ -29,6 +32,7 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
+/.nx/
 /.angular/cache
 .sass-cache/
 /connect.lock
