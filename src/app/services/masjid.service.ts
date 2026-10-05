@@ -81,12 +81,13 @@ export class MasjidService {
   private readonly DEFAULT_RADIUS_KM = 1; // Default 5km radius
   private readonly MAX_RADIUS_KM = 50; // Maximum 50km radius
   private readonly MIN_RADIUS_KM = 1; // Minimum 1km radius
-  private readonly REQUEST_TIMEOUT_MS = 12000; // Per-endpoint limit before trying the next one
+  private readonly REQUEST_TIMEOUT_MS = 12000; // Per-endpoint limit
+  private readonly STAGGER_MS = 3000; // Start the next endpoint if no answer yet
   
   // Cache configuration
   private readonly STORAGE_KEY = 'masjid-cache';
   private readonly CACHE_VERSION = '1.0.0';
-  private readonly CACHE_EXPIRY_HOURS = 24; // Cache expires after 24 hours
+  private readonly CACHE_EXPIRY_HOURS = 24 * 7; // Mosques rarely change; keep results for 7 days
   private readonly CACHE_PRECISION = 2; // Round coordinates to 2 decimal places for cache key
   private readonly inMemoryCache: Map<string, MasjidCacheEntry> = new Map();
   
@@ -419,8 +420,9 @@ export class MasjidService {
   }
 
   /**
-   * Try each Overpass endpoint once, in order, until one returns data.
-   * Each attempt is cut off after REQUEST_TIMEOUT_MS so a dead server can't stall the search.
+   * Query the Overpass endpoints with a staggered race: start the first, start the next one
+   * if there's no answer within STAGGER_MS (or immediately when one fails), and take the first
+   * successful response. Busy servers then cost ~3s instead of a full timeout.
    */
   private tryEndpointsSequentially(
     query: string,
@@ -429,56 +431,93 @@ export class MasjidService {
     radiusKm: number,
     abortSignal?: AbortSignal
   ): Observable<Masjid[]> {
-    const run = async (): Promise<Masjid[]> => {
-      let lastError = '';
+    const urls = this.OVERPASS_API_URLS;
 
-      for (const apiUrl of this.OVERPASS_API_URLS) {
-        if (abortSignal?.aborted) {
-          throw new Error('REQUEST_ABORTED');
-        }
+    const run = new Promise<Masjid[]>((resolve, reject) => {
+      if (abortSignal?.aborted) {
+        reject(new Error('REQUEST_ABORTED'));
+        return;
+      }
 
-        // Abort this attempt on timeout, or when the caller cancels the whole search
+      const attempts: AbortController[] = [];
+      let nextIndex = 0;
+      let pending = 0;
+      let settled = false;
+      let staggerTimer: ReturnType<typeof setTimeout> | undefined;
+
+      const finish = (settle: () => void) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(staggerTimer);
+        attempts.forEach(attempt => attempt.abort()); // stop the slower servers
+        abortSignal?.removeEventListener('abort', onCallerAbort);
+        settle();
+      };
+      const onCallerAbort = () => finish(() => reject(new Error('REQUEST_ABORTED')));
+      abortSignal?.addEventListener('abort', onCallerAbort);
+
+      const launch = () => {
+        if (settled || nextIndex >= urls.length) return;
+        const apiUrl = urls[nextIndex++];
         const attempt = new AbortController();
-        const timer = setTimeout(() => attempt.abort(), this.REQUEST_TIMEOUT_MS);
-        const onCallerAbort = () => attempt.abort();
-        abortSignal?.addEventListener('abort', onCallerAbort);
+        attempts.push(attempt);
+        pending++;
 
-        try {
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `data=${encodeURIComponent(query)}`,
-            signal: attempt.signal,
-          });
-          if (!response.ok) {
-            lastError = `HTTP ${response.status}`;
-            continue;
+        clearTimeout(staggerTimer);
+        staggerTimer = setTimeout(launch, this.STAGGER_MS);
+
+        this.fetchFromEndpoint(apiUrl, query, latitude, longitude, attempt).then(
+          masjids => finish(() => resolve(masjids)),
+          error => {
+            pending--;
+            if (settled) return;
+            if (isDevMode()) {
+              console.warn(`Overpass endpoint failed (${error}): ${apiUrl}`);
+            }
+            if (nextIndex < urls.length) {
+              launch(); // don't wait for the stagger when a server has already failed
+            } else if (pending === 0) {
+              finish(() => reject(new Error(navigator.onLine
+                ? 'Mosque search servers are busy. Please try again in a few moments.'
+                : 'Network error. Please check your internet connection.')));
+            }
           }
-          const data: OverpassResponse = await response.json();
-          const masjids = await this.processOverpassResponse(data, latitude, longitude);
-          return masjids.sort((a, b) => (a.distance || 0) - (b.distance || 0));
-        } catch (error) {
-          if (abortSignal?.aborted) {
-            throw new Error('REQUEST_ABORTED');
-          }
-          lastError = attempt.signal.aborted ? 'timeout' : String(error);
-        } finally {
-          clearTimeout(timer);
-          abortSignal?.removeEventListener('abort', onCallerAbort);
-        }
+        );
+      };
 
-        if (isDevMode()) {
-          console.warn(`Overpass endpoint failed (${lastError}): ${apiUrl}`);
-        }
+      launch();
+    });
+
+    return from(run);
+  }
+
+  /** One Overpass request, cut off after REQUEST_TIMEOUT_MS or when the attempt is aborted. */
+  private async fetchFromEndpoint(
+    apiUrl: string,
+    query: string,
+    latitude: number,
+    longitude: number,
+    attempt: AbortController
+  ): Promise<Masjid[]> {
+    const timer = setTimeout(() => attempt.abort(), this.REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `data=${encodeURIComponent(query)}`,
+        signal: attempt.signal,
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
-
-      if (!navigator.onLine) {
-        throw new Error('Network error. Please check your internet connection.');
-      }
-      throw new Error('Mosque search servers are busy. Please try again in a few moments.');
-    };
-
-    return from(run());
+      const data: OverpassResponse = await response.json();
+      const masjids = await this.processOverpassResponse(data, latitude, longitude);
+      return masjids.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+    } catch (error) {
+      throw attempt.signal.aborted ? new Error('timeout') : error;
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   /**
