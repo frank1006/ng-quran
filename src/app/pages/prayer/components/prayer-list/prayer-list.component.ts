@@ -14,6 +14,7 @@ interface PrayerItem {
   time: string;
   key: string;
   isActive: boolean;
+  hasPassed?: boolean;
 }
 
 @Component({
@@ -36,7 +37,7 @@ interface PrayerItem {
       <div class="prayer-list-container">
         <div class="prayer-list">
           @for (prayer of prayers(); track prayer.key) {
-            <div class="prayer-card" [class.active]="prayer.isActive">
+            <div class="prayer-card" [class.active]="prayer.isActive" [class.passed]="prayer.hasPassed">
               <div class="prayer-info">
                 <h3 class="prayer-title">{{ prayer.name }}</h3>
                 <p class="prayer-time">{{ prayer.time }}</p>

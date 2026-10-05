@@ -1,7 +1,7 @@
 .prayer-trajectory {
   position: absolute;
   /* Sit above the white sheet that overlaps the bottom of the hero */
-  bottom: var(--space-lg);
+  bottom: var(--trajectory-bottom, var(--space-lg));
   left: 0;
   right: 0;
   z-index: 3;

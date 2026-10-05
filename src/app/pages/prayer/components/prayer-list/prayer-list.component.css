@@ -43,22 +43,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 3.5rem;
   padding: var(--space-xs) var(--space-lg);
   background: var(--color-surface);
-  border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.prayer-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-border);
+  transition: border-color 0.3s ease;
 }
 
 .prayer-card.active {
-  border-color: var(--color-primary);
-  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  border: 2.5px solid var(--color-primary);
+}
+
+/* Prayers earlier today are muted */
+.prayer-card.passed .prayer-title,
+.prayer-card.passed .prayer-time {
+  color: var(--color-text-subtle);
+  font-weight: 500;
 }
 
 .prayer-info {

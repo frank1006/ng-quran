@@ -1,9 +1,10 @@
 .hero-section {
-  height: 14.25rem; /* 228px */
+  /* Pages can resize the hero via --hero-height / --hero-overlap / --hero-bg */
+  height: var(--hero-height, 14.25rem); /* 228px default */
   padding: var(--space-lg) var(--space-xl);
-  margin-bottom: calc(-1 * var(--space-lg));
+  margin-bottom: calc(-1 * var(--hero-overlap, var(--space-lg)));
   position: relative;
-  background: var(--hero-gradient);
+  background: var(--hero-bg, var(--hero-gradient));
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -17,7 +18,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0.6;
+  opacity: var(--hero-decor-opacity, 0.6);
 }
 
 .curve-timeline {

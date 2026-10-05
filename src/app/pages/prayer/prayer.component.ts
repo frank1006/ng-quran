@@ -24,6 +24,8 @@ interface PrayerItem {
   time: string;
   key: keyof PrayerTimings;
   isActive: boolean;
+  /** Earlier today than the current prayer (shown muted) */
+  hasPassed?: boolean;
 }
 
 const TIME_UPDATE_INTERVAL_MS = 1000;
@@ -217,6 +219,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
       const displayIndex = prayerList.findIndex(p => p.name === lastPassedPrayer.name);
       if (displayIndex >= 0) {
         prayerList[displayIndex].isActive = true;
+        prayerList.slice(0, displayIndex).forEach(p => (p.hasPassed = true));
       }
     } else {
       if (prayerList.length > 0) {

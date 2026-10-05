@@ -1,10 +1,18 @@
+/* Taller hero that fades into the page; the arc gets its own space below the title */
+app-hero-header {
+  --hero-height: 19rem;
+  --hero-overlap: 0px;
+  --hero-decor-opacity: 0;
+  --hero-bg: linear-gradient(180deg, var(--color-bg) 0%, var(--color-primary-soft) 55%, var(--color-surface) 100%);
+  --trajectory-bottom: 0px;
+}
+
 .prayers {
   position: relative;
-  /* Fill down to the bottom nav so no background shows between card and nav */
-  min-height: calc(100dvh - 12.75rem);
-  background: var(--color-surface);
-  border-radius: var(--border-radius-tl);
-  box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
+  z-index: 4;
+  /* Pull the date header up so the TODAY | location pill sits on the arc's horizon */
+  margin-top: -3rem;
+  min-height: calc(100dvh - 17.75rem);
 }
 
 .current-prayer {
@@ -33,7 +41,7 @@
 
 .prayer-name {
   font-family: var(--font-body);
-  font-size: var(--font-2xl);
+  font-size: calc(var(--font-2xl) * 1.25);
   font-weight: 700;
   color: var(--color-text);
   letter-spacing: -0.03125rem; /* -0.5px */
@@ -52,11 +60,14 @@
 
 .time-remaining {
   font-family: var(--font-body);
-  text-transform: uppercase;
   font-size: var(--font-sm);
   font-weight: 500;
-  color: var(--color-accent-dark);
-  margin: 0;
+  color: var(--color-text-secondary);
+  width: fit-content;
+  margin: var(--space-xs) 0 0;
+  padding: 0.3rem 0.9rem;
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  border-radius: 999px;
 }
 
 /* Find Masjid Button in Hero Header */
