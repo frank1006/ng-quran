@@ -51,14 +51,14 @@
   justify-content: space-between;
   padding: var(--space-xs) var(--space-lg);
   background: var(--color-surface);
-  border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
-  border: 2px solid transparent;
+  /* Outlined rows, matching the prayer list */
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-border);
   transition: all 0.3s ease;
 }
 
 .prayer-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-border-strong);
 }
 
 .prayer-info {
