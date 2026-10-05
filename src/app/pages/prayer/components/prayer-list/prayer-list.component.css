@@ -58,8 +58,9 @@
 /* Prayers earlier today are muted */
 .prayer-card.passed .prayer-title,
 .prayer-card.passed .prayer-time {
-  color: var(--color-text-subtle);
-  font-weight: 500;
+  /* Readable grey, set apart from upcoming rows by the lighter weight */
+  color: var(--color-text-muted);
+  font-weight: 400;
 }
 
 .prayer-info {

@@ -19,7 +19,7 @@
   align-items: center;
   gap: var(--space-xxs);
   text-decoration: none;
-  color: var(--color-text-subtle);
+  color: var(--color-text-muted); /* 4.8:1 on white */
   transition: all 0.3s ease;
   padding: var(--space-sm) var(--space-md) var(--space-md);
   border-radius: var(--border-radius-tl);

@@ -1,10 +1,8 @@
 import { Routes } from '@angular/router';
 import { PrayerComponent } from './pages/prayer/prayer.component';
-import { QuranComponent } from './pages/quran/quran.component';
-import { SurahDetailComponent } from './pages/quran/components/surah-detail.component';
-import { QiblaComponent } from './pages/qibla/qibla.component';
-import { SettingsComponent } from './pages/settings/settings.component';
 
+// Prayer is the landing page and loads eagerly; other pages load on first visit
+// (the service worker still prefetches every chunk, so they work offline)
 export const routes: Routes = [
   {
     path: '',
@@ -17,19 +15,20 @@ export const routes: Routes = [
   },
   {
     path: 'quran',
-    component: QuranComponent
+    loadComponent: () => import('./pages/quran/quran.component').then(m => m.QuranComponent)
   },
   {
     path: 'quran/:surahId',
-    component: SurahDetailComponent
+    loadComponent: () =>
+      import('./pages/quran/components/surah-detail.component').then(m => m.SurahDetailComponent)
   },
   {
     path: 'qibla',
-    component: QiblaComponent
+    loadComponent: () => import('./pages/qibla/qibla.component').then(m => m.QiblaComponent)
   },
   {
     path: 'profile',
-    component: SettingsComponent
+    loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
   },
   {
     path: '**',
