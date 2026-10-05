@@ -1,45 +1,72 @@
 @if (visible() && audio.track(); as track) {
-  <div class="mini-player" role="region" aria-label="Quran player">
-    <div class="mini-progress" aria-hidden="true">
-      <span class="mini-progress-fill" [style.width.%]="progress()"></span>
+  @if (expanded()) {
+    <div class="player-card" id="quran-player-card" role="dialog" aria-label="Quran player">
+      <button type="button" class="card-info" (click)="openSurah()" [attr.aria-label]="'Open ' + track.chapterName + ', ayah ' + track.verse">
+        <span class="card-title">{{ track.chapterName }}</span>
+        <span class="card-subtitle">
+          Ayah {{ track.verse }} of {{ track.totalVerses }}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 18 6-6-6-6"></path>
+          </svg>
+        </span>
+      </button>
+
+      <div class="card-progress" aria-hidden="true">
+        <span class="card-progress-fill" [style.width.%]="progress()"></span>
+      </div>
+
+      <div class="card-controls">
+        <button type="button" class="card-button" (click)="audio.previous()" [disabled]="!audio.hasPrevious()" aria-label="Previous ayah">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 6.5v11a1 1 0 0 1-1.53.85L9.6 12.85a1 1 0 0 1 0-1.7l8.87-5.5A1 1 0 0 1 20 6.5z"></path></svg>
+        </button>
+
+        <button type="button" class="card-button card-play" (click)="audio.toggle()" [attr.aria-label]="audio.isPlaying() ? 'Pause' : 'Play'">
+          @if (audio.loadingVerse() !== null) {
+            <svg class="spinner" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"></path></svg>
+          } @else if (audio.isPlaying()) {
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+          } @else {
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"></path></svg>
+          }
+        </button>
+
+        <button type="button" class="card-button" (click)="audio.next()" [disabled]="!audio.hasNext()" aria-label="Next ayah">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 6.5v11a1 1 0 0 0 1.53.85l8.87-5.5a1 1 0 0 0 0-1.7L5.53 5.65A1 1 0 0 0 4 6.5z"></path></svg>
+        </button>
+
+        <button type="button" class="card-button card-stop" (click)="stop()" aria-label="Stop and close player">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>
+        </button>
+      </div>
     </div>
+  }
 
-    <button type="button" class="mini-info" (click)="openSurah()" [attr.aria-label]="'Open ' + track.chapterName + ', ayah ' + track.verse">
-      <span class="mini-icon" [class.playing]="audio.isPlaying()" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </span>
-      <span class="mini-text">
-        <span class="mini-title">{{ track.chapterName }}</span>
-        <span class="mini-subtitle">Ayah {{ track.verse }} of {{ track.totalVerses }}</span>
-      </span>
-    </button>
-
-    <button
-      type="button"
-      class="mini-button mini-play"
-      (click)="audio.toggle()"
-      [attr.aria-label]="audio.isPlaying() ? 'Pause' : 'Play'"
-    >
-      @if (audio.loadingVerse() !== null) {
-        <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-          <path d="M21 12a9 9 0 11-6.219-8.56"></path>
-        </svg>
-      } @else if (audio.isPlaying()) {
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <rect x="6" y="4" width="4" height="16" rx="1"></rect>
-          <rect x="14" y="4" width="4" height="16" rx="1"></rect>
-        </svg>
-      } @else {
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"></path>
-        </svg>
-      }
-    </button>
-
-    <button type="button" class="mini-button mini-close" (click)="audio.stop()" aria-label="Stop and close player">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+  <button
+    type="button"
+    class="player-fab"
+    [class.open]="expanded()"
+    (click)="toggleCard()"
+    [attr.aria-expanded]="expanded()"
+    aria-controls="quran-player-card"
+    [attr.aria-label]="(audio.isPlaying() ? 'Reciting ' : 'Paused: ') + track.chapterName + ', ayah ' + track.verse"
+  >
+    <svg class="fab-ring" viewBox="0 0 50 50" aria-hidden="true">
+      <circle class="fab-ring-track" cx="25" cy="25" r="23"></circle>
+      <circle
+        class="fab-ring-fill"
+        cx="25" cy="25" r="23"
+        [attr.stroke-dasharray]="ringLength"
+        [attr.stroke-dashoffset]="ringLength * (1 - progress() / 100)"
+      ></circle>
+    </svg>
+    @if (expanded()) {
+      <svg class="fab-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
         <path d="M18 6 6 18M6 6l12 12"></path>
       </svg>
-    </button>
-  </div>
+    } @else {
+      <span class="fab-bars" [class.playing]="audio.isPlaying()" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
+    }
+  </button>
 }

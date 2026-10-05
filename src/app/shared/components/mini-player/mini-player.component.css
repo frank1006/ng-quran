@@ -1,110 +1,157 @@
-.mini-player {
+/* Round button in the bottom-right corner, above the nav */
+.player-fab {
   position: fixed;
-  left: var(--space-md);
-  right: var(--space-md);
-  bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); /* above the bottom nav */
+  right: max(var(--space-md), calc((100vw - var(--app-max-width)) / 2 + var(--space-md)));
+  bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
   z-index: 150;
-  max-width: calc(var(--app-max-width) - 2 * var(--space-md));
-  margin-inline: auto;
+  width: 3.25rem;
+  height: 3.25rem;
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-sm);
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-text);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-primary-deep, var(--color-primary)) 35%, transparent);
+  cursor: pointer;
+  animation: pop 0.25s ease-out both;
+}
+
+.player-fab.open {
+  background: var(--color-surface);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* Progress around the edge of the button */
+.fab-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.fab-ring circle {
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.fab-ring-track {
+  stroke: color-mix(in srgb, var(--color-surface) 45%, transparent);
+}
+
+.fab-ring-fill {
+  stroke: var(--color-text);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+}
+
+.player-fab.open .fab-ring-track { stroke: var(--color-surface-muted); }
+.player-fab.open .fab-ring-fill { stroke: var(--color-primary); }
+
+/* Three bars that move while reciting */
+.fab-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 1.1rem;
+}
+
+.fab-bars span {
+  width: 3.5px;
+  height: 0.6rem;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: bottom;
+}
+
+.fab-bars span:nth-child(2) { height: 1rem; }
+
+.fab-bars.playing span { animation: bar 0.9s ease-in-out infinite; }
+.fab-bars.playing span:nth-child(2) { animation-delay: -0.3s; }
+.fab-bars.playing span:nth-child(3) { animation-delay: -0.6s; }
+
+/* Card that opens above the button */
+.player-card {
+  position: fixed;
+  right: max(var(--space-md), calc((100vw - var(--app-max-width)) / 2 + var(--space-md)));
+  bottom: calc(5.75rem + 3.25rem + var(--space-sm) + env(safe-area-inset-bottom, 0px));
+  z-index: 150;
+  width: min(17.5rem, calc(100vw - 2 * var(--space-md)));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-surface);
   border: 1px solid var(--color-surface-muted);
   border-radius: var(--radius-lg);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  animation: rise 0.25s ease-out both;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  transform-origin: bottom right;
+  animation: open 0.2s ease-out both;
 }
 
-.mini-progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
-}
-
-.mini-progress-fill {
-  display: block;
-  height: 100%;
-  background: var(--color-primary-deep, var(--color-primary));
-  transition: width 0.25s linear;
-}
-
-.mini-info {
-  flex: 1;
-  min-width: 0;
+.card-info {
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
   padding: 0;
   border: none;
   background: transparent;
   text-align: left;
-  cursor: pointer;
   font-family: var(--font-body);
+  cursor: pointer;
 }
 
-.mini-text {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.mini-title {
-  font-size: var(--font-sm);
-  font-weight: 600;
+.card-title {
+  max-width: 100%;
+  font-size: var(--font-lg);
+  font-weight: 700;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.mini-subtitle {
-  font-size: var(--font-xs, 0.75rem);
-  color: var(--color-text-secondary);
+.card-subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-accent-text);
 }
 
-/* Three bars that move while reciting */
-.mini-icon {
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: var(--radius-md, 0.5rem);
-  background: var(--color-primary-soft);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 3px;
-  padding-bottom: 0.65rem;
-}
-
-.mini-icon span {
-  width: 3px;
-  height: 0.5rem;
+.card-progress {
+  height: 3px;
   border-radius: 2px;
-  background: var(--color-accent-text);
-  transform-origin: bottom;
+  background: var(--color-surface-muted);
+  overflow: hidden;
 }
 
-.mini-icon span:nth-child(2) { height: 0.85rem; }
+.card-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.25s linear;
+}
 
-.mini-icon.playing span { animation: bar 0.9s ease-in-out infinite; }
-.mini-icon.playing span:nth-child(2) { animation-delay: -0.3s; }
-.mini-icon.playing span:nth-child(3) { animation-delay: -0.6s; }
+.card-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-.mini-button {
-  flex-shrink: 0;
+.card-button {
   width: 2.75rem;
   height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
   border: none;
   border-radius: 50%;
   background: transparent;
@@ -112,17 +159,24 @@
   cursor: pointer;
 }
 
-.mini-play {
+.card-button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.card-play {
+  width: 3.25rem;
+  height: 3.25rem;
   background: var(--color-primary);
 }
 
-.mini-close {
+.card-stop {
   color: var(--color-text-muted);
 }
 
 @media (hover: hover) {
-  .mini-close:hover { color: var(--color-text); }
-  .mini-play:hover { background: var(--color-primary-deep, var(--color-primary)); }
+  .card-button:not(:disabled):not(.card-play):hover { background: var(--color-surface-alt, var(--color-bg)); }
+  .card-play:hover { background: var(--color-primary-deep, var(--color-primary)); }
 }
 
 .spinner {
@@ -138,11 +192,16 @@
   to { transform: rotate(360deg); }
 }
 
-@keyframes rise {
-  from { opacity: 0; transform: translateY(0.5rem); }
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes open {
+  from { opacity: 0; transform: scale(0.85) translateY(0.5rem); }
   to { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mini-player, .mini-icon.playing span { animation: none; }
+  .player-fab, .player-card, .fab-bars.playing span { animation: none; }
 }
