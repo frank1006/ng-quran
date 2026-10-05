@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, effect, untracked, ViewChild, ElementRef, DestroyRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, effect, untracked, ViewChild, ElementRef, DestroyRef, inject, Injector, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -37,6 +37,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('versesContainer', { static: false }) versesContainerRef!: ElementRef<HTMLDivElement>;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private chapterId: number | null = null;
   private routeSubscription?: Subscription;
   private scrollHandler?: () => void;
@@ -62,6 +63,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       untracked(() => {
         if (!track || track.chapterId !== this.chapterId) return;
         this.selectedVerse.set(track.verse);
+        this.userStore.setLastReadPosition(track.chapterId, track.verse);
         if (!this.isRestoringState && !this.targetVerseFromFragment) {
           const timeoutId = window.setTimeout(() => {
             if (this.versesContainerRef?.nativeElement && !this.destroyRef.destroyed) {
@@ -295,6 +297,10 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         this.restoreState(chapterId);
         
         this.loading.set(false);
+        // On a first visit the verses render after this, so start tracking once they're there
+        afterNextRender(() => {
+          if (!this.scrollHandler) this.setupScrollTracking();
+        }, { injector: this.injector });
         
         // Check fragment again after chapter loads (in case it was set during navigation)
         const fragment = this.route.snapshot.fragment;
@@ -492,11 +498,29 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       this.scrollTimeout = window.setTimeout(() => {
         if (this.chapterId && !this.destroyRef.destroyed) {
           this.userStore.setScrollPosition(this.chapterId, container.scrollTop);
+          // The verse at the top of the screen is where "Continue reading" picks up
+          const verse = this.topVisibleVerse(container);
+          if (verse !== null) {
+            this.userStore.setLastReadPosition(this.chapterId, verse);
+          }
         }
       }, 150);
     };
 
     container.addEventListener('scroll', this.scrollHandler, { passive: true });
+  }
+
+  private topVisibleVerse(container: HTMLElement): number | null {
+    const top = container.getBoundingClientRect().top;
+    for (const item of Array.from(container.querySelectorAll<HTMLElement>('.verse-item'))) {
+      // First verse whose lower half is still on screen
+      const rect = item.getBoundingClientRect();
+      if (rect.top + rect.height / 2 > top) {
+        const verse = parseInt(item.id.replace('verse-', ''), 10);
+        return Number.isNaN(verse) ? null : verse;
+      }
+    }
+    return null;
   }
 
   protected scrollToVerse(verseNumber: number): void {

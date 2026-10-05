@@ -58,6 +58,27 @@
   }
 
   @if (!loading() && !error()) {
+    @if (continueReading(); as cont) {
+      <button type="button" class="continue-card" (click)="continueAt(cont.chapter.id, cont.verse)">
+        <span class="continue-text">
+          <span class="continue-label">Continue reading</span>
+          <span class="continue-names">
+            <span class="continue-title">{{ cont.chapter.transliteration }}</span>
+            <span class="continue-arabic">{{ cont.chapter.name }}</span>
+          </span>
+          <span class="continue-ayah">Ayah {{ cont.verse }} of {{ cont.chapter.total_verses }}</span>
+          <span class="continue-progress" aria-hidden="true">
+            <span class="continue-progress-fill" [style.width.%]="cont.percent"></span>
+          </span>
+        </span>
+        <span class="continue-go" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </span>
+      </button>
+    }
+
     <div class="surah-grid">
       @for (chapter of filteredChapters(); track chapter.id) {
         <button 

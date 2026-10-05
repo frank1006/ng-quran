@@ -52,6 +52,16 @@ export class SurahListComponent implements OnInit, OnDestroy {
 
   protected readonly selectedReciterId = computed(() => this.userStore.selectedReciterId());
 
+  /** Where the reader stopped last time, shown as a card above the list (hidden while searching) */
+  protected readonly continueReading = computed(() => {
+    const last = this.userStore.lastRead();
+    if (!last || this.searchQuery().trim()) return null;
+    const chapter = this.chapters().find(c => c.id === last.chapterId);
+    if (!chapter) return null;
+    const verse = Math.min(last.verseNumber, chapter.total_verses);
+    return { chapter, verse, percent: Math.round((verse / chapter.total_verses) * 100) };
+  });
+
   protected readonly filteredChapters = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     const allChapters = this.chapters();
@@ -148,6 +158,12 @@ export class SurahListComponent implements OnInit, OnDestroy {
     this.lastSurahId.set(chapterId);
     this.savePosition();
     this.router.navigate(['/quran', chapterId]);
+  }
+
+  protected continueAt(chapterId: number, verse: number): void {
+    this.lastSurahId.set(chapterId);
+    this.savePosition();
+    this.router.navigate(['/quran', chapterId], { fragment: `verse-${verse}` });
   }
 
   ngOnDestroy(): void {

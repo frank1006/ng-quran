@@ -12,6 +12,21 @@ export interface QuranTrack {
   verse: number;
 }
 
+/** Off: stop after the surah's last ayah. Surah: start it again. Ayah: loop the current ayah. */
+export type RepeatMode = 'off' | 'surah' | 'ayah';
+
+const REPEAT_KEY = 'quran-repeat';
+const REPEAT_ORDER: RepeatMode[] = ['off', 'surah', 'ayah'];
+
+function readRepeat(): RepeatMode {
+  try {
+    const saved = localStorage.getItem(REPEAT_KEY) as RepeatMode | null;
+    return saved && REPEAT_ORDER.includes(saved) ? saved : 'off';
+  } catch {
+    return 'off';
+  }
+}
+
 /**
  * Plays Quran recitation for the whole app, so it keeps going while the user moves between
  * pages. One audio element is shared; verses play on one after another until the surah ends.
@@ -29,6 +44,10 @@ export class QuranAudioService {
   readonly loadingVerse = signal<number | null>(null);
   readonly currentTime = signal(0);
   readonly duration = signal(0);
+  readonly repeat = signal<RepeatMode>(readRepeat());
+  readonly repeatLabel = computed(() =>
+    ({ off: 'Repeat off', surah: 'Repeating surah', ayah: 'Repeating ayah' })[this.repeat()]
+  );
 
   readonly hasPrevious = computed(() => (this.track()?.verse ?? 0) > 1);
   readonly hasNext = computed(() => {
@@ -131,6 +150,17 @@ export class QuranAudioService {
     }
   }
 
+  /** Off → repeat surah → repeat ayah → off */
+  cycleRepeat(): void {
+    const next = REPEAT_ORDER[(REPEAT_ORDER.indexOf(this.repeat()) + 1) % REPEAT_ORDER.length];
+    this.repeat.set(next);
+    try {
+      localStorage.setItem(REPEAT_KEY, next);
+    } catch {
+      // Storage blocked: the choice lasts until the app closes
+    }
+  }
+
   seek(seconds: number): void {
     if (this.audio) {
       this.audio.currentTime = seconds;
@@ -213,8 +243,9 @@ export class QuranAudioService {
    * That matters on a locked phone, where a paused page may not get to finish a slow fetch.
    */
   private prefetchNext(track: QuranTrack, reciterId: number): void {
-    if (track.verse < track.totalVerses) {
-      this.fetchUrl(reciterId, track.chapterId, track.verse + 1).catch(() => {});
+    const next = track.verse < track.totalVerses ? track.verse + 1 : this.repeat() === 'surah' ? 1 : null;
+    if (next !== null) {
+      this.fetchUrl(reciterId, track.chapterId, next).catch(() => {});
     }
   }
 
@@ -254,8 +285,14 @@ export class QuranAudioService {
 
   private onEnded(): void {
     const t = this.track();
-    if (t && t.verse < t.totalVerses) {
+    const repeat = this.repeat();
+    if (t && repeat === 'ayah' && this.audio) {
+      this.audio.currentTime = 0;
+      this.audio.play().catch(err => this.onPlayError(err));
+    } else if (t && t.verse < t.totalVerses) {
       this.load({ ...t, verse: t.verse + 1 }, true);
+    } else if (t && repeat === 'surah') {
+      this.load({ ...t, verse: 1 }, true);
     } else {
       // End of the surah: stay on the last verse, paused
       this.setPlaying(false);

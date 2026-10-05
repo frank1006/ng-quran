@@ -128,6 +128,12 @@
   cursor: not-allowed;
 }
 
+.control-button.active {
+  background: color-mix(in srgb, var(--color-primary-soft) 90%, transparent);
+  color: var(--color-accent-text);
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+
 .play-pause-button {
   width: 3rem;
   height: 3rem;

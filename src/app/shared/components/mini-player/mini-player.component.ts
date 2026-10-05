@@ -7,6 +7,9 @@ import { QuranAudioService } from '../../../services/quran-audio.service';
 /** Room the player button takes above the bottom nav; scroll areas add it to their bottom padding */
 const MINI_PLAYER_SPACE = '5rem';
 
+/** A recitation left paused this long away from its surah is put away, button and all */
+const PAUSED_DISMISS_MS = 5 * 60 * 1000;
+
 export function formatPlaybackTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const mins = Math.floor(seconds / 60);
@@ -52,6 +55,12 @@ export class MiniPlayerComponent {
   constructor() {
     effect(() => {
       if (!this.visible()) this.expanded.set(false);
+    });
+    effect(onCleanup => {
+      const idle = this.visible() && !this.audio.isPlaying() && this.audio.loadingVerse() === null;
+      if (!idle) return;
+      const timer = setTimeout(() => this.audio.stop(), PAUSED_DISMISS_MS);
+      onCleanup(() => clearTimeout(timer));
     });
     effect(() => {
       this.document.documentElement.style.setProperty('--mini-player-space', this.visible() ? MINI_PLAYER_SPACE : '0px');

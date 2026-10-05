@@ -19,10 +19,17 @@ export interface PlayerState {
 
 export type TranslationLanguage = 'english' | 'bengali' | 'urdu';
 
+/** The verse read most recently, in any surah */
+export interface LastRead {
+  chapterId: number;
+  verseNumber: number;
+}
+
 interface StoredUserData {
   selectedReciterId: number | null;
   bookmarks: Bookmark[];
   lastReadPositions: { [chapterId: number]: number };
+  lastRead: LastRead | null;
   playerStates: { [chapterId: number]: PlayerState };
   scrollPositions: { [chapterId: number]: number };
   timeFormat: TimeFormat | null;
@@ -44,6 +51,7 @@ export class UserStoreService {
     selectedReciterId: null,
     bookmarks: [],
     lastReadPositions: {},
+    lastRead: null,
     playerStates: {},
     scrollPositions: {},
     timeFormat: null,
@@ -55,6 +63,7 @@ export class UserStoreService {
   readonly selectedReciterId = computed(() => this.state().selectedReciterId);
   readonly bookmarks = computed(() => this.state().bookmarks);
   readonly lastReadPositions = computed(() => this.state().lastReadPositions);
+  readonly lastRead = computed(() => this.state().lastRead);
   readonly timeFormat = computed(() => this.state().timeFormat);
   readonly quranTranslationLanguage = computed(() => this.state().quranTranslationLanguage);
   readonly prayerScheduledNotifications = computed(() => this.state().prayerScheduledNotifications ?? []);
@@ -101,9 +110,13 @@ export class UserStoreService {
   }
 
   setLastReadPosition(chapterId: number, verseNumber: number): void {
-    const lastReadPositions = { ...this.state().lastReadPositions };
+    const current = this.state();
+    if (current.lastReadPositions[chapterId] === verseNumber && current.lastRead?.chapterId === chapterId) {
+      return;
+    }
+    const lastReadPositions = { ...current.lastReadPositions };
     lastReadPositions[chapterId] = verseNumber;
-    this.updateState({ lastReadPositions });
+    this.updateState({ lastReadPositions, lastRead: { chapterId, verseNumber } });
   }
 
   getLastReadPosition(chapterId: number): number | null {
@@ -180,6 +193,7 @@ export class UserStoreService {
         selectedReciterId: parsed.selectedReciterId ?? null,
         bookmarks: Array.isArray(parsed.bookmarks) ? parsed.bookmarks : [],
         lastReadPositions: this.validateObject(parsed.lastReadPositions, {}),
+        lastRead: this.validateLastRead(parsed.lastRead),
         playerStates: this.validateObject(parsed.playerStates, {}),
         scrollPositions: this.validateObject(parsed.scrollPositions, {}),
         timeFormat: this.validateTimeFormat(parsed.timeFormat),
@@ -208,6 +222,12 @@ export class UserStoreService {
     return value && typeof value === 'object' && !Array.isArray(value) ? value : defaultValue;
   }
 
+  private validateLastRead(value: any): LastRead | null {
+    return value && Number.isInteger(value.chapterId) && Number.isInteger(value.verseNumber)
+      ? { chapterId: value.chapterId, verseNumber: value.verseNumber }
+      : null;
+  }
+
   private validateTimeFormat(value: any): TimeFormat | null {
     return value === TimeFormat.TWELVE_HOUR || value === TimeFormat.TWENTY_FOUR_HOUR 
       ? value 
@@ -230,6 +250,7 @@ export class UserStoreService {
         selectedReciterId: null,
         bookmarks: [],
         lastReadPositions: {},
+        lastRead: null,
         playerStates: {},
         scrollPositions: {},
         timeFormat: null,
@@ -293,6 +314,7 @@ export class UserStoreService {
         selectedReciterId: migratedData.selectedReciterId ?? null,
         bookmarks: migratedData.bookmarks ?? [],
         lastReadPositions: migratedData.lastReadPositions ?? {},
+        lastRead: null,
         playerStates: migratedData.playerStates ?? {},
         scrollPositions: migratedData.scrollPositions ?? {},
         timeFormat: migratedData.timeFormat ?? null,
@@ -348,6 +370,7 @@ export class UserStoreService {
       selectedReciterId: null,
       bookmarks: [],
       lastReadPositions: {},
+      lastRead: null,
       playerStates: {},
       scrollPositions: {},
       timeFormat: null,
