@@ -610,7 +610,9 @@ export class NotificationService {
   private async removeScheduledNotification(prayerKey: string): Promise<void> {
     const scheduled = this.getScheduledNotifications();
     const filtered = scheduled.filter((n) => n.prayerKey !== prayerKey);
-    this.saveScheduledNotifications(filtered);
+    if (filtered.length !== scheduled.length) {
+      this.saveScheduledNotifications(filtered);
+    }
   }
 
   /**

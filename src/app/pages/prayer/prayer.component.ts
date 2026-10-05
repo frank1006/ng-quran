@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, effect, isDevMode } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, effect, isDevMode, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
@@ -111,7 +111,9 @@ export class PrayerComponent implements OnInit, OnDestroy {
       const date = this.currentDate();
       
       if (data && date) {
-        this.updateNotifications(data, date);
+        // Untracked: scheduling reads and writes notification state, which must not
+        // re-trigger this effect (that loop froze the page once notifications were allowed)
+        untracked(() => this.updateNotifications(data, date));
       }
     });
   }
