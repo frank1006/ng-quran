@@ -145,32 +145,15 @@ app-hero-header[data-weather="storm"]         { --hero-top: #e3e1eb; --hero-mid:
   margin: 0; /* Match prayer-name margin */
 }
 
-.find-masjid-button-hero .location-icon {
-  flex-shrink: 0;
-  color: inherit; /* Inherit from parent */
-  transition: color 0.3s ease;
-  width: 0.9em;
-  height: 0.9em;
+.find-masjid-button-hero .search-letter {
+  /* The magnifier stands in for the "a": letter-sized, on the baseline */
   display: inline-block;
-  vertical-align: 0.05em; /* Align with text baseline, adjusted for visual match */
+  width: 0.7em;
+  height: 0.7em;
+  margin: 0 0.03em 0 0.04em;
+  vertical-align: -0.06em;
 }
 
-/* Pulse animation for location icon when masjid list is not active */
-.find-masjid-button-hero:not(.masjid-active) .location-icon {
-  color: var(--color-accent-text); /* Set initial color for animation */
-  animation: pulse-icon 2s ease-in-out infinite;
-}
-
-@keyframes pulse-icon {
-  0%, 100% {
-    color: var(--color-accent);
-    transform: scale(1);
-  }
-  50% {
-    color: var(--color-text);
-    transform: scale(1.1);
-  }
-}
 
 /* No responsive overrides needed - uses same CSS variable as prayer-name which auto-scales */
 
