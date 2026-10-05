@@ -12,6 +12,21 @@
   margin-inline: auto;
 }
 
+/* Optional decorative pattern (pages set --hero-pattern); fades out before the content below */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--hero-pattern, none);
+  background-size: var(--hero-pattern-size, 660px auto);
+  background-position: top center;
+  background-repeat: repeat-x;
+  opacity: var(--hero-pattern-opacity, 1);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 30%, transparent 70%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 30%, transparent 70%);
+}
+
 .hero-background {
   position: absolute;
   top: 0;
