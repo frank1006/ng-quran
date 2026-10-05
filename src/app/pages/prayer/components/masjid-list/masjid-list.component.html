@@ -10,10 +10,6 @@
   />
 }
 
-@if (!loading() && notice()) {
-  <p class="masjid-notice">{{ notice() }}</p>
-}
-
 @if (!loading() && masjids().length > 0) {
   <div class="prayer-list-container">
     <div class="prayer-list">

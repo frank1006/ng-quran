@@ -27,8 +27,6 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   protected readonly loading = signal<boolean>(false);
   protected readonly masjids = signal<Masjid[]>([]);
   protected readonly error = signal<string | null>(null);
-  /** Informational message when the search worked but nothing is inside the radius. */
-  protected readonly notice = signal<string | null>(null);
   protected readonly errorTitle = computed(() => navigator.onLine ? 'Couldn\'t Load Masjids' : 'No Internet Connection');
   protected readonly hasMasjids = computed(() => this.masjids().length > 0);
   protected readonly isEmpty = computed(() => !this.loading() && this.masjids().length === 0 && !this.error());
@@ -104,7 +102,6 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
     this.cancelPreviousRequest();
 
     this.error.set(null);
-    this.notice.set(null);
 
     // Only clear results if forcing refresh
     if (forceRefresh) {
@@ -143,15 +140,8 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
           this.loading.set(false);
           this.isLoading = false;
 
+          // An empty radius is handled by the template's empty state
           this.error.set(null);
-          if (inRadius.length === 0) {
-            const nearest = masjids[0];
-            this.notice.set(nearest?.distance !== undefined
-              ? `No masjid within ${this.radius} km. The nearest is ${nearest.name}, ${this.formatDistance(nearest.distance)} away.`
-              : `No masjid found within ${this.radius} km. Try a larger radius.`);
-          } else {
-            this.notice.set(null);
-          }
         },
         error: (err) => {
           // Check if this request was cancelled (either via RxJS or HTTP abort)
