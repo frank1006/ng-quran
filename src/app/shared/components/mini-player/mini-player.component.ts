@@ -47,13 +47,7 @@ export class MiniPlayerComponent {
     return path !== `/quran/${track.chapterId}`;
   });
 
-  protected readonly progress = computed(() => {
-    const duration = this.audio.duration();
-    return duration > 0 ? Math.min(100, (this.audio.currentTime() / duration) * 100) : 0;
-  });
-
-  /** Circumference of the progress ring (r = 23) */
-  protected readonly ringLength = 2 * Math.PI * 23;
+  protected readonly formatTime = formatPlaybackTime;
 
   constructor() {
     effect(() => {
@@ -62,6 +56,10 @@ export class MiniPlayerComponent {
     effect(() => {
       this.document.documentElement.style.setProperty('--mini-player-space', this.visible() ? MINI_PLAYER_SPACE : '0px');
     });
+  }
+
+  protected onSeek(event: Event): void {
+    this.audio.seek(parseFloat((event.target as HTMLInputElement).value));
   }
 
   protected toggleCard(): void {
