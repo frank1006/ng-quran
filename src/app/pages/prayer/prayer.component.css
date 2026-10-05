@@ -1,5 +1,14 @@
+/* Page fills the space above the bottom nav: hero takes its height, the list scrolls in the rest */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 /* Taller hero that fades into the page; the arc gets its own space below the title */
 app-hero-header {
+  display: block;
+  flex: none;
   /* Browsers lose height to toolbars: scale with the visible viewport, within limits */
   --hero-height: clamp(15.5rem, 40dvh, 19rem);
   --hero-overlap: 0px;
@@ -13,7 +22,18 @@ app-hero-header {
   z-index: 4;
   /* Pull the date header up so the TODAY | location pill sits on the arc's horizon */
   margin-top: -3rem;
-  min-height: calc(100dvh - 17.75rem);
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.prayers > app-prayer-list,
+.prayers > app-masjid-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .current-prayer {

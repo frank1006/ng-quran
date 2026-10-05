@@ -1,6 +1,10 @@
 /* Prayer list container and list styles - same as prayer-list component */
 .prayer-list-container {
   position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Inner shadow at the top and bottom */
@@ -39,8 +43,10 @@
   padding: var(--space-md) var(--space-lg);
   gap: 0.65rem;
   overflow-y: auto;
-  max-height: calc(100dvh - 26.3125rem); /* Viewport height minus header, trajectory, date header (with location badge), and bottom nav (421px = 26.3125rem) */
-  min-height: 12.5rem; /* Minimum height to ensure usability (200px = 12.5rem) */
+  /* Height comes from the page layout (fills the space above the bottom nav) */
+  flex: 1;
+  min-height: 0;
+  padding-bottom: var(--space-lg);
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
