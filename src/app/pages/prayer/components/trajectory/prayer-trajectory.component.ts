@@ -14,9 +14,9 @@ import { TrajectoryUtils } from './prayer-trajectory.utils';
           <!-- Define masks and gradients -->
           <defs>
             <linearGradient id="trajectoryGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color:var(--color-primary)" />
+              <stop offset="0%" style="stop-color:var(--color-accent-dark)" />
               @if (trajectoryData()?.progress !== undefined) {
-                <stop [attr.offset]="getGradientOffset(trajectoryData()!.progress)" style="stop-color:var(--color-primary)" />
+                <stop [attr.offset]="getGradientOffset(trajectoryData()!.progress)" style="stop-color:var(--color-accent-dark)" />
                 <stop [attr.offset]="getGradientOffset(trajectoryData()!.progress)" style="stop-color:var(--color-accent)" />
               }
               <stop offset="100%" style="stop-color:var(--color-accent)" />
@@ -39,7 +39,7 @@ import { TrajectoryUtils } from './prayer-trajectory.utils';
               [attr.cx]="trajectoryData()!.endpointPosition.x"
               [attr.cy]="trajectoryData()!.endpointPosition.y"
               r="4.25"
-              style="fill:var(--color-accent)"
+              style="fill:var(--color-primary)"
               class="trajectory-endpoint"
             />
           }

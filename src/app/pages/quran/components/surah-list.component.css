@@ -129,7 +129,7 @@
   background: var(--color-surface);
   border: 2px solid transparent;
   border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(20, 53, 40, 0.04);
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: left;
@@ -239,9 +239,3 @@
 }
 
 
-/* Display typography */
-.page-title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: 0;
-}

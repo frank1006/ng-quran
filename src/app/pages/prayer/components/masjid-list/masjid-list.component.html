@@ -19,15 +19,14 @@
     <div class="prayer-list">
       @for (masjid of masjids(); track masjid.id) {
         <div class="prayer-card masjid-card">
-          <div class="prayer-info">
-            <h3 class="prayer-title">{{ masjid.name }}</h3>
-            <div class="masjid-time">
-              @if (masjid.distance !== undefined) {
-                <span class="masjid-distance">
-                  {{ formatDistance(masjid.distance) }}
-                </span>
-              }
-            </div>
+          <div class="prayer-info masjid-info">
+            <h3 class="prayer-title masjid-name">{{ masjid.name }}</h3>
+            @if (masjid.distance !== undefined) {
+              <p class="masjid-meta">
+                <span class="masjid-distance">{{ formatDistance(masjid.distance) }}</span>
+                <span class="masjid-travel">· {{ travelTime(masjid.distance) }}</span>
+              </p>
+            }
           </div>
           <button
             class="notification-button directions-button"

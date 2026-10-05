@@ -1,8 +1,10 @@
 .prayers {
   position: relative;
+  /* Fill down to the bottom nav so no background shows between card and nav */
+  min-height: calc(100dvh - 12.75rem);
   background: var(--color-surface);
   border-radius: var(--border-radius-tl);
-  box-shadow: 0 -1rem 1rem rgba(20, 53, 40, 0.06);
+  box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
 }
 
 .current-prayer {
@@ -118,10 +120,3 @@
 
 /* No responsive overrides needed - uses same CSS variable as prayer-name which auto-scales */
 
-/* Display typography */
-.prayer-name,
-.find-masjid-button-hero .button-text {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: 0;
-}

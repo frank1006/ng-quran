@@ -9,7 +9,7 @@
   background: var(--color-surface);
   padding: 0.8rem 0 0;
   border-radius: var(--border-radius-tl);
-  box-shadow: 0 -4px 20px rgba(20, 53, 40, 0.08);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
   z-index: 100;
 }
 

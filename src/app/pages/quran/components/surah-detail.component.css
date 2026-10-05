@@ -153,7 +153,7 @@
   position: relative;
   background: var(--color-surface);
   border-radius: var(--border-radius-tl);
-  box-shadow: 0 -1rem 1rem rgba(20, 53, 40, 0.06);
+  box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
   padding: var(--space-lg) var(--space-xl);
   padding-bottom: calc(var(--space-lg) + 5.4375rem); /* Add extra bottom padding to prevent overlap with bottom nav (87px = 5.4375rem) */
   overflow-y: auto;
@@ -191,12 +191,12 @@
   background: var(--color-surface);
   border: 2px solid transparent;
   border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(20, 53, 40, 0.04);
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
   transition: all 0.3s ease;
 }
 
 .verse-item:hover {
-  box-shadow: 0 4px 16px rgba(20, 53, 40, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .verse-item.selected {
@@ -218,7 +218,7 @@
 }
 
 .verse-item.bookmarked {
-  box-shadow: inset 4px 0 0 var(--color-primary), 0 2px 8px rgba(20, 53, 40, 0.04);
+  box-shadow: inset 4px 0 0 var(--color-primary), 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .verse-header {
@@ -339,9 +339,3 @@
 
 
 
-/* Display typography */
-.surah-name-latin {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: 0;
-}

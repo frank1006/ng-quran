@@ -76,9 +76,3 @@
 }
 
 
-/* Theme the inline compass SVG (CSS overrides presentation attributes) */
-.compass-svg [stroke="#874d14"] { stroke: var(--color-primary); }
-.compass-svg [fill="#874d14"] { fill: var(--color-primary); }
-.compass-svg [stroke="#ffb030"] { stroke: var(--color-accent); }
-.compass-svg [fill="#ffb030"] { fill: var(--color-accent); }
-.compass-svg [fill="#ffffff"] { fill: var(--color-surface); }

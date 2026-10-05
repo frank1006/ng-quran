@@ -193,6 +193,14 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  /** Rough travel estimate: walking (~5 km/h) up to 2 km, otherwise driving in town (~30 km/h). */
+  protected travelTime(distanceKm: number): string {
+    if (distanceKm <= 2) {
+      return `${Math.max(1, Math.round(distanceKm * 12))} min walk`;
+    }
+    return `${Math.max(1, Math.round(distanceKm * 2))} min drive`;
+  }
+
   protected formatDistance(distanceKm: number | undefined): string {
     if (distanceKm === undefined) return '';
     return this.masjidService.formatDistance(distanceKm);
