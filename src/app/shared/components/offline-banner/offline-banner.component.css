@@ -4,9 +4,9 @@
   left: 0;
   right: 0;
   z-index: 10000;
-  background: linear-gradient(135deg, #fff5e6 0%, #fffaf0 100%);
-  border-top: 2px solid #ffb030;
-  box-shadow: 0 -2px 12px rgba(135, 77, 20, 0.2);
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-bg) 100%);
+  border-top: 2px solid var(--color-primary);
+  box-shadow: 0 -2px 12px color-mix(in srgb, var(--color-accent-dark) 20%, transparent);
   transform: translateY(100%);
   opacity: 0;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out;
@@ -50,9 +50,9 @@
   justify-content: center;
   width: 2.5rem; /* 40px */
   height: 2.5rem; /* 40px */
-  background: rgba(255, 176, 48, 0.15);
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
   border-radius: 50%;
-  color: #874d14;
+  color: var(--color-accent-dark);
 }
 
 .offline-text {
@@ -61,19 +61,19 @@
 }
 
 .offline-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-sm);
   font-weight: 600;
-  color: #874d14;
+  color: var(--color-accent-dark);
   margin: 0 0 var(--space-xxs) 0;
   line-height: 1.4;
 }
 
 .offline-message {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-xs);
   font-weight: 400;
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin: 0;
   line-height: 1.5;
 }

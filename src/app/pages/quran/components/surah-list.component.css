@@ -13,10 +13,10 @@
 }
 
 .page-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-2xl);
   font-weight: 700;
-  color: #1f1f1f;
+  color: var(--color-text);
   letter-spacing: -0.03125rem; /* -0.5px */
 }
 
@@ -29,18 +29,18 @@
 }
 
 .reciter-icon {
-  color: #874d14;
+  color: var(--color-accent-dark);
   flex-shrink: 0;
   display: block;
 }
 
 .reciter-select {
   flex: 1;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   text-transform: uppercase;
   font-size: var(--font-sm);
   font-weight: 500;
-  color: #874d14;
+  color: var(--color-accent-dark);
   background: transparent;
   border: none;
   padding: 0;
@@ -62,8 +62,8 @@
 
 .reciter-select option {
   text-transform: none;
-  color: #1f1f1f;
-  background: #ffffff;
+  color: var(--color-text);
+  background: var(--color-surface);
   padding: 0.5rem;
 }
 
@@ -80,37 +80,37 @@
 .search-icon {
   position: absolute;
   left: var(--space-md);
-  color: #9ca3af;
+  color: var(--color-text-subtle);
   pointer-events: none;
 }
 
 .search-input {
   width: 100%;
   padding: var(--space-sm) var(--space-md) var(--space-sm) var(--space-2xl);
-  background: #ffffff;
-  border: 2px solid #f3f4f6;
+  background: var(--color-surface);
+  border: 2px solid var(--color-surface-muted);
   border-radius: var(--border-radius-all);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-sm);
-  color: #1f1f1f;
+  color: var(--color-text);
   transition: all 0.2s ease;
 }
 
 .search-input::placeholder {
-  color: #9ca3af;
+  color: var(--color-text-subtle);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #ffb030;
-  box-shadow: 0 0 0 3px rgba(255, 176, 48, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .empty-state {
   text-align: center;
   padding: var(--space-2xl) var(--space-xl);
-  color: #6b7280;
-  font-family: 'Poppins', sans-serif;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
   font-size: var(--font-sm);
 }
 
@@ -126,10 +126,10 @@
   align-items: flex-start;
   gap: var(--space-md);
   padding: var(--space-sm);
-  background: #ffffff;
+  background: var(--color-surface);
   border: 2px solid transparent;
   border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
+  box-shadow: 0 0.125rem 0.5rem rgba(20, 53, 40, 0.04);
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: left;
@@ -137,8 +137,8 @@
 }
 
 .surah-card:hover {
-  border-color: #ffb030;
-  box-shadow: 0 4px 16px rgba(255, 176, 48, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-primary) 15%, transparent);
   transform: translateY(-2px);
 }
 
@@ -148,12 +148,12 @@
   justify-content: center;
   min-width: 2.5rem;
   height: 2.5rem;
-  background: linear-gradient(135deg, #fff5e6 0%, #fffaf0 100%);
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-bg) 100%);
   border-radius: var(--border-radius-all);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
   font-weight: 700;
-  color: #ffb030;
+  color: var(--color-primary);
   flex-shrink: 0;
 }
 
@@ -173,19 +173,19 @@
 }
 
 .surah-name-latin {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-lg);
   font-weight: 700;
-  color: #1f1f1f;
+  color: var(--color-text);
   margin: 0;
   line-height: 1.2;
 }
 
 .surah-name-arabic {
-  font-family: 'Amiri', 'Arial', sans-serif;
+  font-family: var(--font-arabic);
   font-size: 1.25rem; /* 20px */
   font-weight: 600;
-  color: #1f1f1f;
+  color: var(--color-text);
   margin: 0;
   line-height: 1.4;
   direction: rtl;
@@ -193,10 +193,10 @@
 }
 
 .surah-translation {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-sm);
   font-weight: 500;
-  color: #874d14;
+  color: var(--color-accent-dark);
   margin: 0;
   line-height: 1.4;
   text-transform: uppercase;
@@ -210,31 +210,38 @@
 }
 
 .surah-type {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-xs);
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--color-text-subtle);
   padding: var(--space-xxs) var(--space-xs);
-  background: linear-gradient(135deg, #fff5e6 0%, #fffaf0 100%);
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-bg) 100%);
   border-radius: var(--radius-sm);
 }
 
 /* Meccan - Warm tones */
 .surah-type-meccan {
-  background: linear-gradient(135deg, #fff5e6 0%, #fffaf0 100%);
-  color: #874d14;
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-bg) 100%);
+  color: var(--color-accent-dark);
 }
 
 /* Medinan - Green tones */
 .surah-type-medinan {
-  background: linear-gradient(135deg, #e6f7e6 0%, #f0faf0 100%);
-  color: #166534;
+  background: linear-gradient(135deg, var(--color-success-soft) 0%, var(--color-success-soft) 100%);
+  color: var(--color-success);
 }
 
 .surah-verses {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-xs);
   font-weight: 500;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
+
+/* Display typography */
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0;
+}

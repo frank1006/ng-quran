@@ -19,7 +19,7 @@
   top: 0;
   background: linear-gradient(
     to bottom,
-    #ffffff 0%,
+    var(--color-surface) 0%,
     rgba(255, 255, 255, 0) 100%
   );
 }
@@ -28,7 +28,7 @@
   bottom: 0;
   background: linear-gradient(
     to top,
-    #ffffff 0%,
+    var(--color-surface) 0%,
     rgba(255, 255, 255, 0) 100%
   );
 }
@@ -50,15 +50,15 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-xs) var(--space-lg);
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
+  box-shadow: 0 0.125rem 0.5rem rgba(20, 53, 40, 0.04);
   border: 2px solid transparent;
   transition: all 0.3s ease;
 }
 
 .prayer-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(20, 53, 40, 0.08);
 }
 
 .prayer-info {
@@ -69,10 +69,10 @@
 }
 
 .prayer-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-md);
   font-weight: 600;
-  color: #1f1f1f;
+  color: var(--color-text);
   flex: 1;
   min-width: 0; /* Allow flex item to shrink below content size */
   overflow: hidden;
@@ -93,10 +93,10 @@
 }
 
 .masjid-distance {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-md);
   font-weight: 600;
-  color: #1f1f1f;
+  color: var(--color-text);
 }
 
 .notification-button {
@@ -106,9 +106,9 @@
   width: var(--space-xl);
   height: var(--space-xl);
   border: none;
-  background: #f9fafb;
+  background: var(--color-surface-alt);
   border-radius: var(--border-radius-all);
-  color: #6b7280;
+  color: var(--color-text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -119,18 +119,18 @@
 }
 
 .notification-button:hover {
-  background: #f3f4f6;
+  background: var(--color-surface-muted);
   transform: scale(1.1);
 }
 
 .directions-button {
   /* Inherits notification-button styles */
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .directions-button:hover {
-  background: #f3f4f6;
-  color: #ffb030;
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
 }
 
 /* Empty State */
@@ -145,21 +145,21 @@
 }
 
 .empty-icon {
-  color: #d1d5db;
+  color: var(--color-border-strong);
 }
 
 .empty-message {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-lg);
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .empty-hint {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-sm);
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin: 0;
 }
 

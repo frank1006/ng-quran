@@ -1,8 +1,8 @@
 .prayers {
   position: relative;
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: var(--border-radius-tl);
-  box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -1rem 1rem rgba(20, 53, 40, 0.06);
 }
 
 .current-prayer {
@@ -30,17 +30,17 @@
 }
 
 .prayer-name {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-2xl);
   font-weight: 700;
-  color: #1f1f1f;
+  color: var(--color-text);
   letter-spacing: -0.03125rem; /* -0.5px */
   margin: 0;
   transition: color 0.3s ease;
 }
 
 .prayer-name.masjid-active {
-  color: #c9a880;
+  color: var(--color-accent);
 }
 
 .prayer-name.clickable {
@@ -49,11 +49,11 @@
 }
 
 .time-remaining {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   text-transform: uppercase;
   font-size: var(--font-sm);
   font-weight: 500;
-  color: #874d14;
+  color: var(--color-accent-dark);
   margin: 0;
 }
 
@@ -66,19 +66,19 @@
   padding: 0;
   border: none;
   background: transparent;
-  font-family: 'Poppins', sans-serif;
-  color: #c9a880;
+  font-family: var(--font-body);
+  color: var(--color-accent);
   cursor: pointer;
   transition: color 0.3s ease;
   height: fit-content;
 }
 
 .find-masjid-button-hero.masjid-active {
-  color: #1f1f1f; /* Dark color when masjid list is active */
+  color: var(--color-text); /* Dark color when masjid list is active */
 }
 
 .find-masjid-button-hero .button-text {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-2xl);
   font-weight: 700;
   color: inherit; /* Inherit from parent */
@@ -101,19 +101,27 @@
 
 /* Pulse animation for location icon when masjid list is not active */
 .find-masjid-button-hero:not(.masjid-active) .location-icon {
-  color: #c9a880; /* Set initial color for animation */
+  color: var(--color-accent); /* Set initial color for animation */
   animation: pulse-icon 2s ease-in-out infinite;
 }
 
 @keyframes pulse-icon {
   0%, 100% {
-    color: #c9a880;
+    color: var(--color-accent);
     transform: scale(1);
   }
   50% {
-    color: #1f1f1f;
+    color: var(--color-text);
     transform: scale(1.1);
   }
 }
 
 /* No responsive overrides needed - uses same CSS variable as prayer-name which auto-scales */
+
+/* Display typography */
+.prayer-name,
+.find-masjid-button-hero .button-text {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0;
+}

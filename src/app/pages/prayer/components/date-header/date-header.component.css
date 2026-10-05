@@ -13,28 +13,28 @@
   width: 2.5rem; /* 40px */
   height: 2.5rem; /* 40px */
   border: none;
-  background: #f9fafb;
+  background: var(--color-surface-alt);
   border-radius: var(--border-radius-all);
-  color: #1f1f1f;
+  color: var(--color-text);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .nav-button:hover:not(:disabled) {
-  background: #f3f4f6;
+  background: var(--color-surface-muted);
 }
 
 .nav-button.disabled,
 .nav-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: #f3f4f6;
+  background: var(--color-surface-muted);
 }
 
 .nav-button.disabled:hover,
 .nav-button:disabled:hover {
-  background: #f3f4f6;
+  background: var(--color-surface-muted);
 }
 
 .date-content {
@@ -48,14 +48,14 @@
   justify-content: center;
   gap: var(--space-xxs);
   margin-bottom: var(--space-xs);
-  background: #f9fafb;
+  background: var(--color-surface-alt);
   border: none;
   border-radius: var(--border-radius-all);
   padding: var(--space-xs) var(--space-sm);
   cursor: default;
   transition: all 0.2s ease;
-  font-family: 'Poppins', sans-serif;
-  color: #1f1f1f;
+  font-family: var(--font-body);
+  color: var(--color-text);
 }
 
 .location-badge.clickable {
@@ -63,7 +63,7 @@
 }
 
 .location-badge.clickable:hover {
-  background: #f3f4f6;
+  background: var(--color-surface-muted);
 }
 
 .location-badge.not-today {
@@ -75,26 +75,26 @@
 }
 
 .back-arrow {
-  color: #1f1f1f;
+  color: var(--color-text);
   flex-shrink: 0;
   display: block;
   margin-right: var(--space-xxs);
 }
 
 .today-label {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.6875rem; /* 11px */
   font-weight: 600;
-  color: #ffb030;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.0625rem; /* 1px */
 }
 
 .separator {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.6875rem; /* 11px */
   font-weight: 400;
-  color: #1f1f1f;
+  color: var(--color-text);
   margin: 0 var(--space-xxs);
   opacity: 0.3;
 }
@@ -105,23 +105,23 @@
 }
 
 .location {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-xs);
   font-weight: 500;
-  color: #1f1f1f;
+  color: var(--color-text);
 }
 
 .date-text {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9375rem; /* 15px */
   font-weight: 600;
-  color: #1f1f1f;
+  color: var(--color-text);
   margin-bottom: var(--space-xxs);
 }
 
 .hijri-date {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8125rem; /* 13px */
   font-weight: 400;
-  color: #874d14;
+  color: var(--color-accent-dark);
 }

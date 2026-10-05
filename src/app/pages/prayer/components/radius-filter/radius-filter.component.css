@@ -22,31 +22,31 @@
   justify-content: center;
   gap: var(--space-xxs);
   margin-bottom: 0;
-  background: #f9fafb;
+  background: var(--color-surface-alt);
   border: none;
   border-radius: var(--border-radius-all);
   padding: var(--space-xs) var(--space-sm);
   cursor: default;
   transition: all 0.2s ease;
-  font-family: 'Poppins', sans-serif;
-  color: #1f1f1f;
+  font-family: var(--font-body);
+  color: var(--color-text);
   width: fit-content;
 }
 
 .today-label {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.6875rem; /* 11px */
   font-weight: 600;
-  color: #ffb030;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.0625rem; /* 1px */
 }
 
 .separator {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.6875rem; /* 11px */
   font-weight: 400;
-  color: #1f1f1f;
+  color: var(--color-text);
   margin: 0 var(--space-xxs);
   opacity: 0.3;
 }
@@ -57,10 +57,10 @@
 }
 
 .location {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-xs);
   font-weight: 500;
-  color: #1f1f1f;
+  color: var(--color-text);
 }
 
 .radius-filters {
@@ -73,32 +73,32 @@
 
 .radius-filter-button {
   padding: var(--space-xxs) var(--space-sm);
-  border: 2px solid #e5e7eb;
-  background: #ffffff;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
   border-radius: var(--border-radius-all);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-xs);
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .radius-filter-button:hover:not(:disabled):not(.active) {
-  border-color: #ffb030;
-  color: #ffb030;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .radius-filter-button.active {
-  background: #ffb030;
-  border-color: #ffb030;
-  color: #ffffff !important;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-surface) !important;
 }
 
 .radius-filter-button.active:hover:not(:disabled) {
-  background: #ffb030;
-  border-color: #ffb030;
-  color: #ffffff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-surface);
 }
 
 .radius-filter-button:disabled {

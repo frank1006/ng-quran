@@ -3,7 +3,16 @@
   padding: var(--space-lg) var(--space-xl);
   margin-bottom: calc(-1 * var(--space-lg));
   position: relative;
-  background: linear-gradient(180deg, #fff9f0 0%, #fff5e6 50%, #ffe8cc 100%);
+  background: var(--hero-gradient);
+  /* Re-map tokens so projected hero content reads light-on-green */
+  --color-text: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.85);
+  --color-text-muted: rgba(255, 255, 255, 0.72);
+  --color-accent-dark: #e3c98f;
+  --color-primary: #f1e3bf;
+  --color-primary-deep: #e3c98f;
+  --color-primary-soft: rgba(255, 255, 255, 0.12);
+  color: var(--color-text);
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -97,9 +106,9 @@
   width: 2.5rem;
   height: 2.5rem;
   background: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(243, 244, 246, 0.8);
+  border: 2px solid color-mix(in srgb, var(--color-surface-muted) 80%, transparent);
   border-radius: var(--border-radius-all);
-  color: #1f1f1f;
+  color: var(--color-text);
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
@@ -108,24 +117,24 @@
 
 .back-button:hover {
   background: rgba(255, 255, 255, 1);
-  border-color: #ffb030;
+  border-color: var(--color-primary);
   transform: translateX(-2px);
 }
 
 .action-button {
-  background: rgba(249, 250, 251, 0.9);
+  background: color-mix(in srgb, var(--color-surface-alt) 90%, transparent);
   border-color: transparent;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .action-button:hover {
-  background: rgba(243, 244, 246, 0.9);
+  background: color-mix(in srgb, var(--color-surface-muted) 90%, transparent);
 }
 
 .action-button.active {
-  background: rgba(255, 245, 230, 0.9);
-  border-color: #ffb030;
-  color: #ffb030;
+  background: color-mix(in srgb, var(--color-primary-soft) 90%, transparent);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .hero-body {

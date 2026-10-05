@@ -18,11 +18,11 @@
 }
 
 .trajectory-path {
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 2px 4px rgba(20, 53, 40, 0.1));
 }
 
 .trajectory-endpoint {
-  filter: drop-shadow(0 2px 4px rgba(255, 176, 48, 0.4));
+  filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--color-primary) 40%, transparent));
 }
 
 .prayer-marker {
@@ -35,26 +35,26 @@
 }
 
 .marker-circle {
-  fill: #c9a880;
+  fill: var(--color-accent);
   stroke: none;
   r: 8;
   transition: all 0.3s ease;
 }
 
 .marker-circle.filled {
-  fill: #ffb030;
+  fill: var(--color-primary);
   stroke: none;
   r: 8;
 }
 
 .marker-circle.next-filled {
-  fill: #874d14;
+  fill: var(--color-accent-dark);
   stroke: none;
   r: 8;
 }
 
 .marker-circle:not(.filled):not(.next-filled) {
-  fill: #c9a880;
+  fill: var(--color-accent);
   stroke: none;
   r: 8;
 }

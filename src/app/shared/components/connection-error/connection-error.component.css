@@ -12,13 +12,13 @@
   width: 6rem;
   height: 6rem;
   margin-bottom: var(--space-lg);
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(220, 38, 38, 0.15) 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-danger) 10%, transparent) 0%, color-mix(in srgb, var(--color-danger) 15%, transparent) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #dc2626;
-  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.15);
+  color: var(--color-danger);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--color-danger) 15%, transparent);
 }
 
 .error-icon svg {
@@ -29,7 +29,7 @@
 .error-title {
   font-size: var(--font-xl);
   font-weight: 700;
-  color: #991b1b;
+  color: var(--color-danger-strong);
   margin: 0 0 var(--space-sm) 0;
   letter-spacing: -0.02rem;
 }
@@ -41,7 +41,7 @@
 .error-message {
   font-size: var(--font-md);
   font-weight: 500;
-  color: #dc2626;
+  color: var(--color-danger);
   margin: 0;
   line-height: 1.5;
   text-align: center;
@@ -53,15 +53,15 @@
   justify-content: center;
   gap: var(--space-sm);
   padding: 1rem 2.75rem;
-  background: linear-gradient(135deg, #ffb030 0%, #ff9900 100%);
-  color: #1f1f1f;
-  border: 2px solid #ffb030;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-deep) 100%);
+  color: var(--color-on-primary);
+  border: 2px solid var(--color-primary);
   border-radius: var(--border-radius-all);
   font-size: var(--font-sm);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(255, 176, 48, 0.3);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-primary) 30%, transparent);
   letter-spacing: 0.01rem;
   position: relative;
   overflow: hidden;
@@ -94,19 +94,19 @@
 }
 
 .retry-button:hover {
-  background: linear-gradient(135deg, #ff9900 0%, #ff8800 100%);
-  border-color: #ff9900;
+  background: linear-gradient(135deg, var(--color-primary-deep) 0%, var(--color-primary-deep) 100%);
+  border-color: var(--color-primary-deep);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 176, 48, 0.4);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 .retry-button:active {
   transform: translateY(0);
-  box-shadow: 0 4px 12px rgba(255, 176, 48, 0.3);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 
 .retry-button:focus-visible {
-  outline: 2px solid #ffb030;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 

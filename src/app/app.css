@@ -5,7 +5,7 @@
   top: 0;
   left: 0;
   width: 100vw;
-  background: linear-gradient(180deg, #fff9f0 0%, #ffffff 100%);
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 100%);
   z-index: 9999;
   align-items: center;
   justify-content: center;
@@ -39,16 +39,16 @@
 .landscape-blocker-title {
   font-size: var(--font-lg);
   font-weight: 600;
-  color: #1f1f1f;
+  color: var(--color-text);
   margin-bottom: var(--space-md);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
 }
 
 .landscape-blocker-message {
   font-size: var(--font-md);
-  color: #666;
+  color: var(--color-text-muted);
   line-height: 1.6;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
 }
 
 /* Hide main content in landscape */

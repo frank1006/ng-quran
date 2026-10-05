@@ -1,13 +1,13 @@
 .qibla-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff9f0 0%, #ffffff 40%);
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 40%);
 }
 
 .qibla-content-section {
   position: relative;
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: var(--border-radius-tl);
-  box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -1rem 1rem rgba(20, 53, 40, 0.06);
   padding: var(--space-xl);
   max-width: var(--app-max-width);
   margin-inline: auto;
@@ -19,19 +19,19 @@
 }
 
 .city-name {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-2xl);
   font-weight: 700;
-  color: #1f1f1f;
+  color: var(--color-text);
   letter-spacing: -0.03125rem; /* -0.5px */
   margin: 0;
 }
 
 .location-label {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-sm);
   font-weight: 500;
-  color: #874d14;
+  color: var(--color-accent-dark);
   text-transform: uppercase;
   letter-spacing: 0.03125rem; /* 0.5px */
   margin: 0;
@@ -40,8 +40,8 @@
 .loading-state {
   text-align: center;
   padding: var(--space-2xl) var(--space-md);
-  color: #6b7280;
-  font-family: 'Poppins', sans-serif;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
   font-size: var(--font-md);
   font-weight: 400;
 }
@@ -61,19 +61,19 @@
 }
 
 .error-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 1.5rem; /* 24px */
   font-weight: 700;
-  color: #1f1f1f;
+  color: var(--color-text);
   margin: 0 0 var(--space-md) 0;
   letter-spacing: -0.03125rem; /* -0.5px */
 }
 
 .error-message {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-md);
   font-weight: 400;
-  color: #6b7280;
+  color: var(--color-text-muted);
   line-height: 1.6;
   margin: 0 0 var(--space-xl) 0;
 }
@@ -97,30 +97,30 @@
 
 .instruction-card {
   padding: var(--space-md);
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
+  box-shadow: 0 0.125rem 0.5rem rgba(20, 53, 40, 0.04);
   border: 2px solid transparent;
   transition: all 0.3s ease;
   text-align: center;
 }
 
 .instruction-card.facing {
-  border-color: #ffb030;
-  background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
-  box-shadow: 0 4px 20px rgba(255, 176, 48, 0.2);
+  border-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
 .instruction-text {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-lg);
   font-weight: 600;
-  color: #1f1f1f;
+  color: var(--color-text);
   margin: 0;
 }
 
 .instruction-card.facing .instruction-text {
-  color: #874d14;
+  color: var(--color-accent-dark);
 }
 
 .instruction-card.loading-card {
@@ -128,7 +128,7 @@
 }
 
 .instruction-card.loading-card .instruction-text {
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-weight: 500;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -145,48 +145,55 @@
 .instruction-button {
   width: 100%;
   padding: var(--space-md);
-  background: #ffb030;
-  color: #1f1f1f;
-  border: 2px solid #ffb030;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: 2px solid var(--color-primary);
   border-radius: var(--border-radius-all);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: var(--font-lg);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0.25rem 1.25rem rgba(255, 176, 48, 0.3);
+  box-shadow: 0 0.25rem 1.25rem color-mix(in srgb, var(--color-primary) 30%, transparent);
   text-align: center;
 }
 
 .instruction-button:hover:not(:disabled) {
-  background: #ff9900;
-  border-color: #ff9900;
+  background: var(--color-primary-deep);
+  border-color: var(--color-primary-deep);
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(255, 176, 48, 0.4);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 .instruction-button:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 4px 20px rgba(255, 176, 48, 0.3);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 
 .instruction-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-  background: #ffb030;
-  border-color: #ffb030;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .compass-error-message {
   margin-top: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-soft);
   border-radius: var(--border-radius-all);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8125rem; /* 13px */
   font-weight: 500;
-  color: #991b1b;
+  color: var(--color-danger-strong);
   text-align: center;
   line-height: 1.5;
+}
+
+/* Display typography */
+.city-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0;
 }
