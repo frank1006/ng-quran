@@ -74,3 +74,20 @@
     transition: none;
   }
 }
+
+/* Sunrise (Shuruq): a small sun on the horizon, distinct from prayer markers */
+.sun-marker circle {
+  fill: var(--color-surface);
+  stroke: var(--color-accent-text);
+  stroke-width: 2.5;
+}
+
+.sun-marker line {
+  stroke: var(--color-accent-text);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.sun-marker.passed circle {
+  fill: var(--color-accent-text);
+}
