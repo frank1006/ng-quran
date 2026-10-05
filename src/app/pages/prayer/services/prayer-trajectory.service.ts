@@ -29,7 +29,8 @@ export class PrayerTrajectoryService {
    * sunrise and Maghrib on it, Dhuhr near the peak (solar noon).
    */
   calculateTrajectory(prayers: PrayerItem[], showProgress = true): TrajectoryData | null {
-    const displayPrayers = prayers.filter(p => p.name !== 'Shuruq');
+    // Includes Shuruq (sunrise): it sits on the horizon, mirroring Maghrib
+    const displayPrayers = prayers;
     if (displayPrayers.length === 0) return null;
 
     const now = this.currentTime();
