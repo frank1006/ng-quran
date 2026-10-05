@@ -45,8 +45,11 @@
       [canNavigateNext]="canNavigateNext()"
       [locationName]="locationName()"
       [isToday]="isCurrentDateToday()"
+      [locating]="locating()"
+      [locationMessage]="locationMessage()"
       (dateNavigate)="navigateDate($event)"
       (goToToday)="goToToday()"
+      (refreshLocation)="refreshLocation()"
     />
   }
 

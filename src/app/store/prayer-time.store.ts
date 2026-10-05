@@ -95,6 +95,21 @@ export class PrayerTimeStore {
     );
   }
 
+  /** Gets a fresh GPS fix now (user asked for it) and stores it. Errors are passed on. */
+  refreshLocation(): Observable<LocationCoordinates> {
+    return this.prayerTimeService.getCurrentLocation({ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }).pipe(
+      tap(location => {
+        this.locationVerified = true;
+        this.updateState({ currentLocation: location, error: null });
+      })
+    );
+  }
+
+  /** Makes the next load re-check GPS (e.g. the app was in the background for a while). */
+  markLocationStale(): void {
+    this.locationVerified = false;
+  }
+
   /**
    * Returns the stored location, re-checking GPS once per app session so that
    * travellers get times for where they are now. Falls back to the stored location.

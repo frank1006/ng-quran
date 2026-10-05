@@ -42,61 +42,76 @@
   text-align: center;
 }
 
-.location-badge {
-  display: inline-flex;
+.chip-row {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xxs);
+  flex-wrap: wrap;
+  gap: var(--space-xs);
   margin-bottom: var(--space-xs);
-  background: var(--color-surface-alt);
+}
+
+.location-badge,
+.today-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xxs);
+  min-height: 2rem;
   border: none;
   border-radius: var(--border-radius-all);
   padding: var(--space-xs) var(--space-sm);
-  cursor: default;
-  transition: all 0.2s ease;
-  font-family: var(--font-body);
-  color: var(--color-text);
-}
-
-.location-badge.clickable {
   cursor: pointer;
-}
-
-.location-badge.clickable:hover {
-  background: var(--color-surface-muted);
-}
-
-.location-badge.not-today {
-  opacity: 0.7;
-}
-
-.location-badge.not-today:hover {
-  opacity: 0.9;
-}
-
-.back-arrow {
-  color: var(--color-text);
-  flex-shrink: 0;
-  display: block;
-  margin-right: var(--space-xxs);
-}
-
-.today-label {
   font-family: var(--font-body);
-  font-size: 0.6875rem; /* 11px */
-  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.location-badge {
+  max-width: 100%;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.location-badge:disabled {
+  cursor: progress;
+}
+
+.today-button {
+  background: var(--color-primary-soft);
   color: var(--color-primary-text);
-  text-transform: uppercase;
-  letter-spacing: 0.0625rem; /* 1px */
+  font-size: var(--font-xs);
+  font-weight: 600;
 }
 
-.separator {
+@media (hover: hover) {
+  .location-badge:hover:not(:disabled) {
+    background: var(--color-surface-muted);
+  }
+}
+
+.refresh-icon {
+  flex-shrink: 0;
+  margin-left: var(--space-xxs);
+  color: var(--color-text-muted);
+}
+
+.location-badge.locating .refresh-icon {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .location-badge.locating .refresh-icon { animation: none; }
+}
+
+.location-message {
+  margin: 0 0 var(--space-xs);
   font-family: var(--font-body);
-  font-size: 0.6875rem; /* 11px */
-  font-weight: 400;
-  color: var(--color-text);
-  margin: 0 var(--space-xxs);
-  opacity: 0.3;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  line-height: 1.4;
 }
 
 .location-icon {
@@ -124,4 +139,10 @@
   font-size: 0.8125rem; /* 13px */
   font-weight: 400;
   color: var(--color-accent-dark);
+}
+
+.location-badge .location {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

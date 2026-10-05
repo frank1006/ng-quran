@@ -18,6 +18,7 @@ import { QiblaService } from '../qibla/services/qibla.service';
 import { NotificationService } from '../../services/notification.service';
 import { BackgroundSyncService } from '../../services/background-sync.service';
 import { MasjidService } from '../../services/masjid.service';
+import { DeviceDetectionService } from '../../services/device-detection.service';
 
 interface PrayerItem {
   name: string;
@@ -29,6 +30,9 @@ interface PrayerItem {
 }
 
 const TIME_UPDATE_INTERVAL_MS = 1000;
+/** Re-check the location when the app comes back after being in the background this long. */
+const RESUME_RECHECK_MS = 30 * 60 * 1000;
+const LOCATION_MESSAGE_MS = 4000;
 
 @Component({
   selector: 'app-prayer',
@@ -56,14 +60,20 @@ export class PrayerComponent implements OnInit, OnDestroy {
   protected readonly showMasjidList = signal<boolean>(false);
   protected readonly masjidSearchRadius = signal<number>(1);
   protected readonly masjidListRefreshTrigger = signal<number>(0);
+  protected readonly locating = signal(false);
+  protected readonly locationMessage = signal('');
   private readonly destroyRef = inject(DestroyRef);
   private readonly networkStatus = inject(NetworkStatusService);
   private readonly qiblaService = inject(QiblaService);
   private readonly notificationService = inject(NotificationService);
   private readonly backgroundSync = inject(BackgroundSyncService);
   private readonly masjidService = inject(MasjidService);
+  private readonly deviceDetection = inject(DeviceDetectionService);
   private timeInterval: number | null = null;
-  private locationInfoLoaded = false;
+  private messageTimer: ReturnType<typeof setTimeout> | undefined;
+  private hiddenAt: number | null = null;
+  private wasViewingToday = true;
+  private readonly onVisibilityChange = () => this.handleVisibilityChange();
 
   constructor(
     private prayerTimeStore: PrayerTimeStore,
@@ -73,6 +83,14 @@ export class PrayerComponent implements OnInit, OnDestroy {
     // Load last selected radius from localStorage
     const lastRadius = this.loadLastSelectedRadius();
     this.masjidSearchRadius.set(lastRadius);
+
+    // Keep the place name in step with the location (first load, refresh, travel)
+    effect(() => {
+      const location = this.prayerTimeStore.currentLocation();
+      if (location) {
+        untracked(() => this.fetchLocationInfo(location));
+      }
+    });
     // Show offline banner when there's a network error but we have cached data
     effect(() => {
       const error = this.error();
@@ -405,7 +423,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadPrayerTimes();
-    this.loadLocationInfo();
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
     this.timeInterval = window.setInterval(() => {
       this.trajectoryService.updateCurrentTime();
     }, TIME_UPDATE_INTERVAL_MS) as unknown as number;
@@ -414,32 +432,11 @@ export class PrayerComponent implements OnInit, OnDestroy {
     this.backgroundSync.handleDateRollover();
   }
 
-  private async loadLocationInfo(): Promise<void> {
-    if (this.locationInfoLoaded) {
-      return;
-    }
-
-    const location = this.prayerTimeStore.currentLocation();
-    if (!location) {
-      // Wait a bit for location to be available, then try again
-      setTimeout(() => {
-        const retryLocation = this.prayerTimeStore.currentLocation();
-        if (retryLocation && !this.locationInfoLoaded) {
-          this.fetchLocationInfo(retryLocation);
-        }
-      }, 1000);
-      return;
-    }
-
-    await this.fetchLocationInfo(location);
-  }
-
   private async fetchLocationInfo(location: { latitude: number; longitude: number }): Promise<void> {
     try {
       const locationInfo = await this.qiblaService.getLocationInfo(location.latitude, location.longitude);
       this.cityName.set(locationInfo.city);
       this.quadrant.set(locationInfo.quadrant || '');
-      this.locationInfoLoaded = true;
     } catch (error) {
       // Keep default "Current Location" if geocoding fails
       if (isDevMode()) {
@@ -448,7 +445,72 @@ export class PrayerComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** User tapped the location chip: take a fresh GPS fix and reload times and masjids. */
+  protected refreshLocation(): void {
+    if (this.locating()) return;
+    this.locating.set(true);
+    this.showLocationMessage('');
+
+    this.prayerTimeStore.refreshLocation()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.locating.set(false);
+          this.reloadCurrentDate(); // the new place name in the chip is the confirmation
+        },
+        error: (error: { code?: number }) => {
+          this.locating.set(false);
+          this.showLocationMessage(this.locationErrorMessage(error?.code));
+        }
+      });
+  }
+
+  private locationErrorMessage(code?: number): string {
+    if (code === 1) {
+      return this.deviceDetection.deviceInfo().isIOS
+        ? 'Location is off for QuranFlow. Turn it on in Settings › Privacy & Security › Location Services.'
+        : 'Location is blocked. Allow it in your browser\'s site settings, then tap again.';
+    }
+    return 'Couldn\'t get your location right now. Showing your last known location.';
+  }
+
+  private showLocationMessage(message: string): void {
+    clearTimeout(this.messageTimer);
+    this.locationMessage.set(message);
+    if (message) {
+      this.messageTimer = setTimeout(() => this.locationMessage.set(''), LOCATION_MESSAGE_MS);
+    }
+  }
+
+  /** Reload the shown date after a location change (cached times for the old place are dropped). */
+  private reloadCurrentDate(): void {
+    const date = this.currentDate();
+    this.prayerTimeStore.preloadPrayerTimes(date)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: () => this.updatePrayerDataForDate(date) });
+  }
+
+  /** After a long time in the background, quietly re-check the location (and the date). */
+  private handleVisibilityChange(): void {
+    if (document.visibilityState === 'hidden') {
+      this.hiddenAt = Date.now();
+      this.wasViewingToday = this.isToday(this.currentDate());
+      return;
+    }
+    if (this.hiddenAt === null || Date.now() - this.hiddenAt < RESUME_RECHECK_MS) return;
+    this.hiddenAt = null;
+
+    this.prayerTimeStore.markLocationStale();
+    if (this.wasViewingToday && !this.isToday(this.currentDate())) {
+      // Left open on today overnight: move to the new today
+      this.currentDate.set(new Date());
+    }
+    this.reloadCurrentDate();
+  }
+
   ngOnDestroy(): void {
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    clearTimeout(this.messageTimer);
     if (this.timeInterval !== null) {
       window.clearInterval(this.timeInterval);
       this.timeInterval = null;
