@@ -1,436 +1,492 @@
 <div class="settings-container">
   <h1 class="settings-title">Profile</h1>
 
-  <!-- Quran Bookmarks Card -->
-  <section class="settings-section">
-    <h2 class="section-title">Quran Bookmarks</h2>
+  <div class="tabs" role="tablist" aria-label="Profile sections" (keydown)="onTabKeydown($event)">
+    @for (tab of tabs; track tab.id) {
+      <button
+        class="tab"
+        role="tab"
+        type="button"
+        [id]="'tab-' + tab.id"
+        [class.active]="activeTab() === tab.id"
+        [attr.aria-selected]="activeTab() === tab.id"
+        [attr.aria-controls]="'panel-' + tab.id"
+        [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
+        (click)="selectTab(tab.id)"
+      >{{ tab.label }}</button>
+    }
+  </div>
+
+  <div class="tab-panel" role="tabpanel" [id]="'panel-' + activeTab()" [attr.aria-labelledby]="'tab-' + activeTab()">
+    @switch (activeTab()) {
+      @case ('bookmarks') {
+      <!-- Quran Bookmarks Card -->
+      <section class="settings-section">
+        <h2 class="section-title">Quran Bookmarks</h2>
     
-    <div class="settings-card-section">
-      @if (loadingChapters()) {
-        <p class="bookmarks-loading">Loading bookmarks...</p>
-      } @else if (groupedBookmarks().length === 0) {
-        <div class="bookmarks-empty">
-          <p class="bookmarks-empty-text">No bookmarks yet</p>
-          <p class="bookmarks-empty-hint">Bookmark verses while reading the Quran to see them here</p>
-        </div>
-      } @else {
-        <div class="bookmarks-groups">
-          @for (group of groupedBookmarks(); track group.chapterId) {
-            <div class="bookmark-group">
-              <div class="bookmark-group-header">
-                <div class="bookmark-group-title-left">
-                  @if (group.chapterTransliteration) {
-                    <span class="bookmark-group-transliteration">{{ group.chapterTransliteration }}</span>
-                  }
-                  @if (group.chapterTranslation) {
-                    <span class="bookmark-group-translation">{{ group.chapterTranslation }}</span>
-                  }
-                </div>
-                <h3 class="bookmark-group-title-arabic" dir="rtl">{{ group.chapterName }}</h3>
-              </div>
-              <div class="bookmarks-list">
-                @for (bookmark of group.verses; track bookmark.chapterId + '-' + bookmark.verseNumber) {
-                  <div class="bookmark-item" (click)="navigateToBookmark(bookmark)">
-                    <div class="bookmark-content">
-                      <div class="bookmark-header">
-                        <span class="bookmark-verse">Verse {{ bookmark.verseNumber }}</span>
-                      </div>
+        <div class="settings-card-section">
+          @if (loadingChapters()) {
+            <p class="bookmarks-loading">Loading bookmarks...</p>
+          } @else if (groupedBookmarks().length === 0) {
+            <div class="bookmarks-empty">
+              <p class="bookmarks-empty-text">No bookmarks yet</p>
+              <p class="bookmarks-empty-hint">Bookmark verses while reading the Quran to see them here</p>
+            </div>
+          } @else {
+            <div class="bookmarks-groups">
+              @for (group of groupedBookmarks(); track group.chapterId) {
+                <div class="bookmark-group">
+                  <div class="bookmark-group-header">
+                    <div class="bookmark-group-title-left">
+                      @if (group.chapterTransliteration) {
+                        <span class="bookmark-group-transliteration">{{ group.chapterTransliteration }}</span>
+                      }
+                      @if (group.chapterTranslation) {
+                        <span class="bookmark-group-translation">{{ group.chapterTranslation }}</span>
+                      }
                     </div>
-                    <button
-                      class="bookmark-remove-button"
-                      type="button"
-                      (click)="removeBookmark(bookmark, $event)"
-                      [attr.aria-label]="'Remove bookmark for ' + group.chapterName + ' verse ' + bookmark.verseNumber"
-                      title="Remove bookmark"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </button>
+                    <h3 class="bookmark-group-title-arabic" dir="rtl">{{ group.chapterName }}</h3>
                   </div>
-                }
-              </div>
+                  <div class="bookmarks-list">
+                    @for (bookmark of group.verses; track bookmark.chapterId + '-' + bookmark.verseNumber) {
+                      <div class="bookmark-item" (click)="navigateToBookmark(bookmark)">
+                        <div class="bookmark-content">
+                          <div class="bookmark-header">
+                            <span class="bookmark-verse">Verse {{ bookmark.verseNumber }}</span>
+                          </div>
+                        </div>
+                        <button
+                          class="bookmark-remove-button"
+                          type="button"
+                          (click)="removeBookmark(bookmark, $event)"
+                          [attr.aria-label]="'Remove bookmark for ' + group.chapterName + ' verse ' + bookmark.verseNumber"
+                          title="Remove bookmark"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
             </div>
           }
         </div>
+      </section>
       }
-    </div>
-  </section>
+      @case ('preferences') {
+        <section class="settings-section">
+          <h2 class="section-title">Preferences</h2>
 
-  <!-- Settings Card: Time Format and App Permissions -->
-  <section class="settings-section">
-    <h2 class="section-title">Settings</h2>
-    
-    <!-- Time Format Section -->
-    <div class="settings-card-section">
-      <h3 class="subsection-title">Time Format</h3>
-      <p class="subsection-description">Choose how prayer times are displayed</p>
+        <!-- Time Format Section -->
+        <div class="settings-card-section">
+          <h3 class="subsection-title">Time Format</h3>
+          <p class="subsection-description">Choose how prayer times are displayed</p>
       
-      <div class="format-options" role="radiogroup" aria-label="Time format options">
-        <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWELVE_HOUR">
-          <input
-            type="radio"
-            name="timeFormat"
-            [value]="TimeFormat.TWELVE_HOUR"
-            [checked]="timeFormat() === TimeFormat.TWELVE_HOUR"
-            (change)="onTimeFormatChange(TimeFormat.TWELVE_HOUR)"
-            aria-label="12-hour time format"
-          />
-          <div class="format-content">
-            <span class="format-label">12-hour format</span>
-            <span class="format-example">12:00 AM / PM</span>
+          <div class="format-options" role="radiogroup" aria-label="Time format options">
+            <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWELVE_HOUR">
+              <input
+                type="radio"
+                name="timeFormat"
+                [value]="TimeFormat.TWELVE_HOUR"
+                [checked]="timeFormat() === TimeFormat.TWELVE_HOUR"
+                (change)="onTimeFormatChange(TimeFormat.TWELVE_HOUR)"
+                aria-label="12-hour time format"
+              />
+              <div class="format-content">
+                <span class="format-label">12-hour format</span>
+                <span class="format-example">12:00 AM / PM</span>
+              </div>
+            </label>
+
+            <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR">
+              <input
+                type="radio"
+                name="timeFormat"
+                [value]="TimeFormat.TWENTY_FOUR_HOUR"
+                [checked]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR"
+                (change)="onTimeFormatChange(TimeFormat.TWENTY_FOUR_HOUR)"
+                aria-label="24-hour time format"
+              />
+              <div class="format-content">
+                <span class="format-label">24-hour format</span>
+                <span class="format-example">24:00</span>
+              </div>
+            </label>
           </div>
-        </label>
+        </div>
 
-        <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR">
-          <input
-            type="radio"
-            name="timeFormat"
-            [value]="TimeFormat.TWENTY_FOUR_HOUR"
-            [checked]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR"
-            (change)="onTimeFormatChange(TimeFormat.TWENTY_FOUR_HOUR)"
-            aria-label="24-hour time format"
-          />
-          <div class="format-content">
-            <span class="format-label">24-hour format</span>
-            <span class="format-example">24:00</span>
+        <!-- Units Section -->
+        <div class="settings-card-section">
+          <h3 class="subsection-title">Units</h3>
+          <p class="subsection-description">Used for masjid distances and the weather</p>
+
+          <div class="format-options format-options-row" role="radiogroup" aria-label="Distance unit">
+            <label class="format-option" [class.active]="distanceUnit() === 'km'">
+              <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'km'" (change)="setDistanceUnit('km')" />
+              <div class="format-content">
+                <span class="format-label">Kilometres</span>
+                <span class="format-example">1.5 km</span>
+              </div>
+            </label>
+            <label class="format-option" [class.active]="distanceUnit() === 'mi'">
+              <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'mi'" (change)="setDistanceUnit('mi')" />
+              <div class="format-content">
+                <span class="format-label">Miles</span>
+                <span class="format-example">0.9 mi</span>
+              </div>
+            </label>
           </div>
-        </label>
-      </div>
-    </div>
 
-    <!-- Units Section -->
-    <div class="settings-card-section">
-      <h3 class="subsection-title">Units</h3>
-      <p class="subsection-description">Used for masjid distances and the weather</p>
-
-      <div class="format-options format-options-row" role="radiogroup" aria-label="Distance unit">
-        <label class="format-option" [class.active]="distanceUnit() === 'km'">
-          <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'km'" (change)="setDistanceUnit('km')" />
-          <div class="format-content">
-            <span class="format-label">Kilometres</span>
-            <span class="format-example">1.5 km</span>
+          <div class="format-options format-options-row" role="radiogroup" aria-label="Temperature unit">
+            <label class="format-option" [class.active]="temperatureUnit() === 'C'">
+              <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'C'" (change)="setTemperatureUnit('C')" />
+              <div class="format-content">
+                <span class="format-label">Celsius</span>
+                <span class="format-example">18°C</span>
+              </div>
+            </label>
+            <label class="format-option" [class.active]="temperatureUnit() === 'F'">
+              <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'F'" (change)="setTemperatureUnit('F')" />
+              <div class="format-content">
+                <span class="format-label">Fahrenheit</span>
+                <span class="format-example">65°F</span>
+              </div>
+            </label>
           </div>
-        </label>
-        <label class="format-option" [class.active]="distanceUnit() === 'mi'">
-          <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'mi'" (change)="setDistanceUnit('mi')" />
-          <div class="format-content">
-            <span class="format-label">Miles</span>
-            <span class="format-example">0.9 mi</span>
-          </div>
-        </label>
-      </div>
+        </div>
 
-      <div class="format-options format-options-row" role="radiogroup" aria-label="Temperature unit">
-        <label class="format-option" [class.active]="temperatureUnit() === 'C'">
-          <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'C'" (change)="setTemperatureUnit('C')" />
-          <div class="format-content">
-            <span class="format-label">Celsius</span>
-            <span class="format-example">18°C</span>
-          </div>
-        </label>
-        <label class="format-option" [class.active]="temperatureUnit() === 'F'">
-          <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'F'" (change)="setTemperatureUnit('F')" />
-          <div class="format-content">
-            <span class="format-label">Fahrenheit</span>
-            <span class="format-example">65°F</span>
-          </div>
-        </label>
-      </div>
-    </div>
+        <!-- Prayer Calculation Section -->
+        <div class="settings-card-section">
+          <h3 class="subsection-title">Prayer Calculation</h3>
+          <p class="subsection-description">Automatic uses the local authority for your location</p>
 
-    <!-- Prayer Calculation Section -->
-    <div class="settings-card-section">
-      <h3 class="subsection-title">Prayer Calculation</h3>
-      <p class="subsection-description">Automatic uses the local authority for your location</p>
-
-      <label class="calc-select-label" for="calcMethod">Calculation method</label>
-      <select
-        id="calcMethod"
-        class="calc-select"
-        [value]="calcMethod() ?? 'auto'"
-        (change)="onCalcMethodChange($any($event.target).value)"
-      >
-        <option value="auto">Automatic (by location)</option>
-        @for (method of calculationMethods; track method.id) {
-          <option [value]="method.id">{{ method.name }}</option>
-        }
-      </select>
-
-      <div class="format-options" role="radiogroup" aria-label="Asr calculation">
-        <label class="format-option" [class.active]="asrSchool() === 0">
-          <input type="radio" name="asrSchool" [checked]="asrSchool() === 0" (change)="onAsrSchoolChange(0)" />
-          <div class="format-content">
-            <span class="format-label">Standard Asr</span>
-            <span class="format-example">Shafi'i, Maliki, Hanbali</span>
-          </div>
-        </label>
-        <label class="format-option" [class.active]="asrSchool() === 1">
-          <input type="radio" name="asrSchool" [checked]="asrSchool() === 1" (change)="onAsrSchoolChange(1)" />
-          <div class="format-content">
-            <span class="format-label">Hanafi Asr</span>
-            <span class="format-example">Later Asr time</span>
-          </div>
-        </label>
-      </div>
-    </div>
-
-    <!-- App Permissions Section -->
-    <div class="settings-card-section">
-      <h3 class="subsection-title">App Permissions</h3>
-      <p class="subsection-description">Manage app access to device features</p>
-
-      <div class="permissions-list">
-        <!-- Location Permission -->
-        <div class="permission-item">
-          <div class="permission-info">
-            <h3 class="permission-name">Location Access</h3>
-            <p class="permission-description">Required for accurate prayer times and Qibla direction.</p>
-            
-            <!-- Current Location Display -->
-            @if (loadingLocation()) {
-              <p class="permission-description">Loading location...</p>
-            } @else if (locationInfo()) {
-              <p class="permission-description">
-                <svg width="10" height="10" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="location-icon" style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;">
-                  <path fill="currentColor" d="M122,231.3l-24.3-73l-73-24.3c-6.3-2-10.5-4.6-12.8-7.7c-2.3-3.1-2.5-6.4-0.6-9.8c1.8-3.4,5.8-6.4,11.7-9l202.3-94.3c9.1-4,15.3-4.3,18.6-1.1s2.9,9.5-1.1,18.6L148,233c-2.6,6-5.5,9.9-8.7,11.7c-3.3,1.9-6.5,1.6-9.6-0.6C126.5,241.9,124,237.6,122,231.3z"></path>
-                </svg>
-                @if (locationInfo()!.quadrant) {
-                  {{ locationInfo()!.quadrant }}, 
-                }
-                {{ locationInfo()!.city }}, {{ locationInfo()!.country }}
-              </p>
-            } @else {
-              <p class="permission-description">Location not available</p>
+          <label class="calc-select-label" for="calcMethod">Calculation method</label>
+          <select
+            id="calcMethod"
+            class="calc-select"
+            [value]="calcMethod() ?? 'auto'"
+            (change)="onCalcMethodChange($any($event.target).value)"
+          >
+            <option value="auto">Automatic (by location)</option>
+            @for (method of calculationMethods; track method.id) {
+              <option [value]="method.id">{{ method.name }}</option>
             }
-          </div>
-          <div class="permission-status">
-            @if (locationState().status !== PermissionStatus.NOT_SUPPORTED) {
-              @if (locationState().status !== PermissionStatus.NOT_REQUESTED && locationState().status !== PermissionStatus.PROMPT) {
-                <span class="status-badge" [class]="getPermissionStatusClass(locationState().status)">
-                  {{ getPermissionStatusText(locationState().status) }}
-                </span>
-              }
-              @if (locationState().canRequest || locationState().status === PermissionStatus.NOT_REQUESTED || locationState().status === PermissionStatus.PROMPT) {
-                <button
-                  class="permission-button"
-                  type="button"
-                  (click)="requestLocationPermission()"
-                  [disabled]="requestingLocation()"
-                  [attr.aria-label]="requestingLocation() ? 'Requesting location permission' : 'Enable location access for prayer times and Qibla'"
-                >
-                  {{ requestingLocation() ? 'Requesting...' : 'Enable Location' }}
-                </button>
-              }
-            } @else {
-              <span class="status-badge status-not-supported">
-                {{ getPermissionStatusText(locationState().status) }}
-              </span>
-            }
+          </select>
+
+          <div class="format-options" role="radiogroup" aria-label="Asr calculation">
+            <label class="format-option" [class.active]="asrSchool() === 0">
+              <input type="radio" name="asrSchool" [checked]="asrSchool() === 0" (change)="onAsrSchoolChange(0)" />
+              <div class="format-content">
+                <span class="format-label">Standard Asr</span>
+                <span class="format-example">Shafi'i, Maliki, Hanbali</span>
+              </div>
+            </label>
+            <label class="format-option" [class.active]="asrSchool() === 1">
+              <input type="radio" name="asrSchool" [checked]="asrSchool() === 1" (change)="onAsrSchoolChange(1)" />
+              <div class="format-content">
+                <span class="format-label">Hanafi Asr</span>
+                <span class="format-example">Later Asr time</span>
+              </div>
+            </label>
           </div>
         </div>
 
-        <!-- Compass Permission -->
-        <div class="permission-item">
-          <div class="permission-info">
-            <h3 class="permission-name">Compass / Motion Sensor Access</h3>
-            <p class="permission-description">Required for Qibla compass feature</p>
-          </div>
-          <div class="permission-status">
-            @if (compassState().isSupported) {
-              @if (compassState().status !== PermissionStatus.NOT_REQUESTED && compassState().status !== PermissionStatus.PROMPT) {
-                <span class="status-badge" [class]="getPermissionStatusClass(compassState().status)">
-                  {{ getPermissionStatusText(compassState().status) }}
-                </span>
-              }
-              @if (compassState().canRequest || compassState().status === PermissionStatus.NOT_REQUESTED || compassState().status === PermissionStatus.PROMPT) {
-                <button
-                  class="permission-button"
-                  type="button"
-                  (click)="requestCompassPermission()"
-                  [disabled]="requestingCompass()"
-                  [attr.aria-label]="requestingCompass() ? 'Requesting compass permission' : 'Enable motion sensor access for Qibla compass'"
-                >
-                  {{ requestingCompass() ? 'Requesting...' : 'Enable Motion Access' }}
-                </button>
-              }
-            } @else {
-              <span class="status-badge status-not-supported">
-                {{ getPermissionStatusText(compassState().status) }}
-              </span>
-            }
-          </div>
-        </div>
-
-        <!-- Notification Permission -->
-        <div class="permission-item">
-          <div class="permission-info">
-            <h3 class="permission-name">Prayer Time Notifications</h3>
-            <p class="permission-description">Get notified at each prayer time. Enable notifications for specific prayers on the Prayer page. Reminders arrive even when QuranFlow is closed. On iPhone, add the app to your Home Screen first (iOS 16.4 or later).</p>
-          </div>
-          <div class="permission-status">
-            @if (notificationPermission()) {
-              <span class="status-badge status-allowed">
-                Allowed
-              </span>
-            } @else {
-              <span class="status-badge" [class]="notificationStatus() === 'denied' ? 'status-denied' : 'status-not-requested'">
-                {{ notificationStatus() === 'denied' ? 'Denied' : 'Not Requested' }}
-              </span>
-            }
-          </div>
-        </div>
-
-        <!-- Reset Data & Permissions -->
-        <div class="permission-item permission-item-danger">
-          <div class="permission-info">
-            <h3 class="permission-name">Reset Data & Permissions</h3>
-            <p class="permission-description">Clear all API cache data and reset permissions. This action cannot be undone.</p>
-          </div>
-          <div class="permission-status">
-            <button
-              class="clear-data-button"
-              type="button"
-              (click)="resetDataAndPermissions()"
-              [disabled]="clearingData()"
-              [attr.aria-label]="clearingData() ? 'Resetting data and permissions' : 'Reset all data and permissions. This action cannot be undone.'"
-            >
-              {{ clearingData() ? 'Resetting...' : 'Reset Data & Permissions' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- About App Card -->
-  <section class="settings-section">
-    <h2 class="section-title">About App</h2>
-    
-    <!-- App Information -->
-    <div class="app-info">
-      <div class="app-info-item">
-        <span class="app-info-label">App Name</span>
-        <span class="app-info-value">{{ appName() }}</span>
-      </div>
-      <div class="app-info-item">
-        <span class="app-info-label">Version</span>
-        <span class="app-info-value">{{ appVersion() }}</span>
-      </div>
-      @if (buildNumber()) {
-        <div class="app-info-item">
-          <span class="app-info-label">Build Number</span>
-          <span class="app-info-value">{{ buildNumber() }}</span>
-        </div>
+        </section>
       }
-    </div>
+      @case ('app') {
+        <section class="settings-section">
+          <h2 class="section-title">App Permissions</h2>
 
-    <!-- App Features -->
-    <div class="app-features">
-      <p class="app-features-text">
-        This app provides accurate prayer times based on your location, an interactive Qibla compass 
-        to find the direction of Mecca, and access to the complete Quran with audio recitation. 
-        All features work offline, and your data is stored locally on your device for privacy and security.
-      </p>
-    </div>
+        <!-- App Permissions Section -->
+        <div class="settings-card-section">
+          <p class="subsection-description">Manage app access to device features</p>
 
-    <!-- Accordion Sections -->
-    <div class="accordion-container">
-      <!-- Our Mission Accordion -->
-      <div class="accordion-item">
-        <button
-          class="accordion-header"
-          type="button"
-          [attr.aria-expanded]="expandedSections().mission"
-          [attr.aria-controls]="'mission-content'"
-          (click)="toggleAccordion('mission')"
-        >
-          <span class="accordion-title">Our Mission</span>
-          <svg
-            class="accordion-icon"
-            [class.expanded]="expandedSections().mission"
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              d="M5 7.5L10 12.5L15 7.5"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-        <div
-          class="accordion-content"
-          [class.expanded]="expandedSections().mission"
-          id="mission-content"
-          [attr.aria-hidden]="!expandedSections().mission"
-        >
-          <div class="accordion-content-inner">
-            <p class="accordion-text">
-              Our mission is to provide a beautiful, accessible, and accurate Islamic prayer time application 
-              that helps Muslims around the world stay connected to their daily prayers. We strive to create 
-              a seamless experience that combines modern design with traditional values, making it easy to 
-              track prayer times, read the Quran, and find the Qibla direction.
-            </p>
+          <div class="permissions-list">
+            <!-- Location Permission -->
+            <div class="permission-item">
+              <div class="permission-info">
+                <h3 class="permission-name">Location Access</h3>
+                <p class="permission-description">Required for accurate prayer times and Qibla direction.</p>
+            
+                <!-- Current Location Display -->
+                @if (loadingLocation()) {
+                  <p class="permission-description">Loading location...</p>
+                } @else if (locationInfo()) {
+                  <p class="permission-description">
+                    <svg width="10" height="10" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="location-icon" style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;">
+                      <path fill="currentColor" d="M122,231.3l-24.3-73l-73-24.3c-6.3-2-10.5-4.6-12.8-7.7c-2.3-3.1-2.5-6.4-0.6-9.8c1.8-3.4,5.8-6.4,11.7-9l202.3-94.3c9.1-4,15.3-4.3,18.6-1.1s2.9,9.5-1.1,18.6L148,233c-2.6,6-5.5,9.9-8.7,11.7c-3.3,1.9-6.5,1.6-9.6-0.6C126.5,241.9,124,237.6,122,231.3z"></path>
+                    </svg>
+                    @if (locationInfo()!.quadrant) {
+                      {{ locationInfo()!.quadrant }}, 
+                    }
+                    {{ locationInfo()!.city }}, {{ locationInfo()!.country }}
+                  </p>
+                } @else {
+                  <p class="permission-description">Location not available</p>
+                }
+              </div>
+              <div class="permission-status">
+                @if (locationState().status !== PermissionStatus.NOT_SUPPORTED) {
+                  @if (locationState().status !== PermissionStatus.NOT_REQUESTED && locationState().status !== PermissionStatus.PROMPT) {
+                    <span class="status-badge" [class]="getPermissionStatusClass(locationState().status)">
+                      {{ getPermissionStatusText(locationState().status) }}
+                    </span>
+                  }
+                  @if (locationState().canRequest || locationState().status === PermissionStatus.NOT_REQUESTED || locationState().status === PermissionStatus.PROMPT) {
+                    <button
+                      class="permission-button"
+                      type="button"
+                      (click)="requestLocationPermission()"
+                      [disabled]="requestingLocation()"
+                      [attr.aria-label]="requestingLocation() ? 'Requesting location permission' : 'Enable location access for prayer times and Qibla'"
+                    >
+                      {{ requestingLocation() ? 'Requesting...' : 'Enable Location' }}
+                    </button>
+                  }
+                } @else {
+                  <span class="status-badge status-not-supported">
+                    {{ getPermissionStatusText(locationState().status) }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Compass Permission -->
+            <div class="permission-item">
+              <div class="permission-info">
+                <h3 class="permission-name">Compass / Motion Sensor Access</h3>
+                <p class="permission-description">Required for Qibla compass feature</p>
+              </div>
+              <div class="permission-status">
+                @if (compassState().isSupported) {
+                  @if (compassState().status !== PermissionStatus.NOT_REQUESTED && compassState().status !== PermissionStatus.PROMPT) {
+                    <span class="status-badge" [class]="getPermissionStatusClass(compassState().status)">
+                      {{ getPermissionStatusText(compassState().status) }}
+                    </span>
+                  }
+                  @if (compassState().canRequest || compassState().status === PermissionStatus.NOT_REQUESTED || compassState().status === PermissionStatus.PROMPT) {
+                    <button
+                      class="permission-button"
+                      type="button"
+                      (click)="requestCompassPermission()"
+                      [disabled]="requestingCompass()"
+                      [attr.aria-label]="requestingCompass() ? 'Requesting compass permission' : 'Enable motion sensor access for Qibla compass'"
+                    >
+                      {{ requestingCompass() ? 'Requesting...' : 'Enable Motion Access' }}
+                    </button>
+                  }
+                } @else {
+                  <span class="status-badge status-not-supported">
+                    {{ getPermissionStatusText(compassState().status) }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Notification Permission -->
+            <div class="permission-item">
+              <div class="permission-info">
+                <h3 class="permission-name">Prayer Time Notifications</h3>
+                <p class="permission-description">Get notified at each prayer time. Enable notifications for specific prayers on the Prayer page. Reminders arrive even when QuranFlow is closed. On iPhone, add the app to your Home Screen first (iOS 16.4 or later).</p>
+              </div>
+              <div class="permission-status">
+                @if (notificationPermission()) {
+                  <span class="status-badge status-allowed">
+                    Allowed
+                  </span>
+                } @else {
+                  <span class="status-badge" [class]="notificationStatus() === 'denied' ? 'status-denied' : 'status-not-requested'">
+                    {{ notificationStatus() === 'denied' ? 'Denied' : 'Not Requested' }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Reset Data & Permissions -->
+            <div class="permission-item permission-item-danger">
+              <div class="permission-info">
+                <h3 class="permission-name">Reset Data & Permissions</h3>
+                <p class="permission-description">Clear all API cache data and reset permissions. This action cannot be undone.</p>
+              </div>
+              <div class="permission-status">
+                <button
+                  class="clear-data-button"
+                  type="button"
+                  (click)="resetDataAndPermissions()"
+                  [disabled]="clearingData()"
+                  [attr.aria-label]="clearingData() ? 'Resetting data and permissions' : 'Reset all data and permissions. This action cannot be undone.'"
+                >
+                  {{ clearingData() ? 'Resetting...' : 'Reset Data & Permissions' }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+        </section>
 
-      <!-- Privacy Policy Accordion -->
-      <div class="accordion-item">
-        <button
-          class="accordion-header"
-          type="button"
-          [attr.aria-expanded]="expandedSections().privacy"
-          [attr.aria-controls]="'privacy-content'"
-          (click)="toggleAccordion('privacy')"
-        >
-          <span class="accordion-title">Privacy Policy</span>
-          <svg
-            class="accordion-icon"
-            [class.expanded]="expandedSections().privacy"
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              d="M5 7.5L10 12.5L15 7.5"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-        <div
-          class="accordion-content"
-          [class.expanded]="expandedSections().privacy"
-          id="privacy-content"
-          [attr.aria-hidden]="!expandedSections().privacy"
-        >
-          <div class="accordion-content-inner">
-            <p class="accordion-text">
-              We respect your privacy and are committed to protecting your personal information. This app 
-              stores data locally on your device, including prayer time preferences and location settings. 
-              We do not collect, share, or transmit any personal data to external servers. All information 
-              remains on your device and can be cleared at any time through the settings.
-            </p>
-            <p class="accordion-text">
-              For more detailed information about our privacy practices, please review our full privacy policy.
-            </p>
+      <!-- About App Card -->
+      <section class="settings-section">
+        <h2 class="section-title">About App</h2>
+    
+        <!-- App Information -->
+        <div class="app-info">
+          <div class="app-info-item">
+            <span class="app-info-label">App Name</span>
+            <span class="app-info-value">{{ appName() }}</span>
+          </div>
+          <div class="app-info-item">
+            <span class="app-info-label">Version</span>
+            <span class="app-info-value">{{ appVersion() }}</span>
+          </div>
+          @if (buildNumber()) {
+            <div class="app-info-item">
+              <span class="app-info-label">Build Number</span>
+              <span class="app-info-value">{{ buildNumber() }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- App Features -->
+        <div class="app-features">
+          <p class="app-features-text">
+            This app provides accurate prayer times based on your location, an interactive Qibla compass
+            to find the direction of Mecca, nearby masjids, and the complete Quran with audio recitation.
+            Prayer times and the Quran text work offline, and your preferences and bookmarks stay on your device.
+          </p>
+        </div>
+
+        <!-- Accordion Sections -->
+        <div class="accordion-container">
+          <!-- Our Mission Accordion -->
+          <div class="accordion-item">
+            <button
+              class="accordion-header"
+              type="button"
+              [attr.aria-expanded]="expandedSections().mission"
+              [attr.aria-controls]="'mission-content'"
+              (click)="toggleAccordion('mission')"
+            >
+              <span class="accordion-title">Our Mission</span>
+              <svg
+                class="accordion-icon"
+                [class.expanded]="expandedSections().mission"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 7.5L10 12.5L15 7.5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <div
+              class="accordion-content"
+              [class.expanded]="expandedSections().mission"
+              id="mission-content"
+              [attr.aria-hidden]="!expandedSections().mission"
+            >
+              <div class="accordion-content-inner">
+                <p class="accordion-text">
+                  Our mission is to provide a beautiful, accessible, and accurate Islamic prayer time application 
+                  that helps Muslims around the world stay connected to their daily prayers. We strive to create 
+                  a seamless experience that combines modern design with traditional values, making it easy to 
+                  track prayer times, read the Quran, and find the Qibla direction.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privacy Policy Accordion -->
+          <div class="accordion-item">
+            <button
+              class="accordion-header"
+              type="button"
+              [attr.aria-expanded]="expandedSections().privacy"
+              [attr.aria-controls]="'privacy-content'"
+              (click)="toggleAccordion('privacy')"
+            >
+              <span class="accordion-title">Privacy Policy</span>
+              <svg
+                class="accordion-icon"
+                [class.expanded]="expandedSections().privacy"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 7.5L10 12.5L15 7.5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <div
+              class="accordion-content"
+              [class.expanded]="expandedSections().privacy"
+              id="privacy-content"
+              [attr.aria-hidden]="!expandedSections().privacy"
+            >
+              <div class="accordion-content-inner">
+                <p class="accordion-text">
+                  QuranFlow has no accounts and stores your preferences, bookmarks and cached data on your device only.
+                  To work, some features send an approximate location (rounded to about 1 km) to these services:
+                </p>
+                <ul class="accordion-list">
+                  <li>Prayer times: Aladhan</li>
+                  <li>Nearby masjids: our server, then OpenStreetMap or Geoapify</li>
+                  <li>Weather: Open-Meteo</li>
+                  <li>Place names: OpenStreetMap Nominatim</li>
+                  <li>Prayer reminders (only if you turn them on): our server keeps your phone's notification address, rounded location and chosen prayers, and deletes them when you turn reminders off</li>
+                </ul>
+                <p class="accordion-text">
+                  Nothing is sold or used for ads. "Reset Data & Permissions" clears what is stored on this device.
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Credits Accordion -->
+          <div class="accordion-item">
+            <button
+              class="accordion-header"
+              type="button"
+              [attr.aria-expanded]="expandedSections().credits"
+              aria-controls="credits-content"
+              (click)="toggleAccordion('credits')"
+            >
+              <span class="accordion-title">Data &amp; Credits</span>
+              <svg class="accordion-icon" [class.expanded]="expandedSections().credits" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+            <div class="accordion-content" [class.expanded]="expandedSections().credits" id="credits-content" [attr.aria-hidden]="!expandedSections().credits">
+              <div class="accordion-content-inner">
+                <ul class="accordion-list">
+                  <li>Prayer times by <a href="https://aladhan.com" target="_blank" rel="noopener">Aladhan</a></li>
+                  <li>Quran text and audio via <a href="https://github.com/The-Quran-Project/Quran-API" target="_blank" rel="noopener">The Quran Project</a> (MIT)</li>
+                  <li>Masjid and map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL); fallback by <a href="https://www.geoapify.com" target="_blank" rel="noopener">Geoapify</a></li>
+                  <li>Weather data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
+      }
+    }
+  </div>
 </div>
-

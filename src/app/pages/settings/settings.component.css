@@ -86,6 +86,15 @@
   grid-template-columns: 1fr 1fr;
 }
 
+.format-options-row .format-option {
+  min-width: 0;
+  padding-inline: var(--space-md);
+}
+
+.format-options-row .format-option input[type="radio"] {
+  margin-right: var(--space-sm);
+}
+
 .format-options + .format-options {
   margin-top: 0.625rem;
 }
@@ -102,10 +111,12 @@
   position: relative;
 }
 
-.format-option:hover {
-  background: var(--color-surface-muted);
-  border-color: var(--color-border);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .format-option:hover {
+    background: var(--color-surface-muted);
+    border-color: var(--color-border);
+    transform: translateY(-1px);
+  }
 }
 
 .format-option.active {
@@ -582,4 +593,52 @@
 .calc-select:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* Profile tabs: a segmented control under the title */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xxs);
+  padding: var(--space-xxs);
+  margin-bottom: var(--space-lg);
+  border-radius: 999px;
+  background: var(--color-surface-alt);
+}
+
+.tab {
+  min-height: 2.5rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab.active {
+  background: var(--color-surface);
+  color: var(--color-primary-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.accordion-list {
+  margin: 0 0 var(--space-sm);
+  padding-left: 1.1rem;
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.accordion-list a {
+  color: var(--color-primary-text);
 }

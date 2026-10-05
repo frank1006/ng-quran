@@ -14,6 +14,9 @@ import { UserStoreService, Bookmark } from '../../services/user-store.service';
 import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter } from '../../services/quran-api.types';
 
+type ProfileTab = 'bookmarks' | 'preferences' | 'app';
+const TAB_STORAGE_KEY = 'profile-tab';
+
 @Component({
   selector: 'app-settings',
   standalone: true,
@@ -22,6 +25,13 @@ import { Chapter } from '../../services/quran-api.types';
   styleUrl: './settings.component.css'
 })
 export class SettingsComponent implements OnInit, OnDestroy {
+  protected readonly tabs: { id: ProfileTab; label: string }[] = [
+    { id: 'bookmarks', label: 'Bookmarks' },
+    { id: 'preferences', label: 'Preferences' },
+    { id: 'app', label: 'App' },
+  ];
+  protected readonly activeTab = signal<ProfileTab>(this.readStoredTab());
+
   protected readonly TimeFormat = TimeFormat;
   protected readonly PermissionStatus = PermissionStatus;
   protected readonly timeFormat = computed(() => this.settingsService.currentTimeFormat());
@@ -123,7 +133,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly buildNumber = signal<string | null>(null);
 
   // Accordion state
-  protected readonly expandedSections = signal<{ mission: boolean; privacy: boolean }>({
+  protected readonly expandedSections = signal<{ mission: boolean; privacy: boolean; credits: boolean }>({
+    credits: false,
     mission: false,
     privacy: false
   });
@@ -348,7 +359,36 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /**
    * Toggle accordion section
    */
-  protected toggleAccordion(section: 'mission' | 'privacy'): void {
+  protected selectTab(tab: ProfileTab): void {
+    this.activeTab.set(tab);
+    try {
+      localStorage.setItem(TAB_STORAGE_KEY, tab);
+    } catch {
+      // Not remembered in private mode: fine
+    }
+  }
+
+  /** Arrow keys move between tabs (WAI-ARIA tabs pattern) */
+  protected onTabKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    const index = this.tabs.findIndex(tab => tab.id === this.activeTab());
+    const step = event.key === 'ArrowRight' ? 1 : -1;
+    const next = this.tabs[(index + step + this.tabs.length) % this.tabs.length].id;
+    this.selectTab(next);
+    document.getElementById('tab-' + next)?.focus();
+    event.preventDefault();
+  }
+
+  private readStoredTab(): ProfileTab {
+    try {
+      const stored = localStorage.getItem(TAB_STORAGE_KEY);
+      return stored === 'preferences' || stored === 'app' ? stored : 'bookmarks';
+    } catch {
+      return 'bookmarks';
+    }
+  }
+
+  protected toggleAccordion(section: 'mission' | 'privacy' | 'credits'): void {
     const current = this.expandedSections();
     this.expandedSections.set({
       ...current,
