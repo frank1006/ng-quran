@@ -101,6 +101,9 @@ export class PrayerListComponent {
       // Request permission if not granted
       if (newState && !this.notificationService.isPermissionGranted()) {
         const permission = await this.notificationService.requestPermission();
+        if (permission === 'not_supported') {
+          throw new Error('Not supported');
+        }
         if (permission !== 'granted') {
           throw new Error('Permission denied');
         }
@@ -112,6 +115,8 @@ export class PrayerListComponent {
         this.showInstallationPrompt();
       } else if (error.message === 'Permission denied') {
         this.showPermissionDeniedMessage();
+      } else if (error.message === 'Not supported') {
+        alert('This browser does not support notifications. Try Chrome, Edge, Firefox or Safari, or install QuranFlow to your Home Screen.');
       } else {
         Logger.error('Failed to toggle notification:', error);
         // You can add a toast/alert here to show error to user
@@ -133,7 +138,9 @@ export class PrayerListComponent {
 
   private showPermissionDeniedMessage(): void {
     alert(
-      'Notifications were denied. Please enable them in your browser settings to receive prayer time reminders.'
+      this.deviceDetection.deviceInfo().isIOS
+        ? 'Notifications are turned off for QuranFlow. Turn them on in Settings › Notifications › QuranFlow.'
+        : 'Notifications are blocked for QuranFlow. Allow them in your browser\'s site settings to receive prayer reminders.'
     );
   }
 

@@ -39,7 +39,9 @@ export class DeviceDetectionService {
 
   private detectIOS(): boolean {
     if (typeof window === 'undefined') return false;
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    // iPadOS reports itself as a Mac, but Macs have no touch screen
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
   }
 
   private detectAndroid(): boolean {
@@ -53,17 +55,9 @@ export class DeviceDetectionService {
   private detectPWAInstallation(): boolean {
     if (typeof window === 'undefined') return false;
 
-    // Method 1: Check if running in standalone mode
-    if (this.detectStandalone()) {
-      return true;
-    }
-
-    // Method 2: Check if service worker is registered and active
-    if ('serviceWorker' in navigator) {
-      return navigator.serviceWorker.controller !== null;
-    }
-
-    return false;
+    // Only an app opened from the Home Screen runs standalone. (An active service worker
+    // doesn't count: it is active in a normal browser tab too.)
+    return this.detectStandalone();
   }
 
   /**
@@ -105,7 +99,7 @@ export class DeviceDetectionService {
    */
   getInstallationMessage(): string {
     if (this.isIOS() && !this.isPWAInstalled()) {
-      return 'For notifications on iOS, please add this app to your home screen. Tap the share button (square with arrow) and select "Add to Home Screen".';
+      return 'To get prayer reminders on iPhone or iPad, add QuranFlow to your Home Screen: in Safari tap Share (or ⋯ then Share), choose "Add to Home Screen", then open QuranFlow from the new icon.';
     }
     return '';
   }
