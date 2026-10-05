@@ -1,6 +1,6 @@
 import { Injectable, isDevMode } from '@angular/core';
-import { Observable, from, of } from 'rxjs';
-import { tap, shareReplay, finalize } from 'rxjs/operators';
+import { Observable, from, of, throwError } from 'rxjs';
+import { tap, shareReplay, finalize, catchError } from 'rxjs/operators';
 
 /**
  * Mosque/Masjid data from Overpass API
@@ -83,6 +83,8 @@ export class MasjidService {
   private readonly MIN_RADIUS_KM = 1; // Minimum 1km radius
   private readonly REQUEST_TIMEOUT_MS = 12000; // Per-endpoint limit
   private readonly STAGGER_MS = 5000; // Start the next endpoint if no answer yet
+  private readonly PROXY_RADII_KM = [5, 10]; // Radii cached by /api/masjids
+  private readonly PROXY_TIMEOUT_MS = 25000;
   private readonly BASE_FETCH_KM = 5; // Smallest search actually sent to the server
   
   // Cache configuration
@@ -189,6 +191,14 @@ export class MasjidService {
         // Cache the results after successful fetch
         this.setCachedMasjids(latitude, longitude, fetchRadius, masjids);
       }),
+      catchError((error) => {
+        // Servers unavailable: fall back to an older saved search for this area, if any
+        const stale = this.getCachedMasjids(latitude, longitude, fetchRadius, true);
+        if (stale && !String(error?.message).includes('REQUEST_ABORTED')) {
+          return of(stale);
+        }
+        return throwError(() => error);
+      }),
       shareReplay(1), // Share the result with all concurrent subscribers
       finalize(() => {
         // Remove from pending requests when complete (success or error)
@@ -214,12 +224,12 @@ export class MasjidService {
   /**
    * Get cached masjids if available and not expired
    */
-  private getCachedMasjids(latitude: number, longitude: number, radiusKm: number): Masjid[] | null {
+  private getCachedMasjids(latitude: number, longitude: number, radiusKm: number, allowStale = false): Masjid[] | null {
     const cacheKey = this.getCacheKey(latitude, longitude, radiusKm);
 
     // Check in-memory cache first
     const inMemoryEntry = this.inMemoryCache.get(cacheKey);
-    if (inMemoryEntry && !this.isCacheExpired(inMemoryEntry)) {
+    if (inMemoryEntry && (allowStale || !this.isCacheExpired(inMemoryEntry))) {
       return inMemoryEntry.masjids;
     }
 
@@ -261,7 +271,7 @@ export class MasjidService {
         }
 
         const entry = data.searchCache[cacheKey];
-        if (entry && !this.isCacheExpired(entry)) {
+        if (entry && (allowStale || !this.isCacheExpired(entry))) {
           // Update in-memory cache
           this.inMemoryCache.set(cacheKey, entry);
           return entry.masjids;
@@ -281,7 +291,7 @@ export class MasjidService {
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(unifiedCache));
             
             const entry = oldData.cache[cacheKey];
-            if (entry && !this.isCacheExpired(entry)) {
+            if (entry && (allowStale || !this.isCacheExpired(entry))) {
               this.inMemoryCache.set(cacheKey, entry);
               return entry.masjids;
             }
@@ -434,6 +444,62 @@ export class MasjidService {
     latitude: number,
     longitude: number,
     radiusKm: number,
+    abortSignal?: AbortSignal
+  ): Observable<Masjid[]> {
+    return from(
+      this.fetchViaProxy(latitude, longitude, radiusKm, abortSignal).catch(error => {
+        if (abortSignal?.aborted) throw error;
+        // Proxy unavailable (e.g. local dev) or failed: ask the public servers directly
+        return new Promise<Masjid[]>((resolve, reject) =>
+          this.raceOverpass(query, latitude, longitude, abortSignal).subscribe({ next: resolve, error: reject })
+        );
+      })
+    );
+  }
+
+  /**
+   * Same-origin Vercel proxy (/api/masjids) that caches Overpass results at the edge.
+   * Coordinates are rounded to the proxy's ~1 km grid; distances are computed from the real position.
+   */
+  private async fetchViaProxy(
+    latitude: number,
+    longitude: number,
+    radiusKm: number,
+    abortSignal?: AbortSignal
+  ): Promise<Masjid[]> {
+    const proxyRadius = this.PROXY_RADII_KM.find(r => r >= radiusKm);
+    if (proxyRadius === undefined) {
+      throw new Error('Radius not supported by proxy');
+    }
+    const grid = (value: number) => Number((Math.round(value / 0.01) * 0.01).toFixed(2));
+    const url = `/api/masjids?lat=${grid(latitude)}&lng=${grid(longitude)}&r=${proxyRadius}`;
+
+    const attempt = new AbortController();
+    const timer = setTimeout(() => attempt.abort(), this.PROXY_TIMEOUT_MS);
+    const onCallerAbort = () => attempt.abort();
+    abortSignal?.addEventListener('abort', onCallerAbort);
+    try {
+      const response = await fetch(url, { signal: attempt.signal });
+      if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+        throw new Error(`Proxy HTTP ${response.status}`);
+      }
+      const data: OverpassResponse = await response.json();
+      const masjids = await this.processOverpassResponse(data, latitude, longitude);
+      return masjids.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+    } catch (error) {
+      if (abortSignal?.aborted) throw new Error('REQUEST_ABORTED');
+      throw error;
+    } finally {
+      clearTimeout(timer);
+      abortSignal?.removeEventListener('abort', onCallerAbort);
+    }
+  }
+
+  /** Query the public Overpass endpoints directly (staggered race). */
+  private raceOverpass(
+    query: string,
+    latitude: number,
+    longitude: number,
     abortSignal?: AbortSignal
   ): Observable<Masjid[]> {
     const urls = this.OVERPASS_API_URLS;

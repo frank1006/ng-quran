@@ -17,6 +17,12 @@ export class ConnectionErrorComponent {
   /** Location failures (denied, unavailable, timeout) shouldn't be shown as network errors. */
   protected readonly isLocationError = computed(() => /location/i.test(this.errorMessage()));
 
+  /** Only show the "no wifi" icon when the device is actually offline. */
+  protected readonly isOffline = computed(() => {
+    this.errorMessage(); // re-evaluate whenever a new error is shown
+    return typeof navigator !== 'undefined' && !navigator.onLine;
+  });
+
   onRetry(): void {
     this.retry.emit();
   }
