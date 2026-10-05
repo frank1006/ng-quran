@@ -7,7 +7,7 @@ import { QuranAudioService } from '../../../services/quran-audio.service';
 /** Room the player button takes above the bottom nav; scroll areas add it to their bottom padding */
 const MINI_PLAYER_SPACE = '5rem';
 
-/** A recitation left paused this long away from its surah is put away, button and all */
+/** A recitation left paused this long away from its surah is put away (back to Continue reading) */
 const PAUSED_DISMISS_MS = 5 * 60 * 1000;
 
 export function formatPlaybackTime(seconds: number): string {
@@ -42,13 +42,16 @@ export class MiniPlayerComponent {
     { initialValue: this.router.url }
   );
 
-  protected readonly visible = computed(() => {
+  private readonly path = computed(() => this.url().split(/[?#]/)[0]);
+
+  /** Recitation loaded and the reciting surah's page (with its own controls) isn't open */
+  private readonly awayFromSurah = computed(() => {
     const track = this.audio.track();
-    if (!track) return false;
-    // The surah page has its own controls
-    const path = this.url().split(/[?#]/)[0];
-    return path !== `/quran/${track.chapterId}`;
+    return !!track && this.path() !== `/quran/${track.chapterId}`;
   });
+
+  /** The Quran list shows the recitation in its header card instead */
+  protected readonly visible = computed(() => this.awayFromSurah() && this.path() !== '/quran');
 
   protected readonly formatTime = formatPlaybackTime;
 
@@ -57,7 +60,7 @@ export class MiniPlayerComponent {
       if (!this.visible()) this.expanded.set(false);
     });
     effect(onCleanup => {
-      const idle = this.visible() && !this.audio.isPlaying() && this.audio.loadingVerse() === null;
+      const idle = this.awayFromSurah() && !this.audio.isPlaying() && this.audio.loadingVerse() === null;
       if (!idle) return;
       const timer = setTimeout(() => this.audio.stop(), PAUSED_DISMISS_MS);
       onCleanup(() => clearTimeout(timer));

@@ -52,6 +52,15 @@ export class SurahListComponent implements OnInit, OnDestroy {
 
   protected readonly selectedReciterId = computed(() => this.userStore.selectedReciterId());
 
+  /** The recitation in progress; while there is one, the header card shows it */
+  protected readonly nowListening = computed(() => {
+    const track = this.audio.track();
+    if (!track || this.searchQuery().trim()) return null;
+    const chapter = this.chapters().find(c => c.id === track.chapterId);
+    if (!chapter) return null;
+    return { chapter, verse: track.verse, percent: Math.round((track.verse / track.totalVerses) * 100) };
+  });
+
   /** Where the reader stopped last time, shown as a card above the list (hidden while searching) */
   protected readonly continueReading = computed(() => {
     const last = this.userStore.lastRead();

@@ -45,7 +45,43 @@
       </div>
     </div>
 
-    @if (continueReading(); as cont) {
+    @if (nowListening(); as now) {
+      <!-- A recitation is loaded: the header card follows it instead of the reading position -->
+      <div class="continue-card listening">
+        <button type="button" class="continue-text" (click)="continueAt(now.chapter.id, now.verse)" [attr.aria-label]="'Open ' + now.chapter.transliteration + ', ayah ' + now.verse">
+          <span class="continue-label">
+            @if (audio.isPlaying()) {
+              <span class="listening-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+              Now listening
+            } @else {
+              Paused
+            }
+          </span>
+          <span class="continue-names">
+            <span class="continue-title">{{ now.chapter.transliteration }}</span>
+            <span class="continue-arabic">{{ now.chapter.name }}</span>
+          </span>
+          <span class="continue-ayah">Ayah {{ now.verse }} of {{ now.chapter.total_verses }} <span class="continue-percent">· {{ now.percent }}%</span></span>
+          <span class="continue-progress" aria-hidden="true">
+            <span class="continue-progress-fill" [style.width.%]="now.percent"></span>
+          </span>
+        </button>
+        <button type="button" class="continue-go" (click)="audio.toggle()" [attr.aria-label]="audio.isPlaying() ? 'Pause' : 'Play'">
+          @if (audio.loadingVerse() !== null) {
+            <svg class="spinner" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"></path></svg>
+          } @else if (audio.isPlaying()) {
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
+          } @else {
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          }
+        </button>
+      </div>
+    } @else if (continueReading(); as cont) {
       <button type="button" class="continue-card" (click)="continueAt(cont.chapter.id, cont.verse)">
         <span class="continue-text">
           <span class="continue-label">Continue reading</span>
