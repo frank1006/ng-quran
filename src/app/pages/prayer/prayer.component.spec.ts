@@ -17,7 +17,8 @@ describe('PrayerComponent', () => {
       preloadPrayerTimes: vi.fn(() => of([])),
       getCachedPrayerTimes: vi.fn(() => null),
       getPrayerTimes: vi.fn(() => of(null)),
-      hasDataForRange: vi.fn(() => false)
+      hasDataForRange: vi.fn(() => false),
+      currentLocation: vi.fn(() => null)
     };
 
     const trajectoryServiceSpy = {

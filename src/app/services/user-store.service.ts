@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { Reciter } from './quran-api.types';
 import { TimeFormat } from './time-format.types';
 import { ScheduledNotification } from './notification.types';
+import { Logger } from '../core/logger.util';
 
 export interface Bookmark {
   chapterId: number;
@@ -165,7 +166,7 @@ export class UserStoreService {
         this.state.set(data);
       }
     } catch (error) {
-      console.error('Error loading user store from localStorage:', error);
+      Logger.error('Error loading user store from localStorage:', error);
       this.clearLocalStorage();
     }
   }
@@ -198,7 +199,7 @@ export class UserStoreService {
 
       return data;
     } catch (error) {
-      console.error('Error parsing user store data:', error);
+      Logger.error('Error parsing user store data:', error);
       return null;
     }
   }
@@ -249,7 +250,7 @@ export class UserStoreService {
           migratedData.scrollPositions = this.validateObject(oldData.scrollPositions, {});
           localStorage.removeItem('quran-store');
         } catch (e) {
-          console.warn('Failed to migrate from quran-store:', e);
+          Logger.warn('Failed to migrate from quran-store:', e);
         }
       }
 
@@ -283,7 +284,7 @@ export class UserStoreService {
             localStorage.removeItem('prayer_scheduled_notifications');
           }
         } catch (e) {
-          console.warn('Failed to migrate scheduled notifications:', e);
+          Logger.warn('Failed to migrate scheduled notifications:', e);
         }
       }
 
@@ -303,7 +304,7 @@ export class UserStoreService {
       this.state.set(finalData);
       this.saveToLocalStorage();
     } catch (error) {
-      console.error('Error during migration:', error);
+      Logger.error('Error during migration:', error);
     }
   }
 
@@ -320,7 +321,7 @@ export class UserStoreService {
 
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state()));
       } catch (error) {
-        console.error('Error saving user store to localStorage:', error);
+        Logger.error('Error saving user store to localStorage:', error);
         if (error instanceof DOMException && error.name === 'QuotaExceededError') {
           // Clear old bookmarks if storage is full
           const state = this.state();
@@ -338,7 +339,7 @@ export class UserStoreService {
         localStorage.removeItem(this.STORAGE_KEY);
       }
     } catch (error) {
-      console.error('Error clearing localStorage:', error);
+      Logger.error('Error clearing localStorage:', error);
     }
   }
 

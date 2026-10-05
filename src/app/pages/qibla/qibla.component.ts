@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
-import { QiblaService, CompassInstruction } from './services/qibla.service';
+import { QiblaService, CompassInstruction, NO_ABSOLUTE_COMPASS } from './services/qibla.service';
 import { QiblaCompassComponent } from './components/qibla-compass.component';
 import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-header.component';
 import { PermissionsService } from '../../services/permissions.service';
@@ -58,9 +58,18 @@ export class QiblaComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeQibla();
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
+  /** Readings pause while the app is hidden; give the sensor a fresh grace period on return. */
+  private readonly onVisibilityChange = (): void => {
+    if (!document.hidden && this.lastHeadingReceivedTime !== null) {
+      this.lastHeadingReceivedTime = Date.now();
+    }
+  };
+
   ngOnDestroy(): void {
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
     if (this.locationTimeout !== null) {
       clearTimeout(this.locationTimeout);
       this.locationTimeout = null;
@@ -143,7 +152,8 @@ export class QiblaComponent implements OnInit, OnDestroy {
       this.compassAvailable.set(this.qiblaService.isDeviceOrientationSupported());
 
       if (this.compassAvailable()) {
-        if (this.qiblaService.isCompassPermissionGranted()) {
+        // iOS must re-request permission from a tap each launch, so it always shows the button
+        if (this.qiblaService.isCompassPermissionGranted() && !this.qiblaService.requiresPermissionGesture()) {
           this.startCompassListening();
         } else {
           this.needsPermissionButton.set(true);
@@ -160,13 +170,6 @@ export class QiblaComponent implements OnInit, OnDestroy {
   async enableCompass(): Promise<void> {
     this.needsPermissionButton.set(false);
     this.compassPermissionRequested.set(true);
-
-    const wasAlreadyGranted = this.qiblaService.isCompassPermissionGranted();
-    
-    if (wasAlreadyGranted) {
-      this.startCompassListening();
-      return;
-    }
 
     try {
       const granted = await this.qiblaService.requestCompassPermission();
@@ -229,12 +232,34 @@ export class QiblaComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
+        if (err instanceof Error && err.message === NO_ABSOLUTE_COMPASS) {
+          this.handleNoAbsoluteCompass();
+          return;
+        }
         if (isDevMode()) {
           console.error('Compass error:', err);
         }
         this.handleCompassNotWorking('Compass error occurred');
       }
     });
+  }
+
+  /**
+   * The browser only reports relative orientation, so a live compass would point the wrong way
+   */
+  private handleNoAbsoluteCompass(): void {
+    if (this.compassDataTimeout !== null) {
+      clearTimeout(this.compassDataTimeout);
+      this.compassDataTimeout = null;
+    }
+    this.compassAvailable.set(false);
+    this.compassPermissionGranted.set(false);
+    this.compassPermissionRequested.set(false);
+    this.needsPermissionButton.set(false);
+    this.currentHeading.set(null);
+    this.compassError.set(
+      `This browser doesn't provide a true compass. Face ${Math.round(this.qiblaBearing())}° clockwise from north (try Chrome on Android or Safari on iPhone).`
+    );
   }
 
   /**
@@ -285,6 +310,12 @@ export class QiblaComponent implements OnInit, OnDestroy {
     this.compassDataTimeout = window.setTimeout(() => {
       // Don't check if component is destroyed
       if (this.destroyRef.destroyed) {
+        return;
+      }
+
+      // No readings arrive while the app is in the background; don't report that as a failure
+      if (document.hidden) {
+        this.startCompassHealthCheck();
         return;
       }
 

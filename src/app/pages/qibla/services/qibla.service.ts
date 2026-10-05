@@ -2,6 +2,7 @@ import { Injectable, isDevMode } from '@angular/core';
 import { Observable, fromEvent } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { normalizeQuadrant, normalizeCity, normalizeCountry } from '../../../core/location.util';
+import { Logger } from '../../../core/logger.util';
 
 /**
  * Makkah (Kaaba) coordinates
@@ -45,6 +46,30 @@ export interface QiblaData {
  */
 const COMPASS_PERMISSION_KEY = 'qibla_compass_permission_granted';
 
+/** Error message emitted when the device only provides relative orientation. */
+export const NO_ABSOLUTE_COMPASS = 'NO_ABSOLUTE_COMPASS';
+
+/**
+ * Converts orientation readings to a clockwise compass heading from north (0-360).
+ * iOS reports webkitCompassHeading (already clockwise); others report alpha, which grows
+ * counter-clockwise. Relative (non-absolute) alpha has no fixed north, so it returns null.
+ */
+export function toCompassHeading(
+  reading: { alpha: number | null; webkitCompassHeading?: number | null },
+  isAbsolute: boolean
+): number | null {
+  let heading: number;
+  if (reading.webkitCompassHeading !== undefined && reading.webkitCompassHeading !== null) {
+    heading = reading.webkitCompassHeading;
+  } else if (reading.alpha !== null && !isNaN(reading.alpha) && isAbsolute) {
+    heading = 360 - reading.alpha;
+  } else {
+    return null;
+  }
+  heading = heading % 360;
+  return heading < 0 ? heading + 360 : heading;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -69,7 +94,7 @@ export class QiblaService {
       try {
         localStorage.setItem(COMPASS_PERMISSION_KEY, granted ? 'true' : 'false');
       } catch (e) {
-        console.warn('Failed to save compass permission to localStorage', e);
+        Logger.warn('Failed to save compass permission to localStorage', e);
       }
     }
   }
@@ -82,13 +107,19 @@ export class QiblaService {
       const stored = localStorage.getItem(COMPASS_PERMISSION_KEY);
       return stored === 'true' ? true : stored === 'false' ? false : null;
     } catch (e) {
-      console.warn('Failed to load compass permission from localStorage', e);
+      Logger.warn('Failed to load compass permission from localStorage', e);
       return null;
     }
   }
 
   isCompassPermissionGranted(): boolean {
     return this.loadCompassPermission() === true;
+  }
+
+  /** iOS Safari needs DeviceOrientationEvent.requestPermission() from a user tap on every launch. */
+  requiresPermissionGesture(): boolean {
+    return this.isDeviceOrientationSupported() &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function';
   }
 
   isDeviceOrientationSupported(): boolean {
@@ -106,8 +137,7 @@ export class QiblaService {
         const granted = response === 'granted';
         this.saveCompassPermission(granted);
         return granted;
-      } catch (e) {
-        console.warn('Failed to request compass permission', e);
+      } catch {
         this.saveCompassPermission(false);
         return false;
       }
@@ -154,7 +184,7 @@ export class QiblaService {
   }
 
   private setupOrientationListener(
-    observer: { next: (value: number | null) => void; complete: () => void }
+    observer: { next: (value: number | null) => void; error: (err: unknown) => void; complete: () => void }
   ): () => void {
     let lastHeading: number | null = null;
     let rafId: number | null = null;
@@ -181,28 +211,27 @@ export class QiblaService {
     const handleOrientation = (event: DeviceOrientationEvent) => {
       let heading: number | null = null;
 
-      if ((event as any).webkitCompassHeading !== undefined && (event as any).webkitCompassHeading !== null) {
-        heading = (event as any).webkitCompassHeading;
-      } else if (event.alpha !== null && !isNaN(event.alpha)) {
-        heading = event.alpha;
-        if (firstReading) {
+      const iosHeading = (event as any).webkitCompassHeading;
+      if (iosHeading === undefined || iosHeading === null) {
+        if (event.alpha !== null && !isNaN(event.alpha) && firstReading) {
           isAbsolute = (event as any).absolute === true || eventName === 'deviceorientationabsolute';
           firstReading = false;
+          if (!isAbsolute) {
+            // Relative orientation starts at an arbitrary direction, not north: unusable for Qibla
+            observer.error(new Error(NO_ABSOLUTE_COMPASS));
+            return;
+          }
         }
-      } else {
+      }
+      heading = toCompassHeading({ alpha: event.alpha, webkitCompassHeading: iosHeading }, isAbsolute);
+
+      if (heading === null || isNaN(heading)) {
         if (firstReading) {
           observer.next(null);
           firstReading = false;
         }
         return;
       }
-
-      if (heading === null || isNaN(heading)) {
-        return;
-      }
-
-      heading = heading % 360;
-      if (heading < 0) heading += 360;
 
       if (lastHeading === null) {
         lastHeading = heading;
@@ -328,7 +357,7 @@ export class QiblaService {
       return locationInfo;
     } catch (error) {
       if (isDevMode()) {
-        console.error('Error getting location info:', error);
+        Logger.error('Error getting location info:', error);
       }
       
       // Return fallback with empty quadrant
@@ -406,7 +435,7 @@ export class QiblaService {
       return null;
     } catch (error) {
       if (isDevMode()) {
-        console.error('Error reading location cache from localStorage:', error);
+        Logger.error('Error reading location cache from localStorage:', error);
       }
       return null;
     }
@@ -454,7 +483,7 @@ export class QiblaService {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cacheData));
     } catch (error) {
       if (isDevMode()) {
-        console.error('Error saving location cache to localStorage:', error);
+        Logger.error('Error saving location cache to localStorage:', error);
       }
       // Silently fail - in-memory cache will still work
     }
@@ -507,7 +536,7 @@ export class QiblaService {
       this.locationInfoCache.clear();
     } catch (error) {
       if (isDevMode()) {
-        console.error('Error clearing location cache:', error);
+        Logger.error('Error clearing location cache:', error);
       }
     }
   }

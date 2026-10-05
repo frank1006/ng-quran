@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { take } from 'rxjs/operators';
-import { SettingsService, TimeFormat } from '../../services/settings.service';
+import { SettingsService, TimeFormat, AsrSchool, CALCULATION_METHODS } from '../../services/settings.service';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService } from '../qibla/services/qibla.service';
@@ -24,6 +24,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly TimeFormat = TimeFormat;
   protected readonly PermissionStatus = PermissionStatus;
   protected readonly timeFormat = computed(() => this.settingsService.currentTimeFormat());
+  protected readonly calculationMethods = CALCULATION_METHODS;
+  protected readonly calcMethod = computed(() => this.settingsService.calcMethod());
+  protected readonly asrSchool = computed(() => this.settingsService.asrSchool());
   protected readonly compassState = computed(() => this.permissionsService.compassState());
   protected readonly locationState = computed(() => this.permissionsService.locationState());
   
@@ -234,6 +237,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
    */
   protected onTimeFormatChange(format: TimeFormat): void {
     this.settingsService.setTimeFormat(format);
+  }
+
+  /**
+   * Change calculation method ('auto' = chosen by location); cached times are recalculated
+   */
+  protected onCalcMethodChange(value: string): void {
+    this.settingsService.setCalcMethod(value === 'auto' ? null : Number(value));
+    this.prayerTimeStore.clearCache();
+  }
+
+  protected onAsrSchoolChange(school: AsrSchool): void {
+    this.settingsService.setAsrSchool(school);
+    this.prayerTimeStore.clearCache();
   }
 
   /**

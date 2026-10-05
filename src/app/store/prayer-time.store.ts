@@ -1,8 +1,10 @@
 import { Injectable, signal, computed, DestroyRef, inject } from '@angular/core';
 import { Observable, of, forkJoin } from 'rxjs';
 import { map, catchError, tap, switchMap } from 'rxjs/operators';
-import { PrayerTimeService } from '../services/prayer-time.service';
+import { PrayerTimeService, PrayerCalcParams } from '../services/prayer-time.service';
+import { SettingsService } from '../services/settings.service';
 import { PrayerTimeData, LocationCoordinates } from '../services/prayer-time.types';
+import { Logger } from '../core/logger.util';
 
 interface PrayerTimeCache {
   [dateKey: string]: PrayerTimeData;
@@ -12,6 +14,8 @@ interface StoredCacheData {
   cache: PrayerTimeCache;
   currentLocation: LocationCoordinates | null;
   lastFetchDate: string | null;
+  /** Location + calculation settings the cached times were computed for. */
+  context?: string | null;
   version: string;
 }
 
@@ -21,6 +25,17 @@ interface StoreState {
   error: string | null;
   currentLocation: LocationCoordinates | null;
   lastFetchDate: Date | null;
+  context: string | null;
+}
+
+/** Distance in km that counts as "moved" and triggers new prayer times. */
+const LOCATION_CHANGE_KM = 5;
+
+function distanceKm(a: LocationCoordinates, b: LocationCoordinates): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const x = toRad(b.longitude - a.longitude) * Math.cos(toRad((a.latitude + b.latitude) / 2));
+  const y = toRad(b.latitude - a.latitude);
+  return Math.sqrt(x * x + y * y) * 6371;
 }
 
 @Injectable({
@@ -29,18 +44,22 @@ interface StoreState {
 export class PrayerTimeStore {
   private readonly CACHE_RANGE = 3; // 3 days before and after
   private readonly STORAGE_KEY = 'prayer-time-cache';
-  private readonly CACHE_VERSION = '1.0.0';
+  private readonly CACHE_VERSION = '1.1.0'; // 1.1.0: method/school aware cache
   private readonly CACHE_EXPIRY_DAYS = 7; // Cache expires after 7 days
   private readonly destroyRef = inject(DestroyRef);
   private saveTimeout: number | null = null;
   private readonly SAVE_DEBOUNCE_MS = 500;
+  private readonly settings = inject(SettingsService);
+  /** Whether the stored location has been re-checked with GPS during this app session. */
+  private locationVerified = false;
   
   private readonly state = signal<StoreState>({
     cache: {},
     loading: false,
     error: null,
     currentLocation: null,
-    lastFetchDate: null
+    lastFetchDate: null,
+    context: null
   });
 
   constructor(private prayerTimeService: PrayerTimeService) {
@@ -53,29 +72,68 @@ export class PrayerTimeStore {
   readonly currentLocation = computed(() => this.state().currentLocation);
 
   getPrayerTimes(date: Date): Observable<PrayerTimeData | null> {
-    const dateKey = this.getDateKey(date);
-    const cached = this.getCachedPrayerTimes(dateKey);
-
-    if (cached) {
-      return of(cached);
-    }
-
-    const location = this.state().currentLocation;
-    if (!location) {
+    if (!this.state().currentLocation) {
       return this.initializeLocationAndFetch(date);
     }
 
-    return this.fetchPrayerTimesForDate(date, location);
+    return this.resolveLocation().pipe(
+      switchMap(location => {
+        this.ensureContext(location);
+        const cached = this.getCachedPrayerTimes(this.getDateKey(date));
+        return cached ? of(cached) : this.fetchPrayerTimesForDate(date, location);
+      })
+    );
   }
 
   preloadPrayerTimes(centerDate: Date): Observable<PrayerTimeData[]> {
-    const location = this.state().currentLocation;
-    
-    if (!location) {
+    if (!this.state().currentLocation) {
       return this.initializeLocationAndPreload(centerDate);
     }
 
-    return this.fetchPrayerTimesRange(centerDate, location);
+    return this.resolveLocation().pipe(
+      switchMap(location => this.fetchPrayerTimesRange(centerDate, location))
+    );
+  }
+
+  /**
+   * Returns the stored location, re-checking GPS once per app session so that
+   * travellers get times for where they are now. Falls back to the stored location.
+   */
+  private resolveLocation(): Observable<LocationCoordinates> {
+    const stored = this.state().currentLocation!;
+    if (this.locationVerified) {
+      return of(stored);
+    }
+
+    return this.prayerTimeService
+      .getCurrentLocation({ enableHighAccuracy: false, timeout: 5000, maximumAge: 10 * 60 * 1000 })
+      .pipe(
+        map(fresh => {
+          this.locationVerified = true;
+          if (distanceKm(stored, fresh) > LOCATION_CHANGE_KM) {
+            this.updateState({ currentLocation: fresh });
+            return fresh;
+          }
+          return stored;
+        }),
+        catchError(() => {
+          this.locationVerified = true;
+          return of(stored);
+        })
+      );
+  }
+
+  private calcParams(): PrayerCalcParams {
+    return { method: this.settings.calcMethod(), school: this.settings.asrSchool() };
+  }
+
+  /** Drops cached times computed for a different place or calculation setting. */
+  private ensureContext(location: LocationCoordinates): void {
+    const { method, school } = this.calcParams();
+    const context = `${method ?? 'auto'}|${school}|${location.latitude.toFixed(1)}|${location.longitude.toFixed(1)}`;
+    if (this.state().context !== context) {
+      this.updateState({ cache: {}, context });
+    }
   }
 
   private initializeLocationAndPreload(centerDate: Date): Observable<PrayerTimeData[]> {
@@ -83,6 +141,7 @@ export class PrayerTimeStore {
     
     return this.prayerTimeService.getCurrentLocation().pipe(
       tap(location => {
+        this.locationVerified = true;
         this.updateState({ currentLocation: location });
       }),
       switchMap(location => this.fetchPrayerTimesRange(centerDate, location)),
@@ -101,6 +160,7 @@ export class PrayerTimeStore {
     
     return this.prayerTimeService.getCurrentLocation().pipe(
       tap(location => {
+        this.locationVerified = true;
         this.updateState({ currentLocation: location });
       }),
       switchMap(location => this.fetchPrayerTimesForDate(date, location)),
@@ -120,6 +180,8 @@ export class PrayerTimeStore {
   ): Observable<PrayerTimeData[]> {
     this.setLoading(true);
     this.updateState({ error: null });
+    this.ensureContext(location);
+    const calc = this.calcParams();
 
     const dates: Date[] = [];
     const today = new Date(centerDate);
@@ -145,11 +207,12 @@ export class PrayerTimeStore {
       this.prayerTimeService.getPrayerTimesByCoordinates(
         location.latitude,
         location.longitude,
-        date
+        date,
+        calc
       ).pipe(
         tap(data => this.setCachedPrayerTimes(this.getDateKey(date), data)),
         catchError((error: Error) => {
-          console.error(`Failed to fetch prayer times for ${this.getDateKey(date)}:`, error);
+          Logger.error(`Failed to fetch prayer times for ${this.getDateKey(date)}:`, error);
           return of(null);
         })
       )
@@ -178,13 +241,15 @@ export class PrayerTimeStore {
   ): Observable<PrayerTimeData | null> {
     this.setLoading(true);
     this.updateState({ error: null });
+    this.ensureContext(location);
 
     const dateKey = this.getDateKey(date);
 
     return this.prayerTimeService.getPrayerTimesByCoordinates(
       location.latitude,
       location.longitude,
-      date
+      date,
+      this.calcParams()
     ).pipe(
       tap(data => {
         this.setCachedPrayerTimes(dateKey, data);
@@ -229,7 +294,7 @@ export class PrayerTimeStore {
     const newState = { ...this.state(), ...partial };
     this.state.set(newState);
     
-    if (partial.currentLocation !== undefined || partial.cache !== undefined) {
+    if (partial.currentLocation !== undefined || partial.cache !== undefined || partial.context !== undefined) {
       this.saveToLocalStorage();
     }
   }
@@ -241,7 +306,7 @@ export class PrayerTimeStore {
   private loadFromLocalStorage(): void {
     try {
       if (!this.isLocalStorageAvailable()) {
-        console.warn('Local storage is not available');
+        Logger.warn('Local storage is not available');
         return;
       }
 
@@ -274,10 +339,11 @@ export class PrayerTimeStore {
         loading: false,
         error: null,
         currentLocation: data.currentLocation,
-        lastFetchDate: data.lastFetchDate ? new Date(data.lastFetchDate) : null
+        lastFetchDate: data.lastFetchDate ? new Date(data.lastFetchDate) : null,
+        context: data.context ?? null
       });
     } catch (error) {
-      console.error('Error loading from local storage:', error);
+      Logger.error('Error loading from local storage:', error);
       this.clearLocalStorage();
     }
   }
@@ -299,12 +365,13 @@ export class PrayerTimeStore {
           cache: state.cache,
           currentLocation: state.currentLocation,
           lastFetchDate: state.lastFetchDate ? state.lastFetchDate.toISOString() : null,
+          context: state.context,
           version: this.CACHE_VERSION
         };
 
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dataToStore));
       } catch (error) {
-        console.error('Error saving to local storage:', error);
+        Logger.error('Error saving to local storage:', error);
         if (error instanceof DOMException && error.name === 'QuotaExceededError') {
           this.clearOldCache();
         }
@@ -327,7 +394,7 @@ export class PrayerTimeStore {
           cleaned[dateKey] = data;
         }
       } catch (error) {
-        console.warn(`Invalid date key in cache: ${dateKey}`);
+        Logger.warn(`Invalid date key in cache: ${dateKey}`);
       }
     }
 
@@ -372,7 +439,7 @@ export class PrayerTimeStore {
     try {
       localStorage.removeItem(this.STORAGE_KEY);
     } catch (error) {
-      console.error('Error clearing local storage:', error);
+      Logger.error('Error clearing local storage:', error);
     }
   }
 

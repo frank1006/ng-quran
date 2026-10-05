@@ -99,6 +99,42 @@
       </div>
     </div>
 
+    <!-- Prayer Calculation Section -->
+    <div class="settings-card-section">
+      <h3 class="subsection-title">Prayer Calculation</h3>
+      <p class="subsection-description">Automatic uses the local authority for your location</p>
+
+      <label class="calc-select-label" for="calcMethod">Calculation method</label>
+      <select
+        id="calcMethod"
+        class="calc-select"
+        [value]="calcMethod() ?? 'auto'"
+        (change)="onCalcMethodChange($any($event.target).value)"
+      >
+        <option value="auto">Automatic (by location)</option>
+        @for (method of calculationMethods; track method.id) {
+          <option [value]="method.id">{{ method.name }}</option>
+        }
+      </select>
+
+      <div class="format-options" role="radiogroup" aria-label="Asr calculation">
+        <label class="format-option" [class.active]="asrSchool() === 0">
+          <input type="radio" name="asrSchool" [checked]="asrSchool() === 0" (change)="onAsrSchoolChange(0)" />
+          <div class="format-content">
+            <span class="format-label">Standard Asr</span>
+            <span class="format-example">Shafi'i, Maliki, Hanbali</span>
+          </div>
+        </label>
+        <label class="format-option" [class.active]="asrSchool() === 1">
+          <input type="radio" name="asrSchool" [checked]="asrSchool() === 1" (change)="onAsrSchoolChange(1)" />
+          <div class="format-content">
+            <span class="format-label">Hanafi Asr</span>
+            <span class="format-example">Later Asr time</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
     <!-- App Permissions Section -->
     <div class="settings-card-section">
       <h3 class="subsection-title">App Permissions</h3>

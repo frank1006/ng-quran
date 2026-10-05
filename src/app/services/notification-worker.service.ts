@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { Router } from '@angular/router';
+import { Logger } from '../core/logger.util';
 
 /**
  * Service to handle Service Worker notification events
@@ -64,7 +65,7 @@ export class NotificationWorkerService {
     
     // Navigate to prayer page
     this.router.navigateByUrl(url).catch((error) => {
-      console.error('Failed to navigate to prayer page:', error);
+      Logger.error('Failed to navigate to prayer page:', error);
     });
 
     // Focus the window if it exists

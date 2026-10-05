@@ -4,6 +4,7 @@ import { ConnectionErrorComponent } from '../../../../shared/components/connecti
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { NotificationService } from '../../../../services/notification.service';
 import { DeviceDetectionService } from '../../../../services/device-detection.service';
+import { Logger } from '../../../../core/logger.util';
 
 /**
  * Prayer item for list display
@@ -111,7 +112,7 @@ export class PrayerListComponent {
       } else if (error.message === 'Permission denied') {
         this.showPermissionDeniedMessage();
       } else {
-        console.error('Failed to toggle notification:', error);
+        Logger.error('Failed to toggle notification:', error);
         // You can add a toast/alert here to show error to user
       }
     } finally {

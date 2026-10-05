@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,6 +11,9 @@ import { CommonModule } from '@angular/common';
 export class ConnectionErrorComponent {
   readonly errorMessage = input<string>('No internet connection. Please check your network and try again.');
   readonly retry = output<void>();
+
+  /** Location failures (denied, unavailable, timeout) shouldn't be shown as network errors. */
+  protected readonly isLocationError = computed(() => /location/i.test(this.errorMessage()));
 
   onRetry(): void {
     this.retry.emit();

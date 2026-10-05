@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { Logger } from '../core/logger.util';
 
 /**
  * Permission status types
@@ -239,7 +240,7 @@ export class PermissionsService {
         
         return granted;
       } catch (e) {
-        console.warn('Failed to request compass permission', e);
+        Logger.warn('Failed to request compass permission', e);
         this.compassPermission.set(PermissionStatus.DENIED);
         this.saveCompassPermission(false);
         return false;
@@ -279,7 +280,7 @@ export class PermissionsService {
     try {
       localStorage.setItem('qibla_compass_permission_granted', granted ? 'true' : 'false');
     } catch (e) {
-      console.warn('Failed to save compass permission to localStorage', e);
+      Logger.warn('Failed to save compass permission to localStorage', e);
     }
   }
 

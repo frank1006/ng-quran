@@ -10,6 +10,7 @@ import {
 import { DeviceDetectionService } from './device-detection.service';
 import { PrayerTimeStore } from '../store/prayer-time.store';
 import { UserStoreService } from './user-store.service';
+import { Logger } from '../core/logger.util';
 
 @Injectable({
   providedIn: 'root'
@@ -227,7 +228,7 @@ export class NotificationService {
       this.permissionStatus.set(status);
       return status;
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      Logger.error('Error requesting notification permission:', error);
       this.permissionStatus.set(NotificationPermissionStatus.DENIED);
       return NotificationPermissionStatus.DENIED;
     }
@@ -332,7 +333,7 @@ export class NotificationService {
       if (cachedData) {
         prayerData = cachedData;
       } else {
-        console.warn('No cached data available for notifications');
+        Logger.warn('No cached data available for notifications');
         return;
       }
     }
@@ -396,7 +397,7 @@ export class NotificationService {
     // Parse time string (format: "HH:mm" or "HH:mm AM/PM")
     const notificationTime = this.parseTimeString(timeString, date);
     if (!notificationTime) {
-      console.warn(`Failed to parse time for ${prayerKey}: ${timeString}`);
+      Logger.warn(`Failed to parse time for ${prayerKey}: ${timeString}`);
       return;
     }
 
@@ -475,7 +476,7 @@ export class NotificationService {
         await registration.showNotification(`${prayerName} Prayer Time`, options);
         return;
       } catch (error) {
-        console.warn(
+        Logger.warn(
           'Service Worker notification failed, falling back to regular notification:',
           error
         );
@@ -654,7 +655,7 @@ export class NotificationService {
         this.settings.set(settings);
       }
     } catch (error) {
-      console.warn('Failed to load notification settings:', error);
+      Logger.warn('Failed to load notification settings:', error);
     }
   }
 
@@ -672,7 +673,7 @@ export class NotificationService {
         JSON.stringify(this.settings())
       );
     } catch (error) {
-      console.warn('Failed to save notification settings:', error);
+      Logger.warn('Failed to save notification settings:', error);
     }
   }
 

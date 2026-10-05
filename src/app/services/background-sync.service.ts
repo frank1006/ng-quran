@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { PrayerTimeStore } from '../store/prayer-time.store';
 import { PrayerTimeService } from './prayer-time.service';
 import { LocationCoordinates } from './prayer-time.types';
+import { Logger } from '../core/logger.util';
 
 /**
  * Service to handle background synchronization of prayer times
@@ -37,11 +38,11 @@ export class BackgroundSyncService {
         this.registerPeriodicSync();
         this.registerOneTimeSync();
       } else {
-        console.warn('Background Sync API not supported, using fallback');
+        Logger.warn('Background Sync API not supported, using fallback');
         this.setupFallbackSync();
       }
     } catch (error) {
-      console.error('Failed to initialize background sync:', error);
+      Logger.error('Failed to initialize background sync:', error);
       this.setupFallbackSync();
     }
   }
@@ -78,10 +79,10 @@ export class BackgroundSyncService {
           await periodicSync.register(this.SYNC_TAG, {
             minInterval: this.SYNC_INTERVAL_HOURS * 60 * 60 * 1000 // 24 hours in ms
           });
-          console.log('Periodic background sync registered');
+          Logger.info('Periodic background sync registered');
         } catch (registerError) {
           // Registration failed, fall back silently
-          console.warn('Periodic sync registration failed, using one-time sync');
+          Logger.warn('Periodic sync registration failed, using one-time sync');
         }
         return;
       }
@@ -92,9 +93,9 @@ export class BackgroundSyncService {
         await periodicSync.register(this.SYNC_TAG, {
           minInterval: this.SYNC_INTERVAL_HOURS * 60 * 60 * 1000 // 24 hours in ms
         });
-        console.log('Periodic background sync registered');
+        Logger.info('Periodic background sync registered');
       } else {
-        console.warn('Periodic sync permission not granted, using one-time sync');
+        Logger.warn('Periodic sync permission not granted, using one-time sync');
       }
     } catch (error) {
       // Silently fall back to one-time sync - this is expected in many browsers
@@ -114,7 +115,7 @@ export class BackgroundSyncService {
     try {
       await (this.syncRegistration as any).sync.register(this.SYNC_TAG);
     } catch (error) {
-      console.warn('Failed to register one-time sync:', error);
+      Logger.warn('Failed to register one-time sync:', error);
     }
   }
 
@@ -140,7 +141,7 @@ export class BackgroundSyncService {
   async syncPrayerTimes(): Promise<void> {
     const location = this.prayerTimeStore.currentLocation();
     if (!location) {
-      console.warn('Cannot sync: location not available');
+      Logger.warn('Cannot sync: location not available');
       return;
     }
 
@@ -157,10 +158,10 @@ export class BackgroundSyncService {
     // This will fetch and cache today + 3 days before/after (7 days total)
     this.prayerTimeStore.preloadPrayerTimes(today).subscribe({
       next: () => {
-        console.log('Background sync: Prayer times updated');
+        Logger.info('Background sync: Prayer times updated');
       },
       error: (error) => {
-        console.error('Background sync failed:', error);
+        Logger.error('Background sync failed:', error);
       }
     });
   }
@@ -196,7 +197,7 @@ export class BackgroundSyncService {
         return data.lastFetchDate || null;
       }
     } catch (error) {
-      console.error('Error reading last fetch date:', error);
+      Logger.error('Error reading last fetch date:', error);
     }
     return null;
   }

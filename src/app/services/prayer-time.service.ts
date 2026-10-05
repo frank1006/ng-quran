@@ -12,14 +12,18 @@ import {
   HijriDate
 } from './prayer-time.types';
 
+export interface PrayerCalcParams {
+  method: number | null;
+  school: 0 | 1;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PrayerTimeService {
   private readonly baseUrl = 'https://api.aladhan.com/v1';
-  private readonly defaultMethod = 4; // Umm Al-Qura
 
-  getCurrentLocation(): Observable<LocationCoordinates> {
+  getCurrentLocation(overrides?: PositionOptions): Observable<LocationCoordinates> {
     return new Observable<LocationCoordinates>((observer) => {
       if (!navigator.geolocation) {
         observer.error({
@@ -32,7 +36,8 @@ export class PrayerTimeService {
       const options: PositionOptions = {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 0
+        maximumAge: 0,
+        ...overrides
       };
 
       navigator.geolocation.getCurrentPosition(
@@ -71,12 +76,15 @@ export class PrayerTimeService {
   getPrayerTimesByCoordinates(
     latitude: number,
     longitude: number,
-    date?: Date
+    date?: Date,
+    calc: PrayerCalcParams = { method: null, school: 0 }
   ): Observable<PrayerTimeData> {
     const targetDate = date || new Date();
     const dateStr = `${targetDate.getDate()}-${targetDate.getMonth() + 1}-${targetDate.getFullYear()}`;
-    
-    const url = `${this.baseUrl}/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=${this.defaultMethod}`;
+
+    // Without a method the API picks the nearest local authority (e.g. Karachi for Pakistan)
+    const methodParam = calc.method !== null ? `&method=${calc.method}` : '';
+    const url = `${this.baseUrl}/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}${methodParam}&school=${calc.school}`;
 
     return from(fetch(url)).pipe(
       switchMap((response: Response) => {
