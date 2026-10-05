@@ -145,26 +145,6 @@ app-hero-header[data-weather="storm"]         { --hero-top: #e3e1eb; --hero-mid:
   margin: 0; /* Match prayer-name margin */
 }
 
-.find-masjid-button-hero .letter-a {
-  /* The real "a" keeps the word's spacing; it is hidden and a flat magnifier sits on top */
-  position: relative;
-  color: transparent;
-}
-
-.find-masjid-button-hero .search-overlay {
-  position: absolute;
-  left: 50%;
-  bottom: -0.06em;
-  width: 0.9em;
-  height: 0.9em;
-  transform: translateX(-38%);
-  color: var(--color-accent-text);
-  transition: color 0.3s ease;
-}
-
-.find-masjid-button-hero.masjid-active .search-overlay {
-  color: var(--color-text);
-}
 
 
 /* No responsive overrides needed - uses same CSS variable as prayer-name which auto-scales */
