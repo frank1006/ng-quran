@@ -12,7 +12,6 @@ app-hero-header {
   /* Browsers lose height to toolbars: scale with the visible viewport, within limits */
   --hero-height: clamp(15.5rem, 40dvh, 19rem);
   --hero-overlap: 0px;
-  --hero-decor-opacity: 0;
   --hero-top: var(--color-bg);
   --hero-mid: var(--color-primary-soft);
   --hero-bg: linear-gradient(180deg, var(--hero-top) 0%, var(--hero-mid) 55%, var(--color-surface) 100%);
