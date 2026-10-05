@@ -7,9 +7,6 @@ import { QuranAudioService } from '../../../services/quran-audio.service';
 /** Room the player button takes above the bottom nav; scroll areas add it to their bottom padding */
 const MINI_PLAYER_SPACE = '5rem';
 
-/** A recitation left paused this long away from its surah is put away (back to Continue reading) */
-const PAUSED_DISMISS_MS = 5 * 60 * 1000;
-
 export function formatPlaybackTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const mins = Math.floor(seconds / 60);
@@ -18,8 +15,9 @@ export function formatPlaybackTime(seconds: number): string {
 }
 
 /**
- * Floating button shown while a recitation is loaded and the user is away from its surah page.
+ * Floating button shown while a recitation plays and the user is away from its surah page.
  * Tapping it opens a small card with the surah and ayah, the player controls, and a link back.
+ * Once paused it leaves when its card closes; the Quran tab's card resumes from the reader's place.
  */
 @Component({
   selector: 'app-mini-player',
@@ -50,20 +48,18 @@ export class MiniPlayerComponent {
     return !!track && this.path() !== `/quran/${track.chapterId}`;
   });
 
-  /** The Quran list shows the recitation in its header card instead */
-  protected readonly visible = computed(() => this.awayFromSurah() && this.path() !== '/quran');
+  /** Playing (or its card is open), and not on the Quran list, whose header card has the controls */
+  protected readonly visible = computed(() =>
+    this.awayFromSurah()
+    && this.path() !== '/quran'
+    && (this.audio.isPlaying() || this.audio.loadingVerse() !== null || this.expanded())
+  );
 
   protected readonly formatTime = formatPlaybackTime;
 
   constructor() {
     effect(() => {
       if (!this.visible()) this.expanded.set(false);
-    });
-    effect(onCleanup => {
-      const idle = this.awayFromSurah() && !this.audio.isPlaying() && this.audio.loadingVerse() === null;
-      if (!idle) return;
-      const timer = setTimeout(() => this.audio.stop(), PAUSED_DISMISS_MS);
-      onCleanup(() => clearTimeout(timer));
     });
     effect(() => {
       this.document.documentElement.style.setProperty('--mini-player-space', this.visible() ? MINI_PLAYER_SPACE : '0px');

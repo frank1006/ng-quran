@@ -45,31 +45,32 @@
       </div>
     </div>
 
-    @if (nowListening(); as now) {
-      <!-- A recitation is loaded: the header card follows it instead of the reading position -->
-      <div class="continue-card listening">
-        <button type="button" class="continue-text" (click)="continueAt(now.chapter.id, now.verse)" [attr.aria-label]="'Open ' + now.chapter.transliteration + ', ayah ' + now.verse">
+    @if (place(); as p) {
+      <!-- The reader's place: tap to open there, the round button listens from it -->
+      <div class="continue-card">
+        <button type="button" class="continue-text" (click)="continueAt(p.chapter.id, p.verse)" [attr.aria-label]="p.label + ': ' + p.chapter.transliteration + ', ayah ' + p.verse">
           <span class="continue-label">
-            @if (audio.isPlaying()) {
+            @if (p.playing) {
               <span class="listening-bars" aria-hidden="true"><span></span><span></span><span></span></span>
-              Now listening
-            } @else {
-              Paused
             }
+            {{ p.label }}
           </span>
           <span class="continue-names">
-            <span class="continue-title">{{ now.chapter.transliteration }}</span>
-            <span class="continue-arabic">{{ now.chapter.name }}</span>
+            <span class="continue-title">{{ p.chapter.transliteration }}</span>
+            <span class="continue-arabic">{{ p.chapter.name }}</span>
           </span>
-          <span class="continue-ayah">Ayah {{ now.verse }} of {{ now.chapter.total_verses }} <span class="continue-percent">· {{ now.percent }}%</span></span>
+          <span class="continue-ayah">
+            Ayah {{ p.verse }} of {{ p.chapter.total_verses }} <span class="continue-percent">· {{ p.percent }}%</span>
+            <svg class="continue-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+          </span>
           <span class="continue-progress" aria-hidden="true">
-            <span class="continue-progress-fill" [style.width.%]="now.percent"></span>
+            <span class="continue-progress-fill" [style.width.%]="p.percent"></span>
           </span>
         </button>
-        <button type="button" class="continue-go" (click)="audio.toggle()" [attr.aria-label]="audio.isPlaying() ? 'Pause' : 'Play'">
-          @if (audio.loadingVerse() !== null) {
+        <button type="button" class="continue-go" (click)="listenFromPlace(p.chapter, p.verse)" [attr.aria-label]="p.playing ? 'Pause' : 'Listen from ayah ' + p.verse">
+          @if (p.loading) {
             <svg class="spinner" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"></path></svg>
-          } @else if (audio.isPlaying()) {
+          } @else if (p.playing) {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="6" y="4" width="4" height="16"></rect>
               <rect x="14" y="4" width="4" height="16"></rect>
@@ -81,25 +82,6 @@
           }
         </button>
       </div>
-    } @else if (continueReading(); as cont) {
-      <button type="button" class="continue-card" (click)="continueAt(cont.chapter.id, cont.verse)">
-        <span class="continue-text">
-          <span class="continue-label">Continue reading</span>
-          <span class="continue-names">
-            <span class="continue-title">{{ cont.chapter.transliteration }}</span>
-            <span class="continue-arabic">{{ cont.chapter.name }}</span>
-          </span>
-          <span class="continue-ayah">Ayah {{ cont.verse }} of {{ cont.chapter.total_verses }} <span class="continue-percent">· {{ cont.percent }}%</span></span>
-          <span class="continue-progress" aria-hidden="true">
-            <span class="continue-progress-fill" [style.width.%]="cont.percent"></span>
-          </span>
-        </span>
-        <span class="continue-go" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M13 6l6 6-6 6"></path>
-          </svg>
-        </span>
-      </button>
     }
   </div>
 

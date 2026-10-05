@@ -19,10 +19,12 @@ export interface PlayerState {
 
 export type TranslationLanguage = 'english' | 'bengali' | 'urdu';
 
-/** The verse read most recently, in any surah */
+/** The reader's place in the Quran: the ayah read or listened to most recently, in any surah */
 export interface LastRead {
   chapterId: number;
   verseNumber: number;
+  /** How they got there, for the card's label */
+  via: 'read' | 'listen';
 }
 
 interface StoredUserData {
@@ -64,6 +66,8 @@ export class UserStoreService {
   readonly bookmarks = computed(() => this.state().bookmarks);
   readonly lastReadPositions = computed(() => this.state().lastReadPositions);
   readonly lastRead = computed(() => this.state().lastRead);
+  /** The surah page opened most recently this session (highlighted in the list); not saved */
+  readonly lastOpenedChapterId = signal<number | null>(null);
   readonly timeFormat = computed(() => this.state().timeFormat);
   readonly quranTranslationLanguage = computed(() => this.state().quranTranslationLanguage);
   readonly prayerScheduledNotifications = computed(() => this.state().prayerScheduledNotifications ?? []);
@@ -109,14 +113,16 @@ export class UserStoreService {
     return this.state().bookmarks.filter(b => b.chapterId === chapterId);
   }
 
-  setLastReadPosition(chapterId: number, verseNumber: number): void {
+  setLastReadPosition(chapterId: number, verseNumber: number, via: LastRead['via'] = 'read'): void {
     const current = this.state();
-    if (current.lastReadPositions[chapterId] === verseNumber && current.lastRead?.chapterId === chapterId) {
+    const place = current.lastRead;
+    if (current.lastReadPositions[chapterId] === verseNumber
+      && place?.chapterId === chapterId && place.verseNumber === verseNumber && place.via === via) {
       return;
     }
     const lastReadPositions = { ...current.lastReadPositions };
     lastReadPositions[chapterId] = verseNumber;
-    this.updateState({ lastReadPositions, lastRead: { chapterId, verseNumber } });
+    this.updateState({ lastReadPositions, lastRead: { chapterId, verseNumber, via } });
   }
 
   getLastReadPosition(chapterId: number): number | null {
@@ -224,7 +230,7 @@ export class UserStoreService {
 
   private validateLastRead(value: any): LastRead | null {
     return value && Number.isInteger(value.chapterId) && Number.isInteger(value.verseNumber)
-      ? { chapterId: value.chapterId, verseNumber: value.verseNumber }
+      ? { chapterId: value.chapterId, verseNumber: value.verseNumber, via: value.via === 'listen' ? 'listen' : 'read' }
       : null;
   }
 

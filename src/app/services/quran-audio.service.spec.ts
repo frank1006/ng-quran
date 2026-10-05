@@ -34,7 +34,15 @@ describe('UserStoreService last read', () => {
     expect(store.lastRead()).toBeNull();
     store.setLastReadPosition(2, 255);
     store.setLastReadPosition(18, 10);
-    expect(store.lastRead()).toEqual({ chapterId: 18, verseNumber: 10 });
+    expect(store.lastRead()).toEqual({ chapterId: 18, verseNumber: 10, via: 'read' });
     expect(store.getLastReadPosition(2)).toBe(255);
+  });
+
+  it('records whether the place was reached by listening', () => {
+    const store = TestBed.inject(UserStoreService);
+    store.setLastReadPosition(36, 5, 'listen');
+    expect(store.lastRead()).toEqual({ chapterId: 36, verseNumber: 5, via: 'listen' });
+    store.setLastReadPosition(36, 5);
+    expect(store.lastRead()?.via).toBe('read');
   });
 });

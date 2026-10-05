@@ -64,7 +64,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       untracked(() => {
         if (!track || track.chapterId !== this.chapterId) return;
         this.selectedVerse.set(track.verse);
-        this.userStore.setLastReadPosition(track.chapterId, track.verse);
         if (!this.isRestoringState && !this.targetVerseFromFragment) {
           const timeoutId = window.setTimeout(() => {
             if (this.versesContainerRef?.nativeElement && !this.destroyRef.destroyed) {
@@ -276,6 +275,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
       next: (chapterData) => {
         this.chapter.set(chapterData);
+        this.userStore.lastOpenedChapterId.set(chapterId);
         
         // Verify translations are attached (silently handle missing translations)
         if (!chapterData._translations && !(chapterData as any)._translations_bengali && !(chapterData as any)._translations_urdu) {
@@ -441,8 +441,8 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     // Select verse without playing; any recitation carries on
     this.selectedVerse.set(verseNumber);
     
-    // Save as last read position
-    if (this.chapterId) {
+    // Save as the reader's place (the recitation sets it while playing)
+    if (this.chapterId && !this.audio.isPlaying()) {
       this.userStore.setLastReadPosition(this.chapterId, verseNumber);
     }
     
@@ -460,7 +460,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     const chapter = this.chapter();
     if (!chapter || !this.selectedReciterId()) return;
     this.selectedVerse.set(verseNumber);
-    this.userStore.setLastReadPosition(chapter.id, verseNumber);
     this.audio.playVerse(chapter, verseNumber);
   }
 
@@ -501,7 +500,8 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
           this.userStore.setScrollPosition(this.chapterId, container.scrollTop);
           // Where "Continue reading" picks up; only the reader's own scrolling counts,
           // not the page jumping to a verse
-          const verse = this.readerMoved ? this.readingVerse(container) : null;
+          // While a recitation plays, the place follows the audio instead
+          const verse = this.readerMoved && !this.audio.isPlaying() ? this.readingVerse(container) : null;
           if (verse !== null) {
             this.userStore.setLastReadPosition(this.chapterId, verse);
           }

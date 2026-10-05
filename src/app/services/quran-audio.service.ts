@@ -79,6 +79,14 @@ export class QuranAudioService {
       });
     });
 
+    // While a recitation plays, the reader's place follows it
+    effect(() => {
+      const track = this.track();
+      if (track && this.isPlaying()) {
+        untracked(() => this.userStore.setLastReadPosition(track.chapterId, track.verse, 'listen'));
+      }
+    });
+
     this.quranApi.getReciters().subscribe({
       next: reciters => (this.reciterNames = new Map(reciters.map(r => [r.id, r.name]))),
       error: () => {}
