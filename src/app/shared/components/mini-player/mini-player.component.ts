@@ -5,7 +5,7 @@ import { filter, map } from 'rxjs';
 import { QuranAudioService } from '../../../services/quran-audio.service';
 
 /** Room the player button takes above the bottom nav; scroll areas add it to their bottom padding */
-const MINI_PLAYER_SPACE = '4rem';
+const MINI_PLAYER_SPACE = '5rem';
 
 export function formatPlaybackTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -16,7 +16,7 @@ export function formatPlaybackTime(seconds: number): string {
 
 /**
  * Floating button shown while a recitation is loaded and the user is away from its surah page.
- * Tapping it opens a small card with the surah and ayah, play/pause, stop, and a link back.
+ * Tapping it opens a small card with the surah and ayah, the player controls, and a link back.
  */
 @Component({
   selector: 'app-mini-player',
@@ -64,11 +64,6 @@ export class MiniPlayerComponent {
 
   protected toggleCard(): void {
     this.expanded.update(open => !open);
-  }
-
-  protected stop(): void {
-    this.expanded.set(false);
-    this.audio.stop();
   }
 
   /** A tap anywhere else closes the card */

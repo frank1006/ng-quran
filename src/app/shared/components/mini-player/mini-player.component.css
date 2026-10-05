@@ -2,7 +2,7 @@
 .player-fab {
   position: fixed;
   right: max(var(--space-md), calc((100vw - var(--app-max-width)) / 2 + var(--space-md)));
-  bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  bottom: calc(6.75rem + env(safe-area-inset-bottom, 0px));
   z-index: 150;
   width: 3.25rem;
   height: 3.25rem;
@@ -52,7 +52,7 @@
 .player-card {
   position: fixed;
   right: max(var(--space-md), calc((100vw - var(--app-max-width)) / 2 + var(--space-md)));
-  bottom: calc(5.75rem + 3.25rem + var(--space-sm) + env(safe-area-inset-bottom, 0px));
+  bottom: calc(6.75rem + 3.25rem + var(--space-sm) + env(safe-area-inset-bottom, 0px));
   z-index: 150;
   width: min(17.5rem, calc(100vw - 2 * var(--space-md)));
   display: flex;
@@ -65,12 +65,6 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
   transform-origin: bottom right;
   animation: open 0.2s ease-out both;
-}
-
-.card-header {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
 }
 
 .card-info {
@@ -141,11 +135,6 @@
   background: var(--color-primary);
   border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
   color: var(--color-text);
-}
-
-.stop-button {
-  width: 2rem;
-  height: 2rem;
 }
 
 @media (hover: hover) {
