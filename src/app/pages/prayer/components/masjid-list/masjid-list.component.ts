@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import { Masjid, MasjidService, MASJID_RADIUS_OPTIONS_KM } from '../../../../services/masjid.service';
+import { Masjid, MasjidService } from '../../../../services/masjid.service';
+import { SettingsService } from '../../../../services/settings.service';
+import { formatDistance } from '../../../../services/units';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 
@@ -21,11 +23,14 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() refreshTrigger: number = 0;
   /** When the chosen distance has no results, widen it automatically (until the user picks one) */
   @Input() autoExpand = false;
+  /** The distance filter options (km), used to pick the next one when widening */
+  @Input() radiusOptions: number[] = [];
   @Output() radiusChange = new EventEmitter<number>();
   /** Emitted instead of showing an empty list when autoExpand is on */
   @Output() autoRadius = new EventEmitter<number>();
 
   private readonly masjidService = inject(MasjidService);
+  private readonly settings = inject(SettingsService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal<boolean>(false);
@@ -181,7 +186,7 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
    * it found something, otherwise the next option beyond it (which triggers a new search).
    */
   private widerRadius(loaded: Masjid[]): number | undefined {
-    const larger = MASJID_RADIUS_OPTIONS_KM.filter(option => option > this.radius);
+    const larger = this.radiusOptions.filter(option => option > this.radius);
     const nearest = loaded.length ? Math.min(...loaded.map(m => m.distance ?? Infinity)) : undefined;
     if (nearest !== undefined && isFinite(nearest)) {
       return larger.find(option => option >= nearest) ?? undefined;
@@ -221,7 +226,7 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
 
   protected formatDistance(distanceKm: number | undefined): string {
     if (distanceKm === undefined) return '';
-    return this.masjidService.formatDistance(distanceKm);
+    return formatDistance(distanceKm, this.settings.distanceUnit());
   }
 
   protected openDirections(masjid: Masjid): void {

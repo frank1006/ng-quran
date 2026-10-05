@@ -1,6 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { UserStoreService } from './user-store.service';
 import { TimeFormat } from './time-format.types';
+import {
+  DistanceUnit, TemperatureUnit, defaultDistanceUnit, defaultTemperatureUnit,
+} from './units';
 
 export { TimeFormat } from './time-format.types';
 
@@ -36,6 +39,12 @@ const HANAFI_TIME_ZONES = [
 ];
 
 const CALC_STORAGE_KEY = 'prayer-calc-settings';
+const UNITS_STORAGE_KEY = 'unit-settings';
+
+interface UnitSettings {
+  distance: DistanceUnit | null;
+  temperature: TemperatureUnit | null;
+}
 
 export function defaultAsrSchool(timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone): AsrSchool {
   return HANAFI_TIME_ZONES.includes(timeZone) ? 1 : 0;
@@ -47,6 +56,13 @@ export function defaultAsrSchool(timeZone = Intl.DateTimeFormat().resolvedOption
 export class SettingsService {
   private readonly userStore = inject(UserStoreService);
   private readonly calcSettings = signal<PrayerCalcSettings>(this.loadCalcSettings());
+  private readonly unitSettings = signal<UnitSettings>(this.loadUnitSettings());
+
+  /** km or mi (stored choice, otherwise from the phone's region). */
+  readonly distanceUnit = computed<DistanceUnit>(() => this.unitSettings().distance ?? defaultDistanceUnit());
+
+  /** °C or °F (stored choice, otherwise from the phone's region). */
+  readonly temperatureUnit = computed<TemperatureUnit>(() => this.unitSettings().temperature ?? defaultTemperatureUnit());
 
   readonly currentTimeFormat = computed(() => {
     const storedFormat = this.userStore.timeFormat();
@@ -70,6 +86,35 @@ export class SettingsService {
 
   setAsrSchool(school: AsrSchool): void {
     this.saveCalcSettings({ ...this.calcSettings(), school });
+  }
+
+  setDistanceUnit(distance: DistanceUnit): void {
+    this.saveUnitSettings({ ...this.unitSettings(), distance });
+  }
+
+  setTemperatureUnit(temperature: TemperatureUnit): void {
+    this.saveUnitSettings({ ...this.unitSettings(), temperature });
+  }
+
+  private loadUnitSettings(): UnitSettings {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(UNITS_STORAGE_KEY) ?? 'null');
+      return {
+        distance: parsed?.distance === 'km' || parsed?.distance === 'mi' ? parsed.distance : null,
+        temperature: parsed?.temperature === 'C' || parsed?.temperature === 'F' ? parsed.temperature : null,
+      };
+    } catch {
+      return { distance: null, temperature: null };
+    }
+  }
+
+  private saveUnitSettings(settings: UnitSettings): void {
+    this.unitSettings.set(settings);
+    try {
+      localStorage.setItem(UNITS_STORAGE_KEY, JSON.stringify(settings));
+    } catch {
+      // Storage unavailable: the setting still applies for this session
+    }
   }
 
   private loadCalcSettings(): PrayerCalcSettings {

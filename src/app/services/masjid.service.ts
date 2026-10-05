@@ -67,9 +67,6 @@ interface UnifiedMasjidCache {
   searchCache?: MasjidCacheData;
 }
 
-/** Distance filter options offered in the masjid view (km). */
-export const MASJID_RADIUS_OPTIONS_KM = [1, 5, 10, 25];
-
 @Injectable({
   providedIn: 'root'
 })

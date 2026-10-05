@@ -17,7 +17,8 @@ import { NetworkStatusService } from '../../services/network-status.service';
 import { QiblaService } from '../qibla/services/qibla.service';
 import { NotificationService } from '../../services/notification.service';
 import { BackgroundSyncService } from '../../services/background-sync.service';
-import { MasjidService, MASJID_RADIUS_OPTIONS_KM } from '../../services/masjid.service';
+import { MasjidService } from '../../services/masjid.service';
+import { masjidRadiusOptionsKm, radiusLabel } from '../../services/units';
 import { DeviceDetectionService } from '../../services/device-detection.service';
 
 interface PrayerItem {
@@ -65,6 +66,9 @@ export class PrayerComponent implements OnInit, OnDestroy {
   protected readonly masjidAutoExpand = signal(true);
   protected readonly masjidRadiusNote = signal('');
   private masjidAutoFrom: number | null = null;
+  /** Distance filter options (km) in round numbers of the user's unit */
+  protected readonly masjidRadiusOptions = computed(() => masjidRadiusOptionsKm(this.settingsService.distanceUnit()));
+  protected readonly distanceUnit = computed(() => this.settingsService.distanceUnit());
   protected readonly locationMessage = signal('');
   private readonly destroyRef = inject(DestroyRef);
   private readonly networkStatus = inject(NetworkStatusService);
@@ -87,6 +91,12 @@ export class PrayerComponent implements OnInit, OnDestroy {
     // Load last selected radius from localStorage
     const lastRadius = this.loadLastSelectedRadius();
     this.masjidSearchRadius.set(lastRadius);
+
+    // Switching km/mi changes the filter options: keep an equivalent distance selected
+    effect(() => {
+      this.masjidRadiusOptions();
+      untracked(() => this.masjidSearchRadius.set(this.snapRadius(this.masjidSearchRadius())));
+    });
 
     // Keep the place name in step with the location (first load, refresh, travel)
     effect(() => {
@@ -669,7 +679,8 @@ export class PrayerComponent implements OnInit, OnDestroy {
   protected onMasjidAutoRadius(radius: number): void {
     // Name the distance the user had chosen, even if several steps were needed
     this.masjidAutoFrom ??= this.masjidSearchRadius();
-    this.masjidRadiusNote.set(`No masjids within ${this.masjidAutoFrom} km, showing ${radius} km`);
+    const unit = this.distanceUnit();
+    this.masjidRadiusNote.set(`No masjids within ${radiusLabel(this.masjidAutoFrom, unit)}, showing ${radiusLabel(radius, unit)}`);
     this.masjidSearchRadius.set(radius);
   }
 
@@ -677,9 +688,13 @@ export class PrayerComponent implements OnInit, OnDestroy {
    * Load last selected radius from localStorage
    */
   private loadLastSelectedRadius(): number {
-    const stored = this.readStoredRadius();
-    // Older versions offered 2 and 3 km: use the nearest option that covers them
-    return MASJID_RADIUS_OPTIONS_KM.find(option => option >= stored) ?? MASJID_RADIUS_OPTIONS_KM[0];
+    return this.snapRadius(this.readStoredRadius());
+  }
+
+  /** The smallest filter option covering a distance (older versions offered 2 and 3 km, units can change). */
+  private snapRadius(km: number): number {
+    const options = this.masjidRadiusOptions();
+    return options.find(option => option >= km - 0.01) ?? options[options.length - 1];
   }
 
   private readStoredRadius(): number {

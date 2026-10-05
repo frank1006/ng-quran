@@ -7,7 +7,7 @@
 
     <!-- Radius Filter Buttons -->
     <div class="radius-filters">
-      @for (option of radiusOptions; track option) {
+      @for (option of options(); track option) {
         <button
           class="radius-filter-button"
           [class.active]="radius() === option"
@@ -15,9 +15,9 @@
           (click)="onRadiusChange(option)"
           [disabled]="loading()"
           [attr.aria-pressed]="radius() === option"
-          [attr.aria-label]="'Search within ' + option + ' kilometers'"
+          [attr.aria-label]="'Search within ' + label(option)"
         >
-          {{ option }}km
+          {{ label(option) }}
         </button>
       }
     </div>

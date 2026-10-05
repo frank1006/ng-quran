@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { LocationChipComponent } from '../../../../shared/components/location-chip/location-chip.component';
-import { MASJID_RADIUS_OPTIONS_KM } from '../../../../services/masjid.service';
+import { DistanceUnit, radiusLabel } from '../../../../services/units';
 
 @Component({
   selector: 'app-radius-filter',
@@ -12,6 +12,9 @@ import { MASJID_RADIUS_OPTIONS_KM } from '../../../../services/masjid.service';
 export class RadiusFilterComponent {
   readonly radius = input<number>(1);
   readonly loading = input<boolean>(false);
+  /** Filter options in km (round numbers in the user's unit) */
+  readonly options = input<number[]>([]);
+  readonly unit = input<DistanceUnit>('km');
   readonly locationName = input<string>('Current Location');
   readonly locating = input<boolean>(false);
   /** Feedback line under the filters (auto-widened search, location problems), or empty */
@@ -19,7 +22,9 @@ export class RadiusFilterComponent {
   readonly radiusChange = output<number>();
   readonly refreshLocation = output<void>();
 
-  protected readonly radiusOptions = MASJID_RADIUS_OPTIONS_KM;
+  protected label(km: number): string {
+    return radiusLabel(km, this.unit());
+  }
 
   protected onRadiusChange(newRadius: number): void {
     this.radiusChange.emit(newRadius);

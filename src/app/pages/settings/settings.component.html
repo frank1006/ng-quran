@@ -99,6 +99,46 @@
       </div>
     </div>
 
+    <!-- Units Section -->
+    <div class="settings-card-section">
+      <h3 class="subsection-title">Units</h3>
+      <p class="subsection-description">Used for masjid distances and the weather</p>
+
+      <div class="format-options format-options-row" role="radiogroup" aria-label="Distance unit">
+        <label class="format-option" [class.active]="distanceUnit() === 'km'">
+          <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'km'" (change)="setDistanceUnit('km')" />
+          <div class="format-content">
+            <span class="format-label">Kilometres</span>
+            <span class="format-example">1.5 km</span>
+          </div>
+        </label>
+        <label class="format-option" [class.active]="distanceUnit() === 'mi'">
+          <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'mi'" (change)="setDistanceUnit('mi')" />
+          <div class="format-content">
+            <span class="format-label">Miles</span>
+            <span class="format-example">0.9 mi</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="format-options format-options-row" role="radiogroup" aria-label="Temperature unit">
+        <label class="format-option" [class.active]="temperatureUnit() === 'C'">
+          <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'C'" (change)="setTemperatureUnit('C')" />
+          <div class="format-content">
+            <span class="format-label">Celsius</span>
+            <span class="format-example">18°C</span>
+          </div>
+        </label>
+        <label class="format-option" [class.active]="temperatureUnit() === 'F'">
+          <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'F'" (change)="setTemperatureUnit('F')" />
+          <div class="format-content">
+            <span class="format-label">Fahrenheit</span>
+            <span class="format-example">65°F</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
     <!-- Prayer Calculation Section -->
     <div class="settings-card-section">
       <h3 class="subsection-title">Prayer Calculation</h3>

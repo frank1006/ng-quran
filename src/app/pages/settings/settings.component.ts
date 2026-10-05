@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { SettingsService, TimeFormat, AsrSchool, CALCULATION_METHODS } from '../../services/settings.service';
+import { DistanceUnit, TemperatureUnit } from '../../services/units';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService } from '../qibla/services/qibla.service';
@@ -27,6 +28,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly calculationMethods = CALCULATION_METHODS;
   protected readonly calcMethod = computed(() => this.settingsService.calcMethod());
   protected readonly asrSchool = computed(() => this.settingsService.asrSchool());
+  protected readonly distanceUnit = computed(() => this.settingsService.distanceUnit());
+  protected readonly temperatureUnit = computed(() => this.settingsService.temperatureUnit());
   protected readonly compassState = computed(() => this.permissionsService.compassState());
   protected readonly locationState = computed(() => this.permissionsService.locationState());
   
@@ -245,6 +248,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected onCalcMethodChange(value: string): void {
     this.settingsService.setCalcMethod(value === 'auto' ? null : Number(value));
     this.prayerTimeStore.clearCache();
+  }
+
+  protected setDistanceUnit(unit: DistanceUnit): void {
+    this.settingsService.setDistanceUnit(unit);
+  }
+
+  protected setTemperatureUnit(unit: TemperatureUnit): void {
+    this.settingsService.setTemperatureUnit(unit);
   }
 
   protected onAsrSchoolChange(school: AsrSchool): void {

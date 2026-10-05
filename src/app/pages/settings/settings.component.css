@@ -80,6 +80,16 @@
   gap: 0.625rem;
 }
 
+/* Two short choices side by side (units) */
+.format-options-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.format-options + .format-options {
+  margin-top: 0.625rem;
+}
+
 .format-option {
   display: flex;
   align-items: center;
