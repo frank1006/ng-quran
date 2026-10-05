@@ -44,6 +44,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private scrollTimeout: number | null = null;
   private playerStateTimeout: number | null = null;
   private autoScrollTimeouts: number[] = [];
+  private readerMoved = false; // Set once the reader scrolls the verses themselves
   private isRestoringState = false; // Flag to prevent auto-scroll during state restoration
   private targetVerseFromFragment: number | null = null; // Verse to scroll to from URL fragment
 
@@ -498,8 +499,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       this.scrollTimeout = window.setTimeout(() => {
         if (this.chapterId && !this.destroyRef.destroyed) {
           this.userStore.setScrollPosition(this.chapterId, container.scrollTop);
-          // The verse at the top of the screen is where "Continue reading" picks up
-          const verse = this.topVisibleVerse(container);
+          // Where "Continue reading" picks up; only the reader's own scrolling counts,
+          // not the page jumping to a verse
+          const verse = this.readerMoved ? this.readingVerse(container) : null;
           if (verse !== null) {
             this.userStore.setLastReadPosition(this.chapterId, verse);
           }
@@ -508,19 +510,36 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     };
 
     container.addEventListener('scroll', this.scrollHandler, { passive: true });
+    for (const type of ['touchstart', 'wheel', 'keydown', 'pointerdown']) {
+      container.addEventListener(type, () => (this.readerMoved = true), { passive: true, once: true });
+    }
   }
 
-  private topVisibleVerse(container: HTMLElement): number | null {
-    const top = container.getBoundingClientRect().top;
-    for (const item of Array.from(container.querySelectorAll<HTMLElement>('.verse-item'))) {
+  /** The verse at the top of the screen, or the last one on screen once the end is reached */
+  private readingVerse(container: HTMLElement): number | null {
+    const box = container.getBoundingClientRect();
+    const items = Array.from(container.querySelectorAll<HTMLElement>('.verse-item'));
+    const atEnd = container.scrollTop + container.clientHeight >= container.scrollHeight - 4;
+    if (atEnd) {
+      const covered = parseFloat(getComputedStyle(container).paddingBottom) || 0;
+      const visible = items.filter(item => item.getBoundingClientRect().top < box.bottom - covered);
+      const last = visible[visible.length - 1];
+      return last ? this.verseNumberOf(last) : null;
+    }
+    const top = box.top;
+    for (const item of items) {
       // First verse whose lower half is still on screen
       const rect = item.getBoundingClientRect();
       if (rect.top + rect.height / 2 > top) {
-        const verse = parseInt(item.id.replace('verse-', ''), 10);
-        return Number.isNaN(verse) ? null : verse;
+        return this.verseNumberOf(item);
       }
     }
     return null;
+  }
+
+  private verseNumberOf(item: HTMLElement): number | null {
+    const verse = parseInt(item.id.replace('verse-', ''), 10);
+    return Number.isNaN(verse) ? null : verse;
   }
 
   protected scrollToVerse(verseNumber: number): void {
@@ -546,12 +565,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       top: Math.max(0, scrollTop),
       behavior: 'smooth'
     });
-  }
-
-  protected onVerseVisible(verseNumber: number): void {
-    if (this.chapterId) {
-      this.userStore.setLastReadPosition(this.chapterId, verseNumber);
-    }
   }
 
   protected getArabicText(verse: Verse): string {

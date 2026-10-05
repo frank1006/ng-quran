@@ -55,7 +55,6 @@
           [class.playing]="isVerseHighlighted(verse.verse_number)"
           [class.bookmarked]="isBookmarked(verse.verse_number)"
           [class.selected]="selectedVerse() === verse.verse_number"
-          (mouseenter)="onVerseVisible(verse.verse_number)"
           (click)="selectVerse(verse.verse_number)"
         >
           <div class="verse-header">

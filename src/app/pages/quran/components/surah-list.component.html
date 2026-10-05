@@ -1,4 +1,4 @@
-<div class="surah-list-container page-pattern" #listContainer>
+<div class="surah-list-container page-pattern">
   <div class="header-section">
     <h1 class="page-title">Quran</h1>
     
@@ -44,20 +44,7 @@
         />
       </div>
     </div>
-  </div>
 
-  @if (loading()) {
-    <app-loading-spinner />
-  }
-
-  @if (error()) {
-    <app-connection-error 
-      [errorMessage]="error()!" 
-      (retry)="retry()"
-    />
-  }
-
-  @if (!loading() && !error()) {
     @if (continueReading(); as cont) {
       <button type="button" class="continue-card" (click)="continueAt(cont.chapter.id, cont.verse)">
         <span class="continue-text">
@@ -66,7 +53,7 @@
             <span class="continue-title">{{ cont.chapter.transliteration }}</span>
             <span class="continue-arabic">{{ cont.chapter.name }}</span>
           </span>
-          <span class="continue-ayah">Ayah {{ cont.verse }} of {{ cont.chapter.total_verses }}</span>
+          <span class="continue-ayah">Ayah {{ cont.verse }} of {{ cont.chapter.total_verses }} <span class="continue-percent">· {{ cont.percent }}%</span></span>
           <span class="continue-progress" aria-hidden="true">
             <span class="continue-progress-fill" [style.width.%]="cont.percent"></span>
           </span>
@@ -78,45 +65,59 @@
         </span>
       </button>
     }
+  </div>
 
-    <div class="surah-grid">
-      @for (chapter of filteredChapters(); track chapter.id) {
-        <button 
-          class="surah-card"
-          [class.last-opened]="chapter.id === lastSurahId()"
-          [attr.data-surah]="chapter.id"
-          [attr.aria-current]="chapter.id === lastSurahId() ? 'true' : null"
-          (click)="navigateToSurah(chapter.id)"
-        >
-          <div class="surah-number">{{ chapter.id }}</div>
-          <div class="surah-info">
-            <div class="surah-names">
-              <h3 class="surah-name-latin">{{ chapter.transliteration }}</h3>
-              <h4 class="surah-name-arabic">{{ chapter.name }}</h4>
-            </div>
-            <p class="surah-translation">{{ chapter.translation }}</p>
-            <div class="surah-meta">
-              <span class="surah-type" [class.surah-type-meccan]="chapter.type === 'Meccan'" [class.surah-type-medinan]="chapter.type === 'Medinan'">{{ chapter.type }}</span>
-              <span class="surah-verses">{{ chapter.total_verses }} ayahs</span>
-              @if (audio.track()?.chapterId === chapter.id) {
-                <span class="surah-now-playing" [class.paused]="!audio.isPlaying()">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05A4.5 4.5 0 0 0 16.5 12z"></path>
-                  </svg>
-                  Ayah {{ audio.track()!.verse }}
-                </span>
-              }
-            </div>
-          </div>
-        </button>
-      }
-    </div>
-
-    @if (filteredChapters().length === 0) {
-      <div class="empty-state">
-        <p>No surahs found matching your search.</p>
-      </div>
+  <div class="surah-scroll" #listContainer>
+    @if (loading()) {
+      <app-loading-spinner />
     }
-  }
-</div>
 
+    @if (error()) {
+      <app-connection-error 
+        [errorMessage]="error()!" 
+        (retry)="retry()"
+      />
+    }
+
+    @if (!loading() && !error()) {
+      <div class="surah-grid">
+        @for (chapter of filteredChapters(); track chapter.id) {
+          <button 
+            class="surah-card"
+            [class.last-opened]="chapter.id === lastSurahId()"
+            [attr.data-surah]="chapter.id"
+            [attr.aria-current]="chapter.id === lastSurahId() ? 'true' : null"
+            (click)="navigateToSurah(chapter.id)"
+          >
+            <div class="surah-number">{{ chapter.id }}</div>
+            <div class="surah-info">
+              <div class="surah-names">
+                <h3 class="surah-name-latin">{{ chapter.transliteration }}</h3>
+                <h4 class="surah-name-arabic">{{ chapter.name }}</h4>
+              </div>
+              <p class="surah-translation">{{ chapter.translation }}</p>
+              <div class="surah-meta">
+                <span class="surah-type" [class.surah-type-meccan]="chapter.type === 'Meccan'" [class.surah-type-medinan]="chapter.type === 'Medinan'">{{ chapter.type }}</span>
+                <span class="surah-verses">{{ chapter.total_verses }} ayahs</span>
+                @if (audio.track()?.chapterId === chapter.id) {
+                  <span class="surah-now-playing" [class.paused]="!audio.isPlaying()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05A4.5 4.5 0 0 0 16.5 12z"></path>
+                    </svg>
+                    Ayah {{ audio.track()!.verse }}
+                  </span>
+                }
+              </div>
+            </div>
+          </button>
+        }
+      </div>
+
+      @if (filteredChapters().length === 0) {
+        <div class="empty-state">
+          <p>No surahs found matching your search.</p>
+        </div>
+      }
+    }
+  </div>
+</div>
