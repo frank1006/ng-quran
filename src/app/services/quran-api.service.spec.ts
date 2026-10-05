@@ -4,6 +4,7 @@ import { QuranApiService } from './quran-api.service';
 import { firstValueFrom } from 'rxjs';
 
 const BASE = 'https://quranapi.pages.dev/api/';
+const LOCAL = '/data/quran/';
 
 describe('QuranApiService', () => {
   let service: QuranApiService;
@@ -31,7 +32,7 @@ describe('QuranApiService', () => {
     it('maps the surah list to chapters numbered from 1', async () => {
       const resultPromise = firstValueFrom(service.getChapters());
 
-      httpMock.expectOne(`${BASE}surah.json`).flush([
+      httpMock.expectOne(`${LOCAL}surah.json`).flush([
         {
           surahName: 'Al-Faatiha',
           surahNameArabic: 'الفاتحة',
@@ -55,8 +56,16 @@ describe('QuranApiService', () => {
       ]);
     });
 
-    it('surfaces HTTP errors', async () => {
+    it('falls back to the online API when the bundled file is missing', async () => {
       const resultPromise = firstValueFrom(service.getChapters());
+      httpMock.expectOne(`${LOCAL}surah.json`).flush('missing', { status: 404, statusText: 'Not Found' });
+      httpMock.expectOne(`${BASE}surah.json`).flush([]);
+      expect(await resultPromise).toEqual([]);
+    });
+
+    it('surfaces HTTP errors when both sources fail', async () => {
+      const resultPromise = firstValueFrom(service.getChapters());
+      httpMock.expectOne(`${LOCAL}surah.json`).flush('missing', { status: 404, statusText: 'Not Found' });
       httpMock.expectOne(`${BASE}surah.json`).flush('error', { status: 500, statusText: 'Server Error' });
       await expect(resultPromise).rejects.toBeTruthy();
     });

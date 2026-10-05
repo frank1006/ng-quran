@@ -24,6 +24,8 @@ import {
 })
 export class QuranApiService {
   private readonly baseUrl = 'https://quranapi.pages.dev/api/';
+  /** Surah list, reciters and the 114 surahs are bundled with the app (scripts/fetch-quran.mjs) */
+  private readonly localDataUrl = '/data/quran/';
   private readonly STORAGE_KEY_CACHE = 'quran-cache'; // Unified cache key
   private readonly STORAGE_KEY_RECITERS = 'quran-api-reciters'; // Old key for migration
   private readonly STORAGE_KEY_CHAPTERS = 'quran-api-chapters'; // Old key for migration
@@ -58,7 +60,8 @@ export class QuranApiService {
       } else {
         // Fetch from API and cache
         this.chaptersCache$ = this.http
-          .get<SurahListItem[]>(`${this.baseUrl}surah.json`)
+          .get<SurahListItem[]>(`${this.localDataUrl}surah.json`)
+          .pipe(catchError(() => this.http.get<SurahListItem[]>(`${this.baseUrl}surah.json`)))
           .pipe(
             map(items => items.map((item, index) => this.mapSurahListItemToChapter(item, index + 1))),
             catchError(this.handleError),
@@ -98,7 +101,8 @@ export class QuranApiService {
 
     // Fetch from API and cache
     const api$ = this.http
-      .get<SurahResponse>(`${this.baseUrl}${chapterId}.json`)
+      .get<SurahResponse>(`${this.localDataUrl}${chapterId}.json`)
+      .pipe(catchError(() => this.http.get<SurahResponse>(`${this.baseUrl}${chapterId}.json`)))
       .pipe(
         map(response => {
           const chapter = this.mapSurahResponseToChapterWithVerses(response);
@@ -176,7 +180,8 @@ export class QuranApiService {
       } else {
         // Fetch from API and cache
         this.recitersCache$ = this.http
-          .get<RecitersResponse>(`${this.baseUrl}reciters.json`)
+          .get<RecitersResponse>(`${this.localDataUrl}reciters.json`)
+          .pipe(catchError(() => this.http.get<RecitersResponse>(`${this.baseUrl}reciters.json`)))
           .pipe(
             map(response => this.mapRecitersResponseToReciterArray(response)),
             catchError(this.handleError),

@@ -41,6 +41,16 @@
           "https://fonts.gstatic.com/**"
         ]
       }
+    },
+    {
+      "name": "quran-data",
+      "installMode": "lazy",
+      "updateMode": "lazy",
+      "resources": {
+        "files": [
+          "/data/quran/*.json"
+        ]
+      }
     }
   ],
   "dataGroups": [
