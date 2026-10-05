@@ -17,8 +17,7 @@ app-hero-header {
   --hero-mid: var(--color-primary-soft);
   --hero-bg: linear-gradient(180deg, var(--hero-top) 0%, var(--hero-mid) 55%, var(--color-surface) 100%);
   --trajectory-bottom: 0px;
-  --hero-pattern: url('/images/hero-pattern.png');
-  --hero-pattern-opacity: 0.7;
+  --pattern-height: 55%;
 }
 
 /* The hero tint follows the current weather; all stay light so the dark text keeps its contrast */
