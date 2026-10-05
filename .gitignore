@@ -49,3 +49,8 @@ Thumbs.db
 # SSL certificates (development only)
 /ssl/*.key
 /ssl/*.crt
+
+# Local environment files (API keys)
+.env
+.env*.local
+.vercel

@@ -5,6 +5,10 @@
  * at Vercel's edge and shared by everyone nearby. The public Overpass servers are often
  * busy and rate-limit per user; one cached request per area avoids most of that.
  *
+ * Fallback: if all Overpass servers fail and GEOAPIFY_API_KEY is set (Vercel environment
+ * variable, never sent to the browser), the same search is made with Geoapify Places and
+ * converted to Overpass's response format, so the app handles both identically.
+ *
  * Privacy: the location is rounded to a ~1 km grid before it is used or cached, and
  * nothing is stored apart from the cached Overpass response itself.
  */
@@ -17,6 +21,9 @@ const OVERPASS_URLS = [
 
 /** Overpass asks clients to identify themselves. */
 const USER_AGENT = 'QuranFlow/1.0 (+https://thequranflow.vercel.app)';
+
+const GEOAPIFY_URL = 'https://api.geoapify.com/v2/places';
+const GEOAPIFY_TIMEOUT_MS = 8000;
 
 const GRID_DEGREES = 0.01; // ~1.1 km
 const GRID_MARGIN_KM = 1; // covers the distance between the user and the grid point
@@ -45,10 +52,15 @@ export async function GET(request: Request): Promise<Response> {
     return Response.redirect(url.toString(), 308);
   }
 
-  const query = buildQuery(gridLat, gridLng, (radiusKm + GRID_MARGIN_KM) * 1000);
+  const radiusMeters = (radiusKm + GRID_MARGIN_KM) * 1000;
+  const query = buildQuery(gridLat, gridLng, radiusMeters);
 
   try {
-    const body = await raceEndpoints(query);
+    const body = await raceEndpoints(query).catch(error => {
+      const key = process.env.GEOAPIFY_API_KEY;
+      if (!key) throw error;
+      return fetchGeoapify(gridLat, gridLng, radiusMeters, key);
+    });
     return new Response(body, {
       status: 200,
       headers: {
@@ -141,6 +153,41 @@ async function fetchOverpass(url: string, query: string, attempt: AbortControlle
       throw new Error('Incomplete Overpass response');
     }
     return body;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Geoapify Places search, returned in Overpass's JSON shape. */
+async function fetchGeoapify(lat: number, lng: number, radiusMeters: number, apiKey: string): Promise<string> {
+  const url = `${GEOAPIFY_URL}?categories=religion.place_of_worship.islam` +
+    `&filter=circle:${lng},${lat},${radiusMeters}&bias=proximity:${lng},${lat}&limit=200&apiKey=${encodeURIComponent(apiKey)}`;
+  const attempt = new AbortController();
+  const timer = setTimeout(() => attempt.abort(), GEOAPIFY_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { signal: attempt.signal, headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`Geoapify HTTP ${response.status}`);
+    const data = await response.json();
+    const elements = (data.features ?? [])
+      .map((feature: any, index: number) => {
+        const p = feature.properties ?? {};
+        if (typeof p.lat !== 'number' || typeof p.lon !== 'number') return null;
+        return {
+          type: 'node',
+          id: Number(p.datasource?.raw?.osm_id) || 9_000_000_000 + index,
+          lat: p.lat,
+          lon: p.lon,
+          tags: {
+            amenity: 'place_of_worship',
+            religion: 'muslim',
+            ...(p.name ? { name: p.name } : {}),
+            ...(p.street ? { 'addr:street': [p.housenumber, p.street].filter(Boolean).join(' ') } : {}),
+            ...(p.city ? { 'addr:city': p.city } : {}),
+          },
+        };
+      })
+      .filter(Boolean);
+    return JSON.stringify({ version: 0.6, generator: 'geoapify', elements });
   } finally {
     clearTimeout(timer);
   }
