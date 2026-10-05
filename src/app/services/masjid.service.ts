@@ -1,6 +1,6 @@
 import { Injectable, isDevMode } from '@angular/core';
-import { Observable, from, throwError, timer, of } from 'rxjs';
-import { retryWhen, mergeMap, take, catchError, timeout, tap, shareReplay, finalize } from 'rxjs/operators';
+import { Observable, from, of } from 'rxjs';
+import { tap, shareReplay, finalize } from 'rxjs/operators';
 
 /**
  * Mosque/Masjid data from Overpass API
@@ -72,16 +72,16 @@ interface UnifiedMasjidCache {
 })
 export class MasjidService {
   // Multiple Overpass API endpoints for fallback
+  // overpass-api.de and its two mirrors (checked 2026-10-05; kumi.systems and openstreetmap.ru no longer respond)
   private readonly OVERPASS_API_URLS = [
     'https://overpass-api.de/api/interpreter',
-    'https://overpass.kumi.systems/api/interpreter',
-    'https://overpass.openstreetmap.ru/api/interpreter'
+    'https://z.overpass-api.de/api/interpreter',
+    'https://lz4.overpass-api.de/api/interpreter'
   ];
   private readonly DEFAULT_RADIUS_KM = 1; // Default 5km radius
   private readonly MAX_RADIUS_KM = 50; // Maximum 50km radius
   private readonly MIN_RADIUS_KM = 1; // Minimum 1km radius
-  private readonly REQUEST_TIMEOUT_MS = 30000; // 30 seconds timeout
-  private readonly MAX_RETRIES = 2; // Try 2 additional times (3 total attempts)
+  private readonly REQUEST_TIMEOUT_MS = 12000; // Per-endpoint limit before trying the next one
   
   // Cache configuration
   private readonly STORAGE_KEY = 'masjid-cache';
@@ -166,9 +166,9 @@ export class MasjidService {
 
     // Overpass QL query to find mosques/masjids
     // Searches for: amenity=place_of_worship + religion=muslim
-    // Reduced timeout to 20 seconds to fail faster
+    // Server-side limit below the 12s client timeout
     const query = `
-      [out:json][timeout:20];
+      [out:json][timeout:10];
       (
         node["amenity"="place_of_worship"]["religion"="muslim"](around:${radiusMeters},${latitude},${longitude});
         way["amenity"="place_of_worship"]["religion"="muslim"](around:${radiusMeters},${latitude},${longitude});
@@ -419,7 +419,8 @@ export class MasjidService {
   }
 
   /**
-   * Try each endpoint sequentially until one succeeds
+   * Try each Overpass endpoint once, in order, until one returns data.
+   * Each attempt is cut off after REQUEST_TIMEOUT_MS so a dead server can't stall the search.
    */
   private tryEndpointsSequentially(
     query: string,
@@ -428,120 +429,56 @@ export class MasjidService {
     radiusKm: number,
     abortSignal?: AbortSignal
   ): Observable<Masjid[]> {
-    let currentEndpointIndex = 0;
+    const run = async (): Promise<Masjid[]> => {
+      let lastError = '';
 
-    const tryEndpoint = (endpointIndex: number): Observable<Masjid[]> => {
-      if (endpointIndex >= this.OVERPASS_API_URLS.length) {
-        return throwError(() => new Error('All Overpass API servers are busy. Please try again in a few moments.'));
-      }
+      for (const apiUrl of this.OVERPASS_API_URLS) {
+        if (abortSignal?.aborted) {
+          throw new Error('REQUEST_ABORTED');
+        }
 
-      const apiUrl = this.OVERPASS_API_URLS[endpointIndex];
+        // Abort this attempt on timeout, or when the caller cancels the whole search
+        const attempt = new AbortController();
+        const timer = setTimeout(() => attempt.abort(), this.REQUEST_TIMEOUT_MS);
+        const onCallerAbort = () => attempt.abort();
+        abortSignal?.addEventListener('abort', onCallerAbort);
 
-      if (isDevMode()) {
-        console.log(`Trying Overpass API endpoint ${endpointIndex + 1}/${this.OVERPASS_API_URLS.length}: ${apiUrl}`);
-      }
-
-      // Check if request was aborted before making the fetch
-      if (abortSignal?.aborted) {
-        return throwError(() => new Error('REQUEST_ABORTED'));
-      }
-
-      return from(
-        fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `data=${encodeURIComponent(query)}`,
-          signal: abortSignal, // Pass abort signal to fetch
-        }).then(async (response) => {
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `data=${encodeURIComponent(query)}`,
+            signal: attempt.signal,
+          });
           if (!response.ok) {
-            // For 504 Gateway Timeout or 429 Too Many Requests, try next endpoint
-            if (response.status === 504 || response.status === 429) {
-              throw new Error(`SERVER_BUSY:${response.status}`);
-            }
-            throw new Error(`API_ERROR:${response.status}:${response.statusText}`);
+            lastError = `HTTP ${response.status}`;
+            continue;
           }
           const data: OverpassResponse = await response.json();
           const masjids = await this.processOverpassResponse(data, latitude, longitude);
-          // Sort by distance (nearest first)
           return masjids.sort((a, b) => (a.distance || 0) - (b.distance || 0));
-        }).catch((error) => {
-          // Handle aborted requests
-          if (error.name === 'AbortError' || abortSignal?.aborted) {
+        } catch (error) {
+          if (abortSignal?.aborted) {
             throw new Error('REQUEST_ABORTED');
           }
-          // Handle network errors
-          if (error instanceof TypeError && error.message.includes('fetch')) {
-            throw new Error('NETWORK_ERROR');
-          }
-          // Re-throw other errors
-          throw error;
-        })
-      ).pipe(
-        timeout(this.REQUEST_TIMEOUT_MS),
-        retryWhen((errors) =>
-          errors.pipe(
-            mergeMap((error, attempt) => {
-              const errorMessage = error.message || '';
-              
-              // If request was aborted, don't retry
-              if (errorMessage.includes('REQUEST_ABORTED') || abortSignal?.aborted) {
-                return throwError(() => error);
-              }
-              
-              // If server is busy (504/429), try next endpoint immediately
-              if (errorMessage.includes('SERVER_BUSY')) {
-                if (isDevMode()) {
-                  console.log(`Endpoint ${endpointIndex} is busy (${errorMessage}), trying next endpoint...`);
-                }
-                return tryEndpoint(endpointIndex + 1);
-              }
-              
-              // For other errors, retry with exponential backoff (up to MAX_RETRIES)
-              if (attempt < this.MAX_RETRIES) {
-                const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5 seconds
-                if (isDevMode()) {
-                  console.log(`Retrying endpoint ${endpointIndex} in ${delay}ms (attempt ${attempt + 1}/${this.MAX_RETRIES})...`);
-                }
-                return timer(delay);
-              }
-              
-              // All retries exhausted for this endpoint, try next one
-              if (isDevMode()) {
-                console.log(`All retries failed for endpoint ${endpointIndex}, trying next endpoint...`);
-              }
-              return tryEndpoint(endpointIndex + 1);
-            }),
-            take(this.MAX_RETRIES * this.OVERPASS_API_URLS.length)
-          )
-        ),
-        catchError((error) => {
-          // If request was aborted, don't try other endpoints
-          const errorMessage = error.message || '';
-          if (errorMessage.includes('REQUEST_ABORTED') || abortSignal?.aborted) {
-            return throwError(() => error);
-          }
-          
-          // If this endpoint failed, try next one
-          const nextIndex = endpointIndex + 1;
-          if (nextIndex < this.OVERPASS_API_URLS.length) {
-            return tryEndpoint(nextIndex);
-          }
-          
-          // All endpoints failed
-          if (errorMessage.includes('NETWORK_ERROR')) {
-            return throwError(() => new Error('Network error. Please check your internet connection.'));
-          }
-          if (errorMessage.includes('SERVER_BUSY')) {
-            return throwError(() => new Error('The Overpass API servers are too busy. Please try again in a few moments.'));
-          }
-          return throwError(() => new Error('Failed to fetch mosque data. Please try again.'));
-        })
-      );
+          lastError = attempt.signal.aborted ? 'timeout' : String(error);
+        } finally {
+          clearTimeout(timer);
+          abortSignal?.removeEventListener('abort', onCallerAbort);
+        }
+
+        if (isDevMode()) {
+          console.warn(`Overpass endpoint failed (${lastError}): ${apiUrl}`);
+        }
+      }
+
+      if (!navigator.onLine) {
+        throw new Error('Network error. Please check your internet connection.');
+      }
+      throw new Error('Mosque search servers are busy. Please try again in a few moments.');
     };
 
-    return tryEndpoint(0);
+    return from(run());
   }
 
   /**
