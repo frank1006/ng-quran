@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import { Masjid, MasjidService } from '../../../../services/masjid.service';
+import { Masjid, MasjidService, MASJID_RADIUS_OPTIONS_KM } from '../../../../services/masjid.service';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 
@@ -19,7 +19,11 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() longitude: number = 0;
   @Input() radius: number = 1;
   @Input() refreshTrigger: number = 0;
+  /** When the chosen distance has no results, widen it automatically (until the user picks one) */
+  @Input() autoExpand = false;
   @Output() radiusChange = new EventEmitter<number>();
+  /** Emitted instead of showing an empty list when autoExpand is on */
+  @Output() autoRadius = new EventEmitter<number>();
 
   private readonly masjidService = inject(MasjidService);
   private readonly destroyRef = inject(DestroyRef);
@@ -136,6 +140,12 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
 
           // The service returns a wider search; keep only those inside the chosen radius
           const inRadius = masjids.filter(m => (m.distance ?? 0) <= this.radius);
+          const wider = inRadius.length === 0 && this.autoExpand ? this.widerRadius(masjids) : undefined;
+          if (wider !== undefined) {
+            // Keep the spinner up while the parent switches to the wider distance
+            this.autoRadius.emit(wider);
+            return;
+          }
           this.masjids.set(inRadius);
           this.loading.set(false);
           this.isLoading = false;
@@ -167,6 +177,20 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * The next distance option that has results: from the wider search already loaded when
+   * it found something, otherwise the next option beyond it (which triggers a new search).
+   */
+  private widerRadius(loaded: Masjid[]): number | undefined {
+    const larger = MASJID_RADIUS_OPTIONS_KM.filter(option => option > this.radius);
+    const nearest = loaded.length ? Math.min(...loaded.map(m => m.distance ?? Infinity)) : undefined;
+    if (nearest !== undefined && isFinite(nearest)) {
+      return larger.find(option => option >= nearest) ?? undefined;
+    }
+    const searched = Math.max(this.radius, this.masjidService.minimumSearchKm);
+    return larger.find(option => option > searched);
+  }
+
+  /**
    * Cancel previous ongoing request (both RxJS subscription and HTTP request)
    */
   private cancelPreviousRequest(): void {
@@ -183,12 +207,16 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /** Rough travel estimate: walking (~5 km/h) up to 2 km, otherwise driving in town (~30 km/h). */
+  /**
+   * Rough travel estimate: walking (~5 km/h) up to 2 km, otherwise driving: town speed
+   * (~30 km/h) for the first 10 km and main roads (~60 km/h) beyond that.
+   */
   protected travelTime(distanceKm: number): string {
     if (distanceKm <= 2) {
       return `${Math.max(1, Math.round(distanceKm * 12))} min walk`;
     }
-    return `${Math.max(1, Math.round(distanceKm * 2))} min drive`;
+    const minutes = Math.min(distanceKm, 10) * 2 + Math.max(0, distanceKm - 10);
+    return `${Math.round(minutes)} min drive`;
   }
 
   protected formatDistance(distanceKm: number | undefined): string {

@@ -17,7 +17,7 @@ import { NetworkStatusService } from '../../services/network-status.service';
 import { QiblaService } from '../qibla/services/qibla.service';
 import { NotificationService } from '../../services/notification.service';
 import { BackgroundSyncService } from '../../services/background-sync.service';
-import { MasjidService } from '../../services/masjid.service';
+import { MasjidService, MASJID_RADIUS_OPTIONS_KM } from '../../services/masjid.service';
 import { DeviceDetectionService } from '../../services/device-detection.service';
 
 interface PrayerItem {
@@ -61,6 +61,10 @@ export class PrayerComponent implements OnInit, OnDestroy {
   protected readonly masjidSearchRadius = signal<number>(1);
   protected readonly masjidListRefreshTrigger = signal<number>(0);
   protected readonly locating = signal(false);
+  /** Widen the masjid distance automatically when nothing is found, until the user picks one */
+  protected readonly masjidAutoExpand = signal(true);
+  protected readonly masjidRadiusNote = signal('');
+  private masjidAutoFrom: number | null = null;
   protected readonly locationMessage = signal('');
   private readonly destroyRef = inject(DestroyRef);
   private readonly networkStatus = inject(NetworkStatusService);
@@ -457,6 +461,10 @@ export class PrayerComponent implements OnInit, OnDestroy {
         next: () => {
           this.locating.set(false);
           this.reloadCurrentDate(); // the new place name in the chip is the confirmation
+          this.masjidAutoExpand.set(true);
+          this.masjidRadiusNote.set('');
+          this.masjidAutoFrom = null;
+    this.masjidAutoFrom = null;
         },
         error: (error: { code?: number }) => {
           this.locating.set(false);
@@ -632,6 +640,9 @@ export class PrayerComponent implements OnInit, OnDestroy {
     }
     
     this.showMasjidList.set(true);
+    this.masjidAutoExpand.set(true);
+    this.masjidRadiusNote.set('');
+    this.masjidAutoFrom = null;
     // Force refresh to get latest data
     this.masjidListRefreshTrigger.set(Date.now());
   }
@@ -647,14 +658,31 @@ export class PrayerComponent implements OnInit, OnDestroy {
    * Handle radius change from masjid list
    */
   protected onMasjidRadiusChange(radius: number): void {
+    this.masjidAutoExpand.set(false);
+    this.masjidRadiusNote.set('');
+    this.masjidAutoFrom = null;
     this.masjidSearchRadius.set(radius);
     this.saveLastSelectedRadius(radius);
+  }
+
+  /** Nothing within the chosen distance: show the nearest distance that has masjids. */
+  protected onMasjidAutoRadius(radius: number): void {
+    // Name the distance the user had chosen, even if several steps were needed
+    this.masjidAutoFrom ??= this.masjidSearchRadius();
+    this.masjidRadiusNote.set(`No masjids within ${this.masjidAutoFrom} km, showing ${radius} km`);
+    this.masjidSearchRadius.set(radius);
   }
 
   /**
    * Load last selected radius from localStorage
    */
   private loadLastSelectedRadius(): number {
+    const stored = this.readStoredRadius();
+    // Older versions offered 2 and 3 km: use the nearest option that covers them
+    return MASJID_RADIUS_OPTIONS_KM.find(option => option >= stored) ?? MASJID_RADIUS_OPTIONS_KM[0];
+  }
+
+  private readStoredRadius(): number {
     try {
       if (typeof localStorage === 'undefined') {
         return 1; // Default

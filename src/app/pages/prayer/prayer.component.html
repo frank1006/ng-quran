@@ -58,7 +58,11 @@
     <app-radius-filter
       [radius]="masjidSearchRadius()"
       [loading]="loading()"
+      [locationName]="locationName()"
+      [locating]="locating()"
+      [note]="locationMessage() || masjidRadiusNote()"
       (radiusChange)="onMasjidRadiusChange($event)"
+      (refreshLocation)="refreshLocation()"
     />
   }
 
@@ -69,7 +73,9 @@
       [longitude]="currentLocation()!.longitude"
       [radius]="masjidSearchRadius()"
       [refreshTrigger]="masjidListRefreshTrigger()"
+      [autoExpand]="masjidAutoExpand()"
       (radiusChange)="onMasjidRadiusChange($event)"
+      (autoRadius)="onMasjidAutoRadius($event)"
     />
   }
 

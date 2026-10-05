@@ -67,6 +67,9 @@ interface UnifiedMasjidCache {
   searchCache?: MasjidCacheData;
 }
 
+/** Distance filter options offered in the masjid view (km). */
+export const MASJID_RADIUS_OPTIONS_KM = [1, 5, 10, 25];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -83,9 +86,11 @@ export class MasjidService {
   private readonly MIN_RADIUS_KM = 1; // Minimum 1km radius
   private readonly REQUEST_TIMEOUT_MS = 12000; // Per-endpoint limit
   private readonly STAGGER_MS = 5000; // Start the next endpoint if no answer yet
-  private readonly PROXY_RADII_KM = [5, 10]; // Radii cached by /api/masjids
+  private readonly PROXY_RADII_KM = [5, 10, 25]; // Radii cached by /api/masjids
   private readonly PROXY_TIMEOUT_MS = 25000;
   private readonly BASE_FETCH_KM = 5; // Smallest search actually sent to the server
+  /** Every search covers at least this distance (smaller filters are applied on the device). */
+  readonly minimumSearchKm = this.BASE_FETCH_KM;
   
   // Cache configuration
   private readonly STORAGE_KEY = 'masjid-cache';

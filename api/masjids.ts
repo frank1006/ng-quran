@@ -27,7 +27,7 @@ const GEOAPIFY_TIMEOUT_MS = 8000;
 
 const GRID_DEGREES = 0.01; // ~1.1 km
 const GRID_MARGIN_KM = 1; // covers the distance between the user and the grid point
-const ALLOWED_RADII_KM = [5, 10];
+const ALLOWED_RADII_KM = [5, 10, 25];
 const ATTEMPT_TIMEOUT_MS = 9000;
 const STAGGER_MS = 3000;
 
@@ -40,7 +40,7 @@ export async function GET(request: Request): Promise<Response> {
   const radiusKm = Number(params.get('r'));
 
   if (!isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180 || !ALLOWED_RADII_KM.includes(radiusKm)) {
-    return json({ error: 'Invalid lat, lng or r (allowed r: 5, 10)' }, 400);
+    return json({ error: 'Invalid lat, lng or r (allowed r: 5, 10, 25)' }, 400);
   }
 
   // Normalised URL = cache key, so redirect anything more precise to the grid point

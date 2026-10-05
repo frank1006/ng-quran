@@ -51,7 +51,6 @@
   margin-bottom: var(--space-xs);
 }
 
-.location-badge,
 .today-button {
   display: inline-flex;
   align-items: center;
@@ -65,45 +64,11 @@
   transition: background 0.2s ease;
 }
 
-.location-badge {
-  max-width: 100%;
-  background: var(--color-surface-alt);
-  color: var(--color-text);
-}
-
-.location-badge:disabled {
-  cursor: progress;
-}
-
 .today-button {
   background: var(--color-primary-soft);
   color: var(--color-primary-text);
   font-size: var(--font-xs);
   font-weight: 600;
-}
-
-@media (hover: hover) {
-  .location-badge:hover:not(:disabled) {
-    background: var(--color-surface-muted);
-  }
-}
-
-.refresh-icon {
-  flex-shrink: 0;
-  margin-left: var(--space-xxs);
-  color: var(--color-text-muted);
-}
-
-.location-badge.locating .refresh-icon {
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .location-badge.locating .refresh-icon { animation: none; }
 }
 
 .location-message {
@@ -114,17 +79,6 @@
   line-height: 1.4;
 }
 
-.location-icon {
-  flex-shrink: 0;
-  display: block;
-}
-
-.location {
-  font-family: var(--font-body);
-  font-size: var(--font-xs);
-  font-weight: 500;
-  color: var(--color-text);
-}
 
 .date-text {
   font-family: var(--font-body);
@@ -139,10 +93,4 @@
   font-size: 0.8125rem; /* 13px */
   font-weight: 400;
   color: var(--color-accent-dark);
-}
-
-.location-badge .location {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
