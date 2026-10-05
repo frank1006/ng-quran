@@ -1,14 +1,12 @@
 /**
- * Point coordinates for SVG visualization
+ * Types for the prayer trajectory (sun arc) visualization
  */
+
 export interface Point {
   x: number;
   y: number;
 }
 
-/**
- * Prayer item with trajectory status for visualization
- */
 export interface PrayerItemWithStatus {
   name: string;
   time: string;
@@ -19,30 +17,19 @@ export interface PrayerItemWithStatus {
   isNext: boolean;
 }
 
-/**
- * Trajectory visualization data
- */
+export interface TrajectoryMarker extends PrayerItemWithStatus {
+  point: Point;
+}
+
 export interface TrajectoryData {
-  prayers: PrayerItemWithStatus[];
-  positions: number[];
-  curvePoints: Point[];
-  currentIndex: number;
-  progress: number;
-  gradientOffset: number;
-  endpointPosition: Point;
+  /** Prayer markers positioned on the arc */
+  markers: TrajectoryMarker[];
+  /** SVG path for the whole day */
+  fullPath: string;
+  /** SVG path from the start of the window to now ('' before the window starts) */
+  elapsedPath: string;
+  /** Current time on the arc, or null when outside the drawn window */
+  now: Point | null;
+  /** y of the horizon (sunrise and Maghrib sit on it) */
+  horizonY: number;
 }
-
-/**
- * Bezier curve control points for trajectory path
- */
-export interface BezierSegment {
-  startX: number;
-  startY: number;
-  cp1X: number;
-  cp1Y: number;
-  cp2X: number;
-  cp2Y: number;
-  endX: number;
-  endY: number;
-}
-

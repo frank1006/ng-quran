@@ -1,71 +1,41 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TrajectoryData, PrayerItemWithStatus } from './prayer-trajectory.types';
-import { TrajectoryUtils } from './prayer-trajectory.utils';
+import { TrajectoryData } from './prayer-trajectory.types';
+import { TRAJECTORY_CONSTANTS as C } from './prayer-trajectory.constants';
 
 @Component({
   selector: 'app-prayer-trajectory',
   standalone: true,
   imports: [CommonModule],
   template: `
-    @if (trajectoryData()) {
-      <div class="prayer-trajectory">
-        <svg viewBox="0 0 600 160" class="trajectory-svg">
-          <!-- Define masks and gradients -->
-          <defs>
-            <linearGradient id="trajectoryGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color:var(--color-accent-dark)" />
-              @if (trajectoryData()?.progress !== undefined) {
-                <stop [attr.offset]="getGradientOffset(trajectoryData()!.progress)" style="stop-color:var(--color-accent-dark)" />
-                <stop [attr.offset]="getGradientOffset(trajectoryData()!.progress)" style="stop-color:var(--color-accent)" />
-              }
-              <stop offset="100%" style="stop-color:var(--color-accent)" />
-            </linearGradient>
-          </defs>
+    @if (trajectoryData(); as data) {
+      <div class="prayer-trajectory" aria-hidden="true">
+        <svg [attr.viewBox]="viewBox" class="trajectory-svg">
+          <!-- Horizon: sunrise and Maghrib sit on this line -->
+          <line class="trajectory-horizon" x1="0" [attr.y1]="data.horizonY" [attr.x2]="width" [attr.y2]="data.horizonY" />
 
-          <!-- Main trajectory curve: day/night cycle arc -->
-          <path
-            d="M 0 160 L 50 160 C 150 160, 240 40, 300 40 S 440 160, 540 160 L 600 160"
-            fill="none"
-            stroke="url(#trajectoryGradient)"
-            stroke-width="4.5"
-            stroke-linecap="round"
-            class="trajectory-path"
-          />
+          <!-- Whole day (light) and the part already elapsed (bold) -->
+          <path class="trajectory-remaining" [attr.d]="data.fullPath" />
+          @if (data.elapsedPath) {
+            <path class="trajectory-elapsed" [attr.d]="data.elapsedPath" />
+          }
 
-          <!-- Rounded endpoint marker at progress position -->
-          @if (trajectoryData()?.endpointPosition) {
+          <!-- Prayer markers: filled once passed, ring while upcoming -->
+          @for (marker of data.markers; track marker.key) {
             <circle
-              [attr.cx]="trajectoryData()!.endpointPosition.x"
-              [attr.cy]="trajectoryData()!.endpointPosition.y"
-              r="4.25"
-              style="fill:var(--color-primary)"
-              class="trajectory-endpoint"
+              class="marker"
+              [class.passed]="marker.hasPassed"
+              [class.next]="marker.isNext"
+              [attr.cx]="marker.point.x"
+              [attr.cy]="marker.point.y"
+              r="9"
             />
           }
 
-          <!-- Prayer markers -->
-          @if (trajectoryData()?.prayers && trajectoryData()?.curvePoints) {
-            @for (prayer of trajectoryData()!.prayers; track prayer.key; let i = $index) {
-              @if (trajectoryData()!.curvePoints && trajectoryData()!.curvePoints[i]) {
-                @let point = trajectoryData()!.curvePoints[i];
-                @let isCurrent = getPrayerIsCurrent(prayer, i);
-                @let hasPassed = getPrayerHasPassed(prayer);
-                @let isNext = getPrayerIsNext(prayer);
-
-                <g class="prayer-marker" [class.current]="isCurrent" [class.next]="isNext">
-                  <!-- Marker circle -->
-                  <circle
-                    [attr.cx]="point.x"
-                    [attr.cy]="point.y"
-                    r="8"
-                    [class.filled]="hasPassed"
-                    [class.next-filled]="isNext"
-                    class="marker-circle"
-                  />
-                </g>
-              }
-            }
+          <!-- Current time -->
+          @if (data.now) {
+            <circle class="now-halo" [attr.cx]="data.now.x" [attr.cy]="data.now.y" r="16" />
+            <circle class="now-dot" [attr.cx]="data.now.x" [attr.cy]="data.now.y" r="8" />
           }
         </svg>
       </div>
@@ -76,24 +46,6 @@ import { TrajectoryUtils } from './prayer-trajectory.utils';
 export class PrayerTrajectoryComponent {
   readonly trajectoryData = input<TrajectoryData | null>(null);
 
-  protected getGradientOffset(progress: number | undefined): string {
-    return TrajectoryUtils.getGradientOffset(progress);
-  }
-
-  protected getPrayerHasPassed(prayer: PrayerItemWithStatus): boolean {
-    return prayer?.hasPassed === true;
-  }
-
-  protected getPrayerIsCurrent(prayer: PrayerItemWithStatus, index: number): boolean {
-    if (prayer?.isCurrent !== undefined) {
-      return prayer.isCurrent === true;
-    }
-    const trajectory = this.trajectoryData();
-    return trajectory?.currentIndex === index;
-  }
-
-  protected getPrayerIsNext(prayer: PrayerItemWithStatus): boolean {
-    return prayer?.isNext === true;
-  }
+  protected readonly width = C.WIDTH;
+  protected readonly viewBox = `0 0 ${C.WIDTH} ${C.HEIGHT}`;
 }
-

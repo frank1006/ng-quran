@@ -1,61 +1,73 @@
 .prayer-trajectory {
   position: absolute;
-  bottom: 0rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 117.5%;
-  max-width: 500px;
+  /* Sit above the white sheet that overlaps the bottom of the hero */
+  bottom: var(--space-lg);
+  left: 0;
+  right: 0;
   z-index: 3;
-  opacity: 0.95;
   pointer-events: none;
 }
 
 .trajectory-svg {
-  width: 100%;
-  height: 10rem; /* 160px */
   display: block;
+  width: 100%;
+  height: auto;
   overflow: visible;
 }
 
-.trajectory-path {
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+.trajectory-horizon {
+  stroke: var(--color-accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 6;
+  opacity: 0.45;
 }
 
-.trajectory-endpoint {
-  filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--color-primary) 40%, transparent));
+.trajectory-remaining,
+.trajectory-elapsed {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.prayer-marker {
-  cursor: pointer;
-  transition: transform 0.2s ease;
+.trajectory-remaining {
+  stroke: var(--color-accent);
+  stroke-width: 3.5;
+  opacity: 0.6;
 }
 
-.prayer-marker:hover {
-  transform: scale(1.1);
+.trajectory-elapsed {
+  stroke: var(--color-accent-dark);
+  stroke-width: 6;
 }
 
-.marker-circle {
-  fill: var(--color-accent);
-  stroke: none;
-  r: 8;
-  transition: all 0.3s ease;
+.marker {
+  fill: var(--color-surface);
+  stroke: var(--color-primary);
+  stroke-width: 4;
+  transition: fill 0.3s ease;
 }
 
-.marker-circle.filled {
+.marker.passed {
   fill: var(--color-primary);
-  stroke: none;
-  r: 8;
 }
 
-.marker-circle.next-filled {
+.marker.next {
+  stroke: var(--color-accent-dark);
+}
+
+.now-halo {
+  fill: var(--color-primary);
+  opacity: 0.25;
+}
+
+.now-dot {
   fill: var(--color-accent-dark);
-  stroke: none;
-  r: 8;
+  stroke: var(--color-surface);
+  stroke-width: 3;
 }
 
-.marker-circle:not(.filled):not(.next-filled) {
-  fill: var(--color-accent);
-  stroke: none;
-  r: 8;
+@media (prefers-reduced-motion: reduce) {
+  .marker {
+    transition: none;
+  }
 }
-
