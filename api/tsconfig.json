@@ -1,0 +1,14 @@
+{
+  "//": "Vercel Functions in api/ run on Node as CommonJS; Angular's root tsconfig uses module=preserve (ESM), which crashes there",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["*.ts"]
+}
