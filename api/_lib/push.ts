@@ -51,10 +51,19 @@ export function redis(): Redis {
 let vapidReady = false;
 export function configureVapid(): void {
   if (vapidReady) return;
-  const { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } = process.env;
-  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) throw new Error('VAPID keys are not configured');
-  webpush.setVapidDetails(VAPID_SUBJECT || 'https://thequranflow.vercel.app', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  const publicKey = cleanEnv('VAPID_PUBLIC_KEY');
+  const privateKey = cleanEnv('VAPID_PRIVATE_KEY');
+  if (!publicKey || !privateKey) throw new Error('VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY is not set');
+  // Accept a bare email address as well as "mailto:..." or an https: URL
+  let subject = cleanEnv('VAPID_SUBJECT') || 'https://thequranflow.vercel.app';
+  if (!/^(mailto:|https:)/.test(subject)) subject = subject.includes('@') ? `mailto:${subject}` : 'https://thequranflow.vercel.app';
+  webpush.setVapidDetails(subject, publicKey, privateKey);
   vapidReady = true;
+}
+
+/** Environment value without surrounding whitespace or quotes (common copy-paste slips). */
+export function cleanEnv(name: string): string {
+  return (process.env[name] ?? '').trim().replace(/^["']|["']$/g, '').trim();
 }
 
 export const subscriberKey = (id: string) => `push:sub:${id}`;

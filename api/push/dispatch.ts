@@ -7,7 +7,7 @@
  */
 import webpush from 'web-push';
 import {
-  PrayerKey, Subscriber, configureVapid, json, localDate, nextDate, queueDay, redis,
+  PrayerKey, Subscriber, cleanEnv, configureVapid, json, localDate, nextDate, queueDay, redis,
   reminderPayload, removeSubscriber, saveSubscriber, subscriberKey,
 } from '../_lib/push';
 
@@ -19,19 +19,24 @@ const BATCH = 500;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export async function GET(request: Request): Promise<Response> {
-  const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get('authorization') !== `Bearer ${secret}`) {
+  const secret = cleanEnv('CRON_SECRET');
+  const provided = (request.headers.get('authorization') ?? '').trim().replace(/^bearer\s+/i, '');
+  if (!secret || provided !== secret) {
     return json({ error: 'Unauthorized' }, 401);
   }
 
+  // Report which step failed (messages name the setting, never its value)
+  let step = 'push keys (VAPID_*)';
   try {
     configureVapid();
+    step = 'database (Redis)';
     const [sent, failed] = await sendDue();
     const refilled = await refill();
     return json({ sent, failed, refilled });
-  } catch (error) {
-    console.error('push dispatch failed', error);
-    return json({ error: 'Dispatch failed' }, 500);
+  } catch (error: any) {
+    console.error('push dispatch failed', step, error);
+    const reason = String(error?.message ?? error).split('. ')[0];
+    return json({ error: 'Dispatch failed', step, reason }, 500);
   }
 }
 
