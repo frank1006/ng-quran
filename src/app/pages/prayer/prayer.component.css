@@ -1,6 +1,7 @@
 /* Taller hero that fades into the page; the arc gets its own space below the title */
 app-hero-header {
-  --hero-height: 19rem;
+  /* Browsers lose height to toolbars: scale with the visible viewport, within limits */
+  --hero-height: clamp(15.5rem, 40dvh, 19rem);
   --hero-overlap: 0px;
   --hero-decor-opacity: 0;
   --hero-bg: linear-gradient(180deg, var(--color-bg) 0%, var(--color-primary-soft) 55%, var(--color-surface) 100%);

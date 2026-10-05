@@ -12,6 +12,8 @@
   display: block;
   width: 100%;
   height: auto;
+  /* On wide screens (tablet/desktop) keep the arc from growing into the title */
+  max-height: var(--trajectory-max-height, 9.5rem);
   overflow: visible;
 }
 
