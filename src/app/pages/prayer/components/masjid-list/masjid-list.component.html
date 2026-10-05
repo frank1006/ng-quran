@@ -3,10 +3,15 @@
 }
 
 @if (error() && masjids().length === 0) {
-  <app-connection-error 
-    [errorMessage]="error()!" 
+  <app-connection-error
+    [errorTitle]="errorTitle()"
+    [errorMessage]="error()!"
     (retry)="loadMasjids()"
   />
+}
+
+@if (!loading() && notice()) {
+  <p class="masjid-notice">{{ notice() }}</p>
 }
 
 @if (!loading() && masjids().length > 0) {

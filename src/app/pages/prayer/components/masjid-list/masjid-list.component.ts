@@ -27,6 +27,9 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   protected readonly loading = signal<boolean>(false);
   protected readonly masjids = signal<Masjid[]>([]);
   protected readonly error = signal<string | null>(null);
+  /** Informational message when the search worked but nothing is inside the radius. */
+  protected readonly notice = signal<string | null>(null);
+  protected readonly errorTitle = computed(() => navigator.onLine ? 'Couldn\'t Load Masjids' : 'No Internet Connection');
   protected readonly hasMasjids = computed(() => this.masjids().length > 0);
   protected readonly isEmpty = computed(() => !this.loading() && this.masjids().length === 0 && !this.error());
 
@@ -101,7 +104,8 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
     this.cancelPreviousRequest();
 
     this.error.set(null);
-    
+    this.notice.set(null);
+
     // Only clear results if forcing refresh
     if (forceRefresh) {
       this.masjids.set([]);
@@ -133,16 +137,20 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
             return;
           }
 
-          this.masjids.set(masjids);
+          // The service returns a wider search; keep only those inside the chosen radius
+          const inRadius = masjids.filter(m => (m.distance ?? 0) <= this.radius);
+          this.masjids.set(inRadius);
           this.loading.set(false);
           this.isLoading = false;
-          
-          // Only show error if we got a successful response but no results
-          // Don't show error if it's an empty array from a caught error
-          if (masjids.length === 0) {
-            this.error.set(`No mosques found within ${this.radius}km. Try increasing the radius.`);
+
+          this.error.set(null);
+          if (inRadius.length === 0) {
+            const nearest = masjids[0];
+            this.notice.set(nearest?.distance !== undefined
+              ? `No masjid within ${this.radius} km. The nearest is ${nearest.name}, ${this.formatDistance(nearest.distance)} away.`
+              : `No masjid found within ${this.radius} km. Try a larger radius.`);
           } else {
-            this.error.set(null); // Clear any previous errors
+            this.notice.set(null);
           }
         },
         error: (err) => {
@@ -157,7 +165,7 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
             return;
           }
 
-          this.error.set('Failed to load mosques. Please try again.');
+          this.error.set(errorMessage || 'Failed to load masjids. Please try again.');
           this.loading.set(false);
           this.isLoading = false;
           this.masjids.set([]);

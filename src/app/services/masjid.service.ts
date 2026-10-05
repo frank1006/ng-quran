@@ -82,7 +82,8 @@ export class MasjidService {
   private readonly MAX_RADIUS_KM = 50; // Maximum 50km radius
   private readonly MIN_RADIUS_KM = 1; // Minimum 1km radius
   private readonly REQUEST_TIMEOUT_MS = 12000; // Per-endpoint limit
-  private readonly STAGGER_MS = 3000; // Start the next endpoint if no answer yet
+  private readonly STAGGER_MS = 5000; // Start the next endpoint if no answer yet
+  private readonly BASE_FETCH_KM = 5; // Smallest search actually sent to the server
   
   // Cache configuration
   private readonly STORAGE_KEY = 'masjid-cache';
@@ -123,7 +124,8 @@ export class MasjidService {
   }
 
   /**
-   * Get nearby mosques/masjids using Overpass API with retry logic and fallback endpoints
+   * Get nearby mosques/masjids using Overpass API with fallback endpoints.
+   * Returns everything within max(radiusKm, BASE_FETCH_KM), sorted by distance; callers filter by radius.
    * @param latitude - User's latitude
    * @param longitude - User's longitude
    * @param radiusKm - Search radius in kilometers
@@ -143,11 +145,14 @@ export class MasjidService {
       Math.min(this.MAX_RADIUS_KM, radiusKm)
     );
 
-    const cacheKey = this.getCacheKey(latitude, longitude, clampedRadius);
+    // Radii up to BASE_FETCH_KM share one search (filtered on the device), so switching
+    // between 1/2/3/5 km needs no extra server requests
+    const fetchRadius = Math.max(clampedRadius, this.BASE_FETCH_KM);
+    const cacheKey = this.getCacheKey(latitude, longitude, fetchRadius);
 
     // Check cache first (unless force refresh)
     if (!forceRefresh) {
-      const cached = this.getCachedMasjids(latitude, longitude, clampedRadius);
+      const cached = this.getCachedMasjids(latitude, longitude, fetchRadius);
       if (cached) {
         return of(cached);
       }
@@ -163,7 +168,7 @@ export class MasjidService {
     }
 
     // Overpass API uses radius in meters
-    const radiusMeters = clampedRadius * 1000;
+    const radiusMeters = fetchRadius * 1000;
 
     // Overpass QL query to find mosques/masjids
     // Searches for: amenity=place_of_worship + religion=muslim
@@ -179,10 +184,10 @@ export class MasjidService {
     `.trim();
 
     // Create the request observable with shareReplay to deduplicate concurrent requests
-    const request$ = this.tryEndpointsSequentially(query, latitude, longitude, clampedRadius, abortSignal).pipe(
+    const request$ = this.tryEndpointsSequentially(query, latitude, longitude, fetchRadius, abortSignal).pipe(
       tap((masjids) => {
         // Cache the results after successful fetch
-        this.setCachedMasjids(latitude, longitude, clampedRadius, masjids);
+        this.setCachedMasjids(latitude, longitude, fetchRadius, masjids);
       }),
       shareReplay(1), // Share the result with all concurrent subscribers
       finalize(() => {
@@ -473,6 +478,11 @@ export class MasjidService {
             if (settled) return;
             if (isDevMode()) {
               console.warn(`Overpass endpoint failed (${error}): ${apiUrl}`);
+            }
+            // All overpass-api.de servers share one per-user limit: retrying only extends the block
+            if (String(error).includes('HTTP 429')) {
+              finish(() => reject(new Error('Too many searches in a short time. Please wait a minute and try again.')));
+              return;
             }
             if (nextIndex < urls.length) {
               launch(); // don't wait for the stagger when a server has already failed

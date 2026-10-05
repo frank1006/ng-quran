@@ -17,7 +17,7 @@
       </svg>
     }
   </div>
-  <h2 class="error-title">{{ isLocationError() ? 'Location Needed' : 'No Internet Connection' }}</h2>
+  <h2 class="error-title">{{ errorTitle() ?? (isLocationError() ? 'Location Needed' : 'No Internet Connection') }}</h2>
   <div class="error-message-wrapper">
     <p class="error-message">{{ errorMessage() }}</p>
   </div>
@@ -29,7 +29,7 @@
       <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
       <path d="M3 21v-5h5"></path>
     </svg>
-    <span>{{ isLocationError() ? 'Try Again' : 'Retry Connection' }}</span>
+    <span>{{ isLocationError() || errorTitle() ? 'Try Again' : 'Retry Connection' }}</span>
   </button>
 </div>
 
