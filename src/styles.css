@@ -156,3 +156,12 @@ html, body, .main {
   margin-inline: auto;
   touch-action: manipulation;
 }
+
+/* iOS 26 Home Screen apps: with a 100dvh page the viewport comes out short by the status
+   bar height, leaving a band under the bottom nav. The full-screen unit avoids that. */
+@media (display-mode: standalone) {
+  html, body, .main {
+    height: 100lvh;
+    min-height: 100lvh;
+  }
+}

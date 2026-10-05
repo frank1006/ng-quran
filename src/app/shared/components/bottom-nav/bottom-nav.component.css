@@ -7,7 +7,7 @@
   justify-content: space-around;
   align-items: center;
   background: var(--color-surface);
-  padding: 0.8rem 0 0;
+  padding: 0.8rem 0 env(safe-area-inset-bottom, 0px); /* clear the iPhone home indicator */
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
   z-index: 100;
