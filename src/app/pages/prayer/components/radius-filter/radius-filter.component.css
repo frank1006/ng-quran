@@ -37,7 +37,7 @@
   font-family: var(--font-body);
   font-size: 0.6875rem; /* 11px */
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   text-transform: uppercase;
   letter-spacing: 0.0625rem; /* 1px */
 }
@@ -86,19 +86,19 @@
 
 .radius-filter-button:hover:not(:disabled):not(.active) {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .radius-filter-button.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: var(--color-surface) !important;
+  color: var(--color-on-primary) !important;
 }
 
 .radius-filter-button.active:hover:not(:disabled) {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: var(--color-surface);
+  color: var(--color-on-primary);
 }
 
 .radius-filter-button:disabled {

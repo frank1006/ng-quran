@@ -88,7 +88,7 @@
 }
 
 .prayer-card.active .prayer-time {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .notification-button {
@@ -117,7 +117,7 @@
 
 .notification-button.active {
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .notification-button.loading {

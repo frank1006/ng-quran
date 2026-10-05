@@ -60,7 +60,7 @@
 
 .control-button.active {
   background: color-mix(in srgb, var(--color-primary-soft) 90%, transparent);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 

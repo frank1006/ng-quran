@@ -130,7 +130,7 @@
 
 .directions-button:hover {
   background: var(--color-surface-muted);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 /* Empty State */

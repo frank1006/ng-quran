@@ -154,7 +154,7 @@
   font-family: var(--font-body);
   font-size: 16px;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   flex-shrink: 0;
 }
 

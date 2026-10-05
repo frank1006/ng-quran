@@ -9,6 +9,9 @@
   --color-primary: #ffb030;
   --color-primary-deep: #ff9900;
   --color-primary-soft: #fff5e6;
+  /* Readable text/icon versions of the brand colours (WCAG AA on white and cream) */
+  --color-primary-text: #a85d00;
+  --color-accent-text: #9e7b4f;
   --color-on-primary: #1f1f1f;
   --color-accent: #c9a880;
   --color-accent-dark: #874d14;

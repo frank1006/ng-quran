@@ -126,7 +126,7 @@
 .action-button.active {
   background: color-mix(in srgb, var(--color-primary-soft) 90%, transparent);
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .hero-body {

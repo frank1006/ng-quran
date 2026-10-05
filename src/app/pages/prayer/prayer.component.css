@@ -52,7 +52,7 @@ app-hero-header {
 }
 
 .prayer-name.masjid-active {
-  color: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
 .prayer-name.clickable {
@@ -82,7 +82,7 @@ app-hero-header {
   border: none;
   background: transparent;
   font-family: var(--font-body);
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   cursor: pointer;
   transition: color 0.3s ease;
   height: fit-content;
@@ -116,7 +116,7 @@ app-hero-header {
 
 /* Pulse animation for location icon when masjid list is not active */
 .find-masjid-button-hero:not(.masjid-active) .location-icon {
-  color: var(--color-accent); /* Set initial color for animation */
+  color: var(--color-accent-text); /* Set initial color for animation */
   animation: pulse-icon 2s ease-in-out infinite;
 }
 

@@ -28,12 +28,13 @@ export class PrayerTrajectoryService {
    * Lay today's prayers on a sun arc: Fajr and Isha below the horizon,
    * sunrise and Maghrib on it, Dhuhr near the peak (solar noon).
    */
-  calculateTrajectory(prayers: PrayerItem[]): TrajectoryData | null {
+  calculateTrajectory(prayers: PrayerItem[], showProgress = true): TrajectoryData | null {
     const displayPrayers = prayers.filter(p => p.name !== 'Shuruq');
     if (displayPrayers.length === 0) return null;
 
     const now = this.currentTime();
-    const nowMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+    // Without progress (another date) treat the whole day as upcoming
+    const nowMinutes = showProgress ? now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60 : -1;
 
     const times = displayPrayers.map(p => TrajectoryUtils.parseTimeToMinutes(p.time));
     // Isha after midnight (high latitudes in summer) belongs to the same evening
@@ -60,7 +61,7 @@ export class PrayerTrajectoryService {
     times.forEach((t, i) => {
       if (t >= 0 && nowMinutes >= t) currentIndex = i;
     });
-    const nextIndex = currentIndex + 1 < displayPrayers.length ? currentIndex + 1 : -1;
+    const nextIndex = showProgress && currentIndex + 1 < displayPrayers.length ? currentIndex + 1 : -1;
 
     const markers: TrajectoryMarker[] = displayPrayers
       .map((prayer, i) => ({ prayer, i, t: times[i] }))
@@ -85,8 +86,8 @@ export class PrayerTrajectoryService {
     return {
       markers,
       fullPath: TrajectoryUtils.pathBetween(model, model.windowStart, model.windowEnd),
-      elapsedPath: TrajectoryUtils.pathBetween(model, model.windowStart, clampedNow),
-      now: TrajectoryUtils.pointAt(model, markerTime),
+      elapsedPath: showProgress ? TrajectoryUtils.pathBetween(model, model.windowStart, clampedNow) : '',
+      now: showProgress ? TrajectoryUtils.pointAt(model, markerTime) : null,
       horizonY: C.HORIZON_Y,
     };
   }

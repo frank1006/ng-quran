@@ -239,7 +239,7 @@
   font-family: var(--font-body);
   font-size: var(--font-sm);
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .verse-actions {
@@ -270,12 +270,12 @@
 
 .verse-action-button.bookmarked {
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .verse-action-button.playing {
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .verse-action-button.loading {

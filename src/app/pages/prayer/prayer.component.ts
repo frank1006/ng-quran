@@ -310,17 +310,19 @@ export class PrayerComponent implements OnInit, OnDestroy {
   });
 
   protected readonly prayerTrajectory = computed<TrajectoryData | null>(() => {
-    const todayPrayers = this.getTodayPrayerTimes();
-    if (todayPrayers.length === 0) return null;
+    // Other dates: draw that day's arc without the live "now" marker and progress
+    const viewingToday = this.isToday(this.currentDate());
+    const sourcePrayers = viewingToday ? this.getTodayPrayerTimes() : this.prayers();
+    if (sourcePrayers.length === 0) return null;
 
-    const prayersForTrajectory = todayPrayers.map(p => ({
+    const prayersForTrajectory = sourcePrayers.map(p => ({
       name: p.name,
       time: p.time,
       key: p.key,
       isActive: p.isActive
     }));
 
-    return this.trajectoryService.calculateTrajectory(prayersForTrajectory);
+    return this.trajectoryService.calculateTrajectory(prayersForTrajectory, viewingToday);
   });
 
   protected readonly formattedDate = computed<string>(() => {
