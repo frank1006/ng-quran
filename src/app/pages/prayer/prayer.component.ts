@@ -20,6 +20,8 @@ import { BackgroundSyncService } from '../../services/background-sync.service';
 import { MasjidService } from '../../services/masjid.service';
 import { masjidRadiusOptionsKm, radiusLabel } from '../../services/units';
 import { DeviceDetectionService } from '../../services/device-detection.service';
+import { WeatherService, conditionLabel } from '../../services/weather.service';
+import { formatTemperature } from '../../services/units';
 
 interface PrayerItem {
   name: string;
@@ -69,6 +71,24 @@ export class PrayerComponent implements OnInit, OnDestroy {
   /** Distance filter options (km) in round numbers of the user's unit */
   protected readonly masjidRadiusOptions = computed(() => masjidRadiusOptionsKm(this.settingsService.distanceUnit()));
   protected readonly distanceUnit = computed(() => this.settingsService.distanceUnit());
+
+  /** Hero look for the current weather, e.g. "rain" or "clear-night" (empty: default) */
+  protected readonly weatherTheme = computed(() => {
+    const weather = this.weatherService.weather();
+    if (!weather) return '';
+    const nightAware = weather.condition === 'clear' || weather.condition === 'partly';
+    return nightAware && !weather.isDay ? `${weather.condition}-night` : weather.condition;
+  });
+
+  protected readonly weather = computed(() => {
+    const weather = this.weatherService.weather();
+    if (!weather) return null;
+    return {
+      icon: this.weatherTheme(),
+      temperature: formatTemperature(weather.temperatureC, this.settingsService.temperatureUnit()),
+      label: conditionLabel(weather.condition, weather.isDay),
+    };
+  });
   protected readonly locationMessage = signal('');
   private readonly destroyRef = inject(DestroyRef);
   private readonly networkStatus = inject(NetworkStatusService);
@@ -77,6 +97,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
   private readonly backgroundSync = inject(BackgroundSyncService);
   private readonly masjidService = inject(MasjidService);
   private readonly deviceDetection = inject(DeviceDetectionService);
+  private readonly weatherService = inject(WeatherService);
   private timeInterval: number | null = null;
   private messageTimer: ReturnType<typeof setTimeout> | undefined;
   private hiddenAt: number | null = null;
@@ -102,7 +123,10 @@ export class PrayerComponent implements OnInit, OnDestroy {
     effect(() => {
       const location = this.prayerTimeStore.currentLocation();
       if (location) {
-        untracked(() => this.fetchLocationInfo(location));
+        untracked(() => {
+          this.fetchLocationInfo(location);
+          this.weatherService.refresh(location.latitude, location.longitude);
+        });
       }
     });
     // Show offline banner when there's a network error but we have cached data
@@ -519,6 +543,10 @@ export class PrayerComponent implements OnInit, OnDestroy {
     this.hiddenAt = null;
 
     this.prayerTimeStore.markLocationStale();
+    const location = this.prayerTimeStore.currentLocation();
+    if (location) {
+      this.weatherService.refresh(location.latitude, location.longitude);
+    }
     if (this.wasViewingToday && !this.isToday(this.currentDate())) {
       // Left open on today overnight: move to the new today
       this.currentDate.set(new Date());

@@ -13,9 +13,21 @@ app-hero-header {
   --hero-height: clamp(15.5rem, 40dvh, 19rem);
   --hero-overlap: 0px;
   --hero-decor-opacity: 0;
-  --hero-bg: linear-gradient(180deg, var(--color-bg) 0%, var(--color-primary-soft) 55%, var(--color-surface) 100%);
+  --hero-top: var(--color-bg);
+  --hero-mid: var(--color-primary-soft);
+  --hero-bg: linear-gradient(180deg, var(--hero-top) 0%, var(--hero-mid) 55%, var(--color-surface) 100%);
   --trajectory-bottom: 0px;
 }
+
+/* The hero tint follows the current weather; all stay light so the dark text keeps its contrast */
+app-hero-header[data-weather="clear-night"]   { --hero-top: #e9e6f3; --hero-mid: #f2eff8; }
+app-hero-header[data-weather="partly"]        { --hero-top: #f2f0ec; --hero-mid: #f8f0e2; }
+app-hero-header[data-weather="partly-night"]  { --hero-top: #e8e7ef; --hero-mid: #f1f0f5; }
+app-hero-header[data-weather="cloudy"]        { --hero-top: #eaedf0; --hero-mid: #f3f4f6; }
+app-hero-header[data-weather="fog"]           { --hero-top: #eeece8; --hero-mid: #f5f4f1; }
+app-hero-header[data-weather="rain"]          { --hero-top: #e2e9f0; --hero-mid: #edf2f6; }
+app-hero-header[data-weather="snow"]          { --hero-top: #eaf1f8; --hero-mid: #f4f8fc; }
+app-hero-header[data-weather="storm"]         { --hero-top: #e3e1eb; --hero-mid: #eeedf3; }
 
 .prayers {
   position: relative;
@@ -53,6 +65,14 @@ app-hero-header {
 .current-prayer .time-remaining {
   grid-column: 1;
   grid-row: 2;
+  align-self: start;
+}
+
+.current-prayer .weather {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+  align-self: start;
 }
 
 .current-prayer .find-masjid-button-hero {
@@ -84,6 +104,7 @@ app-hero-header {
   font-family: var(--font-body);
   font-size: var(--font-sm);
   font-weight: 500;
+  line-height: 1.5;
   color: var(--color-text-secondary);
   width: fit-content;
   margin: var(--space-xs) 0 0;
@@ -153,3 +174,34 @@ app-hero-header {
 
 /* No responsive overrides needed - uses same CSS variable as prayer-name which auto-scales */
 
+
+/* Current weather, under the Masjid button */
+.weather {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xxs);
+  margin: var(--space-xs) 0 0;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.weather-icon {
+  flex-shrink: 0;
+  color: var(--color-accent-text);
+}
+
+.weather-temp {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* Narrow phones: the temperature alone keeps the pills from crowding */
+@media (max-width: 360px) {
+  .weather-label { display: none; }
+}

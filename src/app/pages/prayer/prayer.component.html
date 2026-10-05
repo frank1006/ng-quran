@@ -1,4 +1,4 @@
-<app-hero-header>
+<app-hero-header [attr.data-weather]="weatherTheme() || null">
   <div class="current-prayer">
     <h2 
       class="prayer-name" 
@@ -29,6 +29,44 @@
       </svg>
       <span class="button-text">Masjid</span>
     </button>
+
+    @if (weather(); as w) {
+      <p class="weather" [attr.aria-label]="'Weather: ' + w.temperature + ', ' + w.label">
+        <svg class="weather-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          @switch (w.icon) {
+            @case ('clear') {
+              <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            }
+            @case ('clear-night') {
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            }
+            @case ('partly') {
+              <path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41M15.95 12.65a4 4 0 0 0-5.93-4.61"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/>
+            }
+            @case ('partly-night') {
+              <path d="M10.08 4.08A5 5 0 0 0 17.92 9.92a6 6 0 0 1-.84 2.95"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/>
+            }
+            @case ('fog') {
+              <path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 17H7M17 21H9"/>
+            }
+            @case ('rain') {
+              <path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/>
+            }
+            @case ('snow') {
+              <path d="M2 12h20M12 2v20M20 16l-4-4 4-4M4 8l4 4-4 4M16 4l-4 4-4-4M8 20l4-4 4 4"/>
+            }
+            @case ('storm') {
+              <path d="M6 16.33A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.97"/><path d="m13 12-3 5h4l-3 5"/>
+            }
+            @default {
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+            }
+          }
+        </svg>
+        <span class="weather-temp">{{ w.temperature }}</span>
+        <span class="weather-label">{{ w.label }}</span>
+      </p>
+    }
   </div>
   @if (prayerTrajectory()) {
     <app-prayer-trajectory [trajectoryData]="prayerTrajectory()!" />
