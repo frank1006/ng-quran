@@ -10,7 +10,7 @@ export const TRAJECTORY_CONSTANTS = {
   /** Flattens the arc below the horizon (1 / (1 + k) of the day height at most), keeping the curve smooth */
   NIGHT_COMPRESSION: 2.2,
   /** Minutes drawn before Fajr and after Isha */
-  WINDOW_PADDING_MINUTES: 50,
+  WINDOW_PADDING_MINUTES: 75,
   /** Number of line segments used to draw the arc */
   SAMPLES: 96,
   MINUTES_PER_DAY: 24 * 60,

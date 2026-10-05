@@ -73,14 +73,20 @@ export class PrayerTrajectoryService {
         point: TrajectoryUtils.pointAt(model, t),
       }));
 
-    const clampedNow = Math.min(nowMinutes, model.windowEnd);
+    // Late night (after Isha / before Fajr) pins the marker near the end / start of the arc,
+    // inset a little so it isn't cut off at the screen edge
+    const clampedNow = Math.max(model.windowStart, Math.min(nowMinutes, model.windowEnd));
+    const pinInset = C.WINDOW_PADDING_MINUTES * 0.3;
     const inWindow = nowMinutes >= model.windowStart && nowMinutes <= model.windowEnd;
+    const markerTime = inWindow
+      ? nowMinutes
+      : nowMinutes < model.windowStart ? model.windowStart + pinInset : model.windowEnd - pinInset;
 
     return {
       markers,
       fullPath: TrajectoryUtils.pathBetween(model, model.windowStart, model.windowEnd),
       elapsedPath: TrajectoryUtils.pathBetween(model, model.windowStart, clampedNow),
-      now: inWindow ? TrajectoryUtils.pointAt(model, nowMinutes) : null,
+      now: TrajectoryUtils.pointAt(model, markerTime),
       horizonY: C.HORIZON_Y,
     };
   }

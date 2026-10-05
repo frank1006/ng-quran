@@ -2,8 +2,9 @@
   position: absolute;
   /* Sit above the white sheet that overlaps the bottom of the hero */
   bottom: var(--trajectory-bottom, var(--space-lg));
-  left: 0;
-  right: 0;
+  /* Bleed past the hero's side padding so the arc runs edge to edge */
+  left: calc(-1 * var(--space-xl));
+  right: calc(-1 * var(--space-xl));
   z-index: 3;
   pointer-events: none;
 }

@@ -28,7 +28,7 @@ export interface TrajectoryData {
   fullPath: string;
   /** SVG path from the start of the window to now ('' before the window starts) */
   elapsedPath: string;
-  /** Current time on the arc, or null when outside the drawn window */
+  /** Current-time marker (pinned near the arc's ends late at night) */
   now: Point | null;
   /** y of the horizon (sunrise and Maghrib sit on it) */
   horizonY: number;
