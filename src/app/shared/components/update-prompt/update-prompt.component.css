@@ -2,7 +2,7 @@
   position: fixed;
   left: var(--space-md);
   right: var(--space-md);
-  bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); /* above the bottom nav */
+  bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + var(--mini-player-space, 0px)); /* above the bottom nav and mini player */
   z-index: 200;
   display: flex;
   align-items: center;

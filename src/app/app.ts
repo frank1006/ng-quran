@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { BottomNavComponent } from './shared/components/bottom-nav/bottom-nav.component';
 import { OfflineBannerComponent } from './shared/components/offline-banner/offline-banner.component';
 import { UpdatePromptComponent } from './shared/components/update-prompt/update-prompt.component';
+import { MiniPlayerComponent } from './shared/components/mini-player/mini-player.component';
 import { NotificationWorkerService } from './services/notification-worker.service';
 import { BackgroundSyncService } from './services/background-sync.service';
 import { PushReminderService } from './services/push-reminder.service';
@@ -10,7 +11,7 @@ import { PushReminderService } from './services/push-reminder.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, BottomNavComponent, OfflineBannerComponent, UpdatePromptComponent],
+  imports: [RouterOutlet, BottomNavComponent, OfflineBannerComponent, UpdatePromptComponent, MiniPlayerComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

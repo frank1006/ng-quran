@@ -1,4 +1,4 @@
-<div class="surah-list-container page-pattern">
+<div class="surah-list-container page-pattern" #listContainer>
   <div class="header-section">
     <h1 class="page-title">Quran</h1>
     
@@ -62,6 +62,9 @@
       @for (chapter of filteredChapters(); track chapter.id) {
         <button 
           class="surah-card"
+          [class.last-opened]="chapter.id === lastSurahId()"
+          [attr.data-surah]="chapter.id"
+          [attr.aria-current]="chapter.id === lastSurahId() ? 'true' : null"
           (click)="navigateToSurah(chapter.id)"
         >
           <div class="surah-number">{{ chapter.id }}</div>
@@ -74,6 +77,14 @@
             <div class="surah-meta">
               <span class="surah-type" [class.surah-type-meccan]="chapter.type === 'Meccan'" [class.surah-type-medinan]="chapter.type === 'Medinan'">{{ chapter.type }}</span>
               <span class="surah-verses">{{ chapter.total_verses }} ayahs</span>
+              @if (audio.track()?.chapterId === chapter.id) {
+                <span class="surah-now-playing" [class.paused]="!audio.isPlaying()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05A4.5 4.5 0 0 0 16.5 12z"></path>
+                  </svg>
+                  Ayah {{ audio.track()!.verse }}
+                </span>
+              }
             </div>
           </div>
         </button>

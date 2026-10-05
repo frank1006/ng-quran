@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, effect, DestroyRef, inject, ChangeDetectionStrategy, isDevMode } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, ChangeDetectionStrategy, isDevMode, ElementRef, Injector, afterNextRender, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -7,6 +7,31 @@ import { UserStoreService } from '../../../services/user-store.service';
 import { Chapter, Reciter } from '../../../services/quran-api.types';
 import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { QuranAudioService } from '../../../services/quran-audio.service';
+
+/** Where the reader was in the list, so coming back from a surah lands in the same place */
+interface ListPosition {
+  scrollTop: number;
+  lastSurahId: number | null;
+  query: string;
+}
+
+const POSITION_KEY = 'surah-list-position';
+
+function readPosition(): ListPosition {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(POSITION_KEY) ?? 'null');
+    if (saved && typeof saved.scrollTop === 'number') {
+      return { scrollTop: saved.scrollTop, lastSurahId: saved.lastSurahId ?? null, query: saved.query ?? '' };
+    }
+  } catch {
+    // Storage blocked or bad data: start at the top
+  }
+  return { scrollTop: 0, lastSurahId: null, query: '' };
+}
+
+// Kept in memory while the app is open; sessionStorage covers a reload
+let listPosition: ListPosition | null = null;
 
 @Component({
   selector: 'app-surah-list',
@@ -16,12 +41,14 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
   styleUrl: './surah-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SurahListComponent implements OnInit {
+export class SurahListComponent implements OnInit, OnDestroy {
   protected readonly chapters = signal<Chapter[]>([]);
   protected readonly reciters = signal<Reciter[]>([]);
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
   protected readonly searchQuery = signal<string>('');
+  /** The surah opened last: highlighted, and kept in view when the list comes back */
+  protected readonly lastSurahId = signal<number | null>(null);
 
   protected readonly selectedReciterId = computed(() => this.userStore.selectedReciterId());
 
@@ -44,6 +71,9 @@ export class SurahListComponent implements OnInit {
   });
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly container = viewChild<ElementRef<HTMLElement>>('listContainer');
+  protected readonly audio = inject(QuranAudioService);
 
   constructor(
     private quranApi: QuranApiService,
@@ -52,6 +82,9 @@ export class SurahListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    listPosition ??= readPosition();
+    this.searchQuery.set(listPosition.query);
+    this.lastSurahId.set(listPosition.lastSurahId);
     this.loadChapters();
     this.loadReciters();
   }
@@ -66,6 +99,7 @@ export class SurahListComponent implements OnInit {
         next: (chapters) => {
           this.chapters.set(chapters);
           this.loading.set(false);
+          afterNextRender(() => this.restorePosition(), { injector: this.injector });
         },
         error: (err) => {
           this.error.set(err.message || 'Failed to load chapters');
@@ -111,7 +145,45 @@ export class SurahListComponent implements OnInit {
   }
 
   navigateToSurah(chapterId: number): void {
+    this.lastSurahId.set(chapterId);
+    this.savePosition();
     this.router.navigate(['/quran', chapterId]);
+  }
+
+  ngOnDestroy(): void {
+    this.savePosition();
+  }
+
+  private savePosition(): void {
+    const el = this.container()?.nativeElement;
+    listPosition = {
+      scrollTop: el ? el.scrollTop : listPosition?.scrollTop ?? 0,
+      lastSurahId: this.lastSurahId(),
+      query: this.searchQuery()
+    };
+    try {
+      sessionStorage.setItem(POSITION_KEY, JSON.stringify(listPosition));
+    } catch {
+      // Storage blocked: the in-memory copy still works
+    }
+  }
+
+  /** Back where the reader left off, with the last opened surah on screen */
+  private restorePosition(): void {
+    const el = this.container()?.nativeElement;
+    if (!el) return;
+    el.scrollTop = listPosition?.scrollTop ?? 0;
+
+    const id = this.lastSurahId();
+    const card = id !== null ? el.querySelector<HTMLElement>(`[data-surah="${id}"]`) : null;
+    if (!card) return;
+    const box = el.getBoundingClientRect();
+    const rect = card.getBoundingClientRect();
+    // Space the bottom nav (and mini player) cover
+    const covered = parseFloat(getComputedStyle(el).paddingBottom) || 0;
+    if (rect.top < box.top || rect.bottom > box.bottom - covered) {
+      el.scrollTop += rect.top - box.top - (el.clientHeight - covered - rect.height) / 2;
+    }
   }
 
   protected retry(): void {

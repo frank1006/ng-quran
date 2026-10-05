@@ -1,6 +1,6 @@
 .surah-list-container {
   padding: var(--space-lg) var(--space-xl);
-  padding-bottom: 6.6875rem; /* 107px */
+  padding-bottom: calc(6.6875rem + var(--mini-player-space, 0px)); /* 107px, plus the mini player */
   height: calc(100dvh - 3.125rem); /* 50px = 3.125rem */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -137,10 +137,18 @@
   width: 100%;
 }
 
-.surah-card:hover {
+@media (hover: hover) {
+  .surah-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-primary) 15%, transparent);
+    transform: translateY(-2px);
+  }
+}
+
+/* The surah opened last */
+.surah-card.last-opened {
   border-color: var(--color-primary);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-primary) 15%, transparent);
-  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--color-primary-soft) 45%, var(--color-surface));
 }
 
 .surah-number {
@@ -240,3 +248,18 @@
 }
 
 
+
+.surah-now-playing {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-accent-text);
+}
+
+.surah-now-playing.paused {
+  color: var(--color-text-muted);
+}
