@@ -23,6 +23,7 @@ import { DeviceDetectionService } from '../../services/device-detection.service'
 import { WeatherService, conditionLabel } from '../../services/weather.service';
 import { formatTemperature } from '../../services/units';
 import { SegmentedIndicatorDirective } from '../../shared/directives/segmented-indicator.directive';
+import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 
 interface PrayerItem {
   name: string;
@@ -100,6 +101,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
   private hiddenAt: number | null = null;
   private wasViewingToday = true;
   private readonly onVisibilityChange = () => this.handleVisibilityChange();
+  private readonly hijriCalendar = inject(HijriCalendarService);
 
   /** The current minute; the header and countdown recompute when it changes */
   private readonly minute = signal(Math.floor(Date.now() / 60_000));
@@ -422,21 +424,8 @@ export class PrayerComponent implements OnInit, OnDestroy {
     return this.prayerTimeStore.getCachedPrayerTimes(nextDateKey) !== null;
   });
 
-  protected readonly hijriDate = computed<string>(() => {
-    const data = this.prayerData();
-    if (!data?.hijriDate) return '';
-
-    const hijri = data.hijriDate;
-    const monthName = hijri.month?.en || '';
-    const day = hijri.day || '';
-    const year = hijri.year || '';
-
-    if (monthName && day && year) {
-      return `${monthName} ${day}, ${year} ${hijri.designation?.abbreviated || 'AH'}`;
-    }
-
-    return '';
-  });
+  /** From the shared Hijri calendar, so the header always matches the calendar and events */
+  protected readonly hijriDate = computed<string>(() => this.hijriCalendar.format(this.currentDate()));
 
   protected readonly isCurrentDateToday = computed<boolean>(() => {
     return this.isTodayDate(this.currentDate());
@@ -473,6 +462,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
       const locationInfo = await this.qiblaService.getLocationInfo(location.latitude, location.longitude);
       this.cityName.set(locationInfo.city);
       this.quadrant.set(locationInfo.quadrant || '');
+      this.hijriCalendar.setCountry(locationInfo.countryCode, locationInfo.country);
     } catch (error) {
       // Keep default "Current Location" if geocoding fails
       if (isDevMode()) {
