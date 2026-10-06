@@ -191,11 +191,12 @@
 
 
 
-/* Masjid card: name on up to two lines, distance and travel time underneath */
+/* Masjid card: name on up to two lines, distance and travel time underneath.
+   The same padding above and below every row keeps the gaps to the separators even,
+   whether the name takes one line or two. */
 .masjid-card {
   gap: var(--space-md);
-  padding-block: var(--space-sm);
-  min-height: 4.5rem;
+  padding-block: 0.875rem;
 }
 
 .masjid-info {
@@ -205,6 +206,7 @@
 }
 
 .masjid-name {
+  margin: 0;
   flex: none;
   white-space: normal;
   display: -webkit-box;
@@ -214,6 +216,7 @@
 }
 
 .masjid-meta {
+  margin: 0;
   display: flex;
   gap: var(--space-xxs);
   font-size: var(--font-sm);
