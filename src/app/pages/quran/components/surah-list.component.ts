@@ -171,13 +171,17 @@ export class SurahListComponent implements OnInit, OnDestroy {
   }
 
   protected openSearch(): void {
+    if (this.searchOpen()) return;
     this.searchOpen.set(true);
-    afterNextRender(() => this.searchInput()?.nativeElement.focus(), { injector: this.injector });
+    // The field is already there (it only widens), so focus now: iOS opens the keyboard
+    // only when focus happens inside the tap itself
+    this.searchInput()?.nativeElement.focus({ preventScroll: true });
   }
 
   protected closeSearch(): void {
     this.searchOpen.set(false);
     this.searchQuery.set('');
+    this.searchInput()?.nativeElement.blur();
   }
 
   onReciterChange(event: Event): void {

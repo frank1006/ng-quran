@@ -42,14 +42,14 @@
   letter-spacing: -0.03125rem; /* -0.5px */
 }
 
-/* Reciter on the left, search on the right; the search expands to fill the row */
+/* Reciter on the left, search on the right; the search button widens into the field */
 .header-row {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
   min-height: 2.75rem;
   margin-top: var(--space-xxs);
+  padding-right: 3.25rem; /* room for the collapsed search button */
 }
 
 /* Looks like the page subtitle with a chevron right after the name;
@@ -63,6 +63,12 @@
   min-height: 2.75rem;
   color: var(--color-accent-dark);
   cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.header-row.searching .reciter-selector {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .reciter-icon,
@@ -93,34 +99,72 @@
   border-radius: var(--radius-sm);
 }
 
-.search-input-wrapper {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  animation: search-open 0.2s ease-out both;
+/* One white pill: a 44px circle when closed, the full row when open */
+.search-box {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: var(--color-surface);
+  overflow: hidden;
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.search-icon {
+.search-box.open {
+  width: 100%;
+}
+
+.search-box:focus-within {
+  box-shadow: var(--shadow-on-edge);
+}
+
+/* The magnifier: centred in the circle, then the field's icon on the left */
+.search-toggle {
   position: absolute;
-  left: var(--space-md);
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
   color: var(--color-control-ink);
+  cursor: pointer;
+}
+
+.search-box.open .search-toggle {
   pointer-events: none;
+}
+
+.search-toggle:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: -2px;
+  border-radius: 999px;
 }
 
 .search-input {
   width: 100%;
-  min-height: 2.75rem;
+  height: 100%;
   padding: 0 3rem 0 2.75rem;
-  /* A field: flat white on the cream header */
-  background: var(--color-surface);
   border: none;
-  border-radius: 999px;
+  background: transparent;
   font-family: var(--font-body);
   font-size: 16px; /* iOS doesn't zoom into 16px+ fields */
   color: var(--color-text);
+  opacity: 0;
+  transition: opacity 0.15s ease;
   -webkit-appearance: none;
   appearance: none;
+}
+
+.search-input:focus {
+  outline: none;
 }
 
 .search-input::-webkit-search-cancel-button {
@@ -131,23 +175,33 @@
   color: var(--color-text-subtle);
 }
 
-.search-input:focus {
-  outline: none;
-  box-shadow: var(--shadow-on-edge);
-}
-
 .search-close {
   position: absolute;
+  top: 0.25rem;
   right: 0.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
-@keyframes search-open {
-  from { opacity: 0; transform: scaleX(0.6); transform-origin: right; }
-  to { opacity: 1; transform: none; }
+/* Field and close appear once the pill has mostly opened */
+.search-box.open .search-input,
+.search-box.open .search-close {
+  opacity: 1;
+  transition-delay: 0.12s;
+}
+
+.search-box.open .search-close {
+  pointer-events: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .search-input-wrapper { animation: none; }
+  .search-box,
+  .search-input,
+  .search-close,
+  .reciter-selector {
+    transition: none;
+  }
 }
 
 .empty-state {
