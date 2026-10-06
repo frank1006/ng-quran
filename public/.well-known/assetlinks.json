@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.thequranflow.twa",
+        "sha256_cert_fingerprints": ["C5:07:B9:4F:AD:42:AB:0F:A9:A1:A8:8B:14:FC:68:AF:92:0E:6C:B6:93:5A:3C:0D:6D:A8:D2:B7:0F:87:CA:91"]
+      }
+    }]
