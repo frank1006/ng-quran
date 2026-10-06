@@ -27,10 +27,12 @@ interface PrayerItem {
     }
 
     @if (error() && prayers().length === 0) {
-      <app-connection-error 
-        [errorMessage]="error()!" 
-        (retry)="onRetry()"
-      />
+      <div class="prayer-state">
+        <app-connection-error
+          [errorMessage]="error()!"
+          (retry)="onRetry()"
+        />
+      </div>
     }
 
     @if (!loading() && prayers().length > 0) {

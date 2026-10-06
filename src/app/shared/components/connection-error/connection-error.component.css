@@ -67,3 +67,42 @@
   color: var(--color-text-muted);
   font-weight: 400;
 }
+
+/* In a short space (e.g. the Prayer page on a small phone) the state tightens up so
+   Try again stays above the nav. Only applies inside a size container. */
+@container (max-height: 26rem) {
+  .error-state {
+    min-height: 0;
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .error-icon {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: var(--space-md);
+  }
+
+  .error-icon svg {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .error-message-wrapper {
+    margin-bottom: var(--space-md);
+  }
+}
+
+/* Very short: the words and the button matter more than the icon */
+@container (max-height: 15rem) {
+  .error-icon {
+    display: none;
+  }
+
+  .error-state {
+    padding-top: var(--space-sm);
+  }
+
+  .error-title {
+    margin-bottom: var(--space-xs);
+  }
+}
