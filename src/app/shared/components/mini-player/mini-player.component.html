@@ -1,17 +1,17 @@
 @if (visible() && audio.track(); as track) {
   @if (expanded()) {
     <div class="player-card" id="quran-player-card" role="dialog" aria-label="Quran player">
-      <div>
-        <button type="button" class="card-info" (click)="openSurah()" [attr.aria-label]="'Open ' + track.chapterName + ', ayah ' + track.verse">
+      <button type="button" class="card-info" (click)="openSurah()" [attr.aria-label]="'Open ' + track.chapterName + ', ayah ' + track.verse">
+        <span class="card-text">
           <span class="card-title">{{ track.chapterName }}</span>
-          <span class="card-subtitle">
-            Ayah {{ track.verse }} of {{ track.totalVerses }}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="m9 18 6-6-6-6"></path>
-            </svg>
-          </span>
-        </button>
-      </div>
+          <span class="card-subtitle">Ayah {{ track.verse }} of {{ track.totalVerses }}</span>
+        </span>
+        <span class="card-open" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6"></path>
+          </svg>
+        </span>
+      </button>
 
       <div class="player-controls">
         <button type="button" class="ui-icon-btn ui-icon-btn--square" (click)="audio.previous()" [disabled]="!audio.hasPrevious()" aria-label="Previous ayah">
