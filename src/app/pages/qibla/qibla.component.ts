@@ -5,21 +5,22 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService, CompassInstruction, NO_ABSOLUTE_COMPASS } from './services/qibla.service';
 import { QiblaCompassComponent } from './components/qibla-compass.component';
+import { ConnectionErrorComponent } from '../../shared/components/connection-error/connection-error.component';
 import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-header.component';
 import { PermissionsService } from '../../services/permissions.service';
 
 @Component({
   selector: 'app-qibla',
   standalone: true,
-  imports: [CommonModule, QiblaCompassComponent, HeroHeaderComponent],
+  imports: [CommonModule, QiblaCompassComponent, HeroHeaderComponent, ConnectionErrorComponent],
   templateUrl: './qibla.component.html',
   styleUrl: './qibla.component.css'
 })
 export class QiblaComponent implements OnInit, OnDestroy {
   protected readonly loading = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly cityName = signal<string>('Loading...');
-  protected readonly countryName = signal<string>('Loading...');
+  protected readonly cityName = signal<string>(''); // empty until found: the header shows a placeholder
+  protected readonly countryName = signal<string>('');
   protected readonly quadrant = signal<string>('');
   protected readonly qiblaBearing = signal<number>(0);
   protected readonly currentHeading = signal<number | null>(null);
@@ -114,14 +115,14 @@ export class QiblaComponent implements OnInit, OnDestroy {
                   if (location) {
                     this.continueQiblaInitialization(location);
                   } else {
-                    this.error.set('Location not available. Please enable location access.');
+                    this.error.set(this.prayerTimeStore.error() ?? 'Your location isn\'t available right now. Tap Try again.');
                     this.loading.set(false);
                   }
                 }
               }, 300);
             },
             error: () => {
-              this.error.set('Location not available. Please enable location access.');
+              this.error.set(this.prayerTimeStore.error() ?? 'Your location isn\'t available right now. Tap Try again.');
               this.loading.set(false);
             }
           });
@@ -386,7 +387,7 @@ export class QiblaComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => this.initializeQibla(),
           error: (err) => {
-            this.error.set(err instanceof Error ? err.message : 'Failed to get location');
+            this.error.set(err?.message ?? 'Your location isn\'t available right now. Tap Try again.');
             this.loading.set(false);
           }
         });

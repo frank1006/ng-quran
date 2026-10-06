@@ -339,7 +339,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
 
   protected readonly timeUntilNext = computed<string>(() => {
     const next = this.getNextTodayPrayer();
-    if (!next?.time) return 'Loading...';
+    if (!next?.time) return ''; // the header shows a placeholder
 
     const now = new Date();
     const prayerMinutes = this.parseTimeToMinutes(next.time);

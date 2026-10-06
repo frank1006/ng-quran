@@ -84,7 +84,7 @@ describe('PrayerTimeService', () => {
         })
       ).rejects.toMatchObject({
         code: 1,
-        message: expect.stringContaining('permission denied')
+        message: expect.stringMatching(/Location is (off|blocked)/)
       });
     });
 

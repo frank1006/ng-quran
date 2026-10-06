@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, effect, untracked, ViewChild, ElementRef, DestroyRef, inject, Injector, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QuranApiService } from '../../../services/quran-api.service';
@@ -24,6 +25,7 @@ interface VerseWithTranslation extends Verse {
   styleUrl: './surah-detail.component.css'
 })
 export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
+  private readonly title = inject(Title);
   protected readonly chapter = signal<ChapterWithVerses | null>(null);
   protected readonly verses = signal<VerseWithTranslation[]>([]);
   protected readonly loading = signal<boolean>(true);
@@ -275,6 +277,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
       next: (chapterData) => {
         this.chapter.set(chapterData);
+        this.title.setTitle(`${chapterData.transliteration} · QuranFlow`);
         this.userStore.lastOpenedChapterId.set(chapterId);
         
         // Verify translations are attached (silently handle missing translations)

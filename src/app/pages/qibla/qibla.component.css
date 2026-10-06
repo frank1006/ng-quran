@@ -37,43 +37,6 @@
   font-weight: 400;
 }
 
-.error-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  padding: var(--space-xl) var(--space-md);
-}
-
-.error-content {
-  width: 100%;
-  max-width: 25rem; /* 400px */
-  text-align: center;
-}
-
-.error-title {
-  font-family: var(--font-body);
-  font-size: 1.5rem; /* 24px */
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0 0 var(--space-md) 0;
-  letter-spacing: -0.03125rem; /* -0.5px */
-}
-
-.error-message {
-  font-family: var(--font-body);
-  font-size: var(--font-md);
-  font-weight: 400;
-  color: var(--color-text-muted);
-  line-height: 1.6;
-  margin: 0 0 var(--space-xl) 0;
-}
-
-.error-button {
-  width: 100%;
-  margin-top: 0;
-}
-
 .qibla-content {
   display: flex;
   flex-direction: column;
@@ -157,3 +120,11 @@
   line-height: 1.5;
 }
 
+.city-name-skeleton {
+  width: 10rem;
+  height: 0.8em;
+}
+
+.country-skeleton {
+  width: 7rem;
+}

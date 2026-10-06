@@ -141,3 +141,12 @@ app-hero-header {
 @media (max-width: 360px) {
   .weather-label { display: none; }
 }
+
+.prayer-name-skeleton {
+  width: 8rem;
+  height: 0.8em;
+}
+
+.time-remaining-skeleton {
+  width: 11rem;
+}
