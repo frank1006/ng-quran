@@ -69,6 +69,8 @@ export class HijriCalendarService {
   /** method:YYYY-MM → (gregorian YYYY-MM-DD → Hijri) */
   private readonly months = new Map<string, Map<string, HijriDate>>();
   private readonly pending = new Map<string, Promise<void>>();
+  /** Months are fetched one at a time; Aladhan turns away bursts of requests */
+  private queue: Promise<void> = Promise.resolve();
 
   /** Set from the location lookup (Nominatim's ISO country code) */
   setCountry(code: string | null | undefined, name?: string | null): void {
@@ -100,7 +102,7 @@ export class HijriCalendarService {
     const method = this.method();
     const month = this.months.get(monthKey(method, shifted)) ?? this.restoreMonth(method, shifted);
     const fromAladhan = month?.get(dayKey(shifted));
-    if (!month) void this.ensureMonth(shifted);
+    if (!month && worthFetching(method, shifted)) void this.ensureMonth(shifted);
     return fromAladhan ?? umAlQura(shifted);
   }
 
@@ -145,7 +147,8 @@ export class HijriCalendarService {
     if (existing) return existing;
 
     const url = `https://api.aladhan.com/v1/gToHCalendar/${date.getMonth() + 1}/${date.getFullYear()}?calendarMethod=${method}`;
-    const request = firstValueFrom(this.http.get<{ data: AladhanCalendarDay[] }>(url))
+    const request = this.queue
+      .then(() => firstValueFrom(this.http.get<{ data: AladhanCalendarDay[] }>(url)))
       .then(response => {
         const month = new Map<string, HijriDate>();
         for (const d of response.data ?? []) {
@@ -159,6 +162,7 @@ export class HijriCalendarService {
       })
       .catch(() => { /* offline or unavailable: the built-in calendar stays in use */ })
       .finally(() => this.pending.delete(key));
+    this.queue = request;
     this.pending.set(key, request);
     return request;
   }
@@ -179,6 +183,17 @@ export class HijriCalendarService {
       return undefined;
     }
   }
+}
+
+/**
+ * Aladhan's sighting corrections (HJCoSA) only exist around the current month; further out its
+ * calendar is the Umm al-Qura calculation the phone already has. So only nearby months are
+ * fetched. Diyanet's calendar differs from Umm al-Qura, so its months are fetched within a year.
+ */
+function worthFetching(method: HijriMethod, date: Date): boolean {
+  const now = new Date();
+  const monthsAway = (date.getFullYear() - now.getFullYear()) * 12 + date.getMonth() - now.getMonth();
+  return method === 'DIYANET' ? monthsAway >= -2 && monthsAway <= 13 : monthsAway >= -2 && monthsAway <= 2;
 }
 
 function hijriOf(day: number, month: number, year: number): HijriDate {

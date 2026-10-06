@@ -1,0 +1,130 @@
+<dialog
+  #sheet
+  class="calendar-sheet"
+  [class.closing]="closing()"
+  aria-labelledby="calendar-sheet-title"
+  (cancel)="onCancel($event)"
+  (click)="onDialogClick($event)"
+>
+  <div class="sheet-body">
+    <div class="sheet-handle" aria-hidden="true"></div>
+
+    <header class="sheet-header">
+      <h2 id="calendar-sheet-title" class="sheet-title" tabindex="-1" autofocus>Calendar</h2>
+      <button type="button" class="ui-icon-btn" (click)="close()" aria-label="Close calendar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div class="ui-segmented view-switch" role="tablist" aria-label="Calendar view">
+      @for (v of views; track v.id) {
+        <button
+          type="button"
+          class="ui-segment"
+          role="tab"
+          [class.is-on]="view() === v.id"
+          [attr.aria-selected]="view() === v.id"
+          (click)="setView(v.id)"
+        >{{ v.label }}</button>
+      }
+    </div>
+
+    <div class="sheet-content">
+      @if (view() !== 'events') {
+        <!-- The chosen day, led by the calendar being viewed -->
+        @for (key of [view()]; track key) {
+          <section class="day-card ui-fade-in" aria-live="polite">
+            @if (view() === 'gregorian') {
+              <p class="day-secondary">{{ hijriTitle() }}</p>
+              <p class="day-primary">{{ gregorianTitle() }}</p>
+            } @else {
+              <p class="day-secondary">{{ gregorianTitle() }}</p>
+              <p class="day-primary">{{ hijriTitle() }}</p>
+            }
+            @if (!isTodaySelected()) {
+              <button type="button" class="ui-chip day-today" (click)="showToday()">Today</button>
+            }
+          </section>
+        }
+
+        <section class="day-events" aria-label="On this day">
+          @for (event of dayEvents(); track event.id) {
+            <article class="event-card">
+              <span class="event-icon" aria-hidden="true">
+                <ng-container *ngTemplateOutlet="iconTpl; context: { $implicit: event.icon }" />
+              </span>
+              <div class="event-text">
+                <h3 class="event-name">{{ event.name }}</h3>
+                <p class="event-description">{{ event.description }}</p>
+              </div>
+            </article>
+          }
+          @if (isWhiteDay()) {
+            <article class="event-card event-card--quiet">
+              <span class="event-icon" aria-hidden="true">
+                <ng-container *ngTemplateOutlet="iconTpl; context: { $implicit: 'moon' }" />
+              </span>
+              <div class="event-text">
+                <h3 class="event-name">White Day</h3>
+                <p class="event-description">The 13th, 14th and 15th of each month are recommended days of fasting.</p>
+              </div>
+            </article>
+          }
+          @if (dayEvents().length === 0 && !isWhiteDay()) {
+            <p class="empty-note">No events on this day</p>
+          }
+        </section>
+      } @else {
+        <section class="upcoming ui-fade-in" aria-label="Upcoming events">
+          @for (group of upcomingGroups(); track group.key) {
+            <h3 class="month-heading">
+              <span>{{ group.gregorian }}</span>
+              <span class="month-heading-hijri">{{ group.hijri }}</span>
+            </h3>
+            @for (item of group.items; track item.when + item.name) {
+              <article class="event-card">
+                <span class="event-icon" aria-hidden="true">
+                  <ng-container *ngTemplateOutlet="iconTpl; context: { $implicit: item.icon }" />
+                </span>
+                <div class="event-text">
+                  <p class="event-when">{{ item.when }} · <strong>{{ item.away }}</strong></p>
+                  <h4 class="event-name">{{ item.name }}</h4>
+                </div>
+              </article>
+            }
+          }
+        </section>
+      }
+    </div>
+
+    <footer class="sheet-footer">
+      @if (view() !== 'events') {
+        <button type="button" class="ui-button ui-button--block" (click)="viewPrayerTimes()">
+          {{ isTodaySelected() ? "View today's prayer times" : 'View prayer times for this day' }}
+        </button>
+      }
+    </footer>
+  </div>
+</dialog>
+
+<ng-template #iconTpl let-icon>
+  @switch (icon) {
+    @case ('crescent') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
+    }
+    @case ('star') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7Z"/></svg>
+    }
+    @case ('kaaba') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5 12 4l8 3.5v9L12 20l-8-3.5Z"/><path d="M4 10.5 12 14l8-3.5"/></svg>
+    }
+    @case ('lantern') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M9 4h6l2 4H7Z"/><path d="M7 8h10l-1 10H8Z"/><path d="M10 21h4"/></svg>
+    }
+    @default {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/></svg>
+    }
+  }
+</ng-template>
