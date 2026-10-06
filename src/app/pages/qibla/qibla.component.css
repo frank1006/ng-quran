@@ -97,18 +97,20 @@
 
 .instruction-card {
   padding: var(--space-md);
-  background: var(--color-surface);
+  background: var(--color-cream);
   border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
   text-align: center;
 }
 
+/* Facing Makkah: amber, the "on" colour */
 .instruction-card.facing {
-  border-color: var(--color-primary);
-  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  background: var(--color-primary);
+  box-shadow: var(--shadow-on-edge);
+}
+
+.instruction-card.facing .instruction-text {
+  color: var(--color-on-primary);
 }
 
 .instruction-text {

@@ -26,6 +26,12 @@ Controls on a cream surface (hero headers, the cream part of a page) use the `--
 | `ui-segmented` + `ui-segment` | switching between options or views (tabs, distances, settings, Prayers/Masjids) | `ui-segmented--white`, `is-on` on the chosen segment |
 | `ui-section-label` | small uppercase heading over a group of rows | |
 
+## Elevation
+
+Shadows only for things that float above the page: the bottom nav, the floating player and its
+card, the update and offline banners. Everything on the page is flat and separated by colour
+(white on cream, cream on white). Focus and selection use the amber edge, not a glow.
+
 ## Lists
 
 Rows sit on the page with 1px `--color-border` separators (no cards). The current or selected

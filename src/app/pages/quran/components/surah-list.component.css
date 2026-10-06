@@ -108,13 +108,14 @@
 .search-input {
   width: 100%;
   padding: var(--space-sm) var(--space-md) var(--space-sm) var(--space-2xl);
+  min-height: 2.75rem;
+  /* A field: flat white on the cream header, like the other white controls there */
   background: var(--color-surface);
-  border: 2px solid var(--color-surface-muted);
-  border-radius: var(--border-radius-all);
+  border: none;
+  border-radius: 999px;
   font-family: var(--font-body);
   font-size: var(--font-sm);
   color: var(--color-text);
-  transition: all 0.2s ease;
 }
 
 .search-input::placeholder {
@@ -123,8 +124,7 @@
 
 .search-input:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
+  box-shadow: var(--shadow-on-edge);
 }
 
 .empty-state {
@@ -311,11 +311,10 @@
   width: 100%;
   margin-top: var(--space-md);
   padding: var(--space-sm) var(--space-md);
-  /* White content card on the cream header; the amber play button carries the emphasis */
+  /* Flat white content card on the cream header; the amber play button carries the emphasis */
   border: none;
   border-radius: var(--border-radius-all);
   background: var(--color-surface);
-  box-shadow: var(--shadow-md);
   text-align: left;
   font-family: var(--font-body);
   cursor: pointer;
