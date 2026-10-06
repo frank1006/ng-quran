@@ -161,7 +161,7 @@
   background: var(--color-surface);
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
-  padding: var(--space-lg) var(--space-xl);
+  padding: var(--space-lg) var(--space-lg);
   padding-bottom: calc(var(--space-xl) + var(--mini-player-space, 0px));
   overflow-y: auto;
   overflow-x: hidden;
@@ -192,40 +192,41 @@
   display: block;
 }
 
+/* Ayahs flow down the page with thin separators, like the app's other lists */
 .verse-item {
-  margin-bottom: var(--space-xl);
-  padding: var(--space-lg);
-  background: var(--color-surface);
-  border: 2px solid transparent;
-  border-radius: var(--border-radius-all);
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
+  position: relative;
+  padding: var(--space-lg) var(--space-md);
+  border-radius: var(--radius-lg);
+  transition: background-color 0.3s ease;
 }
 
-.verse-item:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+.verse-item + .verse-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--space-md);
+  right: var(--space-md);
+  height: 1px;
+  background: var(--color-border);
 }
 
+/* Tapped ayah: a quiet grey fill */
 .verse-item.selected {
-  border-color: var(--color-border);
   background: var(--color-surface-alt);
   cursor: pointer;
 }
 
+/* Ayah being recited (playing or paused): the soft amber fill used across the app */
 .verse-item.playing {
-  border-color: var(--color-primary);
-  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  background: color-mix(in srgb, var(--color-primary-soft) 75%, var(--color-surface));
 }
 
-.verse-item.selected.playing {
-  border-color: var(--color-primary);
-  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 20%, transparent);
-}
-
-.verse-item.bookmarked {
-  box-shadow: inset 4px 0 0 var(--color-primary), 0 2px 8px rgba(0, 0, 0, 0.04);
+/* No separators touching a filled ayah */
+.verse-item.selected::before,
+.verse-item.selected + .verse-item::before,
+.verse-item.playing::before,
+.verse-item.playing + .verse-item::before {
+  display: none;
 }
 
 .verse-header {
@@ -269,10 +270,22 @@
   transition: all 0.2s ease;
 }
 
-.verse-action-button:hover {
-  background: var(--color-surface-muted);
-  color: var(--color-text);
-  transform: scale(1.1);
+@media (hover: hover) {
+  .verse-action-button:hover {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    transform: scale(1.1);
+  }
+}
+
+/* Buttons on a filled ayah sit on white so they stay visible */
+.verse-item.playing .verse-action-button:not(.bookmarked):not(.playing),
+.verse-item.selected .verse-action-button:not(.bookmarked):not(.playing) {
+  background: var(--color-surface);
+}
+
+.verse-item.playing .verse-number-badge {
+  background: var(--color-surface);
 }
 
 .verse-action-button.bookmarked {
@@ -329,8 +342,6 @@
   font-weight: 400;
   color: var(--color-text-muted);
   line-height: 1.8;
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--color-surface-muted);
   direction: ltr;
   text-align: left;
 }
