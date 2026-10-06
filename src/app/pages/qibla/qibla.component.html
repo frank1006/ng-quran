@@ -6,7 +6,7 @@
         <h2 class="city-name" [attr.aria-live]="'polite'">
           {{ cityName() || 'Loading...' }}
         </h2>
-        <p class="location-label" [attr.aria-live]="'polite'">
+        <p class="ui-page-subtitle location-label" [attr.aria-live]="'polite'">
           @if (quadrant() && quadrant() !== cityName()) {
             {{ quadrant() }}, {{ countryName() || 'Loading...' }}
           } @else {

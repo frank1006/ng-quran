@@ -56,6 +56,35 @@ app-hero-header {
   justify-self: end;
 }
 
+/* Countdown (brown subtitle) and weather (quiet text) share the line under the title */
+.current-prayer .time-remaining {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.current-prayer .weather {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+}
+
+/* A compact switch, so it doesn't compete with the title */
+.view-switch .ui-segment {
+  min-width: 0;
+  padding: 0.3rem 0.7rem;
+}
+
+.prayer-name {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.current-prayer .view-switch {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+
 /* Countdown and weather are ui-chip pills under the title and the switch */
 .current-prayer .time-remaining {
   grid-column: 1;
@@ -84,17 +113,31 @@ app-hero-header {
   margin: 0;
 }
 
+.weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.125rem 0 0;
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 .weather-icon {
   flex-shrink: 0;
+  width: 0.95rem;
+  height: 0.95rem;
   color: var(--color-accent-text);
 }
 
 .weather-temp {
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-text-secondary);
 }
 
-/* Narrow phones: the temperature alone keeps the pills from crowding */
+/* Narrow phones: the temperature alone keeps the line from crowding */
 @media (max-width: 360px) {
   .weather-label { display: none; }
 }

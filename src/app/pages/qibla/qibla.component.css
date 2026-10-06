@@ -28,15 +28,6 @@
   margin: 0;
 }
 
-.location-label {
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  font-weight: 500;
-  color: var(--color-accent-dark);
-  letter-spacing: 0.03125rem; /* 0.5px */
-  margin: 0;
-}
-
 .loading-state {
   text-align: center;
   padding: var(--space-2xl) var(--space-md);

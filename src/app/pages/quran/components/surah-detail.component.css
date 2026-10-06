@@ -48,12 +48,7 @@
 }
 
 .surah-translation {
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  font-weight: 500;
-  color: var(--color-accent-dark);
-  letter-spacing: 0.03125rem; /* 0.5px */
-  margin: 0 0 var(--space-sm) 0;
+  margin-bottom: var(--space-sm);
 }
 
 .surah-meta {

@@ -206,6 +206,17 @@ html, body, .main {
    Design system components. Pages use these instead of styling their own copies.
    ============================================================================ */
 
+/* Plain brown line under a page title (country, reciter, countdown, translation) */
+.ui-page-subtitle {
+  margin: 0.125rem 0 0;
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--color-accent-dark);
+}
+
 /* Small uppercase heading above a group of rows */
 .ui-section-label {
   margin: 0 0 var(--space-xs);

@@ -15,7 +15,7 @@
       <div class="surah-title-wrapper">
         <div class="surah-title-left">
           <h1 class="surah-name-latin">{{ chapter()!.transliteration }}</h1>
-          <p class="surah-translation">{{ chapter()!.translation }}</p>
+          <p class="ui-page-subtitle surah-translation">{{ chapter()!.translation }}</p>
           <div class="surah-meta">
             <span class="surah-type" [class.surah-type-meccan]="chapter()!.type === 'Meccan'" [class.surah-type-medinan]="chapter()!.type === 'Medinan'">{{ chapter()!.type }}</span>
             <span class="surah-info">{{ chapter()!.id }} • {{ chapter()!.total_verses }} ayahs</span>
