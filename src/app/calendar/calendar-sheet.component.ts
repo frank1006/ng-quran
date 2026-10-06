@@ -46,6 +46,8 @@ export class CalendarSheetComponent {
   protected readonly weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private swipeStart: { x: number; y: number } | null = null;
+  /** Drag-to-close on the handle and title */
+  private drag: { pointerId: number; startY: number; startTime: number; dy: number; active: boolean } | null = null;
 
   protected readonly views: { id: CalendarView; label: string }[] = [
     { id: 'gregorian', label: 'Gregorian' },
@@ -301,6 +303,45 @@ export class CalendarSheetComponent {
     return { start, end };
   }
 
+
+  protected onDragStart(event: PointerEvent): void {
+    if (event.button !== 0) return;
+    this.drag = { pointerId: event.pointerId, startY: event.clientY, startTime: event.timeStamp, dy: 0, active: false };
+  }
+
+  protected onDragMove(event: PointerEvent): void {
+    const drag = this.drag;
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    drag.dy = Math.max(0, event.clientY - drag.startY);
+    // Only a real drag takes over; a tap still reaches the Today and close buttons
+    if (!drag.active && drag.dy > 8) {
+      drag.active = true;
+      (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    }
+    if (drag.active) {
+      const sheet = this.dialog().nativeElement;
+      sheet.style.transition = 'none';
+      sheet.style.transform = `translateY(${drag.dy}px)`;
+    }
+  }
+
+  protected onDragEnd(event: PointerEvent): void {
+    const drag = this.drag;
+    this.drag = null;
+    if (!drag?.active || event.pointerId !== drag.pointerId) return;
+    const sheet = this.dialog().nativeElement;
+    const speed = drag.dy / Math.max(1, event.timeStamp - drag.startTime); // px per ms
+    sheet.style.transition = '';
+    if (drag.dy > 120 || speed > 0.6) {
+      // Close from where the finger left it (the slide-out animation starts from here)
+      this.close();
+      setTimeout(() => (sheet.style.transform = ''), 400);
+    } else {
+      sheet.style.transition = 'transform var(--motion-base) var(--ease-out)';
+      sheet.style.transform = '';
+      setTimeout(() => (sheet.style.transition = ''), 300);
+    }
+  }
 
   /** Escape: animate out instead of the instant close */
   protected onCancel(event: Event): void {

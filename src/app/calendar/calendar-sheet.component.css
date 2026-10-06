@@ -49,8 +49,14 @@
   background: linear-gradient(180deg, var(--color-bg) 0, var(--color-surface) 9rem);
 }
 
+.sheet-drag-zone {
+  flex-shrink: 0;
+  touch-action: none; /* the browser leaves vertical drags here to us */
+  cursor: grab;
+}
+
 .sheet-handle {
-  align-self: center;
+  margin-inline: auto;
   width: 2.5rem;
   height: 0.3rem;
   margin-bottom: var(--space-sm);
@@ -120,6 +126,7 @@
 }
 
 .month-title p {
+  text-wrap: balance;
   margin: var(--space-xxs) 0 0;
   font-size: var(--font-xs);
   font-weight: 600;
@@ -161,7 +168,8 @@
   align-items: center;
   justify-content: center;
   justify-self: center;
-  width: 2.75rem;
+  width: 100%;
+  max-width: 2.75rem; /* narrower on very small phones so seven fit */
   height: 3.25rem;
   padding: 0;
   border: none;
@@ -417,4 +425,9 @@
 .event-row + .event-row::before {
   left: calc(2.25rem + var(--space-md) + var(--space-xs));
   right: var(--space-xs);
+}
+
+/* Month names never break inside ("Jumada al-Ula"); a long span wraps at the dash */
+.no-break {
+  white-space: nowrap;
 }

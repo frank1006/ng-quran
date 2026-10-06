@@ -59,6 +59,28 @@ Tokens in `src/styles.css`; no raw durations or `transition: all` in components.
 - **Reduced motion:** one global rule in `styles.css` makes everything instant; no per-component
   media queries needed.
 
+## Sheets
+
+Overlays that slide up from the bottom (the calendar) are a native `<dialog>` opened with
+`showModal()`: focus stays inside, Escape and the Android back gesture close it, and focus
+returns to what opened it. White with a cream top, a handle, a title and a close button; the
+handle and title can be dragged down to close. One fixed height (`min(88dvh, 52rem)`) so
+switching tabs never resizes it; the content scrolls inside. It slides up (`--motion-slow`)
+and down faster (`--motion-exit`) over a dimmed backdrop. Floating, so it has a shadow.
+
+## Calendar and Islamic dates
+
+- **One source of Hijri dates:** `HijriCalendarService`. The Prayer header, the calendar and the
+  events all use it, so they can never disagree.
+- **Moon sighting** is automatic by country (`calendar/hijri-countries.ts`) and can be set to
+  Auto / −1 / 0 / +1 in Profile. Shown as "Pakistan · local moon sighting…".
+- **Events** are stored in the app (`calendar/islamic-events.ts`), not fetched. Mawlid and
+  Shab-e-Barat can be hidden in Profile. White Days (13th–15th, not 13 Dhu al-Hijjah) are marked.
+- **Month grid:** each day shows the other calendar's date underneath. Today is amber, the chosen
+  day cream, an event a filled brown dot, a White Day an outline dot.
+- **Events list:** rows with separators (never cards); the name leads, short dates underneath,
+  the countdown on the right; month headings in the section-label style.
+
 ## Lists
 
 Rows sit on the page with 1px `--color-border` separators (no cards). The current or selected

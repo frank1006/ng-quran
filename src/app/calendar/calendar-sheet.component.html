@@ -7,6 +7,14 @@
   (click)="onDialogClick($event)"
 >
   <div class="sheet-body">
+    <!-- Drag this area (handle and title) down to close -->
+    <div
+      class="sheet-drag-zone"
+      (pointerdown)="onDragStart($event)"
+      (pointermove)="onDragMove($event)"
+      (pointerup)="onDragEnd($event)"
+      (pointercancel)="onDragEnd($event)"
+    >
     <div class="sheet-handle" aria-hidden="true"></div>
 
     <header class="sheet-header">
@@ -23,6 +31,7 @@
         </button>
       </div>
     </header>
+    </div>
 
     <div class="ui-segmented view-switch" role="tablist" aria-label="Calendar view">
       @for (v of views; track v.id) {
@@ -46,7 +55,11 @@
           </button>
           <div class="month-title" aria-live="polite">
             <h3>{{ monthTitle() }}</h3>
-            <p>{{ monthSubtitle() }}</p>
+            <p>
+              @for (part of monthSubtitle().split(' – '); track $index) {
+                @if ($index > 0) { – }<span class="no-break">{{ part }}</span>
+              }
+            </p>
           </div>
           <button type="button" class="ui-icon-btn ui-icon-btn--ghost" (click)="nextMonth()" aria-label="Next month">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
