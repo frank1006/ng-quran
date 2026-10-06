@@ -173,6 +173,59 @@
             </div>
           </div>
         </section>
+
+        <section class="settings-section">
+          <h2 class="ui-section-label">Islamic Calendar</h2>
+
+          <div class="setting-row setting-row-stacked">
+            <div class="setting-text">
+              <h3 class="setting-name">Moon sighting</h3>
+              <p class="setting-hint">
+                @if (hijri.isAutomatic()) {
+                  Automatic: {{ hijri.automaticLabel() }}.
+                } @else {
+                  Your own setting. Choose Auto to follow your country again.
+                }
+                Today is {{ todayHijri() }}.
+              </p>
+            </div>
+            <div class="ui-segmented hijri-offset" role="radiogroup" aria-label="Hijri date adjustment">
+              <label class="ui-segment" [class.is-on]="hijri.userOffset() === null">
+                <input type="radio" name="hijriOffset" [checked]="hijri.userOffset() === null" (change)="hijri.setUserOffset(null)" aria-label="Automatic for your country" />
+                Auto
+              </label>
+              <label class="ui-segment" [class.is-on]="hijri.userOffset() === -1">
+                <input type="radio" name="hijriOffset" [checked]="hijri.userOffset() === -1" (change)="hijri.setUserOffset(-1)" aria-label="Months start a day later" />
+                −1 day
+              </label>
+              <label class="ui-segment" [class.is-on]="hijri.userOffset() === 0">
+                <input type="radio" name="hijriOffset" [checked]="hijri.userOffset() === 0" (change)="hijri.setUserOffset(0)" aria-label="No adjustment" />
+                0
+              </label>
+              <label class="ui-segment" [class.is-on]="hijri.userOffset() === 1">
+                <input type="radio" name="hijriOffset" [checked]="hijri.userOffset() === 1" (change)="hijri.setUserOffset(1)" aria-label="Months start a day earlier" />
+                +1 day
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-text">
+              <h3 class="setting-name">Mawlid &amp; Shab-e-Barat</h3>
+              <p class="setting-hint">Observance differs between communities</p>
+            </div>
+            <div class="ui-segmented" role="radiogroup" aria-label="Show Mawlid and Shab-e-Barat">
+              <label class="ui-segment" [class.is-on]="hijri.showVaried()">
+                <input type="radio" name="showVaried" [checked]="hijri.showVaried()" (change)="hijri.setShowVaried(true)" />
+                Show
+              </label>
+              <label class="ui-segment" [class.is-on]="!hijri.showVaried()">
+                <input type="radio" name="showVaried" [checked]="!hijri.showVaried()" (change)="hijri.setShowVaried(false)" />
+                Hide
+              </label>
+            </div>
+          </div>
+        </section>
       }
       @case ('app') {
         <section class="settings-section">

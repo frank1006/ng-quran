@@ -28,6 +28,8 @@ export interface GeocodingLocationInfo {
   quadrant: string;
   city: string;
   country: string;
+  /** ISO 3166-1 alpha-2, lower case (e.g. 'pk'); missing in older cached entries */
+  countryCode?: string;
 }
 
 /**
@@ -316,8 +318,9 @@ export class QiblaService {
     }
 
     // Check persistent cache (localStorage)
+    // Entries saved before country codes were kept are looked up again once
     const cached = this.getCachedLocationInfo(cacheKey);
-    if (cached) {
+    if (cached?.countryCode) {
       this.locationInfoCache.set(cacheKey, cached);
       return cached;
     }
@@ -347,7 +350,8 @@ export class QiblaService {
       const locationInfo: GeocodingLocationInfo = {
         quadrant,
         city,
-        country
+        country,
+        countryCode: typeof address.country_code === 'string' ? address.country_code.toLowerCase() : undefined
       };
 
       // Cache in memory and persistent storage
@@ -428,7 +432,8 @@ export class QiblaService {
         return {
           quadrant: cachedEntry.quadrant || '',
           city: cachedEntry.city || 'Unknown Location',
-          country: cachedEntry.country || 'Unknown Country'
+          country: cachedEntry.country || 'Unknown Country',
+          countryCode: cachedEntry.countryCode
         };
       }
 
@@ -515,7 +520,8 @@ export class QiblaService {
         return {
           quadrant: lastEntry.quadrant || '',
           city: lastEntry.city || 'Unknown Location',
-          country: lastEntry.country || 'Unknown Country'
+          country: lastEntry.country || 'Unknown Country',
+          countryCode: lastEntry.countryCode
         };
       }
 

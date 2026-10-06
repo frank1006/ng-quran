@@ -14,6 +14,7 @@ import { UserStoreService, Bookmark } from '../../services/user-store.service';
 import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter } from '../../services/quran-api.types';
 import { SegmentedIndicatorDirective } from '../../shared/directives/segmented-indicator.directive';
+import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 
 type ProfileTab = 'bookmarks' | 'preferences' | 'app';
 const TAB_STORAGE_KEY = 'profile-tab';
@@ -39,6 +40,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly calculationMethods = CALCULATION_METHODS;
   protected readonly calcMethod = computed(() => this.settingsService.calcMethod());
   protected readonly asrSchool = computed(() => this.settingsService.asrSchool());
+  protected readonly hijri = inject(HijriCalendarService);
+  protected readonly todayHijri = computed(() => this.hijri.format(new Date()));
   protected readonly distanceUnit = computed(() => this.settingsService.distanceUnit());
   protected readonly temperatureUnit = computed(() => this.settingsService.temperatureUnit());
   protected readonly compassState = computed(() => this.permissionsService.compassState());

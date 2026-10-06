@@ -438,3 +438,9 @@
 .accordion-list a {
   color: var(--color-primary-text);
 }
+
+/* Moon sighting: four choices across the full width under the label */
+.hijri-offset {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
