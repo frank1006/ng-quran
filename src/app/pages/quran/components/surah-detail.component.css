@@ -52,7 +52,6 @@
   font-size: var(--font-sm);
   font-weight: 500;
   color: var(--color-accent-dark);
-  text-transform: uppercase;
   letter-spacing: 0.03125rem; /* 0.5px */
   margin: 0 0 var(--space-sm) 0;
 }
@@ -82,7 +81,6 @@
 .translation-select {
   width: auto;
   font-family: var(--font-body);
-  text-transform: uppercase;
   font-size: var(--font-sm);
   font-weight: 500;
   color: var(--color-accent-dark);
@@ -116,23 +114,15 @@
 .surah-type {
   font-family: var(--font-body);
   font-size: var(--font-xs);
-  font-weight: 500;
-  color: var(--color-text-subtle);
-  padding: var(--space-xxs) var(--space-xs);
-  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-bg) 100%);
-  border-radius: var(--radius-sm);
-  backdrop-filter: blur(10px);
+  font-weight: 600;
 }
 
-/* Meccan - Warm tones */
+/* Meccan / Medinan as plain coloured text, as in the surah list */
 .surah-type-meccan {
-  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-bg) 100%);
   color: var(--color-accent-dark);
 }
 
-/* Medinan - Green tones */
 .surah-type-medinan {
-  background: linear-gradient(135deg, var(--color-success-soft) 0%, var(--color-success-soft) 100%);
   color: var(--color-success);
 }
 
@@ -218,7 +208,7 @@
 
 /* Ayah being recited (playing or paused): the soft amber fill used across the app */
 .verse-item.playing {
-  background: color-mix(in srgb, var(--color-primary-soft) 75%, var(--color-surface));
+  background: var(--color-fill-current);
 }
 
 /* No separators touching a filled ayah */
@@ -256,44 +246,13 @@
   gap: 0.5rem;
 }
 
-.verse-action-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--space-xl);
-  height: var(--space-xl);
-  background: var(--color-control);
-  border: none;
-  border-radius: var(--border-radius-all);
-  color: var(--color-control-ink);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-@media (hover: hover) {
-  .verse-action-button:not(.bookmarked):not(.playing):hover {
-    background: var(--color-control-hover);
-    color: var(--color-accent-dark);
-    transform: scale(1.1);
-  }
-}
-
 /* Buttons on a filled ayah sit on white so they stay visible */
-.verse-item.playing .verse-action-button:not(.bookmarked):not(.playing),
-.verse-item.selected .verse-action-button:not(.bookmarked):not(.playing) {
+.verse-item.playing .verse-action-button:not(.is-on) {
   background: var(--color-surface);
 }
 
 .verse-item.playing .verse-number-badge {
   background: var(--color-surface);
-}
-
-/* Bookmarked or playing: amber "on", same as the prayer reminder bells */
-.verse-action-button.bookmarked,
-.verse-action-button.playing {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  box-shadow: var(--shadow-on-edge);
 }
 
 .verse-action-button.loading {

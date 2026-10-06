@@ -6,11 +6,11 @@
     <app-location-chip [name]="locationName()" [locating]="locating()" (refresh)="refreshLocation.emit()" />
 
     <!-- Radius Filter Buttons -->
-    <div class="radius-filters">
+    <div class="ui-segmented radius-filters">
       @for (option of options(); track option) {
         <button
-          class="radius-filter-button"
-          [class.active]="radius() === option"
+          class="ui-segment"
+          [class.is-on]="radius() === option"
           type="button"
           (click)="onRadiusChange(option)"
           [disabled]="loading()"

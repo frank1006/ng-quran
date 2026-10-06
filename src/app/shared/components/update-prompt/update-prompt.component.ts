@@ -16,8 +16,8 @@ const CHECK_INTERVAL_MS = 30 * 60 * 1000;
     @if (updateReady()) {
       <div class="update-prompt" role="status" aria-live="polite">
         <p class="update-text">A new version of QuranFlow is available.</p>
-        <button type="button" class="update-later" (click)="dismiss()">Later</button>
-        <button type="button" class="update-refresh" (click)="refresh()">Refresh</button>
+        <button type="button" class="ui-button ui-button--secondary" (click)="dismiss()">Later</button>
+        <button type="button" class="ui-button" (click)="refresh()">Refresh</button>
       </div>
     }
   `,

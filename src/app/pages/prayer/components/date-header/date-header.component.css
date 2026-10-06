@@ -6,37 +6,9 @@
   padding: var(--space-lg) var(--space-lg) var(--space-xs);
 }
 
-/* Plain arrows: no fill until hovered with a mouse; the tap area stays large */
-.nav-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: none;
-  background: transparent;
-  border-radius: var(--border-radius-all);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  flex-shrink: 0;
-}
-
-@media (hover: hover) {
-  .nav-button:hover:not(:disabled) {
-    background: var(--color-control);
-    color: var(--color-accent-dark);
-  }
-}
-
-.nav-button:active:not(:disabled) {
-  background: var(--color-control);
-}
-
-.nav-button.disabled,
+/* The day arrows are ghost ui-icon-btn; only the disabled look is specific */
 .nav-button:disabled {
   opacity: 0.3;
-  cursor: not-allowed;
 }
 
 .date-content {
@@ -51,26 +23,6 @@
   flex-wrap: wrap;
   gap: var(--space-xs);
   margin-bottom: var(--space-xs);
-}
-
-.today-button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xxs);
-  min-height: 2rem;
-  border: none;
-  border-radius: var(--border-radius-all);
-  padding: var(--space-xs) var(--space-sm);
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: background 0.2s ease;
-}
-
-.today-button {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-text);
-  font-size: var(--font-xs);
-  font-weight: 600;
 }
 
 .location-message {

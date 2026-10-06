@@ -23,7 +23,7 @@
       <div class="error-content">
         <h2 class="error-title">Location Required</h2>
         <p class="error-message">{{ error() }}</p>
-        <button class="error-button instruction-button" (click)="requestLocation()" type="button">
+        <button class="ui-button ui-button--block error-button" (click)="requestLocation()" type="button">
           Enable Location
         </button>
       </div>
@@ -51,7 +51,7 @@
             <!-- Enable Compass Button (shown when permission needed) -->
             @if (needsPermissionButton() && compassAvailable()) {
               <button
-                class="instruction-button"
+                class="ui-button ui-button--block instruction-button"
                 (click)="enableCompass()"
                 type="button"
                 [disabled]="compassPermissionRequested()"

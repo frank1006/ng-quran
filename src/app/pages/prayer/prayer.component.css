@@ -40,8 +40,8 @@ app-hero-header {
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
-  align-items: baseline;
-  gap: 0;
+  align-items: center;
+  column-gap: var(--space-sm);
   position: relative;
 }
 
@@ -50,22 +50,28 @@ app-hero-header {
   grid-row: 1;
 }
 
+.current-prayer .view-switch {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+
+/* Countdown and weather are ui-chip pills under the title and the switch */
 .current-prayer .time-remaining {
   grid-column: 1;
   grid-row: 2;
-  align-self: start;
 }
 
 .current-prayer .weather {
   grid-column: 2;
   grid-row: 2;
   justify-self: end;
-  align-self: start;
 }
 
-.current-prayer .find-masjid-button-hero {
-  grid-column: 2;
-  grid-row: 1;
+.time-remaining,
+.weather {
+  width: fit-content;
+  margin: var(--space-xs) 0 0;
 }
 
 .prayer-name {
@@ -74,84 +80,8 @@ app-hero-header {
   line-height: var(--page-title-line-height);
   font-weight: 700;
   color: var(--color-text);
-  letter-spacing: -0.03125rem; /* -0.5px */
+  letter-spacing: -0.03125rem;
   margin: 0;
-  transition: color 0.3s ease;
-}
-
-.prayer-name.masjid-active {
-  color: var(--color-accent-text);
-}
-
-.prayer-name.clickable {
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.time-remaining {
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-  width: fit-content;
-  margin: var(--space-xs) 0 0;
-  padding: 0.3rem 0.9rem;
-  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  border-radius: 999px;
-}
-
-/* Find Masjid Button in Hero Header */
-.find-masjid-button-hero {
-  display: flex;
-  align-items: baseline;
-  justify-content: flex-end;
-  gap: var(--space-xxs);
-  padding: 0;
-  border: none;
-  background: transparent;
-  font-family: var(--font-body);
-  color: var(--color-accent-text);
-  cursor: pointer;
-  transition: color 0.3s ease;
-  height: fit-content;
-}
-
-.find-masjid-button-hero.masjid-active {
-  color: var(--color-text); /* Dark color when masjid list is active */
-}
-
-.find-masjid-button-hero .button-text {
-  font-family: var(--font-body);
-  font-size: var(--font-2xl);
-  font-weight: 700;
-  color: inherit; /* Inherit from parent */
-  letter-spacing: -0.03125rem; /* -0.5px */
-  transition: color 0.3s ease;
-  white-space: nowrap;
-  line-height: 1;
-  margin: 0; /* Match prayer-name margin */
-}
-
-
-
-/* No responsive overrides needed - uses same CSS variable as prayer-name which auto-scales */
-
-
-/* Current weather, under the Masjid button */
-.weather {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xxs);
-  margin: var(--space-xs) 0 0;
-  padding: 0.3rem 0.9rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
 }
 
 .weather-icon {

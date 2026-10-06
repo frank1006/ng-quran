@@ -121,43 +121,6 @@
   color: var(--color-text);
 }
 
-.notification-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--space-xl);
-  height: var(--space-xl);
-  border: none;
-  background: var(--color-control);
-  border-radius: var(--border-radius-all);
-  color: var(--color-control-ink);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.notification-button svg {
-  scale: 0.8;
-}
-
-@media (hover: hover) {
-  .notification-button:hover {
-    background: var(--color-control-hover);
-    transform: scale(1.1);
-  }
-}
-
-.directions-button {
-  /* Inherits notification-button styles */
-  color: var(--color-control-ink);
-}
-
-@media (hover: hover) {
-  .directions-button:hover {
-    color: var(--color-accent-dark);
-  }
-}
-
 /* Empty State */
 .masjid-empty {
   display: flex;

@@ -1,34 +1,20 @@
 <app-hero-header>
   <div class="current-prayer">
-    <h2 
-      class="prayer-name" 
-      [class.masjid-active]="showMasjidList()" 
-      [class.clickable]="showMasjidList()"
-      (click)="showPrayerList()"
-      [attr.aria-live]="'polite'"
-      [attr.aria-label]="showMasjidList() ? 'Click to show prayers' : 'Current prayer time'"
-      [attr.role]="showMasjidList() ? 'button' : null"
-      [attr.tabindex]="showMasjidList() ? '0' : null"
-    >
+    <h2 class="prayer-name" aria-live="polite">
       {{ currentPrayer()?.name || 'Loading...' }}
     </h2>
-    <p class="time-remaining" [attr.aria-live]="'polite'">
+    <p class="time-remaining ui-chip ui-chip--white" aria-live="polite">
       {{ timeUntilNext() }}
     </p>
-    
-    <!-- Find Masjid Button - Absolute positioned relative to current-prayer -->
-    <button
-      class="find-masjid-button-hero"
-      [class.masjid-active]="showMasjidList()"
-      type="button"
-      (click)="displayMasjidList()"
-      aria-label="Find nearby mosques"
-    >
-      <span class="button-text">Masjid</span>
-    </button>
+
+    <!-- Switch between the prayer times and nearby masjids -->
+    <div class="view-switch ui-segmented ui-segmented--white" role="group" aria-label="Show">
+      <button type="button" class="ui-segment" [class.is-on]="!showMasjidList()" [attr.aria-pressed]="!showMasjidList()" (click)="showPrayerList()">Prayers</button>
+      <button type="button" class="ui-segment" [class.is-on]="showMasjidList()" [attr.aria-pressed]="showMasjidList()" (click)="displayMasjidList()" aria-label="Nearby masjids">Masjids</button>
+    </div>
 
     @if (weather(); as w) {
-      <p class="weather" [attr.aria-label]="'Weather: ' + w.temperature + ', ' + w.label">
+      <p class="weather ui-chip ui-chip--white" [attr.aria-label]="'Weather: ' + w.temperature + ', ' + w.label">
         <svg class="weather-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           @switch (w.icon) {
             @case ('clear') {

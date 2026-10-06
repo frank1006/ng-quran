@@ -21,53 +21,22 @@
   margin-bottom: var(--space-lg);
 }
 
-/* Profile tabs: the same segmented control as the masjid distances */
+/* Profile tabs: a full-width ui-segmented control */
 .tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  padding: 3px;
+  width: 100%;
   margin-bottom: var(--space-lg);
-  border-radius: var(--border-radius-all);
-  background: var(--color-track);
 }
 
-.tab {
+.tabs .ui-segment {
   min-height: 2.5rem;
-  border: none;
-  border-radius: var(--border-radius-all);
-  background: transparent;
-  color: var(--color-accent-text);
-  font-family: var(--font-body);
   font-size: var(--font-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.tab.active {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  box-shadow: inset 0 0 0 1px var(--color-primary-edge), 0 1px 4px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
-}
-
-.tab:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
 }
 
 /* Sections sit on the page: a heading, then rows with thin separators */
 .settings-section + .settings-section {
   margin-top: var(--space-xl);
-}
-
-.section-title {
-  font-size: var(--font-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-accent-dark);
-  margin: 0 0 var(--space-xs);
 }
 
 .section-hint {
@@ -120,55 +89,9 @@
   line-height: 1.4;
 }
 
-/* Two or three short choices in one control */
-.segmented {
+/* Switches on the right of a row are ui-segmented */
+.setting-row .ui-segmented {
   flex-shrink: 0;
-  display: inline-flex;
-  gap: 2px;
-  padding: 3px;
-  border-radius: var(--border-radius-all);
-  background: var(--color-track);
-}
-
-.segment {
-  position: relative;
-  min-width: 3rem;
-  padding: 0.45rem var(--space-sm);
-  border-radius: var(--border-radius-all);
-  font-family: var(--font-body);
-  font-size: var(--font-xs);
-  font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-  color: var(--color-accent-text);
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.segment input {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.segment.active {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  box-shadow: inset 0 0 0 1px var(--color-primary-edge), 0 1px 4px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
-}
-
-.segment:has(input:focus-visible) {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-@media (hover: hover) {
-  .segment:not(.active):hover,
-  .tab:not(.active):hover {
-    color: var(--color-accent-dark);
-  }
 }
 
 .calc-select {
@@ -261,47 +184,6 @@
   color: var(--color-text-muted);
 }
 
-.permission-button,
-.clear-data-button {
-  min-height: 2.5rem;
-  padding: 0 1.1rem;
-  border: none;
-  border-radius: var(--border-radius-all);
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.permission-button {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-
-.clear-data-button {
-  background: var(--color-danger-soft);
-  color: var(--color-danger-strong);
-}
-
-@media (hover: hover) {
-  .permission-button:hover:not(:disabled) {
-    background: var(--color-primary-deep);
-  }
-
-  .clear-data-button:hover:not(:disabled) {
-    background: var(--color-danger);
-    color: var(--color-surface);
-  }
-}
-
-.permission-button:disabled,
-.clear-data-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 /* Bookmarks: a heading per surah, its ayahs as small pills */
 .bookmarks-loading,
 .bookmarks-empty-hint {
@@ -367,7 +249,6 @@
 .bookmark-group-translation {
   font-size: var(--font-xs);
   color: var(--color-accent-dark);
-  text-transform: uppercase;
 }
 
 .bookmark-group-title-arabic {

@@ -43,9 +43,9 @@ interface PrayerItem {
                 <p class="prayer-time">{{ prayer.time }}</p>
               </div>
               <button 
-                class="notification-button" 
+                class="ui-icon-btn notification-button" 
                 type="button" 
-                [class.active]="isNotificationEnabled(prayer.key)"
+                [class.is-on]="isNotificationEnabled(prayer.key)"
                 [class.loading]="notificationLoadingStates()[prayer.key]"
                 [disabled]="notificationLoadingStates()[prayer.key]"
                 (click)="onNotificationToggle(prayer)"

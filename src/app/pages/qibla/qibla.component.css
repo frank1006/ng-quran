@@ -33,7 +33,6 @@
   font-size: var(--font-sm);
   font-weight: 500;
   color: var(--color-accent-dark);
-  text-transform: uppercase;
   letter-spacing: 0.03125rem; /* 0.5px */
   margin: 0;
 }
@@ -143,40 +142,13 @@
   }
 }
 
-.instruction-button {
-  width: 100%;
-  padding: var(--space-md);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  border: 2px solid var(--color-primary);
-  border-radius: var(--border-radius-all);
-  font-family: var(--font-body);
-  font-size: var(--font-lg);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0.25rem 1.25rem color-mix(in srgb, var(--color-primary) 30%, transparent);
-  text-align: center;
-}
 
-.instruction-button:hover:not(:disabled) {
-  background: var(--color-primary-deep);
-  border-color: var(--color-primary-deep);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px color-mix(in srgb, var(--color-primary) 40%, transparent);
-}
 
-.instruction-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 30%, transparent);
-}
 
-.instruction-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-}
+
+
+
+
 
 .compass-error-message {
   margin-top: var(--space-sm);

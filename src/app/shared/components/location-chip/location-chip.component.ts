@@ -5,7 +5,7 @@ import { Component, input, output } from '@angular/core';
   selector: 'app-location-chip',
   template: `
     <button
-      class="location-chip"
+      class="ui-chip location-chip"
       [class.locating]="locating()"
       [disabled]="locating()"
       (click)="refresh.emit()"
@@ -25,33 +25,12 @@ import { Component, input, output } from '@angular/core';
   styles: `
     :host { display: inline-flex; max-width: 100%; }
 
-    .location-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xxs);
-      max-width: 100%;
-      min-height: 2rem;
-      padding: var(--space-xs) var(--space-sm);
-      border: none;
-      border-radius: var(--border-radius-all);
-      background: var(--color-control);
-      color: var(--color-accent-dark);
-      font-family: var(--font-body);
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
+    /* Looks come from the shared ui-chip; only the locating state is specific */
     .location-chip:disabled { cursor: progress; }
-
-    @media (hover: hover) {
-      .location-chip:hover:not(:disabled) { background: var(--color-control-hover); }
-    }
 
     .pin { flex-shrink: 0; display: block; }
 
     .name {
-      font-size: var(--font-xs);
-      font-weight: 500;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;

@@ -9,7 +9,7 @@ import { LocationChipComponent } from '../../../../shared/components/location-ch
   template: `
     <div class="date-header">
       <button 
-        class="nav-button" 
+        class="ui-icon-btn ui-icon-btn--ghost nav-button" 
         [class.disabled]="!canNavigatePrevious()"
         [disabled]="!canNavigatePrevious()"
         (click)="onPrevious()" 
@@ -25,7 +25,7 @@ import { LocationChipComponent } from '../../../../shared/components/location-ch
         <div class="chip-row">
           <app-location-chip [name]="locationName()" [locating]="locating()" (refresh)="refreshLocation.emit()" />
           @if (!isToday()) {
-            <button class="today-button" type="button" (click)="goToToday.emit()" aria-label="Go back to today">
+            <button class="ui-chip today-button" type="button" (click)="goToToday.emit()" aria-label="Go back to today">
               @if (todayIsBehind()) {
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <polyline points="15 18 9 12 15 6"></polyline>
@@ -48,7 +48,7 @@ import { LocationChipComponent } from '../../../../shared/components/location-ch
       </div>
 
       <button 
-        class="nav-button" 
+        class="ui-icon-btn ui-icon-btn--ghost nav-button" 
         [class.disabled]="!canNavigateNext()"
         [disabled]="!canNavigateNext()"
         (click)="onNext()" 

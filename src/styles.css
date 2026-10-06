@@ -9,17 +9,22 @@
   --color-primary: #ffb030;
   --color-primary-deep: #ff9900;
   --color-primary-soft: #fff5e6;
-  /* Edge of a selected amber pill: 3.1:1 against the grey track, so the choice is visible (WCAG 1.4.11) */
+  /* Edge of a selected amber pill: 3.1:1 against the cream track, so the choice is visible (WCAG 1.4.11) */
   --color-primary-edge: #c97d0a;
-  /* Warm track behind switches and pills; unselected labels on it use --color-accent-text (4.9:1) */
-  --color-track: var(--color-primary-soft);
-  /* One rule for controls: cream = tappable, amber (+ edge) = on/selected, white = content and fields,
-     grey = unavailable. Brown icons on cream are 4.9:1, dark icons on amber 9:1. */
-  --color-control: var(--color-track);
-  --color-control-hover: var(--color-accent-soft);
-  --color-control-ink: var(--color-accent-text);
+
+  /* Design system colour rule (see the ui-* components at the end of this file):
+     cream = something you can tap, amber (+ edge) = on / selected, white = content and fields
+     (and controls placed on a cream surface), grey = unavailable. Only three creams exist:
+     the page background, cream, and strong cream. */
+  --color-cream: var(--color-primary-soft);        /* #fff5e6: controls, tracks, the current item */
+  --color-cream-strong: var(--color-accent-soft);  /* #ffe8cc: hover / pressed, seek tracks */
+  --color-fill-current: var(--color-cream);        /* current prayer, recited ayah, last opened surah */
+  --color-selected-tint: var(--color-bg);          /* tapped ayah, row hover: lighter than current */
+  --color-control: var(--color-cream);
+  --color-control-hover: var(--color-cream-strong);
+  --color-control-ink: var(--color-accent-text);   /* brown icons and labels on cream: 4.9:1 */
+  --color-track: var(--color-cream);
   --shadow-on-edge: inset 0 0 0 1px var(--color-primary-edge);
-  --color-selected-tint: #fffaf2;
   /* Readable text/icon versions of the brand colours (WCAG AA on white and cream) */
   --color-primary-text: #a85d00;
   --color-accent-text: #86663f; /* 5.3:1 on white, 5.0:1 on the cream background */
@@ -194,4 +199,246 @@ html, body, .main {
   opacity: 0.45;
   -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 100%);
   mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 100%);
+}
+
+
+/* ============================================================================
+   Design system components. Pages use these instead of styling their own copies.
+   ============================================================================ */
+
+/* Small uppercase heading above a group of rows */
+.ui-section-label {
+  margin: 0 0 var(--space-xs);
+  font-family: var(--font-body);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-dark);
+}
+
+/* Round icon button. 36px to look at, 44px to tap.
+   Variants: is-on (amber), ui-icon-btn--white (on cream surfaces), --ghost (no fill),
+   --square (player), --primary (always amber: the main action), --lg (48px). */
+.ui-icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-control);
+  color: var(--color-control-ink);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.ui-icon-btn::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+}
+
+.ui-icon-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.ui-icon-btn--white { background: var(--color-surface); }
+.ui-icon-btn--ghost { background: transparent; color: var(--color-text-secondary); }
+.ui-icon-btn--square { border-radius: 0.625rem; }
+.ui-icon-btn--lg { width: 3rem; height: 3rem; }
+.ui-icon-btn--lg svg { width: 1.375rem; height: 1.375rem; }
+
+.ui-icon-btn.is-on,
+.ui-icon-btn--primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge);
+}
+
+.ui-icon-btn:active:not(:disabled) { transform: scale(0.94); }
+
+.ui-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ui-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ui-icon-btn:not(.is-on):not(.ui-icon-btn--primary):hover:not(:disabled) {
+    background: var(--color-control-hover);
+    color: var(--color-accent-dark);
+  }
+
+  .ui-icon-btn--primary:hover:not(:disabled) { background: var(--color-primary-deep); }
+}
+
+/* Pill for short info or actions (location, Today, countdown, weather).
+   Cream by default; ui-chip--white on cream surfaces; is-on for amber. */
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2rem;
+  max-width: 100%;
+  padding: 0.3rem 0.8rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-control);
+  color: var(--color-accent-dark);
+  font-family: var(--font-body);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.ui-chip--white {
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.ui-chip.is-on {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge);
+}
+
+button.ui-chip { cursor: pointer; transition: background-color 0.2s ease; }
+
+button.ui-chip:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  button.ui-chip:not(.is-on):not(.ui-chip--white):hover:not(:disabled) {
+    background: var(--color-control-hover);
+  }
+}
+
+/* Segmented control: a cream track of options, the chosen one an amber pill.
+   Options are buttons (tabs, distances) or labels wrapping a radio input (settings). */
+.ui-segmented {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--color-track);
+}
+
+.ui-segmented--white { background: color-mix(in srgb, var(--color-surface) 85%, transparent); }
+
+.ui-segment {
+  position: relative;
+  min-width: 3rem;
+  padding: 0.45rem var(--space-sm);
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-control-ink);
+  font-family: var(--font-body);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ui-segment input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ui-segment.is-on {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge), 0 1px 4px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
+}
+
+.ui-segment:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ui-segment:focus-visible,
+.ui-segment:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ui-segment:not(.is-on):hover:not(:disabled) { color: var(--color-accent-dark); }
+}
+
+/* Text button. Primary (amber) for the main action on a screen, --secondary (cream) for others,
+   --danger for destructive ones, --block to fill the width. 44px tall. */
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.ui-button--secondary {
+  background: var(--color-control);
+  color: var(--color-accent-dark);
+  box-shadow: none;
+}
+
+.ui-button--danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-strong);
+  box-shadow: none;
+}
+
+.ui-button--block { width: 100%; }
+
+.ui-button:active:not(:disabled) { transform: scale(0.98); }
+
+.ui-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ui-button:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ui-button:not(.ui-button--secondary):not(.ui-button--danger):hover:not(:disabled) { background: var(--color-primary-deep); }
+  .ui-button--secondary:hover:not(:disabled) { background: var(--color-control-hover); }
+  .ui-button--danger:hover:not(:disabled) { background: var(--color-danger); color: var(--color-surface); }
 }

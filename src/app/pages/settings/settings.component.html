@@ -1,14 +1,14 @@
 <div class="settings-container page-pattern">
   <h1 class="settings-title">Profile</h1>
 
-  <div class="tabs" role="tablist" aria-label="Profile sections" (keydown)="onTabKeydown($event)">
+  <div class="ui-segmented ui-segmented--white tabs" role="tablist" aria-label="Profile sections" (keydown)="onTabKeydown($event)">
     @for (tab of tabs; track tab.id) {
       <button
-        class="tab"
+        class="ui-segment tab"
         role="tab"
         type="button"
         [id]="'tab-' + tab.id"
-        [class.active]="activeTab() === tab.id"
+        [class.is-on]="activeTab() === tab.id"
         [attr.aria-selected]="activeTab() === tab.id"
         [attr.aria-controls]="'panel-' + tab.id"
         [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
@@ -22,7 +22,7 @@
       @case ('bookmarks') {
       <!-- Quran Bookmarks Card -->
       <section class="settings-section">
-        <h2 class="section-title">Quran Bookmarks</h2>
+        <h2 class="ui-section-label">Quran Bookmarks</h2>
     
         <div>
           @if (loadingChapters()) {
@@ -78,19 +78,19 @@
       }
       @case ('preferences') {
         <section class="settings-section">
-          <h2 class="section-title">Display</h2>
+          <h2 class="ui-section-label">Display</h2>
 
           <div class="setting-row">
             <div class="setting-text">
               <h3 class="setting-name">Time format</h3>
               <p class="setting-hint">How prayer times are shown</p>
             </div>
-            <div class="segmented" role="radiogroup" aria-label="Time format">
-              <label class="segment" [class.active]="timeFormat() === TimeFormat.TWELVE_HOUR">
+            <div class="ui-segmented" role="radiogroup" aria-label="Time format">
+              <label class="ui-segment" [class.is-on]="timeFormat() === TimeFormat.TWELVE_HOUR">
                 <input type="radio" name="timeFormat" [checked]="timeFormat() === TimeFormat.TWELVE_HOUR" (change)="onTimeFormatChange(TimeFormat.TWELVE_HOUR)" aria-label="12-hour, like 1:07 PM" />
                 12-hour
               </label>
-              <label class="segment" [class.active]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR">
+              <label class="ui-segment" [class.is-on]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR">
                 <input type="radio" name="timeFormat" [checked]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR" (change)="onTimeFormatChange(TimeFormat.TWENTY_FOUR_HOUR)" aria-label="24-hour, like 13:07" />
                 24-hour
               </label>
@@ -102,12 +102,12 @@
               <h3 class="setting-name">Distance</h3>
               <p class="setting-hint">For nearby masjids</p>
             </div>
-            <div class="segmented" role="radiogroup" aria-label="Distance unit">
-              <label class="segment" [class.active]="distanceUnit() === 'km'">
+            <div class="ui-segmented" role="radiogroup" aria-label="Distance unit">
+              <label class="ui-segment" [class.is-on]="distanceUnit() === 'km'">
                 <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'km'" (change)="setDistanceUnit('km')" aria-label="Kilometres" />
                 km
               </label>
-              <label class="segment" [class.active]="distanceUnit() === 'mi'">
+              <label class="ui-segment" [class.is-on]="distanceUnit() === 'mi'">
                 <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'mi'" (change)="setDistanceUnit('mi')" aria-label="Miles" />
                 mi
               </label>
@@ -119,12 +119,12 @@
               <h3 class="setting-name">Temperature</h3>
               <p class="setting-hint">For the weather</p>
             </div>
-            <div class="segmented" role="radiogroup" aria-label="Temperature unit">
-              <label class="segment" [class.active]="temperatureUnit() === 'C'">
+            <div class="ui-segmented" role="radiogroup" aria-label="Temperature unit">
+              <label class="ui-segment" [class.is-on]="temperatureUnit() === 'C'">
                 <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'C'" (change)="setTemperatureUnit('C')" aria-label="Celsius" />
                 °C
               </label>
-              <label class="segment" [class.active]="temperatureUnit() === 'F'">
+              <label class="ui-segment" [class.is-on]="temperatureUnit() === 'F'">
                 <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'F'" (change)="setTemperatureUnit('F')" aria-label="Fahrenheit" />
                 °F
               </label>
@@ -133,7 +133,7 @@
         </section>
 
         <section class="settings-section">
-          <h2 class="section-title">Prayer Calculation</h2>
+          <h2 class="ui-section-label">Prayer Calculation</h2>
 
           <div class="setting-row setting-row-stacked">
             <div class="setting-text">
@@ -158,12 +158,12 @@
               <h3 class="setting-name">Asr time</h3>
               <p class="setting-hint">Standard: Shafi'i, Maliki, Hanbali. Hanafi is later.</p>
             </div>
-            <div class="segmented" role="radiogroup" aria-label="Asr calculation">
-              <label class="segment" [class.active]="asrSchool() === 0">
+            <div class="ui-segmented" role="radiogroup" aria-label="Asr calculation">
+              <label class="ui-segment" [class.is-on]="asrSchool() === 0">
                 <input type="radio" name="asrSchool" [checked]="asrSchool() === 0" (change)="onAsrSchoolChange(0)" aria-label="Standard Asr (Shafi'i, Maliki, Hanbali)" />
                 Standard
               </label>
-              <label class="segment" [class.active]="asrSchool() === 1">
+              <label class="ui-segment" [class.is-on]="asrSchool() === 1">
                 <input type="radio" name="asrSchool" [checked]="asrSchool() === 1" (change)="onAsrSchoolChange(1)" aria-label="Hanafi Asr (later)" />
                 Hanafi
               </label>
@@ -173,7 +173,7 @@
       }
       @case ('app') {
         <section class="settings-section">
-          <h2 class="section-title">App Permissions</h2>
+          <h2 class="ui-section-label">App Permissions</h2>
 
         <div>
           <p class="section-hint">Manage app access to device features</p>
@@ -211,7 +211,7 @@
                   }
                   @if (locationState().canRequest || locationState().status === PermissionStatus.NOT_REQUESTED || locationState().status === PermissionStatus.PROMPT) {
                     <button
-                      class="permission-button"
+                      class="ui-button permission-button"
                       type="button"
                       (click)="requestLocationPermission()"
                       [disabled]="requestingLocation()"
@@ -243,7 +243,7 @@
                   }
                   @if (compassState().canRequest || compassState().status === PermissionStatus.NOT_REQUESTED || compassState().status === PermissionStatus.PROMPT) {
                     <button
-                      class="permission-button"
+                      class="ui-button permission-button"
                       type="button"
                       (click)="requestCompassPermission()"
                       [disabled]="requestingCompass()"
@@ -287,7 +287,7 @@
               </div>
               <div class="permission-status">
                 <button
-                  class="clear-data-button"
+                  class="ui-button ui-button--danger clear-data-button"
                   type="button"
                   (click)="resetDataAndPermissions()"
                   [disabled]="clearingData()"
@@ -303,7 +303,7 @@
 
       <!-- About App Card -->
       <section class="settings-section">
-        <h2 class="section-title">About App</h2>
+        <h2 class="ui-section-label">About App</h2>
     
         <!-- App Information -->
         <div class="app-info">

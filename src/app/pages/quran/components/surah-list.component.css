@@ -59,7 +59,6 @@
 .reciter-select {
   flex: 1;
   font-family: var(--font-body);
-  text-transform: uppercase;
   font-size: var(--font-sm);
   font-weight: 500;
   color: var(--color-accent-dark);
@@ -182,7 +181,7 @@
 
 /* The surah opened last: a soft amber fill, no separators touching it */
 .surah-card.last-opened {
-  background: color-mix(in srgb, var(--color-primary-soft) 75%, var(--color-surface));
+  background: var(--color-fill-current);
 }
 
 .surah-card.last-opened::before,
@@ -251,7 +250,6 @@
   color: var(--color-accent-dark);
   margin: 0;
   line-height: 1.4;
-  text-transform: uppercase;
 }
 
 .surah-meta {
@@ -313,10 +311,11 @@
   width: 100%;
   margin-top: var(--space-md);
   padding: var(--space-sm) var(--space-md);
-  border: 1.5px solid color-mix(in srgb, var(--color-primary) 60%, transparent);
+  /* White content card on the cream header; the amber play button carries the emphasis */
+  border: none;
   border-radius: var(--border-radius-all);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary-soft) 80%, var(--color-surface)) 0%, var(--color-surface) 100%);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-primary) 12%, transparent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
   text-align: left;
   font-family: var(--font-body);
   cursor: pointer;
@@ -394,18 +393,6 @@
   background: var(--color-primary-deep);
 }
 
-.continue-go {
-  flex-shrink: 0;
-  width: 2.75rem;
-  height: 2.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.75rem;
-  background: var(--color-primary);
-  color: var(--color-text);
-}
-
 /* Listening variant: the text opens the verse, the round button plays or pauses */
 button.continue-text {
   padding: 0;
@@ -413,12 +400,6 @@ button.continue-text {
   background: transparent;
   text-align: left;
   font: inherit;
-  cursor: pointer;
-}
-
-button.continue-go {
-  padding: 0;
-  border: none;
   cursor: pointer;
 }
 

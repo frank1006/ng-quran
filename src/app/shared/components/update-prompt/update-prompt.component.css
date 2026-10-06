@@ -24,26 +24,9 @@
   line-height: 1.4;
 }
 
-button {
+.update-prompt .ui-button {
   flex-shrink: 0;
-  min-height: 2.75rem;
   padding: 0 var(--space-md);
-  border: none;
-  border-radius: var(--radius-lg);
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.update-later {
-  background: transparent;
-  color: var(--color-text-muted);
-}
-
-.update-refresh {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
 }
 
 @keyframes rise {
