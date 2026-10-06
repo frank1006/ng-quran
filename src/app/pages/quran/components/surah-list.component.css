@@ -48,7 +48,9 @@
   display: flex;
   align-items: center;
   min-height: 2.75rem;
-  margin-top: var(--space-xxs);
+  /* The row is 44px tall for tapping and centres its text, so pull it up to line the text up
+     with the other pages' subtitles */
+  margin-top: calc(var(--title-subtitle-gap) - 0.8125rem);
   padding-right: 3.25rem; /* room for the collapsed search button */
 }
 

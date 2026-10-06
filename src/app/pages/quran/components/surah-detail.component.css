@@ -159,8 +159,10 @@
 
 
 
-/* Fade effect at the top */
+/* Fade at the top: hidden at rest so it never tints the first ayah; shows once ayahs scroll under it */
 .verses-container::before {
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
   content: "";
   position: sticky;
   top: -1.5rem;
@@ -176,6 +178,10 @@
   margin-right: -2rem;
   margin-bottom: -2rem; /* overlays the first ayah instead of pushing it down */
   display: block;
+}
+
+.verses-container.is-scrolled::before {
+  opacity: 1;
 }
 
 /* Ayahs flow down the page with thin separators, like the app's other lists */
@@ -196,20 +202,18 @@
   background: var(--color-border);
 }
 
-/* Tapped ayah: a quiet grey fill */
+/* Two states, kept apart so they never look alike side by side:
+   - reading (tapped): no fill; amber number and stronger text (styles below)
+   - listening (playing or paused): the soft cream fill used across the app */
 .verse-item.selected {
-  background: var(--color-selected-tint);
   cursor: pointer;
 }
 
-/* Ayah being recited (playing or paused): the soft amber fill used across the app */
 .verse-item.playing {
   background: var(--color-fill-current);
 }
 
-/* No separators touching a filled ayah */
-.verse-item.selected::before,
-.verse-item.selected + .verse-item::before,
+/* No separators touching the filled (listening) ayah */
 .verse-item.playing::before,
 .verse-item.playing + .verse-item::before {
   display: none;
@@ -243,12 +247,18 @@
 }
 
 /* Buttons on a filled ayah sit on white so they stay visible */
-.verse-item.playing .verse-action-button:not(.is-on) {
-  background: var(--color-surface);
+/* Reading: the number turns amber (amber = selected) */
+.verse-item.selected .verse-number-badge {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge);
 }
 
+/* Listening: on the cream fill, the number and buttons switch to white so they stay visible */
+.verse-item.playing .verse-action-button:not(.is-on),
 .verse-item.playing .verse-number-badge {
   background: var(--color-surface);
+  box-shadow: none;
 }
 
 .verse-action-button.loading {
@@ -285,6 +295,7 @@
   direction: rtl;
 }
 
+.verse-item.selected .verse-arabic,
 .verse-item.playing .verse-arabic {
   color: var(--color-accent-dark);
 }
@@ -304,6 +315,7 @@
   text-align: right;
 }
 
+.verse-item.selected .verse-translation,
 .verse-item.playing .verse-translation {
   color: var(--color-text);
 }

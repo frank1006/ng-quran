@@ -100,7 +100,7 @@ app-hero-header {
 .time-remaining,
 .weather {
   width: fit-content;
-  margin: var(--space-xs) 0 0;
+  margin: var(--title-subtitle-gap) 0 0;
 }
 
 .prayer-name {

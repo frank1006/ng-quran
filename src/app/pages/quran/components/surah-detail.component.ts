@@ -492,6 +492,9 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     
     // Store handler reference for cleanup
     this.scrollHandler = () => {
+      // The fade at the top only shows once ayahs scroll under it, never over the first ayah at rest
+      container.classList.toggle('is-scrolled', container.scrollTop > 4);
+
       // Debounce scroll position saves
       if (this.scrollTimeout !== null) {
         clearTimeout(this.scrollTimeout);
