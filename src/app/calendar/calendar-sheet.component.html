@@ -139,7 +139,7 @@
               <span class="month-heading-hijri">{{ group.hijri }}</span>
             </h3>
             @for (item of group.items; track item.when + item.name) {
-              <article class="event-card">
+              <button type="button" class="event-card event-row" [attr.aria-label]="item.label" (click)="showInCalendar(item.date)">
                 <span class="event-icon" aria-hidden="true">
                   <ng-container *ngTemplateOutlet="iconTpl; context: { $implicit: item.icon }" />
                 </span>
@@ -148,7 +148,7 @@
                   <p class="event-when">{{ item.when }}</p>
                 </div>
                 <span class="event-away">{{ item.away }}</span>
-              </article>
+              </button>
             }
           }
         </section>

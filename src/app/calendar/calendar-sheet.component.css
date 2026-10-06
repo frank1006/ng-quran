@@ -275,12 +275,49 @@
   padding: var(--space-md) 0;
 }
 
+/* In the Events list each row is a button that opens its day in the grid */
+.event-row {
+  width: calc(100% + 2 * var(--space-xs));
+  margin-inline: calc(-1 * var(--space-xs));
+  padding-inline: var(--space-xs);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+.event-row:active {
+  background: var(--color-cream);
+}
+
+.event-row:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .event-row:hover {
+    background: var(--color-cream);
+  }
+}
+
+/* No separator touching a tinted row */
+.event-row:active + .event-row::before,
+.event-row:active::before {
+  opacity: 0;
+}
+
 .event-card + .event-card::before {
   content: "";
   position: absolute;
   top: 0;
   left: calc(2.25rem + var(--space-md)); /* starts under the text, past the icon */
   right: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
   height: 1px;
   background: var(--color-border);
 }
@@ -376,3 +413,8 @@
   color: var(--color-text-muted);
 }
 
+/* Rows in the Events list are padded for their pressed tint, so their separators move in to match */
+.event-row + .event-row::before {
+  left: calc(2.25rem + var(--space-md) + var(--space-xs));
+  right: var(--space-xs);
+}
