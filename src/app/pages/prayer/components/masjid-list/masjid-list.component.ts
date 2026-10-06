@@ -8,16 +8,18 @@ import { SettingsService } from '../../../../services/settings.service';
 import { DeviceDetectionService } from '../../../../services/device-detection.service';
 import { formatDistance } from '../../../../services/units';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
-import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-masjid-list',
   standalone: true,
-  imports: [CommonModule, ConnectionErrorComponent, LoadingSpinnerComponent],
+  imports: [CommonModule, ConnectionErrorComponent],
   templateUrl: './masjid-list.component.html',
   styleUrl: './masjid-list.component.css'
 })
 export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
+  /** Widths of the placeholder rows' name bars while searching */
+  protected readonly placeholderRows = [70, 55, 80, 62];
+
   @Input() latitude: number = 0;
   @Input() longitude: number = 0;
   @Input() radius: number = 1;

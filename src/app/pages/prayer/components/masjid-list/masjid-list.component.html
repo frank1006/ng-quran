@@ -1,5 +1,19 @@
 @if (loading()) {
-  <app-loading-spinner />
+  <!-- Placeholder rows the size of real ones, so the list doesn't jump in -->
+  <div class="prayer-list-container" role="status">
+    <span class="visually-hidden">Finding nearby masjids</span>
+    <div class="prayer-list" aria-hidden="true">
+      @for (row of placeholderRows; track row) {
+        <div class="prayer-card masjid-card">
+          <div class="prayer-info masjid-info">
+            <span class="ui-skeleton skeleton-name" [style.width.%]="row"></span>
+            <span class="ui-skeleton skeleton-meta"></span>
+          </div>
+          <span class="ui-skeleton skeleton-button"></span>
+        </div>
+      }
+    </div>
+  </div>
 }
 
 @if (error() && masjids().length === 0) {

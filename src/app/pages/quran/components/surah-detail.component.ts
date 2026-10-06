@@ -10,7 +10,6 @@ import { ChapterWithVerses, Verse } from '../../../services/quran-api.types';
 import { AudioPlayerComponent } from './audio-player.component';
 import { HeroHeaderComponent } from '../../../shared/components/hero-header/hero-header.component';
 import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { QuranAudioService } from '../../../services/quran-audio.service';
 
 interface VerseWithTranslation extends Verse {
@@ -20,7 +19,7 @@ interface VerseWithTranslation extends Verse {
 @Component({
   selector: 'app-surah-detail',
   standalone: true,
-  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent, ConnectionErrorComponent, LoadingSpinnerComponent],
+  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent, ConnectionErrorComponent],
   templateUrl: './surah-detail.component.html',
   styleUrl: './surah-detail.component.css'
 })
