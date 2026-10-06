@@ -54,3 +54,6 @@ Thumbs.db
 .env
 .env*.local
 .vercel
+
+# Import script downloads and progress (scripts/import-*.mjs)
+.cache/
