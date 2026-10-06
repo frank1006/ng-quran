@@ -1,0 +1,273 @@
+/* Fill the space between the status bar and the bottom nav (the app shell pads for both) */
+:host {
+  display: block;
+  height: 100%;
+}
+
+/* Title stays put, the conversation scrolls, the question box sits above the nav */
+.qflow {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: var(--space-lg) var(--space-xl) 0;
+  max-width: var(--app-max-width);
+  margin-inline: auto;
+}
+
+.qflow-header {
+  flex: none;
+  padding-bottom: var(--space-sm);
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.page-title {
+  font-family: var(--font-body);
+  font-size: var(--page-title-size);
+  line-height: var(--page-title-line-height);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.03125rem;
+}
+
+.qflow-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-inline: calc(-1 * var(--space-xl));
+  padding: var(--space-sm) var(--space-xl) var(--space-lg);
+  /* Content fades out under the header instead of being cut off */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 var(--space-md));
+  mask-image: linear-gradient(180deg, transparent 0, #000 var(--space-md));
+}
+
+/* Text inside the conversation can be selected and copied (the app disables it elsewhere) */
+.question,
+.answer-text,
+.ayah-arabic,
+.ayah-translation {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+
+.intro-text {
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.suggestions {
+  list-style: none;
+}
+
+.suggestion {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-sm) 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+.suggestions li:last-child .suggestion {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.suggestion:active {
+  background: var(--color-selected-tint);
+}
+
+.suggestion:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .suggestion:hover {
+    background: var(--color-selected-tint);
+  }
+}
+
+/* ── Conversation ────────────────────────────────────────────── */
+
+.exchange + .exchange {
+  margin-top: var(--space-xl);
+}
+
+/* The reader's own question: white content on the page, set apart by its edge */
+.question {
+  width: fit-content;
+  max-width: 85%;
+  margin-inline-start: auto;
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-lg);
+  background: var(--color-surface);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+.answer-label {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-dark);
+}
+
+.answer-text {
+  font-size: var(--font-md);
+  line-height: 1.65;
+  color: var(--color-text);
+  overflow-wrap: anywhere; /* never run off the screen, even if a model drops the spaces */
+}
+
+/* Urdu and Arabic answers read better in the Arabic-script font, a little larger */
+.answer-text:dir(rtl) {
+  font-family: var(--font-arabic);
+  font-size: var(--font-lg);
+  line-height: 2;
+}
+
+.answer .ui-button {
+  align-self: flex-start;
+}
+
+.error-text {
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  color: var(--color-danger-strong);
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 0.875rem;
+}
+
+.skeleton-line--short {
+  width: 60%;
+}
+
+/* ── Ayahs: rows with separators, like every list in the app ──── */
+
+.ayahs {
+  list-style: none;
+  margin-top: var(--space-sm);
+}
+
+.ayah {
+  padding: var(--space-md) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.ayah:last-child {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ayah-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.ayah-ref {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  color: var(--color-accent-dark);
+}
+
+.ayah-arabic {
+  margin: var(--space-xs) 0;
+  font-family: var(--font-arabic);
+  font-size: 1.375rem;
+  line-height: 2.2;
+  color: var(--color-text);
+  text-align: right;
+}
+
+.ayah-translation {
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.ayah-translation[lang='ur'] {
+  font-family: var(--font-arabic);
+  font-size: var(--font-md);
+  line-height: 2;
+}
+
+.disclaimer {
+  margin-top: var(--space-xl);
+  font-size: var(--font-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ── Question box ────────────────────────────────────────────── */
+
+.composer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: calc(var(--space-sm) + var(--mini-player-space, 0px));
+  padding: 0.25rem 0.25rem 0.25rem var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  transition: box-shadow var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+}
+
+.composer:focus-within {
+  border-color: var(--color-primary-edge);
+  box-shadow: var(--shadow-on-edge);
+}
+
+.composer-input {
+  flex: 1;
+  min-width: 0;
+  height: 2.5rem;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 16px; /* iOS doesn't zoom into 16px+ fields */
+  color: var(--color-text);
+}
+
+.composer-input:focus {
+  outline: none;
+}
+
+.composer-input::placeholder {
+  color: var(--color-text-subtle);
+}

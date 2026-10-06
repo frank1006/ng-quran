@@ -112,3 +112,26 @@ row gets `--color-fill-current` with no separators touching it; buttons inside i
   `visually-hidden` line saying what is loading. Never show "Loading…" as a heading.
 - Location off is a calm state (`app-connection-error`, cream pin, "Location needed"), worded for
   iPhone, the Android app or a browser (`core/location-help.ts`). Red is for real failures.
+
+## QFlow (assistant)
+
+`/qflow`, not in the nav until release. One column: title, the conversation (scrolls), and the
+question box pinned above the nav.
+
+- **Question box:** a white pill with a 1px border and the amber send button (`ui-icon-btn--primary`);
+  the border turns into the amber edge on focus. 16px text so iOS doesn't zoom.
+- **The reader's question:** white bubble with a 1px border, aligned to the end. Not cream:
+  it isn't tappable.
+- **Answer:** plain text under an "AI summary" label (section-label style). Never a bubble or a
+  card, and never markdown. Urdu/Arabic answers switch to `--font-arabic`. Citations like
+  2:183-187 sit in a `<bdi dir="ltr">`, otherwise RTL text shows them as "187-2:183".
+- **Ayahs:** rows with separators, like every list: the reference in brown ("Al-Baqara · 2:255"),
+  an "open in Quran" ghost icon button (`/quran/2#verse-255`), the Arabic in Amiri, then the
+  translation (Urdu for Urdu questions, English otherwise). The text always comes from our index,
+  never from the model.
+- **States:** "Searching the Quran…" with skeleton lines while waiting; red text with "Try again"
+  on failure; when no model can answer, "These ayahs match your words" with the closest ayahs.
+- **New question scrolls to the top** of the conversation when its answer arrives, so the answer
+  reads from its start (long ayahs would otherwise push it out of view).
+- Answers are announced once through a visually-hidden polite live region; the conversation
+  itself isn't live.

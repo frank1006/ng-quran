@@ -36,6 +36,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
   },
   {
+    // QFlow: not in the nav until it's released (after Google login); the API is off in production
+    path: 'qflow',
+    title: 'QFlow · QuranFlow',
+    loadComponent: () => import('./pages/qflow/qflow.component').then(m => m.QFlowComponent)
+  },
+  {
     path: '**',
     redirectTo: 'prayer'
   }

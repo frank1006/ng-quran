@@ -1,0 +1,118 @@
+<div class="qflow page-pattern">
+  <header class="qflow-header">
+    <div class="title-row">
+      <h1 class="page-title">QFlow</h1>
+      @if (exchanges().length) {
+        <button type="button" class="ui-icon-btn" (click)="newChat()" [disabled]="busy()" aria-label="New conversation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+        </button>
+      }
+    </div>
+    <p class="ui-page-subtitle">Ask about the Quran and Islamic dates</p>
+  </header>
+
+  <div class="qflow-scroll" #scroller>
+    @if (!exchanges().length) {
+      <section class="intro ui-fade-in" aria-labelledby="intro-label">
+        <p class="intro-text">
+          QFlow finds ayahs that answer your question and shows them with their references.
+          Ask in English, Urdu or Arabic.
+        </p>
+        <h2 class="ui-section-label" id="intro-label">Try asking</h2>
+        <ul class="suggestions">
+          @for (suggestion of suggestions; track suggestion) {
+            <li>
+              <button type="button" class="suggestion" dir="auto" (click)="send(suggestion)">{{ suggestion }}</button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @for (exchange of exchanges(); track exchange.id) {
+      <article class="exchange" [attr.data-exchange]="exchange.id" [attr.aria-label]="'Question: ' + exchange.question">
+        <p class="question ui-fade-in" dir="auto">{{ exchange.question }}</p>
+
+        @switch (exchange.status) {
+          @case ('loading') {
+            <div class="answer" aria-hidden="true">
+              <span class="answer-label">Searching the Quran…</span>
+              <span class="ui-skeleton skeleton-line"></span>
+              <span class="ui-skeleton skeleton-line skeleton-line--short"></span>
+            </div>
+          }
+          @case ('error') {
+            <div class="answer ui-fade-in">
+              <p class="error-text">{{ exchange.error }}</p>
+              <button type="button" class="ui-button ui-button--secondary" (click)="retry(exchange)" [disabled]="busy()">Try again</button>
+            </div>
+          }
+          @case ('done') {
+            <div class="answer ui-fade-in">
+              @if (exchange.result!.answer) {
+                <span class="answer-label">AI summary</span>
+                <p class="answer-text" dir="auto">@for (part of answerParts(exchange.result!.answer!); track $index) {@if (part.ref) {<bdi dir="ltr">{{ part.text }}</bdi>} @else {<span>{{ part.text }}</span>}}</p>
+              } @else if (exchange.result!.ayahs.length) {
+                <p class="answer-text">QFlow can't write an answer right now. These ayahs match your words:</p>
+              } @else {
+                <p class="answer-text">QFlow can't answer right now and found no close match. Please try again later.</p>
+              }
+
+              @if (exchange.result!.ayahs.length) {
+                <ul class="ayahs" aria-label="Ayahs">
+                  @for (ayah of exchange.result!.ayahs; track ayah.ref) {
+                    <li class="ayah">
+                      <div class="ayah-head">
+                        <span class="ayah-ref">{{ ayah.surahName }} · {{ ayah.ref }}</span>
+                        <a
+                          class="ui-icon-btn ui-icon-btn--ghost"
+                          [routerLink]="['/quran', ayah.surah]"
+                          [fragment]="'verse-' + ayah.ayah"
+                          [attr.aria-label]="'Open ' + ayah.surahName + ' ayah ' + ayah.ayah + ' in the Quran'"
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M7 17 17 7M8 7h9v9"></path>
+                          </svg>
+                        </a>
+                      </div>
+                      <p class="ayah-arabic" lang="ar" dir="rtl">{{ ayah.ar }}</p>
+                      <p class="ayah-translation" [attr.lang]="exchange.lang === 'ur' ? 'ur' : 'en'" dir="auto">{{ translation(ayah, exchange.lang) }}</p>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        }
+      </article>
+    }
+
+    <p class="disclaimer">QFlow quotes the Quran but can make mistakes. It doesn't give religious rulings.</p>
+  </div>
+
+  <form class="composer" (submit)="$event.preventDefault(); send()">
+    <label class="visually-hidden" for="qflow-question">Ask QFlow</label>
+    <input
+      #field
+      id="qflow-question"
+      class="composer-input"
+      type="text"
+      dir="auto"
+      enterkeyhint="send"
+      autocomplete="off"
+      placeholder="Ask about the Quran…"
+      [maxLength]="maxQuestion"
+      [value]="draft()"
+      (input)="onInput($event)"
+    />
+    <button type="submit" class="ui-icon-btn ui-icon-btn--primary" [disabled]="!canSend()" aria-label="Send question">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 19V5M5 12l7-7 7 7"></path>
+      </svg>
+    </button>
+  </form>
+
+  <p class="visually-hidden" aria-live="polite">{{ announcement() }}</p>
+</div>
