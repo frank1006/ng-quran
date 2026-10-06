@@ -33,21 +33,73 @@
 
     <div class="sheet-content">
       @if (view() !== 'events') {
-        <!-- The chosen day, led by the calendar being viewed -->
-        @for (key of [view()]; track key) {
-          <section class="day-card ui-fade-in" aria-live="polite">
-            @if (view() === 'gregorian') {
-              <p class="day-secondary">{{ hijriTitle() }}</p>
-              <p class="day-primary">{{ gregorianTitle() }}</p>
-            } @else {
-              <p class="day-secondary">{{ gregorianTitle() }}</p>
-              <p class="day-primary">{{ hijriTitle() }}</p>
+        <!-- Month: arrows or a sideways swipe change it -->
+        <div class="month-nav">
+          <button type="button" class="ui-icon-btn ui-icon-btn--ghost" (click)="previousMonth()" aria-label="Previous month">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div class="month-title" aria-live="polite">
+            <h3>{{ monthTitle() }}</h3>
+            <p>{{ monthSubtitle() }}</p>
+          </div>
+          <button type="button" class="ui-icon-btn ui-icon-btn--ghost" (click)="nextMonth()" aria-label="Next month">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="weekdays" aria-hidden="true">
+          @for (d of weekdays; track $index) {
+            <span>{{ d }}</span>
+          }
+        </div>
+
+        @for (key of [monthKey()]; track key) {
+          <div
+            class="month-grid"
+            [class.from-next]="slide() === 'next'"
+            [class.from-prev]="slide() === 'prev'"
+            role="group"
+            [attr.aria-label]="monthTitle()"
+            (keydown)="onGridKeydown($event)"
+            (pointerdown)="onSwipeStart($event)"
+            (pointerup)="onSwipeEnd($event)"
+          >
+            @for (cell of cells(); track cell ? cell.key : 'blank-' + $index) {
+              @if (cell) {
+                <button
+                  type="button"
+                  class="day"
+                  [class.is-today]="cell.isToday"
+                  [class.is-selected]="cell.isSelected"
+                  [attr.data-day]="cell.key"
+                  [attr.aria-label]="cell.label"
+                  [attr.aria-pressed]="cell.isSelected"
+                  [attr.aria-current]="cell.isToday ? 'date' : null"
+                  [attr.tabindex]="cell.isSelected ? 0 : -1"
+                  (click)="selectDay(cell)"
+                >
+                  <span class="day-number">{{ cell.primary }}</span>
+                  <span class="day-other">{{ cell.secondary }}</span>
+                  @if (cell.hasEvent) {
+                    <span class="day-dot" aria-hidden="true"></span>
+                  } @else if (cell.isWhiteDay) {
+                    <span class="day-dot day-dot--white" aria-hidden="true"></span>
+                  }
+                </button>
+              } @else {
+                <span class="day day--blank" aria-hidden="true"></span>
+              }
             }
-            @if (!isTodaySelected()) {
-              <button type="button" class="ui-chip day-today" (click)="showToday()">Today</button>
-            }
-          </section>
+          </div>
         }
+
+        <!-- The chosen day -->
+        <div class="day-summary">
+          <p class="day-summary-text">{{ selectedSummary() }}</p>
+          @if (!isTodaySelected()) {
+            <button type="button" class="ui-chip" (click)="showToday()">Today</button>
+          }
+        </div>
 
         <section class="day-events" aria-label="On this day">
           @for (event of dayEvents(); track event.id) {
