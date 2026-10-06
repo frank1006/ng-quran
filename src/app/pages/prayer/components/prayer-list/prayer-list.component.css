@@ -51,7 +51,7 @@
   min-height: 3.5rem;
   padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-lg);
-  transition: background-color 0.3s ease;
+  transition: background-color var(--motion-slow) var(--ease-standard);
 }
 
 /* Rows sit on the page with thin inset separators instead of outlines */

@@ -257,7 +257,16 @@
   background: var(--color-track);
   border-radius: var(--border-radius-all);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
+}
+
+.bookmark-item:active {
+  background: var(--color-accent-soft);
+  transform: scale(0.96);
+}
+
+.bookmark-item:has(.bookmark-remove-button:active) {
+  transform: none;
 }
 
 .bookmark-verse {
@@ -354,6 +363,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.accordion-header:active .accordion-title,
+.accordion-header:active .accordion-icon {
+  opacity: 0.6;
+}
+
 .accordion-header:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
@@ -372,7 +386,7 @@
   width: 1.25rem;
   height: 1.25rem;
   color: var(--color-text-muted);
-  transition: transform 0.25s ease;
+  transition: transform var(--motion-base) var(--ease-standard);
 }
 
 .accordion-icon.expanded {
@@ -380,17 +394,25 @@
 }
 
 .accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-exit) var(--ease-in);
 }
 
+/* Opens to the content's real height (max-height guessed one, so timing was off) */
 .accordion-content.expanded {
-  max-height: 31.25rem;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows var(--motion-slow) var(--ease-out);
 }
 
 .accordion-content-inner {
-  padding: 0 0 var(--space-md);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.accordion-content.expanded .accordion-content-inner {
+  padding-bottom: var(--space-md);
 }
 
 .accordion-text {
