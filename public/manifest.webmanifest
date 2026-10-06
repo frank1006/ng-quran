@@ -124,5 +124,42 @@
       "navigate-existing",
       "auto"
     ]
-  }
+  },
+  "screenshots": [
+    {
+      "src": "screenshots/prayer.webp",
+      "sizes": "1080x2160",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Prayer times with the sun's path through the day"
+    },
+    {
+      "src": "screenshots/masjids.webp",
+      "sizes": "1080x2160",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Nearby masjids with walking distance and directions"
+    },
+    {
+      "src": "screenshots/quran.webp",
+      "sizes": "1080x2160",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "All 114 surahs with your chosen reciter"
+    },
+    {
+      "src": "screenshots/surah.webp",
+      "sizes": "1080x2160",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Read each ayah in Arabic with a translation and audio"
+    },
+    {
+      "src": "screenshots/qibla.webp",
+      "sizes": "1080x2160",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Qibla compass for your location"
+    }
+  ]
 }
