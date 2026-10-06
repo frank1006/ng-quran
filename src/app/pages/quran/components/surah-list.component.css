@@ -27,7 +27,7 @@
   -webkit-overflow-scrolling: touch;
   /* Full width so card shadows aren't clipped at the sides */
   margin-inline: calc(-1 * var(--space-xl));
-  padding: var(--space-sm) var(--space-xl) calc(var(--space-xl) + var(--mini-player-space, 0px));
+  padding: var(--space-sm) var(--space-xl) calc(var(--space-xl) + var(--nav-space) + var(--mini-player-space, 0px));
   /* Cards fade out under the header instead of being cut off */
   -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 var(--space-md));
   mask-image: linear-gradient(180deg, transparent 0, #000 var(--space-md));

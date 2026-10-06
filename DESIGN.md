@@ -36,10 +36,33 @@ Controls on a cream surface (hero headers, the cream part of a page) use the `--
   vertical movement); the title and subtitle fade out underneath, and the list doesn't move.
 - The amber edge appears only on the open field. Closing returns focus to the search button.
 
+## Bottom navigation
+
+- **Cream bar** (`--color-cream`, the "tappable" colour) with a `--color-cream-strong` hairline,
+  brown tab icons and labels (`--color-control-ink`, 4.9:1), the AI icon in `--color-accent-dark`.
+  Flat: no shadow and no fade above it. Labels keep one weight.
+- **A U-shaped dip** in the bar sits under the active tab. It's transparent: the page shows
+  through it as it is, and the bubble floats in it. The hairline follows the top edge, the U and
+  both rounded corners; a corner's arc hides while the dip occupies that edge (first/last tab).
+- **Pages scroll underneath the nav.** `.main` has no bottom padding; every scroll area pads its
+  own bottom with `--nav-space` (+ `--mini-player-space`), so the last item still clears the nav.
+  New pages must do the same.
+- **Active tab:** its own 56px amber bubble (`--color-primary` + amber edge) sits in the dip,
+  24px above the bar, with the icon in dark ink (9:1). The active tab shows **no label** (it's
+  only made transparent: it keeps its space and is still read by screen readers).
+- **Motion, in order and in time with the page change:** the old bubble sinks (`--sink`, 120ms);
+  once that's half done the bar, a wide strip (cream · U · cream) moved with one composited
+  transform, glides the dip to the tapped tab (~240ms, `--ease-glide`); the tapped tab's icon
+  and label are already hidden. When the dip is ~60% there, that tab's bubble rises out of it
+  with the icon (~175ms, `--ease-spring`). The old tab's icon and label return once its bubble
+  has gone. Measured: the page's view transition ends ~315ms after the tap and the bubble settles
+  ~365ms (only its spring settle is later). Keep the two in step if either changes. It reacts on
+  the tap itself, not after the next page loads; nothing moves on first load. Position is pure
+  CSS (`--active` / `--tabs` against the nav's width in `cqw`).
+
 ## Elevation
 
-Shadows only for things that float above the page: the bottom nav, the floating player and its
-card, the update and offline banners. Everything on the page is flat and separated by colour
+Shadows only for things that float above the page: the floating player and its card, the update and offline banners. Everything on the page is flat and separated by colour
 (white on cream, cream on white). Focus and selection use the amber edge, not a glow.
 
 ## Motion
@@ -53,6 +76,7 @@ Tokens in `src/styles.css`; no raw durations or `transition: all` in components.
 | `--motion-slow` | 320ms | larger surfaces: accordions, the search field, sheets |
 | `--motion-exit` | 150ms | anything leaving (exits are faster than entrances) |
 | `--ease-out` / `--ease-in` / `--ease-standard` | | arriving / leaving / state changes |
+| `--ease-spring` | | a small overshoot for things that pop up (the nav's bubble rising out of its dip); use sparingly |
 
 - Animate only `transform`, `opacity`, `clip-path` (and colours). Not width, height or position.
 - **Every tappable thing reacts when pressed:** rows get a cream tint (strong cream if already cream),

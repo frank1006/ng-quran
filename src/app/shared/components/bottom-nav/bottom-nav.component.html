@@ -1,38 +1,92 @@
-<nav class="bottom-nav">
-  <a routerLink="/prayer" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(12 14) scale(0.12) translate(-87 -371)">
-        <path fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" d="M61.11,306.155c0-6.695,5.427-12.122,12.122-12.122c0.151,0,0.298,0.017,0.447,0.023
-                  c0.439-21.88,24.359-22.002,29.237-33.848c4.878,11.846,28.798,11.968,29.237,33.848c0.15-0.005,0.296-0.023,0.447-0.023
-                  c6.695,0,12.122,5.427,12.122,12.122c6.695,0,12.122,5.427,12.122,12.122v149.891H48.988V318.277
-                  C48.988,311.582,54.415,306.155,61.11,306.155z"></path>
-      </g>
-    </svg>
-    <span class="nav-label">Prayer</span>
-  </a>
-  
-  <a routerLink="/quran" routerLinkActive="active" class="nav-item">
-    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span class="nav-label">Quran</span>
-  </a>
-  
-  <a routerLink="/qibla" routerLinkActive="active" class="nav-item">
-    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-      <path d="M12 2V6M12 18V22M22 12H18M6 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-    <span class="nav-label">Qibla</span>
-  </a>
-  
-  <a routerLink="/profile" routerLinkActive="active" class="nav-item" aria-label="Profile settings">
-    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span class="nav-label">Profile</span>
-  </a>
+<nav
+  class="bottom-nav"
+  [class.is-ready]="ready()"
+  [class.at-start]="active() === 0"
+  [class.at-end]="active() === tabs.length - 1"
+  [style.--active]="active() >= 0 ? active() : -2"
+  [style.--tabs]="tabs.length"
+>
+  <!-- The bar: a wide cream strip with a U-shaped dip in it, slid under the active tab.
+       Moving the whole strip is one composited transform; the frame clips it to the bar. -->
+  <div class="nav-bg" aria-hidden="true">
+    <div class="nav-track">
+      <span class="nav-slab"></span>
+      <span class="nav-dip">
+        <svg class="nav-dip-curve" viewBox="0 0 120 40" preserveAspectRatio="none">
+          <path class="dip-fill" d="M0 0C30 0 30 38 60 38C90 38 90 0 120 0V40H0Z" />
+          <path class="dip-edge" d="M0 0.5C30 0.5 30 38.5 60 38.5C90 38.5 90 0.5 120 0.5" />
+        </svg>
+      </span>
+      <span class="nav-slab"></span>
+    </div>
+  </div>
+
+  @for (tab of tabs; track tab.path) {
+    <a
+      class="nav-item"
+      [class.nav-item--ai]="tab.icon === 'ai'"
+      [class.active]="active() === $index"
+      [routerLink]="tab.path"
+      routerLinkActive
+      ariaCurrentWhenActive="page"
+      [routerLinkActiveOptions]="{ exact: tab.exact }"
+      (isActiveChange)="setActive($index, $event)"
+      (click)="select($index)"
+      [attr.aria-label]="tab.ariaLabel ?? null"
+    >
+      <!-- The amber bubble that rises out of the dip, carrying the icon -->
+      <span class="nav-drop" aria-hidden="true">
+        <ng-container [ngTemplateOutlet]="iconTpl" [ngTemplateOutletContext]="{ $implicit: tab.icon }" />
+      </span>
+      <span class="nav-icon-wrap">
+        <ng-container [ngTemplateOutlet]="iconTpl" [ngTemplateOutletContext]="{ $implicit: tab.icon }" />
+      </span>
+      <span class="nav-label">{{ tab.label }}</span>
+    </a>
+  }
 </nav>
 
+<ng-template #iconTpl let-icon>
+  @switch (icon) {
+    @case ('prayer') {
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <!-- Centred on 12,12 and 21px tall with its stroke, like the other icons; the stroke is
+             scaled so it renders at the same 2px -->
+        <g transform="translate(12 12) scale(0.0914) translate(-102.92 -364.19)">
+          <path fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" d="M61.11,306.155c0-6.695,5.427-12.122,12.122-12.122c0.151,0,0.298,0.017,0.447,0.023
+            c0.439-21.88,24.359-22.002,29.237-33.848c4.878,11.846,28.798,11.968,29.237,33.848c0.15-0.005,0.296-0.023,0.447-0.023
+            c6.695,0,12.122,5.427,12.122,12.122c6.695,0,12.122,5.427,12.122,12.122v149.891H48.988V318.277
+            C48.988,311.582,54.415,306.155,61.11,306.155z"></path>
+        </g>
+      </svg>
+    }
+    @case ('quran') {
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    }
+    @case ('ai') {
+      <!-- Sparkles, the familiar "AI" mark: a large four-point star and a small one, balanced
+           around the centre so it sits evenly in the bubble -->
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <g transform="translate(0.4 -0.1)">
+          <path d="M10 6.5Q11.4 12.1 17 13.5Q11.4 14.9 10 20.5Q8.6 14.9 3 13.5Q8.6 12.1 10 6.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M18 2.75Q18.6 5.4 21.25 6Q18.6 6.6 18 9.25Q17.4 6.6 14.75 6Q17.4 5.4 18 2.75Z" fill="currentColor"/>
+        </g>
+      </svg>
+    }
+    @case ('qibla') {
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 2V6M12 18V22M22 12H18M6 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    }
+    @case ('profile') {
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    }
+  }
+</ng-template>

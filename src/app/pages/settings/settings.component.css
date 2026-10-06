@@ -2,7 +2,7 @@
   min-height: 100vh;
   height: 100vh;
   background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 40%);
-  padding: var(--space-lg) var(--space-xl) calc(7.94rem + var(--mini-player-space, 0px)) var(--space-xl);
+  padding: var(--space-lg) var(--space-xl) calc(var(--space-xl) + var(--nav-space) + var(--mini-player-space, 0px)) var(--space-xl);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;

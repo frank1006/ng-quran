@@ -133,7 +133,7 @@
   /* Height comes from the page layout (fills the space above the bottom nav) */
   flex: 1;
   min-height: 0;
-  padding-bottom: calc(var(--space-lg) + var(--mini-player-space, 0px));
+  padding-bottom: calc(var(--space-lg) + var(--nav-space) + var(--mini-player-space, 0px));
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
@@ -147,7 +147,7 @@
   flex-direction: column;
   overflow-y: auto;
   container-type: size;
-  padding-bottom: var(--mini-player-space, 0px);
+  padding-bottom: calc(var(--nav-space) + var(--mini-player-space, 0px));
   -webkit-overflow-scrolling: touch;
 }
 
