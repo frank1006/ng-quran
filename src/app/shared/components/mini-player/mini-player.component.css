@@ -10,20 +10,20 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  border: none;
   border-radius: 0.75rem;
-  background: var(--color-primary);
-  color: var(--color-text);
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
+  /* Brown, not amber: it floats over amber bells and pills and must not blend into them */
+  background: var(--color-accent-dark);
+  color: var(--color-primary);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
   cursor: pointer;
   animation: pop 0.25s ease-out both;
 }
 
 .player-fab.open {
   background: var(--color-control);
-  border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1), var(--shadow-on-edge);
   color: var(--color-control-ink);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 /* Three bars that move while reciting */
