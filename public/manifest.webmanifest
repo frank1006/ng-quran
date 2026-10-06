@@ -59,11 +59,64 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": [
     "lifestyle",
     "education",
     "books"
+  ],
+  "shortcuts": [
+    {
+      "name": "Prayer times",
+      "short_name": "Prayer",
+      "description": "Today's prayer times and nearby masjids",
+      "url": "./prayer",
+      "icons": [
+        {
+          "src": "icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Read Quran",
+      "short_name": "Quran",
+      "description": "Read and listen to the Quran",
+      "url": "./quran",
+      "icons": [
+        {
+          "src": "icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Qibla",
+      "short_name": "Qibla",
+      "description": "Find the Qibla direction",
+      "url": "./qibla",
+      "icons": [
+        {
+          "src": "icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

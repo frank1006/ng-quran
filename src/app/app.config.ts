@@ -20,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     },
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000'
+      registrationStrategy: 'registerWhenStable:5000'
     }),
     // Enable Service Worker in dev mode for notification testing
     ...(isDevMode() ? [] : [])
