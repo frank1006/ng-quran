@@ -73,18 +73,13 @@ export class PrayerComponent implements OnInit, OnDestroy {
   protected readonly distanceUnit = computed(() => this.settingsService.distanceUnit());
 
   /** Hero look for the current weather, e.g. "rain" or "clear-night" (empty: default) */
-  protected readonly weatherTheme = computed(() => {
-    const weather = this.weatherService.weather();
-    if (!weather) return '';
-    const nightAware = weather.condition === 'clear' || weather.condition === 'partly';
-    return nightAware && !weather.isDay ? `${weather.condition}-night` : weather.condition;
-  });
-
   protected readonly weather = computed(() => {
     const weather = this.weatherService.weather();
     if (!weather) return null;
+    // Clear and partly cloudy skies get a moon icon at night
+    const nightAware = weather.condition === 'clear' || weather.condition === 'partly';
     return {
-      icon: this.weatherTheme(),
+      icon: nightAware && !weather.isDay ? `${weather.condition}-night` : weather.condition,
       temperature: formatTemperature(weather.temperatureC, this.settingsService.temperatureUnit()),
       label: conditionLabel(weather.condition, weather.isDay),
     };
