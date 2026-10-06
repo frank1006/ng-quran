@@ -1,8 +1,8 @@
 <app-hero-header>
   <div class="current-prayer">
     <h1 class="prayer-name">
-      @if (currentPrayer(); as prayer) {
-        {{ prayer.name }}
+      @if (nextPrayer(); as prayer) {
+        <span class="visually-hidden">Next prayer: </span>{{ prayer.name }}
       } @else if (error()) {
         Prayer times
       } @else {

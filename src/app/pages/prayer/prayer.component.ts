@@ -99,6 +99,9 @@ export class PrayerComponent implements OnInit, OnDestroy {
   private wasViewingToday = true;
   private readonly onVisibilityChange = () => this.handleVisibilityChange();
 
+  /** The current minute; the header and countdown recompute when it changes */
+  private readonly minute = signal(Math.floor(Date.now() / 60_000));
+
   constructor(
     private prayerTimeStore: PrayerTimeStore,
     private trajectoryService: PrayerTrajectoryService,
@@ -251,6 +254,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
   }
 
   protected readonly prayers = computed<PrayerItem[]>(() => {
+    this.minute(); // move the highlight to the current prayer as time passes
     const data = this.prayerData();
     const timeFormat = this.settingsService.currentTimeFormat();
     if (!data?.timings) return [];
@@ -283,17 +287,10 @@ export class PrayerComponent implements OnInit, OnDestroy {
     return prayerList;
   });
 
-  protected readonly currentPrayer = computed<PrayerItem | null>(() => {
-    const todayPrayers = this.getTodayPrayerTimes();
-    if (todayPrayers.length === 0) {
-      const list = this.prayers();
-      return list[0] || null;
-    }
-
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const lastPassedPrayer = this.findLastPassedPrayer(todayPrayers, currentMinutes);
-    return lastPassedPrayer || todayPrayers[todayPrayers.length - 1];
+  /** The header leads with what's coming next: its name, then how long until it */
+  protected readonly nextPrayer = computed<PrayerItem | null>(() => {
+    this.minute();
+    return this.getNextTodayPrayer();
   });
 
   private getTodayPrayerTimes(): PrayerItem[] {
@@ -323,7 +320,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
     return { name: 'Fajr', key: 'fajr', time: todayPrayers[0].time, isActive: false };
   }
 
-  private formatTimeUntil(hours: number, minutes: number, prayerName: string): string {
+  private formatTimeUntil(hours: number, minutes: number): string {
     const parts: string[] = [];
 
     if (hours > 0) {
@@ -334,11 +331,11 @@ export class PrayerComponent implements OnInit, OnDestroy {
       parts.push(`${minutes} ${minutes === 1 ? 'min' : 'mins'}`);
     }
 
-    return `${parts.join(' ')} until ${prayerName}`;
+    return `in ${parts.join(' ')}`;
   }
 
   protected readonly timeUntilNext = computed<string>(() => {
-    const next = this.getNextTodayPrayer();
+    const next = this.nextPrayer();
     if (!next?.time) return ''; // the header shows a placeholder
 
     const now = new Date();
@@ -359,7 +356,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
     const diffHours = Math.floor(diff / (1000 * 60 * 60));
     const diffMinutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-    return this.formatTimeUntil(diffHours, diffMinutes, next.name);
+    return this.formatTimeUntil(diffHours, diffMinutes);
   });
 
   protected readonly prayerTrajectory = computed<TrajectoryData | null>(() => {
@@ -462,6 +459,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
     document.addEventListener('visibilitychange', this.onVisibilityChange);
     this.timeInterval = window.setInterval(() => {
       this.trajectoryService.updateCurrentTime();
+      this.minute.set(Math.floor(Date.now() / 60_000));
     }, TIME_UPDATE_INTERVAL_MS) as unknown as number;
 
     // Check for date rollover and sync if needed
