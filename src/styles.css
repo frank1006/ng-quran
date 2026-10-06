@@ -536,8 +536,9 @@ button.ui-chip:focus-visible {
   to { background-position: -100% 0; }
 }
 
-/* Headings get focus after a page change (for screen readers); no ring unless using a keyboard */
-[tabindex="-1"]:focus:not(:focus-visible) {
+/* Headings get focus after a page change, for screen readers. They aren't controls, so no ring:
+   iOS Safari otherwise draws its blue focus ring on them, even after a tap. */
+[tabindex="-1"]:focus {
   outline: none;
 }
 
