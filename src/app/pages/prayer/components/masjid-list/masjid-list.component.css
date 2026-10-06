@@ -41,7 +41,7 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-md) var(--space-lg);
-  gap: 0.65rem;
+  gap: 0;
   overflow-y: auto;
   /* Height comes from the page layout (fills the space above the bottom nav) */
   flex: 1;
@@ -55,16 +55,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-xs) var(--space-lg);
-  background: var(--color-surface);
-  /* Outlined rows, matching the prayer list */
+  position: relative;
+  padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-lg);
-  border: 1.5px solid var(--color-border);
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
-.prayer-card:hover {
-  border-color: var(--color-border-strong);
+/* Rows sit on the page with thin inset separators instead of outlines */
+.prayer-card + .prayer-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--space-md);
+  right: var(--space-md);
+  height: 1px;
+  background: var(--color-border);
+}
+
+@media (hover: hover) {
+  .prayer-card:hover {
+    background: var(--color-surface-alt);
+  }
+
+  .prayer-card:hover::before,
+  .prayer-card:hover + .prayer-card::before {
+    display: none;
+  }
 }
 
 .prayer-info {
@@ -124,9 +140,11 @@
   scale: 0.8;
 }
 
-.notification-button:hover {
-  background: var(--color-surface-muted);
-  transform: scale(1.1);
+@media (hover: hover) {
+  .notification-button:hover {
+    background: var(--color-surface-muted);
+    transform: scale(1.1);
+  }
 }
 
 .directions-button {
@@ -134,9 +152,11 @@
   color: var(--color-text-muted);
 }
 
-.directions-button:hover {
-  background: var(--color-surface-muted);
-  color: var(--color-primary-text);
+@media (hover: hover) {
+  .directions-button:hover {
+    background: var(--color-surface-muted);
+    color: var(--color-primary-text);
+  }
 }
 
 /* Empty State */

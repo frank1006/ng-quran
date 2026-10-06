@@ -71,7 +71,8 @@
               "buildTarget": "ng-quran:build:production"
             },
             "development": {
-              "buildTarget": "ng-quran:build:development"
+              "buildTarget": "ng-quran:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
