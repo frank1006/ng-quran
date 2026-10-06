@@ -97,7 +97,10 @@
         <div class="day-summary">
           <p class="day-summary-text">{{ selectedSummary() }}</p>
           @if (!isTodaySelected()) {
-            <button type="button" class="ui-chip" (click)="showToday()">Today</button>
+            <div class="day-summary-actions">
+              <button type="button" class="ui-chip" (click)="viewPrayerTimes()" aria-label="Show prayer times for this day">Prayer times</button>
+              <button type="button" class="ui-chip" (click)="showToday()">Today</button>
+            </div>
           }
         </div>
 
@@ -151,13 +154,6 @@
       }
     </div>
 
-    <footer class="sheet-footer">
-      @if (view() !== 'events') {
-        <button type="button" class="ui-button ui-button--block" (click)="viewPrayerTimes()">
-          {{ isTodaySelected() ? "View today's prayer times" : 'View prayer times for this day' }}
-        </button>
-      }
-    </footer>
   </div>
 </dialog>
 

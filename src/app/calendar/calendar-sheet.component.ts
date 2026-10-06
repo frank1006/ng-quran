@@ -157,7 +157,7 @@ export class CalendarSheetComponent {
         group = {
           key,
           gregorian: date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
-          hijri: this.hijriSpan(date),
+          hijri: this.hijriSpan(date, true),
           items: []
         };
         groups.push(group);
@@ -175,12 +175,15 @@ export class CalendarSheetComponent {
   });
 
   /** The Hijri months a Gregorian month spans: "Rajab – Sha'ban 1448" */
-  private hijriSpan(date: Date): string {
+  private hijriSpan(date: Date, compact = false): string {
     const first = this.hijri.toHijri(new Date(date.getFullYear(), date.getMonth(), 1));
     const last = this.hijri.toHijri(new Date(date.getFullYear(), date.getMonth() + 1, 0));
     if (first.month === last.month) return `${first.monthName} ${first.year}`;
     if (first.year === last.year) return `${first.monthName} – ${last.monthName} ${last.year}`;
-    return `${first.monthName} ${first.year} – ${last.monthName} ${last.year}`;
+    // Across a new Hijri year; compact (list headings) names only the second year
+    return compact
+      ? `${first.monthName} – ${last.monthName} ${last.year}`
+      : `${first.monthName} ${first.year} – ${last.monthName} ${last.year}`;
   }
 
   open(date: Date): void {
