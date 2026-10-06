@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import { AppHttpError } from '../../interceptors/error.interceptor';
 import { QFlowAnswer, QFlowQuota, QFlowService, QFlowTurn } from './qflow.service';
 
 export type QFlowLang = 'en' | 'ur' | 'ar';
@@ -54,6 +54,8 @@ export class QFlowChatStore {
   /** Questions left today (from the server); null until known */
   readonly quota = signal<QFlowQuota | null>(null);
   readonly limitReached = computed(() => this.quota()?.remaining === 0);
+  /** The server has QuranFlow AI switched off (QFLOW_ENABLED isn't "true"), e.g. before release */
+  readonly unavailable = signal(false);
 
   private nextId = Math.max(0, ...this.exchanges().map(e => e.id)) + 1;
 
@@ -61,14 +63,16 @@ export class QFlowChatStore {
   async refreshQuota(): Promise<void> {
     try {
       this.quota.set(await this.qflow.quota());
-    } catch {
-      // Unknown for now; the next answer brings it
+      this.unavailable.set(false);
+    } catch (error) {
+      // 404 = switched off on the server; anything else: unknown for now, the next answer brings it
+      if (httpStatus(error) === 404) this.unavailable.set(true);
     }
   }
 
   ask(text: string): void {
     const question = text.trim().slice(0, MAX_QUESTION);
-    if (!question || this.busy() || this.limitReached()) return;
+    if (!question || this.busy() || this.limitReached() || this.unavailable()) return;
     const exchange: QFlowExchange = { id: this.nextId++, question, lang: detectLang(question), status: 'loading' };
     const history = this.history();
     this.exchanges.update(list => [...list, exchange]);
@@ -104,12 +108,15 @@ export class QFlowChatStore {
       if (result.quota) this.quota.set(result.quota);
       this.update(exchange.id, { status: 'done', result });
     } catch (error) {
-      const limited = error instanceof HttpErrorResponse && error.status === 429;
-      if (limited && error.error?.quota) this.quota.set(error.error.quota);
-      const offline = !navigator.onLine || (error instanceof HttpErrorResponse && error.status === 0);
+      const status = httpStatus(error);
+      const body = (error as Partial<AppHttpError>).cause?.error;
+      const limited = status === 429;
+      if (status === 404) this.unavailable.set(true);
+      if (limited && body?.quota) this.quota.set(body.quota);
+      const offline = !navigator.onLine || status === 0;
       const message = offline
         ? "You're offline. QuranFlow AI needs a connection to search the Quran."
-        : (error instanceof HttpErrorResponse && error.error?.error) || 'QuranFlow AI could not answer right now.';
+        : body?.error || 'QuranFlow AI could not answer right now.';
       this.update(exchange.id, { status: 'error', error: message, limited });
     }
     this.lastSettled.set(this.exchanges().find(e => e.id === exchange.id) ?? null);
@@ -130,6 +137,12 @@ export class QFlowChatStore {
     this.exchanges.update(list => list.map(e => (e.id === id ? { ...e, ...changes } : e)));
     save(this.exchanges());
   }
+}
+
+/** The HTTP status of an error from HttpClient (via the app's error interceptor), if any */
+function httpStatus(error: unknown): number | undefined {
+  const status = (error as Partial<AppHttpError>)?.status;
+  return typeof status === 'number' ? status : undefined;
 }
 
 export function detectLang(text: string): QFlowLang {

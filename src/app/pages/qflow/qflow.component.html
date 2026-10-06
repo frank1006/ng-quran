@@ -23,7 +23,7 @@
           @if (w.event) {
             <p class="welcome-event">{{ w.event }}</p>
           }
-          @if (w.date === todayKey() && !limitReached()) {
+          @if (w.date === todayKey() && !limitReached() && !unavailable()) {
             <p class="welcome-help">
               Ask me about the Quran or Islamic dates, in English, Urdu or Arabic. I answer with the
               ayahs themselves and their references, and I don't give religious rulings.
@@ -109,7 +109,22 @@
 
   <!-- The bottom dock: the conversation fades out underneath it instead of being cut off -->
   <div class="dock">
-    @if (limitReached() && quota(); as q) {
+    @if (unavailable()) {
+      <!-- Switched off on the server (before release): say so instead of offering a box that can't work -->
+      <section class="limit-card ui-fade-in" aria-live="polite">
+        <span class="limit-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 6.5Q11.4 12.1 17 13.5Q11.4 14.9 10 20.5Q8.6 14.9 3 13.5Q8.6 12.1 10 6.5Z" />
+            <path d="M18 2.75Q18.6 5.4 21.25 6Q18.6 6.6 18 9.25Q17.4 6.6 14.75 6Q17.4 5.4 18 2.75Z" />
+          </svg>
+        </span>
+        <div class="limit-text">
+          <p class="limit-title">QuranFlow AI isn't available yet</p>
+          <p class="limit-detail">It's coming soon, in sha Allah. Meanwhile, the Quran is a tap away.</p>
+        </div>
+        <a class="ui-button ui-button--secondary limit-action" routerLink="/quran">Continue reading</a>
+      </section>
+    } @else if (limitReached() && quota(); as q) {
       <section class="limit-card ui-fade-in" aria-live="polite">
         <span class="limit-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

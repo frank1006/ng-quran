@@ -5,6 +5,8 @@
  * still goes to production. QFlow is off in production until release, so this is how to try it.
  *
  * Usage: node scripts/qflow-dev-server.mjs   (keys from .env.local; never printed)
+ * Optional: QFLOW_ENABLED=false to test it switched off, QFLOW_DAILY_LIMIT=3 for a smaller limit,
+ * QFLOW_PORT for another port.
  */
 import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';
@@ -17,7 +19,8 @@ process.removeAllListeners('warning'); // Node's notice about loading .ts files
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.QFLOW_PORT) || 3001;
 if (existsSync(join(ROOT, '.env.local'))) process.loadEnvFile(join(ROOT, '.env.local'));
-process.env.QFLOW_ENABLED = 'true';
+// On by default locally; set QFLOW_ENABLED=false (in .env.local or the shell) to test it switched off
+process.env.QFLOW_ENABLED ??= 'true';
 
 // Vercel resolves extensionless imports ("../_lib/qflow"); Node needs ".ts" spelled out
 register(

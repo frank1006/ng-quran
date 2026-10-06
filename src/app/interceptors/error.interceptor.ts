@@ -3,6 +3,12 @@ import { isDevMode } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 
 /**
+ * The error the interceptor throws: a friendly `message`, plus the HTTP `status` and the original
+ * response (`cause`) for code that needs to react to a specific status or the server's own message.
+ */
+export type AppHttpError = Error & { status: number; cause: HttpErrorResponse };
+
+/**
  * Global HTTP error interceptor
  * Handles HTTP errors consistently across the application
  * Note: Offline banner is only shown for verse audio playback errors, not for general HTTP errors
@@ -72,7 +78,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         });
       }
 
-      return throwError(() => new Error(errorMessage));
+      return throwError(() => Object.assign(new Error(errorMessage), { status: error.status, cause: error }) as AppHttpError);
     })
   );
 };
