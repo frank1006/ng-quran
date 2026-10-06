@@ -22,6 +22,7 @@ import { masjidRadiusOptionsKm, radiusLabel } from '../../services/units';
 import { DeviceDetectionService } from '../../services/device-detection.service';
 import { WeatherService, conditionLabel } from '../../services/weather.service';
 import { formatTemperature } from '../../services/units';
+import { SegmentedIndicatorDirective } from '../../shared/directives/segmented-indicator.directive';
 
 interface PrayerItem {
   name: string;
@@ -47,7 +48,8 @@ const LOCATION_MESSAGE_MS = 4000;
     DateHeaderComponent,
     PrayerListComponent,
     MasjidListComponent,
-    RadiusFilterComponent
+    RadiusFilterComponent,
+    SegmentedIndicatorDirective
   ],
   providers: [PrayerTrajectoryService],
   templateUrl: './prayer.component.html',

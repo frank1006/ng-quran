@@ -13,6 +13,7 @@ import { NotificationPermissionStatus } from '../../services/notification.types'
 import { UserStoreService, Bookmark } from '../../services/user-store.service';
 import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter } from '../../services/quran-api.types';
+import { SegmentedIndicatorDirective } from '../../shared/directives/segmented-indicator.directive';
 
 type ProfileTab = 'bookmarks' | 'preferences' | 'app';
 const TAB_STORAGE_KEY = 'profile-tab';
@@ -20,7 +21,7 @@ const TAB_STORAGE_KEY = 'profile-tab';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SegmentedIndicatorDirective],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css'
 })

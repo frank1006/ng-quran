@@ -18,6 +18,9 @@
   </div>
 
   <div class="tab-panel" role="tabpanel" [id]="'panel-' + activeTab()" [attr.aria-labelledby]="'tab-' + activeTab()">
+    <!-- Keyed on the tab, so the panel is rebuilt (and fades in) whenever the tab changes -->
+    @for (tab of [activeTab()]; track tab) {
+    <div class="ui-fade-in">
     @switch (activeTab()) {
       @case ('bookmarks') {
       <!-- Quran Bookmarks Card -->
@@ -461,6 +464,8 @@
         </div>
       </section>
       }
+    }
+    </div>
     }
   </div>
 </div>
