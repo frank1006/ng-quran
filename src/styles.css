@@ -383,6 +383,37 @@ button.ui-chip:focus-visible {
   transition: background-color var(--motion-base) var(--ease-standard), color var(--motion-base) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
 }
 
+/* One amber pill that slides between segments (SegmentedIndicatorDirective adds it).
+   Segments sit above it; the chosen one keeps its dark text but drops its own fill. */
+.ui-segmented.has-indicator {
+  position: relative;
+  isolation: isolate;
+}
+
+.ui-segmented-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: var(--color-primary);
+  box-shadow: var(--shadow-on-edge), 0 1px 4px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
+  pointer-events: none;
+}
+
+.ui-segmented.is-ready .ui-segmented-indicator {
+  transition: transform var(--motion-base) var(--ease-out), width var(--motion-base) var(--ease-out), opacity var(--motion-fast) var(--ease-standard);
+}
+
+.has-indicator > .ui-segment {
+  z-index: 1;
+}
+
+.has-indicator > .ui-segment.is-on {
+  background: transparent;
+  box-shadow: none;
+}
+
 .ui-segment:active:not(:disabled):not(.is-on),
 .ui-segment:not(.is-on):has(input:active) { transform: scale(0.95); }
 
@@ -540,6 +571,17 @@ button.ui-chip:focus-visible {
    iOS Safari otherwise draws its blue focus ring on them, even after a tap. */
 [tabindex="-1"]:focus {
   outline: none;
+}
+
+/* ── Content swapped inside a page (Prayers ↔ Masjids, Profile tabs) ──
+   The new content fades in quickly; the old one simply goes (exits are instant). */
+.ui-fade-in {
+  display: block;
+  animation: ui-fade-in var(--motion-base) var(--ease-out) both;
+}
+
+@keyframes ui-fade-in {
+  from { opacity: 0; transform: translateY(0.25rem); }
 }
 
 /* ── Page transitions (Angular view transitions) ────────────────

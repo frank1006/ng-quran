@@ -1,11 +1,12 @@
 import { Component, input, output } from '@angular/core';
 import { LocationChipComponent } from '../../../../shared/components/location-chip/location-chip.component';
 import { DistanceUnit, radiusLabel } from '../../../../services/units';
+import { SegmentedIndicatorDirective } from '../../../../shared/directives/segmented-indicator.directive';
 
 @Component({
   selector: 'app-radius-filter',
   standalone: true,
-  imports: [LocationChipComponent],
+  imports: [LocationChipComponent, SegmentedIndicatorDirective],
   templateUrl: './radius-filter.component.html',
   styleUrl: './radius-filter.component.css'
 })

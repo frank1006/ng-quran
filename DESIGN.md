@@ -53,6 +53,9 @@ Tokens in `src/styles.css`; no raw durations or `transition: all` in components.
 - **Pages:** Angular view transitions. Tabs crossfade; opening a surah slides forward, leaving it
   slides back. The bottom nav and floating player keep `view-transition-name` so they stay still.
   On iOS, browser back skips ours because the swipe already animates.
+- **Switches:** every `ui-segmented` gets one amber pill that slides to the chosen segment
+  (`SegmentedIndicatorDirective`; import it where a component uses `ui-segmented`).
+- **Content swapped inside a page** (Prayers ↔ Masjids, Profile tabs) fades in with `ui-fade-in`.
 - **Reduced motion:** one global rule in `styles.css` makes everything instant; no per-component
   media queries needed.
 

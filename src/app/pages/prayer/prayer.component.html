@@ -72,6 +72,7 @@
   <!-- Date Header (shown when viewing prayers) -->
   @if (!showMasjidList()) {
     <app-date-header
+      class="ui-fade-in"
       [formattedDate]="formattedDate()"
       [hijriDate]="hijriDate()"
       [canNavigatePrevious]="canNavigatePrevious()"
@@ -90,6 +91,7 @@
   <!-- Radius Filter Header (shown when viewing masjids) -->
   @if (showMasjidList()) {
     <app-radius-filter
+      class="ui-fade-in"
       [radius]="masjidSearchRadius()"
       [loading]="loading()"
       [options]="masjidRadiusOptions()"
@@ -105,6 +107,7 @@
   <!-- Masjid List View -->
   @if (showMasjidList() && currentLocation()) {
     <app-masjid-list
+      class="ui-fade-in"
       [latitude]="currentLocation()!.latitude"
       [longitude]="currentLocation()!.longitude"
       [radius]="masjidSearchRadius()"
@@ -119,6 +122,7 @@
   <!-- Prayer List View -->
   @if (!showMasjidList()) {
     <app-prayer-list
+      class="ui-fade-in"
       [prayers]="prayers()"
       [loading]="loading()"
       [error]="error()"
