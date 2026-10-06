@@ -47,7 +47,7 @@
   fill: var(--color-surface);
   stroke: var(--color-primary);
   stroke-width: 4;
-  transition: fill 0.3s ease;
+  transition: fill var(--motion-slow) var(--ease-standard);
 }
 
 .marker.passed {

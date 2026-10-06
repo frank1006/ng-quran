@@ -12,7 +12,7 @@
   border: 1.5px solid var(--color-primary);
   border-radius: var(--radius-lg);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
-  animation: rise 0.3s ease-out both;
+  animation: rise var(--motion-slow) var(--ease-out) both;
 }
 
 .update-text {
@@ -32,8 +32,4 @@
 @keyframes rise {
   from { opacity: 0; transform: translateY(0.75rem); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .update-prompt { animation: none; }
 }

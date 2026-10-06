@@ -58,7 +58,7 @@
   position: relative;
   padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-lg);
-  transition: background-color 0.2s ease;
+  transition: background-color var(--motion-fast) var(--ease-standard);
 }
 
 /* Rows sit on the page with thin inset separators instead of outlines */

@@ -69,6 +69,16 @@
   --space-lg: 1.5rem;    /* 24px */
   --space-xl: 2rem;      /* 32px */
   --space-2xl: 3rem;     /* 48px */
+
+  /* Motion: three durations and two curves for the whole app (see DESIGN.md).
+     Things arriving decelerate (--ease-out); things leaving accelerate (--ease-in) and go faster. */
+  --motion-fast: 120ms;   /* press feedback, colour changes */
+  --motion-base: 220ms;   /* cards opening, segments, page arriving */
+  --motion-slow: 320ms;   /* larger surfaces: sheets, accordions, the search field */
+  --motion-exit: 150ms;   /* page leaving, cards closing */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   
   /* Typography scale */
   --font-xs: 0.75rem;    /* 12px */
@@ -247,7 +257,7 @@ html, body, .main {
   font: inherit;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
 }
 
 .ui-icon-btn::after {
@@ -328,7 +338,9 @@ html, body, .main {
   box-shadow: var(--shadow-on-edge);
 }
 
-button.ui-chip { cursor: pointer; transition: background-color 0.2s ease; }
+button.ui-chip { cursor: pointer; transition: background-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard); }
+
+button.ui-chip:active:not(:disabled) { transform: scale(0.96); }
 
 button.ui-chip:focus-visible {
   outline: 2px solid var(--color-primary-edge);
@@ -367,8 +379,11 @@ button.ui-chip:focus-visible {
   text-align: center;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color var(--motion-base) var(--ease-standard), color var(--motion-base) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
 }
+
+.ui-segment:active:not(:disabled):not(.is-on),
+.ui-segment:not(.is-on):has(input:active) { transform: scale(0.95); }
 
 .ui-segment input {
   position: absolute;
@@ -419,7 +434,7 @@ button.ui-chip:focus-visible {
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
 }
 
 .ui-button--secondary {
@@ -474,8 +489,10 @@ button.ui-chip:focus-visible {
   -moz-appearance: none;
   appearance: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--motion-fast) var(--ease-standard);
 }
+
+.ui-select:active { background-color: var(--color-control-hover); }
 
 .ui-select:focus-visible {
   outline: none;
@@ -485,3 +502,52 @@ button.ui-chip:focus-visible {
 @media (hover: hover) {
   .ui-select:hover { background-color: var(--color-control-hover); }
 }
+
+/* ── Page transitions (Angular view transitions) ────────────────
+   Tabs crossfade; opening a surah moves forward (in from the right), going back reverses.
+   The bottom nav and the floating player stay put. Browsers without support simply switch pages. */
+::view-transition-old(root) {
+  animation: vt-fade-out var(--motion-exit) var(--ease-in) both;
+}
+
+::view-transition-new(root) {
+  animation: vt-fade-in var(--motion-base) var(--ease-out) both;
+}
+
+html.vt-forward::view-transition-old(root) { animation-name: vt-out-to-left; }
+html.vt-forward::view-transition-new(root) { animation-name: vt-in-from-right; }
+html.vt-back::view-transition-old(root) { animation-name: vt-out-to-right; }
+html.vt-back::view-transition-new(root) { animation-name: vt-in-from-left; }
+
+::view-transition-group(bottom-nav),
+::view-transition-group(player-fab) {
+  animation: none;
+}
+
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+@keyframes vt-out-to-left { to { opacity: 0; transform: translateX(-2rem); } }
+@keyframes vt-in-from-right { from { opacity: 0; transform: translateX(2rem); } }
+@keyframes vt-out-to-right { to { opacity: 0; transform: translateX(2rem); } }
+@keyframes vt-in-from-left { from { opacity: 0; transform: translateX(-2rem); } }
+
+/* ── Reduced motion ─────────────────────────────────────────────
+   One rule for the whole app: movement stops, state changes become instant.
+   Spinners keep their shape but stop turning. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+

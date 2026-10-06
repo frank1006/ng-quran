@@ -17,7 +17,13 @@
   color: var(--color-primary);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
   cursor: pointer;
-  animation: pop 0.25s ease-out both;
+  animation: pop var(--motion-base) var(--ease-out) backwards; /* backwards: lets :active scale it afterwards */
+  view-transition-name: player-fab; /* stays still while pages change */
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.player-fab:active {
+  transform: scale(0.92);
 }
 
 .player-fab.open {
@@ -64,7 +70,7 @@
   border-radius: var(--radius-lg);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
   transform-origin: bottom right;
-  animation: open 0.2s ease-out both;
+  animation: open var(--motion-base) var(--ease-out) both;
 }
 
 /* The whole top row opens the surah at the playing ayah */
@@ -87,7 +93,7 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-standard);
 }
 
 .card-info:active {
@@ -217,6 +223,4 @@
   to { opacity: 1; transform: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .player-fab, .player-card, .fab-bars.playing span { animation: none; }
-}
+

@@ -90,7 +90,7 @@
   padding: var(--space-md);
   background: var(--color-cream);
   border-radius: var(--border-radius-all);
-  transition: background-color 0.3s ease;
+  transition: background-color var(--motion-slow) var(--ease-standard);
   text-align: center;
 }
 

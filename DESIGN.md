@@ -34,6 +34,28 @@ Shadows only for things that float above the page: the bottom nav, the floating 
 card, the update and offline banners. Everything on the page is flat and separated by colour
 (white on cream, cream on white). Focus and selection use the amber edge, not a glow.
 
+## Motion
+
+Tokens in `src/styles.css`; no raw durations or `transition: all` in components.
+
+| Token | Value | Use |
+|---|---|---|
+| `--motion-fast` | 120ms | press feedback, colour changes |
+| `--motion-base` | 220ms | segments, cards opening, a page arriving |
+| `--motion-slow` | 320ms | larger surfaces: accordions, the search field, sheets |
+| `--motion-exit` | 150ms | anything leaving (exits are faster than entrances) |
+| `--ease-out` / `--ease-in` / `--ease-standard` | | arriving / leaving / state changes |
+
+- Animate only `transform`, `opacity`, `clip-path` (and colours). Not width, height or position.
+- **Every tappable thing reacts when pressed:** rows get a cream tint (strong cream if already cream),
+  buttons, chips, segments and cards shrink slightly (0.92–0.98). Put the `:active` rule in the
+  component's own stylesheet; global helpers lose to component styles.
+- **Pages:** Angular view transitions. Tabs crossfade; opening a surah slides forward, leaving it
+  slides back. The bottom nav and floating player keep `view-transition-name` so they stay still.
+  On iOS, browser back skips ours because the swipe already animates.
+- **Reduced motion:** one global rule in `styles.css` makes everything instant; no per-component
+  media queries needed.
+
 ## Lists
 
 Rows sit on the page with 1px `--color-border` separators (no cards). The current or selected

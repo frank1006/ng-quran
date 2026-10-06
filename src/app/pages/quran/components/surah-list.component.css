@@ -63,7 +63,7 @@
   min-height: 2.75rem;
   color: var(--color-accent-dark);
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--motion-base) var(--ease-standard);
 }
 
 .header-row.searching .reciter-selector {
@@ -99,21 +99,26 @@
   border-radius: var(--radius-sm);
 }
 
-/* One white pill: a 44px circle when closed, the full row when open */
+/* One white pill: a 44px circle when closed, the full row when open.
+   The pill is always full width and clipped down to the circle, so opening it only
+   animates clip-path and transforms (no layout work each frame). Clipped parts don't take taps. */
 .search-box {
   position: absolute;
   top: 0;
   right: 0;
-  width: 2.75rem;
+  width: 100%;
   height: 2.75rem;
   border-radius: 999px;
   background: var(--color-surface);
   overflow: hidden;
-  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  container-type: inline-size;
+  clip-path: inset(0 0 0 calc(100% - 2.75rem) round 999px);
+  transition: clip-path var(--motion-exit) var(--ease-in);
 }
 
 .search-box.open {
-  width: 100%;
+  clip-path: inset(0 0 0 0 round 999px);
+  transition: clip-path var(--motion-slow) var(--ease-out);
 }
 
 .search-box:focus-within {
@@ -136,10 +141,15 @@
   background: transparent;
   color: var(--color-control-ink);
   cursor: pointer;
+  /* Sits in the circle on the right, slides to the field's left edge as it opens */
+  transform: translateX(calc(100cqw - 2.75rem));
+  transition: transform var(--motion-exit) var(--ease-in);
 }
 
 .search-box.open .search-toggle {
   pointer-events: none;
+  transform: translateX(0);
+  transition: transform var(--motion-slow) var(--ease-out);
 }
 
 .search-toggle:focus-visible {
@@ -158,7 +168,7 @@
   font-size: 16px; /* iOS doesn't zoom into 16px+ fields */
   color: var(--color-text);
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--motion-fast) var(--ease-in);
   -webkit-appearance: none;
   appearance: none;
 }
@@ -181,28 +191,20 @@
   right: 0.25rem;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--motion-fast) var(--ease-in);
 }
 
 /* Field and close appear once the pill has mostly opened */
 .search-box.open .search-input,
 .search-box.open .search-close {
   opacity: 1;
-  transition-delay: 0.12s;
+  transition: opacity var(--motion-base) var(--ease-out) 0.12s;
 }
 
 .search-box.open .search-close {
   pointer-events: auto;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .search-box,
-  .search-input,
-  .search-close,
-  .reciter-selector {
-    transition: none;
-  }
-}
 
 .empty-state {
   text-align: center;
@@ -230,8 +232,17 @@
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--motion-fast) var(--ease-standard);
   text-align: left;
+}
+
+/* Pressed: a cream tint (stronger on the already-cream last-opened row) */
+.surah-card:active {
+  background: var(--color-cream);
+}
+
+.surah-card.last-opened:active {
+  background: var(--color-cream-strong);
 }
 
 /* Separator starts where the text starts, lined up under the names */
@@ -381,6 +392,7 @@
 
 /* Picks up where the reader stopped */
 .continue-card {
+  transition: transform var(--motion-fast) var(--ease-standard);
   display: flex;
   cursor: default;
   align-items: center;
@@ -517,6 +529,9 @@ button.continue-text {
   to { transform: rotate(360deg); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .listening-bars span { animation: none; }
+
+
+/* Pressing the card's text shrinks the card slightly (not when pressing its play button) */
+.continue-card:has(.continue-text:active) {
+  transform: scale(0.98);
 }

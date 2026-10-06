@@ -145,7 +145,6 @@
   position: relative;
   background: var(--color-surface);
   border-radius: var(--border-radius-tl);
-  box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
   padding: var(--space-lg) var(--space-lg);
   padding-bottom: calc(var(--space-xl) + var(--mini-player-space, 0px));
   overflow-y: auto;
@@ -174,6 +173,7 @@
   z-index: 1;
   margin-left: -2rem;
   margin-right: -2rem;
+  margin-bottom: -2rem; /* overlays the first ayah instead of pushing it down */
   display: block;
 }
 
@@ -182,7 +182,7 @@
   position: relative;
   padding: var(--space-lg) var(--space-md);
   border-radius: var(--radius-lg);
-  transition: background-color 0.3s ease;
+  transition: background-color var(--motion-base) var(--ease-standard);
 }
 
 .verse-item + .verse-item::before {

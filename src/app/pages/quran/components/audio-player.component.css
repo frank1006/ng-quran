@@ -5,7 +5,7 @@
   background: transparent;
   z-index: 100;
   min-width: 0;
-  transition: all 0.3s ease;
+  transition: opacity var(--motion-base) var(--ease-standard), transform var(--motion-base) var(--ease-standard);
   opacity: 1;
 }
 
@@ -70,7 +70,7 @@
   background: var(--color-primary);
   border-radius: 50%;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 .seek-bar::-webkit-slider-thumb:hover {
@@ -85,7 +85,7 @@
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 .seek-bar::-moz-range-thumb:hover {
