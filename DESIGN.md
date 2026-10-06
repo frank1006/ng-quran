@@ -28,6 +28,14 @@ Controls on a cream surface (hero headers, the cream part of a page) use the `--
 | `ui-page-subtitle` | the plain brown line under a page title (countdown, country, surah translation); sits `--title-subtitle-gap` below the title on every page | |
 | `ui-section-label` | small uppercase heading over a group of rows | |
 
+## Page search (Quran)
+
+- A 48px white circle centred beside the title and subtitle block; the text keeps its standard
+  positions and stays clear of the circle's column.
+- Tapping it widens the same element sideways into a 48px field over that block (clip-path, no
+  vertical movement); the title and subtitle fade out underneath, and the list doesn't move.
+- The amber edge appears only on the open field. Closing returns focus to the search button.
+
 ## Elevation
 
 Shadows only for things that float above the page: the bottom nav, the floating player and its

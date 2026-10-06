@@ -42,16 +42,31 @@
   letter-spacing: -0.03125rem; /* -0.5px */
 }
 
-/* Reciter on the left, search on the right; the search button widens into the field */
-.header-row {
+/* Title and reciter as on every page, with search centred beside the pair. The field opens
+   across the whole block (both lines fade out), so it has the same space above and below
+   and nothing moves vertically. The text stays clear of the search column. */
+.header-top {
   position: relative;
+  padding-inline-end: calc(var(--search-size) + var(--space-xs));
+}
+
+/* One size for the search circle and the open field (and everything placed inside them) */
+.header-section {
+  --search-size: 3rem; /* 48px: a comfortable thumb target */
+}
+
+.page-title {
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+.header-section.searching .page-title {
+  opacity: 0;
+}
+
+/* The reciter is the page subtitle: same gap under the title as on every other page */
+.header-row {
   display: flex;
-  align-items: center;
-  min-height: 2.75rem;
-  /* The row is 44px tall for tapping and centres its text, so pull it up to line the text up
-     with the other pages' subtitles */
-  margin-top: calc(var(--title-subtitle-gap) - 0.8125rem);
-  padding-right: 3.25rem; /* room for the collapsed search button */
+  margin-top: var(--title-subtitle-gap);
 }
 
 /* Looks like the page subtitle with a chevron right after the name;
@@ -62,13 +77,12 @@
   align-items: center;
   gap: 0.4rem;
   min-width: 0;
-  min-height: 2.75rem;
   color: var(--color-accent-dark);
   cursor: pointer;
   transition: opacity var(--motion-base) var(--ease-standard);
 }
 
-.header-row.searching .reciter-selector {
+.header-section.searching .reciter-selector {
   opacity: 0;
   pointer-events: none;
 }
@@ -88,7 +102,8 @@
 
 .reciter-select {
   position: absolute;
-  inset: 0;
+  /* The line is text height; the invisible select reaches past it to a 44px tap area */
+  inset: -0.875rem 0;
   width: 100%;
   opacity: 0;
   font-size: 16px; /* iOS doesn't zoom into 16px+ controls */
@@ -101,20 +116,20 @@
   border-radius: var(--radius-sm);
 }
 
-/* One white pill: a 44px circle when closed, the full row when open.
+/* One white pill: a circle when closed, the full row when open.
    The pill is always full width and clipped down to the circle, so opening it only
    animates clip-path and transforms (no layout work each frame). Clipped parts don't take taps. */
 .search-box {
   position: absolute;
-  top: 0;
+  top: calc(50% - var(--search-size) / 2); /* centred on the title + reciter block */
   right: 0;
   width: 100%;
-  height: 2.75rem;
+  height: var(--search-size);
   border-radius: 999px;
   background: var(--color-surface);
   overflow: hidden;
   container-type: inline-size;
-  clip-path: inset(0 0 0 calc(100% - 2.75rem) round 999px);
+  clip-path: inset(0 0 0 calc(100% - var(--search-size)) round 999px);
   transition: clip-path var(--motion-exit) var(--ease-in);
 }
 
@@ -123,7 +138,8 @@
   transition: clip-path var(--motion-slow) var(--ease-out);
 }
 
-.search-box:focus-within {
+/* The amber edge only on the open field: on the closed circle it would be clipped to a half ring */
+.search-box.open:focus-within {
   box-shadow: var(--shadow-on-edge);
 }
 
@@ -133,8 +149,8 @@
   top: 0;
   left: 0;
   z-index: 1;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: var(--search-size);
+  height: var(--search-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,7 +160,7 @@
   color: var(--color-control-ink);
   cursor: pointer;
   /* Sits in the circle on the right, slides to the field's left edge as it opens */
-  transform: translateX(calc(100cqw - 2.75rem));
+  transform: translateX(calc(100cqw - var(--search-size)));
   transition: transform var(--motion-exit) var(--ease-in);
 }
 
@@ -163,7 +179,8 @@
 .search-input {
   width: 100%;
   height: 100%;
-  padding: 0 3rem 0 2.75rem;
+  /* Room for the magnifier on the left and the close button on the right */
+  padding: 0 calc(var(--search-size) + var(--space-xxs)) 0 var(--search-size);
   border: none;
   background: transparent;
   font-family: var(--font-body);
@@ -189,8 +206,9 @@
 
 .search-close {
   position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
+  /* A 36px icon button centred in the field's height, the same distance from the end */
+  top: calc((var(--search-size) - 2.25rem) / 2);
+  right: calc((var(--search-size) - 2.25rem) / 2);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-fast) var(--ease-in);

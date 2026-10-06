@@ -59,6 +59,7 @@ export class SurahListComponent implements OnInit, OnDestroy {
   /** Search is a button until tapped; it stays open while a search is active */
   protected readonly searchOpen = signal(false);
   private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+  private readonly searchToggle = viewChild<ElementRef<HTMLButtonElement>>('searchToggle');
 
   /**
    * The reader's place (last ayah read or listened to) shown as the one card above the list.
@@ -179,9 +180,14 @@ export class SurahListComponent implements OnInit, OnDestroy {
   }
 
   protected closeSearch(): void {
+    // Hand focus back to the search button before the field and close button hide,
+    // so it never stays on a control that's no longer visible
+    const field = this.searchInput()?.nativeElement;
+    const hadFocus = !!field?.closest('.search-box')?.contains(document.activeElement);
     this.searchOpen.set(false);
     this.searchQuery.set('');
-    this.searchInput()?.nativeElement.blur();
+    field?.blur();
+    if (hadFocus) this.searchToggle()?.nativeElement.focus({ preventScroll: true });
   }
 
   onReciterChange(event: Event): void {

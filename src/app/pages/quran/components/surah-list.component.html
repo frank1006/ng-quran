@@ -1,45 +1,49 @@
 <div class="surah-list-container page-pattern">
-  <div class="header-section">
-    <h1 class="page-title">Quran</h1>
-    
-    <!-- One row: the reciter on the left, search on the right. The search button itself
-         widens into the field (one element, animated); the reciter fades out underneath. -->
-    <div class="header-row" [class.searching]="searchOpen()">
-      <label class="reciter-selector" [attr.inert]="searchOpen() ? '' : null">
-        <svg class="reciter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-          <line x1="12" y1="19" x2="12" y2="23"></line>
-          <line x1="8" y1="23" x2="16" y2="23"></line>
-        </svg>
-        <span class="ui-page-subtitle reciter-name">{{ selectedReciterName() }}</span>
-        <svg class="reciter-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="m6 9 6 6 6-6"></path>
-        </svg>
-        <!-- The real select sits invisibly on top, so the native picker opens -->
-        <select
-          id="reciter-select"
-          class="reciter-select"
-          aria-label="Reciter"
-          (change)="onReciterChange($event)"
-        >
-          @if (reciters().length === 0) {
-            <option value="">Loading reciters...</option>
-          } @else {
-            @for (reciter of reciters(); track reciter.id) {
-              <option
-                [value]="reciter.id.toString()"
-                [selected]="selectedReciterId() === reciter.id"
-              >
-                {{ reciter.name }}
-              </option>
+  <div class="header-section" [class.searching]="searchOpen()">
+    <!-- Title and reciter, with search centred beside them. The search button widens into the
+         field across this block (one element, animated sideways only); both lines fade out
+         underneath, so nothing moves up or down -->
+    <div class="header-top">
+      <h1 class="page-title">Quran</h1>
+
+      <div class="header-row">
+        <label class="reciter-selector" [attr.inert]="searchOpen() ? '' : null">
+          <svg class="reciter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+          <span class="ui-page-subtitle reciter-name">{{ selectedReciterName() }}</span>
+          <svg class="reciter-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m6 9 6 6 6-6"></path>
+          </svg>
+          <!-- The real select sits invisibly on top, so the native picker opens -->
+          <select
+            id="reciter-select"
+            class="reciter-select"
+            aria-label="Reciter"
+            (change)="onReciterChange($event)"
+          >
+            @if (reciters().length === 0) {
+              <option value="">Loading reciters...</option>
+            } @else {
+              @for (reciter of reciters(); track reciter.id) {
+                <option
+                  [value]="reciter.id.toString()"
+                  [selected]="selectedReciterId() === reciter.id"
+                >
+                  {{ reciter.name }}
+                </option>
+              }
             }
-          }
-        </select>
-      </label>
+          </select>
+        </label>
+      </div>
 
       <div class="search-box" [class.open]="searchOpen()">
         <button
+          #searchToggle
           type="button"
           class="search-toggle"
           (click)="openSearch()"
@@ -47,7 +51,7 @@
           [attr.aria-hidden]="searchOpen() ? 'true' : null"
           [attr.tabindex]="searchOpen() ? -1 : null"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
             <circle cx="11" cy="11" r="7"></circle>
             <path d="m20 20-3.5-3.5"></path>
           </svg>
