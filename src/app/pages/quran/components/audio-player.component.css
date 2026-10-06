@@ -44,7 +44,7 @@
 
 .time-display {
   font-family: var(--font-body);
-  font-size: 0.625rem; /* 10px */
+  font-size: var(--font-xs);
   font-weight: 500;
   color: var(--color-text-muted);
   min-width: var(--space-xl);

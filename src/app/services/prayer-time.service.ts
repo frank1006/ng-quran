@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, from, throwError } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
+import { locationDeniedMessage } from '../core/location-help';
 import {
   LocationCoordinates,
   PrayerTimings,
@@ -53,13 +54,13 @@ export class PrayerTimeService {
           
           switch (error.code) {
             case error.PERMISSION_DENIED:
-              errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
+              errorMessage = locationDeniedMessage();
               break;
             case error.POSITION_UNAVAILABLE:
-              errorMessage = 'Location information is unavailable.';
+              errorMessage = 'Your location isn\'t available right now. Check that location is turned on, then tap Try again.';
               break;
             case error.TIMEOUT:
-              errorMessage = 'Location request timed out. Please try again.';
+              errorMessage = 'Finding your location took too long. Move somewhere with a clearer signal, then tap Try again.';
               break;
           }
 

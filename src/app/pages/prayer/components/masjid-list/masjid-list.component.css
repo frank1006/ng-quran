@@ -190,3 +190,25 @@
   font-weight: 600;
   color: var(--color-accent-dark);
 }
+
+/* Loading placeholders, sized like a masjid row */
+.masjid-info .ui-skeleton {
+  display: block;
+}
+
+.skeleton-name {
+  height: 1.05rem;
+  margin: 0.2rem 0 0.55rem;
+}
+
+.skeleton-meta {
+  width: 40%;
+  height: 0.8rem;
+}
+
+.skeleton-button {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+}

@@ -68,3 +68,14 @@ row gets `--color-fill-current` with no separators touching it; buttons inside i
 - Contrast (WCAG 2.2 AA): text ≥ 4.5:1, icons and state edges ≥ 3:1. Brown on cream is 4.9:1,
   dark on amber 9:1. Check new colour pairs before adding them.
 - The app is portrait-only by choice (WCAG 1.3.4 is a known exception).
+- Minimum text size is 12px (`--font-xs`), on every screen width.
+
+## Screen readers and loading
+
+- Every page has exactly one `h1` and its own browser title (`title` on the route; a surah sets
+  its name once loaded). After navigating, focus moves to the new page's `h1` (`app.ts`).
+- Don't make text that updates on a timer a live region (the prayer countdown isn't one).
+- While data loads, show `ui-skeleton` blocks the size of the coming text, with a
+  `visually-hidden` line saying what is loading. Never show "Loading…" as a heading.
+- Location off is a calm state (`app-connection-error`, cream pin, "Location needed"), worded for
+  iPhone, the Android app or a browser (`core/location-help.ts`). Red is for real failures.

@@ -52,4 +52,18 @@
   flex-shrink: 0;
 }
 
+/* Location off isn't a failure: a calm cream state with a brown pin, normal text colours */
+.error-state.is-location .error-icon {
+  background: var(--color-cream);
+  color: var(--color-accent-text);
+}
 
+.error-state.is-location .error-title {
+  color: var(--color-text);
+}
+
+.error-state.is-location .error-message {
+  max-width: 22rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}

@@ -1,6 +1,36 @@
 <div class="surah-detail-container">
   @if (loading()) {
-    <app-loading-spinner [fullHeight]="true" />
+    <!-- Placeholder header and ayahs the size of the real ones, so nothing jumps when they load -->
+    <app-hero-header>
+      <div class="surah-title-wrapper" aria-hidden="true">
+        <div class="surah-title-left">
+          <span class="ui-skeleton skeleton-title"></span>
+          <span class="ui-skeleton skeleton-line skeleton-line--short"></span>
+          <span class="ui-skeleton skeleton-line skeleton-line--meta"></span>
+        </div>
+        <span class="ui-skeleton skeleton-arabic-name"></span>
+      </div>
+    </app-hero-header>
+    <div class="verses-container" role="status">
+      <span class="visually-hidden">Loading the surah</span>
+      @for (ayah of [1, 2, 3]; track ayah) {
+        <div class="verse-item" aria-hidden="true">
+          <div class="verse-header">
+            <span class="ui-skeleton skeleton-badge"></span>
+            <div class="verse-actions">
+              <span class="ui-skeleton skeleton-action"></span>
+              <span class="ui-skeleton skeleton-action"></span>
+            </div>
+          </div>
+          <div class="verse-content">
+            <span class="ui-skeleton skeleton-arabic"></span>
+            <span class="ui-skeleton skeleton-arabic skeleton-arabic--short"></span>
+            <span class="ui-skeleton skeleton-translation"></span>
+            <span class="ui-skeleton skeleton-translation skeleton-translation--short"></span>
+          </div>
+        </div>
+      }
+    </div>
   }
 
   @if (error()) {

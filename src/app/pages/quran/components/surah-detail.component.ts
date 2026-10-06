@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, effect, untracked, ViewChild, ElementRef, DestroyRef, inject, Injector, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QuranApiService } from '../../../services/quran-api.service';
@@ -9,7 +10,6 @@ import { ChapterWithVerses, Verse } from '../../../services/quran-api.types';
 import { AudioPlayerComponent } from './audio-player.component';
 import { HeroHeaderComponent } from '../../../shared/components/hero-header/hero-header.component';
 import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { QuranAudioService } from '../../../services/quran-audio.service';
 
 interface VerseWithTranslation extends Verse {
@@ -19,11 +19,12 @@ interface VerseWithTranslation extends Verse {
 @Component({
   selector: 'app-surah-detail',
   standalone: true,
-  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent, ConnectionErrorComponent, LoadingSpinnerComponent],
+  imports: [CommonModule, AudioPlayerComponent, HeroHeaderComponent, ConnectionErrorComponent],
   templateUrl: './surah-detail.component.html',
   styleUrl: './surah-detail.component.css'
 })
 export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
+  private readonly title = inject(Title);
   protected readonly chapter = signal<ChapterWithVerses | null>(null);
   protected readonly verses = signal<VerseWithTranslation[]>([]);
   protected readonly loading = signal<boolean>(true);
@@ -275,6 +276,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
       next: (chapterData) => {
         this.chapter.set(chapterData);
+        this.title.setTitle(`${chapterData.transliteration} · QuranFlow`);
         this.userStore.lastOpenedChapterId.set(chapterId);
         
         // Verify translations are attached (silently handle missing translations)

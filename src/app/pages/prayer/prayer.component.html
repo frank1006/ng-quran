@@ -1,10 +1,22 @@
 <app-hero-header>
   <div class="current-prayer">
-    <h2 class="prayer-name" aria-live="polite">
-      {{ currentPrayer()?.name || 'Loading...' }}
-    </h2>
-    <p class="time-remaining ui-page-subtitle" aria-live="polite">
-      {{ timeUntilNext() }}
+    <h1 class="prayer-name">
+      @if (currentPrayer(); as prayer) {
+        {{ prayer.name }}
+      } @else if (error()) {
+        Prayer times
+      } @else {
+        <span class="ui-skeleton prayer-name-skeleton" aria-hidden="true"></span>
+        <span class="visually-hidden">Loading prayer times</span>
+      }
+    </h1>
+    <!-- Not a live region: it changes every minute and would interrupt screen readers -->
+    <p class="time-remaining ui-page-subtitle">
+      @if (timeUntilNext(); as remaining) {
+        {{ remaining }}
+      } @else if (!error()) {
+        <span class="ui-skeleton time-remaining-skeleton" aria-hidden="true"></span>
+      }
     </p>
 
     <!-- Switch between the prayer times and nearby masjids -->
