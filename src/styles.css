@@ -11,6 +11,8 @@
   --color-primary-soft: #fff5e6;
   /* Edge of a selected amber pill: 3.1:1 against the grey track, so the choice is visible (WCAG 1.4.11) */
   --color-primary-edge: #c97d0a;
+  /* Warm track behind switches and pills; unselected labels on it use --color-accent-text (4.9:1) */
+  --color-track: var(--color-primary-soft);
   /* Readable text/icon versions of the brand colours (WCAG AA on white and cream) */
   --color-primary-text: #a85d00;
   --color-accent-text: #86663f; /* 5.3:1 on white, 5.0:1 on the cream background */

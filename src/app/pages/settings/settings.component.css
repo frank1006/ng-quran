@@ -29,7 +29,7 @@
   padding: 3px;
   margin-bottom: var(--space-lg);
   border-radius: var(--border-radius-all);
-  background: var(--color-surface-alt);
+  background: var(--color-track);
 }
 
 .tab {
@@ -37,7 +37,7 @@
   border: none;
   border-radius: var(--border-radius-all);
   background: transparent;
-  color: var(--color-text-muted);
+  color: var(--color-accent-text);
   font-family: var(--font-body);
   font-size: var(--font-sm);
   font-weight: 600;
@@ -127,7 +127,7 @@
   gap: 2px;
   padding: 3px;
   border-radius: var(--border-radius-all);
-  background: var(--color-surface-alt);
+  background: var(--color-track);
 }
 
 .segment {
@@ -140,7 +140,7 @@
   font-weight: 600;
   text-align: center;
   white-space: nowrap;
-  color: var(--color-text-muted);
+  color: var(--color-accent-text);
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -165,8 +165,9 @@
 }
 
 @media (hover: hover) {
-  .segment:not(.active):hover {
-    color: var(--color-text);
+  .segment:not(.active):hover,
+  .tab:not(.active):hover {
+    color: var(--color-accent-dark);
   }
 }
 
@@ -177,7 +178,7 @@
   font: inherit;
   font-size: var(--font-sm);
   color: var(--color-text);
-  background: var(--color-surface-alt);
+  background: var(--color-track);
   border: none;
   border-radius: var(--radius-md);
 }
@@ -389,7 +390,7 @@
   align-items: center;
   gap: var(--space-xxs);
   padding: 0.3rem 0.3rem 0.3rem var(--space-sm);
-  background: var(--color-surface-alt);
+  background: var(--color-track);
   border-radius: var(--border-radius-all);
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -398,7 +399,7 @@
 .bookmark-verse {
   font-size: var(--font-sm);
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--color-accent-dark);
   white-space: nowrap;
 }
 
@@ -412,7 +413,7 @@
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: var(--color-text-muted);
+  color: var(--color-accent-text);
   cursor: pointer;
 }
 
@@ -423,7 +424,7 @@
 
 @media (hover: hover) {
   .bookmark-item:hover {
-    background: var(--color-surface-muted);
+    background: var(--color-accent-soft);
   }
 
   .bookmark-remove-button:hover {

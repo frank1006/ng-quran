@@ -21,7 +21,7 @@
   align-items: center;
   gap: 2px;
   padding: 3px;
-  background: var(--color-surface-alt);
+  background: var(--color-track);
   border-radius: var(--border-radius-all);
 }
 
@@ -35,14 +35,14 @@
   font-family: var(--font-body);
   font-size: var(--font-xs);
   font-weight: 600;
-  color: var(--color-text-muted);
+  color: var(--color-accent-text);
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 @media (hover: hover) {
   .radius-filter-button:hover:not(:disabled):not(.active) {
-    color: var(--color-text);
+    color: var(--color-accent-dark);
   }
 }
 
