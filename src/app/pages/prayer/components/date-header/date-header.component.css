@@ -6,35 +6,37 @@
   padding: var(--space-lg) var(--space-lg) var(--space-xs);
 }
 
+/* Plain arrows: no fill until hovered with a mouse; the tap area stays large */
 .nav-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem; /* 40px */
-  height: 2.5rem; /* 40px */
+  width: 2.75rem;
+  height: 2.75rem;
   border: none;
-  background: var(--color-surface-alt);
+  background: transparent;
   border-radius: var(--border-radius-all);
-  color: var(--color-text);
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
   flex-shrink: 0;
 }
 
-.nav-button:hover:not(:disabled) {
-  background: var(--color-surface-muted);
+@media (hover: hover) {
+  .nav-button:hover:not(:disabled) {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+}
+
+.nav-button:active:not(:disabled) {
+  background: var(--color-surface-alt);
 }
 
 .nav-button.disabled,
 .nav-button:disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   cursor: not-allowed;
-  background: var(--color-surface-muted);
-}
-
-.nav-button.disabled:hover,
-.nav-button:disabled:hover {
-  background: var(--color-surface-muted);
 }
 
 .date-content {

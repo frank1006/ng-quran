@@ -443,6 +443,9 @@ export class PrayerComponent implements OnInit, OnDestroy {
     return this.isTodayDate(this.currentDate());
   });
 
+  /** Viewing a later day: today is behind (‹ Today); an earlier day: today is ahead (Today ›) */
+  protected readonly todayIsBehind = computed<boolean>(() => this.currentDate().getTime() > Date.now());
+
   protected readonly locationName = computed<string>(() => {
     const quadrant = this.quadrant();
     const city = this.cityName();
