@@ -48,7 +48,7 @@
 .tab.active {
   background: var(--color-primary);
   color: var(--color-on-primary);
-  box-shadow: 0 1px 4px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
+  box-shadow: inset 0 0 0 1px var(--color-primary-edge), 0 1px 4px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
 }
 
 .tab:focus-visible {
@@ -156,7 +156,7 @@
 .segment.active {
   background: var(--color-primary);
   color: var(--color-on-primary);
-  box-shadow: 0 1px 4px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
+  box-shadow: inset 0 0 0 1px var(--color-primary-edge), 0 1px 4px color-mix(in srgb, var(--color-primary-deep) 30%, transparent);
 }
 
 .segment:has(input:focus-visible) {

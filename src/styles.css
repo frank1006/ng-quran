@@ -9,9 +9,11 @@
   --color-primary: #ffb030;
   --color-primary-deep: #ff9900;
   --color-primary-soft: #fff5e6;
+  /* Edge of a selected amber pill: 3.1:1 against the grey track, so the choice is visible (WCAG 1.4.11) */
+  --color-primary-edge: #c97d0a;
   /* Readable text/icon versions of the brand colours (WCAG AA on white and cream) */
   --color-primary-text: #a85d00;
-  --color-accent-text: #9e7b4f;
+  --color-accent-text: #86663f; /* 5.3:1 on white, 5.0:1 on the cream background */
   --color-on-primary: #1f1f1f;
   --color-accent: #c9a880;
   --color-accent-dark: #874d14;
@@ -19,7 +21,7 @@
   --color-text: #1f1f1f;
   --color-text-secondary: #374151;
   --color-text-muted: #6b7280;
-  --color-text-subtle: #9ca3af;
+  --color-text-subtle: #6b7280; /* same as muted: 4.8:1 on white (WCAG AA for small text) */
   --color-danger: #dc2626;
   --color-danger-strong: #991b1b;
   --color-danger-soft: #fee2e2;
