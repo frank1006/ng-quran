@@ -246,7 +246,7 @@ html, body, .main {
 
 /* Round icon button. 36px to look at, 44px to tap.
    Variants: is-on (amber), ui-icon-btn--white (on cream surfaces), --ghost (no fill),
-   --square (player), --primary (always amber: the main action), --lg (48px). */
+   --primary (always amber: the main action), --lg (48px). Always round. */
 .ui-icon-btn {
   position: relative;
   display: inline-flex;
@@ -279,7 +279,6 @@ html, body, .main {
 
 .ui-icon-btn--white { background: var(--color-surface); }
 .ui-icon-btn--ghost { background: transparent; color: var(--color-text-secondary); }
-.ui-icon-btn--square { border-radius: 0.625rem; }
 .ui-icon-btn--lg { width: 3rem; height: 3rem; }
 .ui-icon-btn--lg svg { width: 1.375rem; height: 1.375rem; }
 

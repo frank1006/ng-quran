@@ -1,4 +1,4 @@
-/* Button in the bottom-right corner, above the nav; same shape as the player's play button */
+/* Round button in the bottom-right corner, above the nav; same shape as the player's play button */
 .player-fab {
   position: fixed;
   right: max(var(--space-md), calc((100vw - var(--app-max-width)) / 2 + var(--space-md)));
@@ -11,7 +11,7 @@
   justify-content: center;
   padding: 0;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 50%;
   /* Brown, not amber: it floats over amber bells and pills and must not blend into them */
   background: var(--color-accent-dark);
   color: var(--color-primary);

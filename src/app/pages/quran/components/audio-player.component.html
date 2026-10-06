@@ -3,7 +3,7 @@
     <div class="player-content">
       <div class="player-controls">
         <button 
-          class="ui-icon-btn ui-icon-btn--square ui-icon-btn--white"
+          class="ui-icon-btn ui-icon-btn--white"
           (click)="audio.previous()"
           [disabled]="!audio.hasPrevious()"
           aria-label="Previous verse"
@@ -15,7 +15,7 @@
         </button>
 
         <button 
-          class="ui-icon-btn ui-icon-btn--square ui-icon-btn--primary ui-icon-btn--lg play-pause-button"
+          class="ui-icon-btn ui-icon-btn--primary ui-icon-btn--lg play-pause-button"
           (click)="audio.toggle()"
           [attr.aria-label]="audio.isPlaying() ? 'Pause' : 'Play'"
         >
@@ -32,7 +32,7 @@
         </button>
 
         <button 
-          class="ui-icon-btn ui-icon-btn--square ui-icon-btn--white"
+          class="ui-icon-btn ui-icon-btn--white"
           (click)="audio.next()"
           [disabled]="!audio.hasNext()"
           aria-label="Next verse"
@@ -45,7 +45,7 @@
 
         <button
           type="button"
-          class="ui-icon-btn ui-icon-btn--square ui-icon-btn--white repeat-button"
+          class="ui-icon-btn ui-icon-btn--white repeat-button"
           [class.is-on]="audio.repeat() !== 'off'"
           (click)="audio.cycleRepeat()"
           [attr.aria-label]="audio.repeatLabel() + '. Tap to change'"

@@ -20,7 +20,7 @@ Controls on a cream surface (hero headers, the cream part of a page) use the `--
 
 | Class | Use | Variants |
 |---|---|---|
-| `ui-icon-btn` | round icon buttons (bell, directions, ayah actions, player) — 36px, 44px tap area | `is-on`, `--white`, `--ghost`, `--square`, `--primary`, `--lg` |
+| `ui-icon-btn` | round icon buttons (bell, directions, ayah actions, player) — 36px, 44px tap area; always round, including the players and the floating player button | `is-on`, `--white`, `--ghost`, `--primary`, `--lg` |
 | `ui-button` | text buttons (Enable…, Refresh, Reset) — 44px tall | `--secondary`, `--danger`, `--block` |
 | `ui-select` | dropdowns (calculation method): cream pill with a brown chevron | |
 | `ui-chip` | short info or action pills (location, Today, countdown, weather) | `--white`, `is-on` |
