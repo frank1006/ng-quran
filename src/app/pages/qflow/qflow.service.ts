@@ -20,6 +20,16 @@ export interface QFlowAnswer {
   mode: 'ai' | 'search-only';
   answer: string | null;
   ayahs: QFlowAyah[];
+  /** Questions left today (the server's count) */
+  quota?: QFlowQuota;
+}
+
+/** The daily question limit (api/_lib/qflow-limit.ts) */
+export interface QFlowQuota {
+  limit: number;
+  used: number;
+  remaining: number;
+  resetsAt: string;
 }
 
 export interface QFlowTurn {
@@ -43,8 +53,13 @@ export class QFlowService {
 
   ask(question: string, history: QFlowTurn[]): Promise<QFlowAnswer> {
     return firstValueFrom(
-      this.http.post<QFlowAnswer>('/api/qflow/ask', { question, history, calendar: this.calendar() }),
+      this.http.post<QFlowAnswer>('/api/qflow/ask', { question, history, calendar: this.calendar(), timeZone: timeZone() }),
     );
+  }
+
+  /** Questions left today, without using one */
+  quota(): Promise<QFlowQuota> {
+    return firstValueFrom(this.http.get<QFlowQuota>('/api/qflow/quota', { params: { tz: timeZone() } }));
   }
 
   private calendar() {
@@ -72,6 +87,11 @@ export class QFlowService {
       events,
     };
   }
+}
+
+/** The user's time zone: the daily limit resets at their own midnight */
+function timeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 }
 
 function isoDate(date: Date): string {

@@ -1,6 +1,7 @@
 /**
  * POST /api/qflow/ask
- * Body: { question, history?, calendar? }  (see AskInput in ../_lib/qflow)
+ * Body: { question, history?, calendar?, timeZone? }  (see AskInput in ../_lib/qflow)
+ * Each answer includes `quota` (questions left today). Over the daily limit: 429 with `quota`.
  *
  * QFlow, the QuranFlow assistant: a short answer grounded in Quran ayahs it retrieved, with
  * those ayahs returned as cards. Not released yet: it only answers when QFLOW_ENABLED is "true"
@@ -10,6 +11,7 @@
  * and AI providers to produce the answer.
  */
 import { ask, type AskInput, type CalendarContext, type ChatTurn } from '../_lib/qflow';
+import { clientId, refundQuestion, takeQuestion, validTimeZone } from '../_lib/qflow-limit';
 
 export const maxDuration = 30;
 
@@ -19,7 +21,7 @@ const MAX_TURN = 2000;
 const MAX_CALENDAR_JSON = 8000;
 
 export async function POST(request: Request): Promise<Response> {
-  if (process.env.QFLOW_ENABLED !== 'true') return json({ error: 'QFlow is not available yet' }, 404);
+  if (process.env.QFLOW_ENABLED !== 'true') return json({ error: 'QuranFlow AI is not available yet' }, 404);
 
   let body: any;
   try {
@@ -45,12 +47,36 @@ export async function POST(request: Request): Promise<Response> {
     calendar = body.calendar;
   }
 
+  // Daily limit per user (see ../_lib/qflow-limit); a question is only used when it's answered
+  const id = clientId(request);
+  const timeZone = validTimeZone(body.timeZone);
+  let taken;
+  try {
+    taken = await takeQuestion(id, timeZone);
+  } catch (error) {
+    console.error('qflow/ask limit check failed:', (error as Error).message);
+    return json({ error: 'QuranFlow AI is unavailable right now. Please try again later.' }, 503);
+  }
+  if (!taken.allowed) {
+    return json(
+      { error: `You've asked today's ${taken.quota.limit} questions. You can ask more tomorrow.`, quota: taken.quota },
+      429,
+    );
+  }
+
   const input: AskInput = { question, history, calendar };
   try {
-    return json(await ask(input));
+    const result = await ask(input);
+    // No AI answer (every model failed): the question doesn't count
+    if (result.mode === 'search-only') {
+      await refundQuestion(id, timeZone);
+      return json({ ...result, quota: { ...taken.quota, used: taken.quota.used - 1, remaining: taken.quota.remaining + 1 } });
+    }
+    return json({ ...result, quota: taken.quota });
   } catch (error) {
     console.error('qflow/ask failed:', (error as Error).message);
-    return json({ error: 'QFlow could not answer right now. Please try again.' }, 502);
+    await refundQuestion(id, timeZone).catch(() => {});
+    return json({ error: 'QuranFlow AI could not answer right now. Please try again.' }, 502);
   }
 }
 

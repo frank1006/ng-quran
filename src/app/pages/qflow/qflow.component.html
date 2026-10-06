@@ -1,8 +1,8 @@
 <div class="qflow page-pattern">
   <header class="qflow-header">
     <div class="title-row">
-      <h1 class="page-title">QFlow</h1>
-      @if (exchanges().length) {
+      <h1 class="page-title">QuranFlow AI</h1>
+      @if (hasQuestions()) {
         <button type="button" class="ui-icon-btn" (click)="newChat()" [disabled]="busy()" aria-label="New conversation">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14"></path>
@@ -14,24 +14,37 @@
   </header>
 
   <div class="qflow-scroll" #scroller>
-    @if (!exchanges().length) {
-      <section class="intro ui-fade-in" aria-labelledby="intro-label">
-        <p class="intro-text">
-          QFlow finds ayahs that answer your question and shows them with their references.
-          Ask in English, Urdu or Arabic.
-        </p>
-        <h2 class="ui-section-label" id="intro-label">Try asking</h2>
-        <ul class="suggestions">
-          @for (suggestion of suggestions; track suggestion) {
-            <li>
-              <button type="button" class="suggestion" dir="auto" (click)="send(suggestion)">{{ suggestion }}</button>
-            </li>
-          }
-        </ul>
-      </section>
-    }
-
     @for (exchange of exchanges(); track exchange.id) {
+      @if (exchange.kind === 'welcome' && exchange.welcome; as w) {
+        <!-- The day's greeting: built by the app from the calendar, not by the AI -->
+        <section class="welcome ui-fade-in" [attr.data-exchange]="exchange.id" [attr.aria-label]="w.greeting">
+          <p class="welcome-greeting">{{ w.greeting }}</p>
+          <p class="welcome-today">{{ w.today }}</p>
+          @if (w.event) {
+            <p class="welcome-event">{{ w.event }}</p>
+          }
+          @if (w.date === todayKey() && !limitReached()) {
+            <p class="welcome-help">
+              Ask me about the Quran or Islamic dates, in English, Urdu or Arabic. I answer with the
+              ayahs themselves and their references, and I don't give religious rulings.
+            </p>
+            <h2 class="ui-section-label welcome-label">Try asking</h2>
+            <ul class="suggestions">
+              @for (suggestion of w.suggestions; track suggestion) {
+                <li>
+                  <button type="button" class="suggestion" dir="auto" (click)="send(suggestion)" [disabled]="busy()">
+                    <svg class="suggestion-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M10 6.5Q11.4 12.1 17 13.5Q11.4 14.9 10 20.5Q8.6 14.9 3 13.5Q8.6 12.1 10 6.5Z" />
+                      <path d="M18 2.75Q18.6 5.4 21.25 6Q18.6 6.6 18 9.25Q17.4 6.6 14.75 6Q17.4 5.4 18 2.75Z" />
+                    </svg>
+                    <span>{{ suggestion }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      } @else {
       <article class="exchange" [attr.data-exchange]="exchange.id" [attr.aria-label]="'Question: ' + exchange.question">
         <p class="question ui-fade-in" dir="auto">{{ exchange.question }}</p>
 
@@ -45,8 +58,10 @@
           }
           @case ('error') {
             <div class="answer ui-fade-in">
-              <p class="error-text">{{ exchange.error }}</p>
-              <button type="button" class="ui-button ui-button--secondary" (click)="retry(exchange)" [disabled]="busy()">Try again</button>
+              <p class="error-text" [class.error-text--calm]="exchange.limited">{{ exchange.error }}</p>
+              @if (!exchange.limited) {
+                <button type="button" class="ui-button ui-button--secondary" (click)="retry(exchange.id)" [disabled]="busy()">Try again</button>
+              }
             </div>
           }
           @case ('done') {
@@ -55,9 +70,9 @@
                 <span class="answer-label">AI summary</span>
                 <p class="answer-text" dir="auto">@for (part of answerParts(exchange.result!.answer!); track $index) {@if (part.ref) {<bdi dir="ltr">{{ part.text }}</bdi>} @else {<span>{{ part.text }}</span>}}</p>
               } @else if (exchange.result!.ayahs.length) {
-                <p class="answer-text">QFlow can't write an answer right now. These ayahs match your words:</p>
+                <p class="answer-text">QuranFlow AI can't write an answer right now. These ayahs match your words:</p>
               } @else {
-                <p class="answer-text">QFlow can't answer right now and found no close match. Please try again later.</p>
+                <p class="answer-text">QuranFlow AI can't answer right now and found no close match. Please try again later.</p>
               }
 
               @if (exchange.result!.ayahs.length) {
@@ -87,32 +102,54 @@
           }
         }
       </article>
+      }
     }
 
-    <p class="disclaimer">QFlow quotes the Quran but can make mistakes. It doesn't give religious rulings.</p>
   </div>
 
-  <form class="composer" (submit)="$event.preventDefault(); send()">
-    <label class="visually-hidden" for="qflow-question">Ask QFlow</label>
-    <input
-      #field
-      id="qflow-question"
-      class="composer-input"
-      type="text"
-      dir="auto"
-      enterkeyhint="send"
-      autocomplete="off"
-      placeholder="Ask about the Quran…"
-      [maxLength]="maxQuestion"
-      [value]="draft()"
-      (input)="onInput($event)"
-    />
-    <button type="submit" class="ui-icon-btn ui-icon-btn--primary" [disabled]="!canSend()" aria-label="Send question">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 19V5M5 12l7-7 7 7"></path>
-      </svg>
-    </button>
-  </form>
+  <!-- The bottom dock: the conversation fades out underneath it instead of being cut off -->
+  <div class="dock">
+    @if (limitReached() && quota(); as q) {
+      <section class="limit-card ui-fade-in" aria-live="polite">
+        <span class="limit-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"></path>
+          </svg>
+        </span>
+        <div class="limit-text">
+          <p class="limit-title">That's today's {{ q.limit }} questions</p>
+          <p class="limit-detail">You can ask again after midnight{{ resetIn() ? ', in ' + resetIn() : '' }}.</p>
+        </div>
+        <a class="ui-button ui-button--secondary limit-action" routerLink="/quran">Continue reading</a>
+      </section>
+    } @else {
+      @if (quota(); as q) {
+        <p class="quota">{{ q.remaining }} of {{ q.limit }} questions left today</p>
+      }
+
+      <form class="composer" (submit)="$event.preventDefault(); send()">
+        <label class="visually-hidden" for="qflow-question">Ask QuranFlow AI</label>
+        <input
+          #field
+          id="qflow-question"
+          class="composer-input"
+          type="text"
+          dir="auto"
+          enterkeyhint="send"
+          autocomplete="off"
+          placeholder="Ask about the Quran…"
+          [maxLength]="maxQuestion"
+          [value]="draft()"
+          (input)="onInput($event)"
+        />
+        <button type="submit" class="ui-icon-btn ui-icon-btn--primary" [disabled]="!canSend()" aria-label="Send question">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 19V5M5 12l7-7 7 7"></path>
+          </svg>
+        </button>
+      </form>
+    }
+  </div>
 
   <p class="visually-hidden" aria-live="polite">{{ announcement() }}</p>
 </div>

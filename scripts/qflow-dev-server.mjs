@@ -35,6 +35,7 @@ register(
 
 const routes = {
   '/api/qflow/ask': await import(pathToFileURL(join(ROOT, 'api/qflow/ask.ts')).href),
+  '/api/qflow/quota': await import(pathToFileURL(join(ROOT, 'api/qflow/quota.ts')).href),
 };
 
 createServer(async (req, res) => {

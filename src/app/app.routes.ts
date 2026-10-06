@@ -38,7 +38,7 @@ export const routes: Routes = [
   {
     // QFlow: not in the nav until it's released (after Google login); the API is off in production
     path: 'qflow',
-    title: 'QFlow · QuranFlow',
+    title: 'QuranFlow AI',
     loadComponent: () => import('./pages/qflow/qflow.component').then(m => m.QFlowComponent)
   },
   {

@@ -137,15 +137,33 @@ row gets `--color-fill-current` with no separators touching it; buttons inside i
 - Location off is a calm state (`app-connection-error`, cream pin, "Location needed"), worded for
   iPhone, the Android app or a browser (`core/location-help.ts`). Red is for real failures.
 
-## QFlow (assistant)
+## QuranFlow AI (QFlow)
+
+**Name:** users see "QuranFlow AI" everywhere (title, copy, errors, the AI's own wording);
+"QFlow" is only the code name (files, `/qflow`, the API).
+
+**Nav entry (local development only until release):** a normal tab, "Ask AI" (aria-label
+"QuranFlow AI"), its icon kept brand brown so it stands out without a bubble of its own.
 
 `/qflow`, not in the nav until release. One column: title, the conversation (scrolls), and the
 question box pinned above the nav.
 
+- **Bottom dock:** the counter and the question box (or the limit card) sit in a dock that
+  overlaps the end of the conversation by 2rem with a transparent-to-white fade, so answers fade
+  out underneath instead of being cut; the scroll area has the same extra room at its end.
+- **Shares its row with the mini player:** the question box is the floating player button's
+  height (52px, `--dock-row`) with its bottom on the button's bottom (`--dock-bottom`), so top,
+  centre and bottom match; the 36px send button is centred inside. While audio plays the box
+  shortens on the right (`--player-room`) so the two sit side by side 8px apart, instead of the
+  page reserving an extra empty row.
 - **Question box:** a white pill with a 1px border and the amber send button (`ui-icon-btn--primary`);
   the border turns into the amber edge on focus. 16px text so iOS doesn't zoom.
-- **The reader's question:** white bubble with a 1px border, aligned to the end. Not cream:
-  it isn't tappable.
+- **The reader's question:** a soft brand bubble, `--color-cream-strong`, no border, rounded with
+  a small tail corner at bottom-right. Always on the right, using a physical `margin-left: auto`
+  (a logical "start/end" would flip Urdu and Arabic questions to the left).
+- **Example questions:** cream pills (cream = tappable) sized to their text, brown 600 text with a
+  small sparkle in front; Urdu/Arabic ones sit on the right. Dimmed while an answer is loading.
+- **Urdu and Arabic text** (questions, pills, answers) uses `--font-arabic`, one step larger.
 - **Answer:** plain text under an "AI summary" label (section-label style). Never a bubble or a
   card, and never markdown. Urdu/Arabic answers switch to `--font-arabic`. Citations like
   2:183-187 sit in a `<bdi dir="ltr">`, otherwise RTL text shows them as "187-2:183".
@@ -159,3 +177,22 @@ question box pinned above the nav.
   reads from its start (long ayahs would otherwise push it out of view).
 - Answers are announced once through a visually-hidden polite live region; the conversation
   itself isn't live.
+- **The conversation outlives the page** (`QFlowChatStore`): it survives page switches, an answer
+  still arrives if the page was left, and it's saved on this device only (localStorage, last 30
+  exchanges) so it survives reopening the app. "New conversation" (+) clears it. No footer
+  disclaimer; the intro says it doesn't give rulings, and every answer is labelled "AI summary".
+- **Daily greeting:** the first visit each day adds a greeting to the conversation, built by the
+  app from the calendar (no AI, uses no question): "Assalamu alaikum, {name}" (Ahmad until
+  Google login), today's weekday and Hijri date, the next event (or "Today is …", White Days),
+  a one-line explanation, and three day-aware example questions (Al-Kahf on Fridays, the coming
+  event's theme within 30 days, its date, one in Urdu). Earlier days' greetings stay as snapshots
+  without suggestions. A new chat starts with today's greeting; the + only shows once there's a
+  question to clear.
+- **Daily limit:** "N of 7 questions left today" in small muted text above the question box (the
+  server's count). At the limit the question box is **replaced** by a cream card: moon icon,
+  "That's today's 7 questions", "You can ask again after midnight, in 5 h 12 min" (live), and a
+  white "Continue reading" button to the Quran. The greeting's suggestions hide. A limit message
+  never offers "Try again", and it's brown, not red: it isn't an error. A new chat does not reset
+  the limit (it's per person per day).
+- **Context sent with each question:** the last 3 question/answer pairs as text (answers carry
+  their citations, so follow-ups can fetch those ayahs again).
