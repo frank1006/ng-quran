@@ -84,6 +84,7 @@
       [locationMessage]="locationMessage()"
       (dateNavigate)="navigateDate($event)"
       (goToToday)="goToToday()"
+      (openCalendar)="calendarSheet.open(currentDate())"
       (refreshLocation)="refreshLocation()"
     />
   }
@@ -131,3 +132,4 @@
   }
 </section>
 
+<app-calendar-sheet #calendarSheet (goToDate)="goToDate($event)" />

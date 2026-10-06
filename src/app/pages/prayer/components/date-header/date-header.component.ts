@@ -43,8 +43,22 @@ import { LocationChipComponent } from '../../../../shared/components/location-ch
         @if (locationMessage()) {
           <p class="location-message" role="status">{{ locationMessage() }}</p>
         }
-        <div class="date-text">{{ formattedDate() }}</div>
-        <div class="hijri-date">{{ hijriDate() }}</div>
+        <!-- Tap the date to open the calendar -->
+        <button
+          type="button"
+          class="date-button"
+          aria-haspopup="dialog"
+          [attr.aria-label]="'Open calendar. ' + formattedDate() + ', ' + hijriDate()"
+          (click)="openCalendar.emit()"
+        >
+          <span class="date-text">{{ formattedDate() }}</span>
+          <span class="hijri-date">
+            {{ hijriDate() }}
+            <svg class="calendar-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path>
+            </svg>
+          </span>
+        </button>
       </div>
 
       <button 
@@ -79,6 +93,7 @@ export class DateHeaderComponent {
   readonly dateNavigate = output<number>();
   readonly goToToday = output<void>();
   readonly refreshLocation = output<void>();
+  readonly openCalendar = output<void>();
 
   onPrevious(): void {
     if (this.canNavigatePrevious()) {

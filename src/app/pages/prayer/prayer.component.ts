@@ -24,6 +24,7 @@ import { WeatherService, conditionLabel } from '../../services/weather.service';
 import { formatTemperature } from '../../services/units';
 import { SegmentedIndicatorDirective } from '../../shared/directives/segmented-indicator.directive';
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
+import { CalendarSheetComponent } from '../../calendar/calendar-sheet.component';
 
 interface PrayerItem {
   name: string;
@@ -50,6 +51,7 @@ const LOCATION_MESSAGE_MS = 4000;
     PrayerListComponent,
     MasjidListComponent,
     RadiusFilterComponent,
+    CalendarSheetComponent,
     SegmentedIndicatorDirective
   ],
   providers: [PrayerTrajectoryService],
@@ -647,6 +649,14 @@ export class PrayerComponent implements OnInit, OnDestroy {
     } else {
       this.updatePrayerDataForDate(date);
     }
+  }
+
+  /** From the calendar: show prayer times for that day */
+  protected goToDate(date: Date): void {
+    const from = new Date(this.currentDate().getFullYear(), this.currentDate().getMonth(), this.currentDate().getDate());
+    const to = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const days = Math.round((to.getTime() - from.getTime()) / 86_400_000);
+    if (days !== 0) this.navigateDate(days);
   }
 
   protected goToToday(): void {

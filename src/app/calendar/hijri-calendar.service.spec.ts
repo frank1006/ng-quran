@@ -35,6 +35,7 @@ describe('HijriCalendarService', () => {
   /** Load October 2026 as Aladhan gives it: 1 Oct = 20 Rabi' al-Thani 1448 */
   async function loadOctober2026(method = 'HJCoSA') {
     const pending = service.ensureMonth(new Date(2026, 9, 1));
+    await new Promise(resolve => setTimeout(resolve)); // requests are queued, so it starts a tick later
     http.expectOne(r => r.url.includes('/gToHCalendar/10/2026') && r.url.includes(`calendarMethod=${method}`))
       .flush(monthResponse(2026, 10, 31, { day: 20, month: 4, year: 1448 }));
     await pending;

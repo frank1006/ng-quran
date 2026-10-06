@@ -48,3 +48,45 @@
   font-weight: 400;
   color: var(--color-accent-dark);
 }
+
+/* The date is a button that opens the calendar */
+.date-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  padding: var(--space-xxs) var(--space-md);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+.date-button:active {
+  background: var(--color-cream);
+}
+
+.date-button:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .date-button:hover {
+    background: var(--color-cream);
+  }
+}
+
+.hijri-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.calendar-hint {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
