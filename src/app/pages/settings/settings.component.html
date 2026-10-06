@@ -24,7 +24,7 @@
       <section class="settings-section">
         <h2 class="section-title">Quran Bookmarks</h2>
     
-        <div class="settings-card-section">
+        <div>
           @if (loadingChapters()) {
             <p class="bookmarks-loading">Loading bookmarks...</p>
           } @else if (groupedBookmarks().length === 0) {
@@ -52,7 +52,7 @@
                       <div class="bookmark-item" (click)="navigateToBookmark(bookmark)">
                         <div class="bookmark-content">
                           <div class="bookmark-header">
-                            <span class="bookmark-verse">Verse {{ bookmark.verseNumber }}</span>
+                            <span class="bookmark-verse">Ayah {{ bookmark.verseNumber }}</span>
                           </div>
                         </div>
                         <button
@@ -78,131 +78,105 @@
       }
       @case ('preferences') {
         <section class="settings-section">
-          <h2 class="section-title">Preferences</h2>
+          <h2 class="section-title">Display</h2>
 
-        <!-- Time Format Section -->
-        <div class="settings-card-section">
-          <h3 class="subsection-title">Time Format</h3>
-          <p class="subsection-description">Choose how prayer times are displayed</p>
-      
-          <div class="format-options" role="radiogroup" aria-label="Time format options">
-            <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWELVE_HOUR">
-              <input
-                type="radio"
-                name="timeFormat"
-                [value]="TimeFormat.TWELVE_HOUR"
-                [checked]="timeFormat() === TimeFormat.TWELVE_HOUR"
-                (change)="onTimeFormatChange(TimeFormat.TWELVE_HOUR)"
-                aria-label="12-hour time format"
-              />
-              <div class="format-content">
-                <span class="format-label">12-hour format</span>
-                <span class="format-example">12:00 AM / PM</span>
-              </div>
-            </label>
-
-            <label class="format-option" [class.active]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR">
-              <input
-                type="radio"
-                name="timeFormat"
-                [value]="TimeFormat.TWENTY_FOUR_HOUR"
-                [checked]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR"
-                (change)="onTimeFormatChange(TimeFormat.TWENTY_FOUR_HOUR)"
-                aria-label="24-hour time format"
-              />
-              <div class="format-content">
-                <span class="format-label">24-hour format</span>
-                <span class="format-example">24:00</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Units Section -->
-        <div class="settings-card-section">
-          <h3 class="subsection-title">Units</h3>
-          <p class="subsection-description">Used for masjid distances and the weather</p>
-
-          <div class="format-options format-options-row" role="radiogroup" aria-label="Distance unit">
-            <label class="format-option" [class.active]="distanceUnit() === 'km'">
-              <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'km'" (change)="setDistanceUnit('km')" />
-              <div class="format-content">
-                <span class="format-label">Kilometres</span>
-                <span class="format-example">1.5 km</span>
-              </div>
-            </label>
-            <label class="format-option" [class.active]="distanceUnit() === 'mi'">
-              <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'mi'" (change)="setDistanceUnit('mi')" />
-              <div class="format-content">
-                <span class="format-label">Miles</span>
-                <span class="format-example">0.9 mi</span>
-              </div>
-            </label>
+          <div class="setting-row">
+            <div class="setting-text">
+              <h3 class="setting-name">Time format</h3>
+              <p class="setting-hint">How prayer times are shown</p>
+            </div>
+            <div class="segmented" role="radiogroup" aria-label="Time format">
+              <label class="segment" [class.active]="timeFormat() === TimeFormat.TWELVE_HOUR">
+                <input type="radio" name="timeFormat" [checked]="timeFormat() === TimeFormat.TWELVE_HOUR" (change)="onTimeFormatChange(TimeFormat.TWELVE_HOUR)" aria-label="12-hour, like 1:07 PM" />
+                12-hour
+              </label>
+              <label class="segment" [class.active]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR">
+                <input type="radio" name="timeFormat" [checked]="timeFormat() === TimeFormat.TWENTY_FOUR_HOUR" (change)="onTimeFormatChange(TimeFormat.TWENTY_FOUR_HOUR)" aria-label="24-hour, like 13:07" />
+                24-hour
+              </label>
+            </div>
           </div>
 
-          <div class="format-options format-options-row" role="radiogroup" aria-label="Temperature unit">
-            <label class="format-option" [class.active]="temperatureUnit() === 'C'">
-              <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'C'" (change)="setTemperatureUnit('C')" />
-              <div class="format-content">
-                <span class="format-label">Celsius</span>
-                <span class="format-example">18°C</span>
-              </div>
-            </label>
-            <label class="format-option" [class.active]="temperatureUnit() === 'F'">
-              <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'F'" (change)="setTemperatureUnit('F')" />
-              <div class="format-content">
-                <span class="format-label">Fahrenheit</span>
-                <span class="format-example">65°F</span>
-              </div>
-            </label>
+          <div class="setting-row">
+            <div class="setting-text">
+              <h3 class="setting-name">Distance</h3>
+              <p class="setting-hint">For nearby masjids</p>
+            </div>
+            <div class="segmented" role="radiogroup" aria-label="Distance unit">
+              <label class="segment" [class.active]="distanceUnit() === 'km'">
+                <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'km'" (change)="setDistanceUnit('km')" aria-label="Kilometres" />
+                km
+              </label>
+              <label class="segment" [class.active]="distanceUnit() === 'mi'">
+                <input type="radio" name="distanceUnit" [checked]="distanceUnit() === 'mi'" (change)="setDistanceUnit('mi')" aria-label="Miles" />
+                mi
+              </label>
+            </div>
           </div>
-        </div>
 
-        <!-- Prayer Calculation Section -->
-        <div class="settings-card-section">
-          <h3 class="subsection-title">Prayer Calculation</h3>
-          <p class="subsection-description">Automatic uses the local authority for your location</p>
-
-          <label class="calc-select-label" for="calcMethod">Calculation method</label>
-          <select
-            id="calcMethod"
-            class="calc-select"
-            [value]="calcMethod() ?? 'auto'"
-            (change)="onCalcMethodChange($any($event.target).value)"
-          >
-            <option value="auto">Automatic (by location)</option>
-            @for (method of calculationMethods; track method.id) {
-              <option [value]="method.id">{{ method.name }}</option>
-            }
-          </select>
-
-          <div class="format-options" role="radiogroup" aria-label="Asr calculation">
-            <label class="format-option" [class.active]="asrSchool() === 0">
-              <input type="radio" name="asrSchool" [checked]="asrSchool() === 0" (change)="onAsrSchoolChange(0)" />
-              <div class="format-content">
-                <span class="format-label">Standard Asr</span>
-                <span class="format-example">Shafi'i, Maliki, Hanbali</span>
-              </div>
-            </label>
-            <label class="format-option" [class.active]="asrSchool() === 1">
-              <input type="radio" name="asrSchool" [checked]="asrSchool() === 1" (change)="onAsrSchoolChange(1)" />
-              <div class="format-content">
-                <span class="format-label">Hanafi Asr</span>
-                <span class="format-example">Later Asr time</span>
-              </div>
-            </label>
+          <div class="setting-row">
+            <div class="setting-text">
+              <h3 class="setting-name">Temperature</h3>
+              <p class="setting-hint">For the weather</p>
+            </div>
+            <div class="segmented" role="radiogroup" aria-label="Temperature unit">
+              <label class="segment" [class.active]="temperatureUnit() === 'C'">
+                <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'C'" (change)="setTemperatureUnit('C')" aria-label="Celsius" />
+                °C
+              </label>
+              <label class="segment" [class.active]="temperatureUnit() === 'F'">
+                <input type="radio" name="temperatureUnit" [checked]="temperatureUnit() === 'F'" (change)="setTemperatureUnit('F')" aria-label="Fahrenheit" />
+                °F
+              </label>
+            </div>
           </div>
-        </div>
+        </section>
 
+        <section class="settings-section">
+          <h2 class="section-title">Prayer Calculation</h2>
+
+          <div class="setting-row setting-row-stacked">
+            <div class="setting-text">
+              <label class="setting-name" for="calcMethod">Calculation method</label>
+              <p class="setting-hint">Automatic uses the local authority for your location</p>
+            </div>
+            <select
+              id="calcMethod"
+              class="calc-select"
+              [value]="calcMethod() ?? 'auto'"
+              (change)="onCalcMethodChange($any($event.target).value)"
+            >
+              <option value="auto">Automatic (by location)</option>
+              @for (method of calculationMethods; track method.id) {
+                <option [value]="method.id">{{ method.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-text">
+              <h3 class="setting-name">Asr time</h3>
+              <p class="setting-hint">Standard: Shafi'i, Maliki, Hanbali. Hanafi is later.</p>
+            </div>
+            <div class="segmented" role="radiogroup" aria-label="Asr calculation">
+              <label class="segment" [class.active]="asrSchool() === 0">
+                <input type="radio" name="asrSchool" [checked]="asrSchool() === 0" (change)="onAsrSchoolChange(0)" aria-label="Standard Asr (Shafi'i, Maliki, Hanbali)" />
+                Standard
+              </label>
+              <label class="segment" [class.active]="asrSchool() === 1">
+                <input type="radio" name="asrSchool" [checked]="asrSchool() === 1" (change)="onAsrSchoolChange(1)" aria-label="Hanafi Asr (later)" />
+                Hanafi
+              </label>
+            </div>
+          </div>
         </section>
       }
       @case ('app') {
         <section class="settings-section">
           <h2 class="section-title">App Permissions</h2>
 
-        <!-- App Permissions Section -->
-        <div class="settings-card-section">
-          <p class="subsection-description">Manage app access to device features</p>
+        <div>
+          <p class="section-hint">Manage app access to device features</p>
 
           <div class="permissions-list">
             <!-- Location Permission -->

@@ -109,9 +109,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       }
     });
     
-    // Sort verses within each group by timestamp (most recent first)
+    // Within a surah, ayahs in reading order
     grouped.forEach(group => {
-      group.verses.sort((a, b) => b.timestamp - a.timestamp);
+      group.verses.sort((a, b) => a.verseNumber - b.verseNumber);
     });
     
     // Convert to array and sort by most recent bookmark timestamp (most recent first)
