@@ -53,6 +53,7 @@
   /* Page titles (Prayer, Quran, Surah, Qibla, Profile) share one size and line height */
   --page-title-size: var(--font-2xl);
   --page-title-line-height: 1.2;
+  --title-subtitle-gap: 0.5rem; /* page title → the line under it, the same on every page */
 
   /* Elevation */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -218,7 +219,7 @@ html, body, .main {
 
 /* Plain brown line under a page title (country, reciter, countdown, translation) */
 .ui-page-subtitle {
-  margin: 0.125rem 0 0;
+  margin: var(--title-subtitle-gap) 0 0;
   font-family: var(--font-body);
   font-size: var(--font-sm);
   font-weight: 500;

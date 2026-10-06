@@ -25,7 +25,7 @@ Controls on a cream surface (hero headers, the cream part of a page) use the `--
 | `ui-select` | dropdowns (calculation method): cream pill with a brown chevron | |
 | `ui-chip` | short info or action pills (location, Today, countdown, weather) | `--white`, `is-on` |
 | `ui-segmented` + `ui-segment` | switching between options or views (tabs, distances, settings, Prayers/Masjids) | `ui-segmented--white`, `is-on` on the chosen segment |
-| `ui-page-subtitle` | the plain brown line under a page title (countdown, country, surah translation) | |
+| `ui-page-subtitle` | the plain brown line under a page title (countdown, country, surah translation); sits `--title-subtitle-gap` below the title on every page | |
 | `ui-section-label` | small uppercase heading over a group of rows | |
 
 ## Elevation

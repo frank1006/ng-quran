@@ -159,8 +159,10 @@
 
 
 
-/* Fade effect at the top */
+/* Fade at the top: hidden at rest so it never tints the first ayah; shows once ayahs scroll under it */
 .verses-container::before {
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
   content: "";
   position: sticky;
   top: -1.5rem;
@@ -176,6 +178,10 @@
   margin-right: -2rem;
   margin-bottom: -2rem; /* overlays the first ayah instead of pushing it down */
   display: block;
+}
+
+.verses-container.is-scrolled::before {
+  opacity: 1;
 }
 
 /* Ayahs flow down the page with thin separators, like the app's other lists */
@@ -243,10 +249,10 @@
 }
 
 /* Buttons on a filled ayah sit on white so they stay visible */
-.verse-item.playing .verse-action-button:not(.is-on) {
-  background: var(--color-surface);
-}
-
+/* On a tinted (tapped or playing) ayah, its controls switch to white so they stay visible */
+.verse-item.selected .verse-action-button:not(.is-on),
+.verse-item.playing .verse-action-button:not(.is-on),
+.verse-item.selected .verse-number-badge,
 .verse-item.playing .verse-number-badge {
   background: var(--color-surface);
 }
