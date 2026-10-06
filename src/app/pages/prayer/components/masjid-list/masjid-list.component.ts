@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { Masjid, MasjidService } from '../../../../services/masjid.service';
 import { SettingsService } from '../../../../services/settings.service';
+import { DeviceDetectionService } from '../../../../services/device-detection.service';
 import { formatDistance } from '../../../../services/units';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
@@ -31,6 +32,7 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
 
   private readonly masjidService = inject(MasjidService);
   private readonly settings = inject(SettingsService);
+  private readonly device = inject(DeviceDetectionService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal<boolean>(false);
@@ -230,9 +232,15 @@ export class MasjidListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   protected openDirections(masjid: Masjid): void {
-    // Open in Google Maps or Apple Maps
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${masjid.latitude},${masjid.longitude}`;
-    window.open(url, '_blank');
+    const destination = `${masjid.latitude},${masjid.longitude}`;
+    if (this.device.deviceInfo().isIOS) {
+      // Hand straight to Apple Maps. A web link in a new tab would open iOS's in-app browser
+      // sheet, which the Maps hand-off leaves blank when the user comes back to the app.
+      window.location.href = `maps://?daddr=${destination}&q=${encodeURIComponent(masjid.name)}`;
+      return;
+    }
+    // Android opens the Google Maps app from this link; desktop gets a new tab
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, '_blank', 'noopener');
   }
 
   ngOnDestroy(): void {
