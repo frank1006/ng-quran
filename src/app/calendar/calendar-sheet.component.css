@@ -88,6 +88,8 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* Only vertical scrolling: the grid's slide-in briefly reaches past the edge */
+  overflow-x: hidden;
   overscroll-behavior: contain;
   padding: var(--space-md) 0;
 }
