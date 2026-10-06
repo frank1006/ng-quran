@@ -167,8 +167,9 @@ export class CalendarSheetComponent {
         name: event.name,
         description: event.description,
         icon: event.icon,
-        when: `${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · ${hijri.day} ${hijri.monthName}`,
-        away: days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`
+        // The heading has the month and year, so the row only needs the day
+        when: `${date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} · ${hijri.day} ${hijri.monthName}`,
+        away: days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`
       });
     }
     return groups;

@@ -272,14 +272,14 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-sm) 0;
+  padding: var(--space-md) 0;
 }
 
 .event-card + .event-card::before {
   content: "";
   position: absolute;
   top: 0;
-  left: calc(2.5rem + var(--space-md)); /* starts under the text, past the icon */
+  left: calc(2.25rem + var(--space-md)); /* starts under the text, past the icon */
   right: 0;
   height: 1px;
   background: var(--color-border);
@@ -290,26 +290,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
   background: var(--color-cream);
   color: var(--color-accent-text);
 }
 
 .event-icon svg {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .event-text {
+  flex: 1;
   min-width: 0;
 }
 
 .event-name {
   margin: 0;
   font-size: var(--font-md);
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1.35;
   color: var(--color-text);
 }
 
@@ -322,12 +324,17 @@
 }
 
 .event-when {
-  margin: 0 0 var(--space-xxs);
+  margin: 0.125rem 0 0;
+  font-size: var(--font-xs);
 }
 
-.event-when strong {
+/* Countdown on the right, quiet */
+.event-away {
+  flex-shrink: 0;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--color-accent-text);
+  white-space: nowrap;
 }
 
 .empty-note {
@@ -342,27 +349,31 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-md);
-  margin: var(--space-lg) 0 var(--space-xxs);
-  font-size: var(--font-md);
-  font-weight: 700;
+  margin: var(--space-xl) 0 var(--space-xxs);
   white-space: nowrap; /* one line: the Hijri side shortens before it wraps */
 }
 
-.month-heading > span:first-child {
-  flex-shrink: 0;
+.month-heading:first-child {
+  margin-top: var(--space-xs);
 }
 
-.month-heading:first-child {
-  margin-top: 0;
+/* Like ui-section-label: small, uppercase, brown */
+.month-heading-gregorian {
+  flex-shrink: 0;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent-text);
 }
 
 .month-heading-hijri {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: var(--font-sm);
-  font-weight: 600;
-  color: var(--color-accent-text);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  color: var(--color-text-muted);
 }
 
 .day-summary-actions {

@@ -135,7 +135,7 @@
         <section class="upcoming ui-fade-in" aria-label="Upcoming events">
           @for (group of upcomingGroups(); track group.key) {
             <h3 class="month-heading">
-              <span>{{ group.gregorian }}</span>
+              <span class="month-heading-gregorian">{{ group.gregorian }}</span>
               <span class="month-heading-hijri">{{ group.hijri }}</span>
             </h3>
             @for (item of group.items; track item.when + item.name) {
@@ -144,9 +144,10 @@
                   <ng-container *ngTemplateOutlet="iconTpl; context: { $implicit: item.icon }" />
                 </span>
                 <div class="event-text">
-                  <p class="event-when">{{ item.when }} · <strong>{{ item.away }}</strong></p>
                   <h4 class="event-name">{{ item.name }}</h4>
+                  <p class="event-when">{{ item.when }}</p>
                 </div>
+                <span class="event-away">{{ item.away }}</span>
               </article>
             }
           }
