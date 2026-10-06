@@ -51,6 +51,14 @@ export class SurahListComponent implements OnInit, OnDestroy {
   protected readonly lastSurahId = signal<number | null>(null);
 
   protected readonly selectedReciterId = computed(() => this.userStore.selectedReciterId());
+  protected readonly selectedReciterName = computed(() => {
+    const id = this.selectedReciterId();
+    return this.reciters().find(r => r.id === id)?.name ?? 'Choose reciter';
+  });
+
+  /** Search is a button until tapped; it stays open while a search is active */
+  protected readonly searchOpen = signal(false);
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
 
   /**
    * The reader's place (last ayah read or listened to) shown as the one card above the list.
@@ -106,6 +114,7 @@ export class SurahListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     listPosition ??= readPosition();
     this.searchQuery.set(listPosition.query);
+    this.searchOpen.set(!!listPosition.query.trim());
     // Highlight the surah opened last, however it was reached (list, card, bookmark, player)
     this.lastSurahId.set(this.userStore.lastOpenedChapterId() ?? listPosition.lastSurahId);
     this.loadChapters();
@@ -159,6 +168,16 @@ export class SurahListComponent implements OnInit, OnDestroy {
   onSearchChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchQuery.set(input.value);
+  }
+
+  protected openSearch(): void {
+    this.searchOpen.set(true);
+    afterNextRender(() => this.searchInput()?.nativeElement.focus(), { injector: this.injector });
+  }
+
+  protected closeSearch(): void {
+    this.searchOpen.set(false);
+    this.searchQuery.set('');
   }
 
   onReciterChange(event: Event): void {

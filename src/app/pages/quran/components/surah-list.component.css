@@ -42,80 +42,89 @@
   letter-spacing: -0.03125rem; /* -0.5px */
 }
 
-.reciter-selector {
-  margin-bottom: 1rem;
-  position: relative;
+/* Reciter on the left, search on the right; the search expands to fill the row */
+.header-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 2.75rem;
+  margin-top: var(--space-xxs);
 }
 
-.reciter-icon {
+/* Looks like the page subtitle with a chevron right after the name;
+   the real select is stretched invisibly over it so the native picker opens */
+.reciter-selector {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  min-height: 2.75rem;
   color: var(--color-accent-dark);
+  cursor: pointer;
+}
+
+.reciter-icon,
+.reciter-chevron {
   flex-shrink: 0;
   display: block;
 }
 
+.reciter-name {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .reciter-select {
-  flex: 1;
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  font-weight: 500;
-  color: var(--color-accent-dark);
-  background: transparent;
-  border: none;
-  padding: 0;
-  padding-right: var(--space-sm);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  font-size: 16px; /* iOS doesn't zoom into 16px+ controls */
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23874d14' d='M5 7L1 3h8z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-size: 0.625rem; /* 10px */
-  min-width: 0;
 }
 
-.reciter-select:focus {
-  outline: none;
-}
-
-.reciter-select option {
-  text-transform: none;
-  color: var(--color-text);
-  background: var(--color-surface);
-  padding: 0.5rem;
-}
-
-.search-section {
-  margin-bottom: 0;
+.reciter-selector:has(.reciter-select:focus-visible) {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .search-input-wrapper {
   position: relative;
+  flex: 1;
   display: flex;
   align-items: center;
+  animation: search-open 0.2s ease-out both;
 }
 
 .search-icon {
   position: absolute;
   left: var(--space-md);
-  color: var(--color-text-subtle);
+  color: var(--color-control-ink);
   pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  padding: var(--space-sm) var(--space-md) var(--space-sm) var(--space-2xl);
   min-height: 2.75rem;
-  /* A field: flat white on the cream header, like the other white controls there */
+  padding: 0 3rem 0 2.75rem;
+  /* A field: flat white on the cream header */
   background: var(--color-surface);
   border: none;
   border-radius: 999px;
   font-family: var(--font-body);
-  font-size: var(--font-sm);
+  font-size: 16px; /* iOS doesn't zoom into 16px+ fields */
   color: var(--color-text);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-input::-webkit-search-cancel-button {
+  display: none;
 }
 
 .search-input::placeholder {
@@ -125,6 +134,20 @@
 .search-input:focus {
   outline: none;
   box-shadow: var(--shadow-on-edge);
+}
+
+.search-close {
+  position: absolute;
+  right: 0.25rem;
+}
+
+@keyframes search-open {
+  from { opacity: 0; transform: scaleX(0.6); transform-origin: right; }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-input-wrapper { animation: none; }
 }
 
 .empty-state {
