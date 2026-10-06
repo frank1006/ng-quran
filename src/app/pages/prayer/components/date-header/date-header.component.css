@@ -24,13 +24,13 @@
 
 @media (hover: hover) {
   .nav-button:hover:not(:disabled) {
-    background: var(--color-surface-alt);
-    color: var(--color-text);
+    background: var(--color-control);
+    color: var(--color-accent-dark);
   }
 }
 
 .nav-button:active:not(:disabled) {
-  background: var(--color-surface-alt);
+  background: var(--color-control);
 }
 
 .nav-button.disabled,

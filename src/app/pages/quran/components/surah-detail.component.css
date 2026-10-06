@@ -212,7 +212,7 @@
 
 /* Tapped ayah: a quiet grey fill */
 .verse-item.selected {
-  background: var(--color-surface-alt);
+  background: var(--color-selected-tint);
   cursor: pointer;
 }
 
@@ -262,18 +262,18 @@
   justify-content: center;
   width: var(--space-xl);
   height: var(--space-xl);
-  background: var(--color-surface-alt);
+  background: var(--color-control);
   border: none;
   border-radius: var(--border-radius-all);
-  color: var(--color-text-muted);
+  color: var(--color-control-ink);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 @media (hover: hover) {
-  .verse-action-button:hover {
-    background: var(--color-surface-muted);
-    color: var(--color-text);
+  .verse-action-button:not(.bookmarked):not(.playing):hover {
+    background: var(--color-control-hover);
+    color: var(--color-accent-dark);
     transform: scale(1.1);
   }
 }
@@ -288,14 +288,12 @@
   background: var(--color-surface);
 }
 
-.verse-action-button.bookmarked {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-text);
-}
-
+/* Bookmarked or playing: amber "on", same as the prayer reminder bells */
+.verse-action-button.bookmarked,
 .verse-action-button.playing {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-text);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge);
 }
 
 .verse-action-button.loading {

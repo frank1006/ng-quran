@@ -34,8 +34,8 @@ import { Component, input, output } from '@angular/core';
       padding: var(--space-xs) var(--space-sm);
       border: none;
       border-radius: var(--border-radius-all);
-      background: var(--color-surface-alt);
-      color: var(--color-text);
+      background: var(--color-control);
+      color: var(--color-accent-dark);
       font-family: var(--font-body);
       cursor: pointer;
       transition: background 0.2s ease;
@@ -44,7 +44,7 @@ import { Component, input, output } from '@angular/core';
     .location-chip:disabled { cursor: progress; }
 
     @media (hover: hover) {
-      .location-chip:hover:not(:disabled) { background: var(--color-surface-muted); }
+      .location-chip:hover:not(:disabled) { background: var(--color-control-hover); }
     }
 
     .pin { flex-shrink: 0; display: block; }
@@ -60,7 +60,7 @@ import { Component, input, output } from '@angular/core';
     .refresh {
       flex-shrink: 0;
       margin-left: var(--space-xxs);
-      color: var(--color-text-muted);
+      color: var(--color-control-ink);
     }
 
     .locating .refresh { animation: spin 0.9s linear infinite; }

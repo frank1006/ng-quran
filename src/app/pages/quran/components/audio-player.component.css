@@ -37,20 +37,23 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  background: color-mix(in srgb, var(--color-surface-alt) 80%, transparent);
+  /* On the cream header the controls are white (cream on cream would vanish) */
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
   backdrop-filter: blur(10px);
-  border: 1px solid color-mix(in srgb, var(--color-surface-muted) 50%, transparent);
+  border: none;
   border-radius: 0.5rem;
-  color: var(--color-text-muted);
+  color: var(--color-control-ink);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
-.control-button:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--color-surface-muted) 90%, transparent);
-  color: var(--color-text);
-  transform: scale(1.05);
+@media (hover: hover) {
+  .control-button:not(.active):hover:not(:disabled) {
+    background: var(--color-surface);
+    color: var(--color-accent-dark);
+    transform: scale(1.05);
+  }
 }
 
 .control-button:disabled {
@@ -59,9 +62,9 @@
 }
 
 .control-button.active {
-  background: color-mix(in srgb, var(--color-primary-soft) 90%, transparent);
-  color: var(--color-primary-text);
-  border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge);
 }
 
 .play-pause-button {
@@ -96,7 +99,7 @@
 .seek-bar {
   flex: 1;
   height: 0.1875rem; /* 3px */
-  background: color-mix(in srgb, var(--color-surface-muted) 60%, transparent);
+  background: color-mix(in srgb, var(--color-accent-soft) 90%, transparent);
   border-radius: 0.125rem; /* 2px */
   outline: none;
   -webkit-appearance: none;

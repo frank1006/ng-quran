@@ -13,6 +13,13 @@
   --color-primary-edge: #c97d0a;
   /* Warm track behind switches and pills; unselected labels on it use --color-accent-text (4.9:1) */
   --color-track: var(--color-primary-soft);
+  /* One rule for controls: cream = tappable, amber (+ edge) = on/selected, white = content and fields,
+     grey = unavailable. Brown icons on cream are 4.9:1, dark icons on amber 9:1. */
+  --color-control: var(--color-track);
+  --color-control-hover: var(--color-accent-soft);
+  --color-control-ink: var(--color-accent-text);
+  --shadow-on-edge: inset 0 0 0 1px var(--color-primary-edge);
+  --color-selected-tint: #fffaf2;
   /* Readable text/icon versions of the brand colours (WCAG AA on white and cream) */
   --color-primary-text: #a85d00;
   --color-accent-text: #86663f; /* 5.3:1 on white, 5.0:1 on the cream background */

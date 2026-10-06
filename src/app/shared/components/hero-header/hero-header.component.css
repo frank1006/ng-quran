@@ -35,36 +35,32 @@
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
+  /* Controls on the cream header are white */
   background: rgba(255, 255, 255, 0.9);
-  border: 2px solid color-mix(in srgb, var(--color-surface-muted) 80%, transparent);
+  border: none;
   border-radius: var(--border-radius-all);
-  color: var(--color-text);
+  color: var(--color-accent-dark);
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
   text-decoration: none;
 }
 
-.back-button:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: var(--color-primary);
-  transform: translateX(-2px);
+@media (hover: hover) {
+  .back-button:hover,
+  .action-button:not(.active):hover {
+    background: var(--color-surface);
+  }
 }
 
 .action-button {
-  background: color-mix(in srgb, var(--color-surface-alt) 90%, transparent);
-  border-color: transparent;
-  color: var(--color-text-muted);
-}
-
-.action-button:hover {
-  background: color-mix(in srgb, var(--color-surface-muted) 90%, transparent);
+  color: var(--color-control-ink);
 }
 
 .action-button.active {
-  background: color-mix(in srgb, var(--color-primary-soft) 90%, transparent);
-  border-color: var(--color-primary);
-  color: var(--color-primary-text);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge);
 }
 
 .hero-body {

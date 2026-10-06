@@ -74,7 +74,7 @@
 
 @media (hover: hover) {
   .prayer-card:hover {
-    background: var(--color-surface-alt);
+    background: var(--color-selected-tint);
   }
 
   .prayer-card:hover::before,
@@ -128,9 +128,9 @@
   width: var(--space-xl);
   height: var(--space-xl);
   border: none;
-  background: var(--color-surface-alt);
+  background: var(--color-control);
   border-radius: var(--border-radius-all);
-  color: var(--color-text-muted);
+  color: var(--color-control-ink);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -142,20 +142,19 @@
 
 @media (hover: hover) {
   .notification-button:hover {
-    background: var(--color-surface-muted);
+    background: var(--color-control-hover);
     transform: scale(1.1);
   }
 }
 
 .directions-button {
   /* Inherits notification-button styles */
-  color: var(--color-text-muted);
+  color: var(--color-control-ink);
 }
 
 @media (hover: hover) {
   .directions-button:hover {
-    background: var(--color-surface-muted);
-    color: var(--color-primary-text);
+    color: var(--color-accent-dark);
   }
 }
 
