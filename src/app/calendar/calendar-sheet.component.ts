@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, inject, output, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { HijriCalendarService } from './hijri-calendar.service';
 import { IslamicEvent } from './islamic-events';
@@ -35,8 +35,6 @@ export class CalendarSheetComponent {
   protected readonly hijri = inject(HijriCalendarService);
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('sheet');
 
-  /** Jump the Prayer page to a day (the sheet closes) */
-  readonly goToDate = output<Date>();
 
   protected readonly view = signal<CalendarView>('gregorian');
   protected readonly selected = signal(startOfDay(new Date()));
@@ -139,6 +137,10 @@ export class CalendarSheetComponent {
     `${this.selected().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} · ${this.hijri.toHijri(this.selected()).day} ${this.hijri.toHijri(this.selected()).monthName}`);
 
   protected readonly isTodaySelected = computed(() => sameDay(this.selected(), new Date()));
+
+  /** Another day is chosen, or the grid shows another month */
+  protected readonly awayFromToday = computed(() =>
+    !this.isTodaySelected() || !this.monthDays().some(d => sameDay(d, new Date())));
 
 
 
@@ -283,10 +285,6 @@ export class CalendarSheetComponent {
     return { start, end };
   }
 
-  protected viewPrayerTimes(): void {
-    this.goToDate.emit(this.selected());
-    this.close();
-  }
 
   /** Escape: animate out instead of the instant close */
   protected onCancel(event: Event): void {

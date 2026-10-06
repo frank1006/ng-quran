@@ -65,6 +65,12 @@
   margin-bottom: var(--space-md);
 }
 
+.sheet-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 .sheet-title {
   margin: 0;
   font-family: var(--font-body);
@@ -238,18 +244,12 @@
 
 /* The chosen day, above its events */
 .day-summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
   margin-top: var(--space-md);
   padding-top: var(--space-md);
   border-top: 1px solid var(--color-border);
 }
 
 .day-summary-text {
-  flex: 1 1 14rem; /* takes the line when it's long; the chips then go underneath */
   margin: 0;
   font-size: var(--font-md);
   font-weight: 700;
@@ -376,8 +376,3 @@
   color: var(--color-text-muted);
 }
 
-.day-summary-actions {
-  display: flex;
-  flex-shrink: 0;
-  gap: var(--space-xs);
-}

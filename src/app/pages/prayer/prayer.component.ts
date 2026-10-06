@@ -651,13 +651,6 @@ export class PrayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** From the calendar: show prayer times for that day */
-  protected goToDate(date: Date): void {
-    const from = new Date(this.currentDate().getFullYear(), this.currentDate().getMonth(), this.currentDate().getDate());
-    const to = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const days = Math.round((to.getTime() - from.getTime()) / 86_400_000);
-    if (days !== 0) this.navigateDate(days);
-  }
 
   protected goToToday(): void {
     const today = new Date();

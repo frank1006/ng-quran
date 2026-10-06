@@ -11,11 +11,17 @@
 
     <header class="sheet-header">
       <h2 id="calendar-sheet-title" class="sheet-title" tabindex="-1" autofocus>Calendar</h2>
-      <button type="button" class="ui-icon-btn" (click)="close()" aria-label="Close calendar">
+      <div class="sheet-header-actions">
+        <!-- Back to today, only once you've moved away from it -->
+        @if (view() !== 'events' && awayFromToday()) {
+          <button type="button" class="ui-chip" (click)="showToday()">Today</button>
+        }
+        <button type="button" class="ui-icon-btn" (click)="close()" aria-label="Close calendar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
           <path d="M18 6 6 18M6 6l12 12"></path>
         </svg>
-      </button>
+        </button>
+      </div>
     </header>
 
     <div class="ui-segmented view-switch" role="tablist" aria-label="Calendar view">
@@ -96,12 +102,6 @@
         <!-- The chosen day -->
         <div class="day-summary">
           <p class="day-summary-text">{{ selectedSummary() }}</p>
-          @if (!isTodaySelected()) {
-            <div class="day-summary-actions">
-              <button type="button" class="ui-chip" (click)="viewPrayerTimes()" aria-label="Show prayer times for this day">Prayer times</button>
-              <button type="button" class="ui-chip" (click)="showToday()">Today</button>
-            </div>
-          }
         </div>
 
         <section class="day-events" aria-label="On this day">
