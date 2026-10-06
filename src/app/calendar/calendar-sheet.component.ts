@@ -151,7 +151,7 @@ export class CalendarSheetComponent {
   protected readonly upcomingGroups = computed(() => {
     if (this.view() !== 'events') return [];
     const today = startOfDay(new Date());
-    const groups: { key: string; gregorian: string; hijri: string; items: { name: string; description: string; when: string; away: string; icon: IslamicEvent['icon'] }[] }[] = [];
+    const groups: { key: string; gregorian: string; hijri: string; items: { name: string; description: string; when: string; away: string; icon: IslamicEvent['icon']; date: Date; label: string }[] }[] = [];
     for (const { event, date, hijri } of this.hijri.upcoming(today, 400)) {
       const key = `${date.getFullYear()}-${date.getMonth()}`;
       let group = groups.find(g => g.key === key);
@@ -165,13 +165,17 @@ export class CalendarSheetComponent {
         groups.push(group);
       }
       const days = Math.round((date.getTime() - today.getTime()) / 86_400_000);
+      const away = days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`;
+      const longDate = date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
       group.items.push({
+        date,
+        label: `${event.name}, ${longDate}, ${hijri.day} ${hijri.monthName} ${hijri.year}, ${days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`}. Show in calendar`,
         name: event.name,
         description: event.description,
         icon: event.icon,
         // The heading has the month and year, so the row only needs the day
         when: `${date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} · ${hijri.day} ${hijri.monthName}`,
-        away: days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`
+        away
       });
     }
     return groups;
@@ -222,6 +226,18 @@ export class CalendarSheetComponent {
     this.slide.set(today < this.anchor() ? 'prev' : 'next');
     this.selected.set(today);
     this.anchor.set(today);
+  }
+
+  /** From the Events list: open that day in the month grid */
+  protected showInCalendar(date: Date): void {
+    this.slide.set(date < this.anchor() ? 'prev' : 'next');
+    this.selected.set(startOfDay(date));
+    this.anchor.set(startOfDay(date));
+    this.view.set('gregorian');
+    setTimeout(() => {
+      this.host.querySelector('.sheet-content')?.scrollTo({ top: 0 });
+      this.host.querySelector<HTMLElement>(`[data-day="${dayKey(date)}"]`)?.focus({ preventScroll: true });
+    });
   }
 
   protected previousMonth(): void {
