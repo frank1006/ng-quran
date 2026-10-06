@@ -453,3 +453,35 @@ button.ui-chip:focus-visible {
   .ui-button--secondary:hover:not(:disabled) { background: var(--color-control-hover); }
   .ui-button--danger:hover:not(:disabled) { background: var(--color-danger); color: var(--color-surface); }
 }
+
+/* Dropdown: a cream pill with our own brown chevron (the browser's arrow is hidden) */
+.ui-select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 2.75rem 0 1.1rem;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--color-control);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23874d14' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.1rem center;
+  background-size: 1rem;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  text-overflow: ellipsis;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.ui-select:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-on-edge);
+}
+
+@media (hover: hover) {
+  .ui-select:hover { background-color: var(--color-control-hover); }
+}

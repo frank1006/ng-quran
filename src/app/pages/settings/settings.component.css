@@ -94,23 +94,6 @@
   flex-shrink: 0;
 }
 
-.calc-select {
-  width: 100%;
-  min-height: 2.75rem;
-  padding: var(--space-sm) var(--space-md);
-  font: inherit;
-  font-size: var(--font-sm);
-  color: var(--color-text);
-  background: var(--color-track);
-  border: none;
-  border-radius: var(--radius-md);
-}
-
-.calc-select:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
 /* Permissions */
 .permissions-list {
   display: flex;

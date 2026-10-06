@@ -22,6 +22,7 @@ Controls on a cream surface (hero headers, the cream part of a page) use the `--
 |---|---|---|
 | `ui-icon-btn` | round icon buttons (bell, directions, ayah actions, player) — 36px, 44px tap area | `is-on`, `--white`, `--ghost`, `--square`, `--primary`, `--lg` |
 | `ui-button` | text buttons (Enable…, Refresh, Reset) — 44px tall | `--secondary`, `--danger`, `--block` |
+| `ui-select` | dropdowns (calculation method): cream pill with a brown chevron | |
 | `ui-chip` | short info or action pills (location, Today, countdown, weather) | `--white`, `is-on` |
 | `ui-segmented` + `ui-segment` | switching between options or views (tabs, distances, settings, Prayers/Masjids) | `ui-segmented--white`, `is-on` on the chosen segment |
 | `ui-page-subtitle` | the plain brown line under a page title (countdown, country, surah translation) | |
