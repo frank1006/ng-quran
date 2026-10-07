@@ -326,6 +326,31 @@
   line-height: 2;
 }
 
+/* Du'as: same rows as ayahs, plus how to say it and where it's from */
+.dua .ayah-head {
+  min-height: 2.75rem;
+}
+
+.dua-transliteration {
+  margin-bottom: var(--space-xs);
+  font-size: var(--font-sm);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.dua-source {
+  margin-top: var(--space-xs);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-accent-dark);
+}
+
+.dua-repeat {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
 
 /* ── The bottom dock: questions left, the question box (or the limit card) ──
    It overlaps the end of the conversation by --dock-fade with a fade from transparent to the

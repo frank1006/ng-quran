@@ -151,6 +151,12 @@ export class QFlowComponent implements AfterViewInit {
   }
 
   /** Urdu readers see the Urdu translation; everyone else the English one */
+  /** "Quran 21:83, At-Tirmidhi" → 21:83, to open a Quranic du'a in the reader */
+  protected quranRef(source: string): { surah: number; ayah: number } | null {
+    const match = source.match(/^Quran (\d{1,3}):(\d{1,3})/i);
+    return match ? { surah: Number(match[1]), ayah: Number(match[2]) } : null;
+  }
+
   protected translation(ayah: QFlowAyah, lang: QFlowLang): string {
     return lang === 'ur' && ayah.ur ? ayah.ur : ayah.en;
   }

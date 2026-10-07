@@ -113,6 +113,13 @@ const EVAL = [
   'When is Ishraq?',
   'Can I pray at sunrise?',
   'ishraq ka waqt kab hai',
+  // Du\'as (find_duas)
+  'Dua for health and cure from sickness',
+  'dua for rizq and wealth',
+  'dua for anxiety',
+  'What should I say before sleeping?',
+  'qarz utarne ki dua',
+  'بیماری سے شفا کی دعا',
   // Events (calendar tool)
   'When is Ramadan this year?',
   'What Islamic events are coming up?',
@@ -131,6 +138,7 @@ function show(question, result, ms) {
   if (result.mode === 'search-only') console.log('   [search-only: every model failed]');
   console.log(`   ${result.answer ?? '(no AI answer)'}`);
   if (result.actions?.length) console.log(`   buttons: ${result.actions.map((a) => a.label).join(' | ')}`);
+  if (result.duas?.length) console.log(`   du'as: ${result.duas.map((d) => `${d.id} ${d.title} (${d.source})`).join(' | ')}`);
   console.log(`   ayahs: ${result.ayahs.map((a) => a.ref).join(', ') || '—'} | model: ${result.model ?? '—'} | searches: ${JSON.stringify(result.searches)} | ${ms}ms`);
 }
 

@@ -25,11 +25,12 @@
           }
           @if (w.date === todayKey() && !limitReached()) {
             <p class="welcome-help">
-              I'm here to help you find what the Quran says, and with your day: prayer times, the
-              Qibla, nearby masjids, the weather and Islamic dates. Ask in English, Urdu or Arabic.
+              I'm here to help you find what the Quran says and du'as for any need, and with your
+              day: prayer times, the Qibla, nearby masjids, the weather and Islamic dates. Ask in
+              English, Urdu or Arabic.
             </p>
             <p class="welcome-help">
-              For the Quran, I'll share the ayahs themselves with their references. I don't give
+              I'll share the ayahs and du'as themselves with their sources. I don't give
               religious rulings, so for those please ask a scholar you trust.
             </p>
           }
@@ -113,6 +114,34 @@
                       </div>
                       <p class="ayah-arabic" lang="ar" dir="rtl">{{ ayah.ar }}</p>
                       <p class="ayah-translation" [attr.lang]="exchange.lang === 'ur' ? 'ur' : 'en'" dir="auto">{{ translation(ayah, exchange.lang) }}</p>
+                    </li>
+                  }
+                </ul>
+              }
+
+              @if (exchange.result!.duas?.length) {
+                <ul class="ayahs" aria-label="Du'as">
+                  @for (dua of exchange.result!.duas!; track dua.id) {
+                    <li class="ayah dua">
+                      <div class="ayah-head">
+                        <span class="ayah-ref">{{ dua.title }}</span>
+                        @if (quranRef(dua.source); as ref) {
+                          <a
+                            class="ui-icon-btn ui-icon-btn--ghost"
+                            [routerLink]="['/quran', ref.surah]"
+                            [fragment]="'verse-' + ref.ayah"
+                            [attr.aria-label]="'Open ' + ref.surah + ':' + ref.ayah + ' in the Quran'"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <path d="M7 17 17 7M8 7h9v9"></path>
+                            </svg>
+                          </a>
+                        }
+                      </div>
+                      <p class="ayah-arabic" lang="ar" dir="rtl">{{ dua.arabic }}</p>
+                      <p class="dua-transliteration" lang="en">{{ dua.transliteration }}</p>
+                      <p class="ayah-translation" lang="en">{{ dua.translation }}</p>
+                      <p class="dua-source">{{ dua.source }}@if (dua.repeat > 1) {<span class="dua-repeat"> · Say it {{ dua.repeat }} times</span>}</p>
                     </li>
                   }
                 </ul>

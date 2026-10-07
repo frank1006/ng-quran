@@ -213,6 +213,10 @@ question box pinned above the nav.
   the device. Profile, signed in: their name is the page title, the email the subtitle (envelope
   icon), a round white Sign out button on the right; guests see "Profile" and the same sign-in
   card. Delete Account sits with the other danger actions in Profile → App.
+- **Du'a cards:** a du'a answer shows each cited du'a as a row like an ayah row: title (accent,
+  bold, xs), Arabic, transliteration (italic, sm), meaning (secondary), then the source in accent
+  and "· Say it N times" in secondary. Quranic du'as get the same ↗ link into the reader.
+  Data: `api/_lib/duas-data.ts` (UmmahAPI snapshot, `node scripts/fetch-duas.mjs`).
 - **Account sync:** signed in, bookmarks, reading place and preferences follow the account
   (Supabase `public.user_data`, one RLS-protected row per user; `AccountSyncService`). Silent, no
   UI: the device stays the main copy, changes go up in one debounced upsert (2s, flushed when

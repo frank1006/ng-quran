@@ -36,8 +36,9 @@ import { RouterLink } from '@angular/router';
       <section>
         <h2 class="ui-section-label">QuranFlow AI</h2>
         <p>
-          QuranFlow AI helps you find what the Quran says. It answers only with ayahs it found, shows
-          them in full with their references, and doesn't interpret them or give religious rulings.
+          QuranFlow AI helps you find what the Quran says and du'as from the Quran and Sunnah. It
+          answers only with ayahs and du'as it found, shows them in full with their references, and
+          doesn't interpret them or give religious rulings.
           For rulings about your situation, please ask a qualified scholar.
         </p>
       </section>

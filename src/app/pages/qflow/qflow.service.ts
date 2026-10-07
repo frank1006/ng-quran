@@ -26,6 +26,19 @@ export interface QFlowAnswer {
   quota?: QFlowQuota;
   /** Buttons under the answer that open part of the app (e.g. the Qibla compass) */
   actions?: QFlowAction[];
+  /** Du'as the answer cites (Quran and Sunnah, with sources) */
+  duas?: QFlowDua[];
+}
+
+/** Mirrors Dua in api/_lib/duas.ts */
+export interface QFlowDua {
+  id: number;
+  title: string;
+  arabic: string;
+  transliteration: string;
+  translation: string;
+  source: string;
+  repeat: number;
 }
 
 export interface QFlowAction {

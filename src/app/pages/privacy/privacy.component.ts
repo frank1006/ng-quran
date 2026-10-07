@@ -119,6 +119,7 @@ import { RouterLink } from '@angular/router';
           <li>Quran text and audio via <a href="https://github.com/The-Quran-Project/Quran-API" target="_blank" rel="noopener">The Quran Project</a> (MIT)</li>
           <li>Masjid and map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL); fallback by <a href="https://www.geoapify.com" target="_blank" rel="noopener">Geoapify</a></li>
           <li>Weather data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)</li>
+          <li>Du'as from the Quran and Sunnah via <a href="https://ummahapi.com" target="_blank" rel="noopener">UmmahAPI</a></li>
         </ul>
       </section>
 
