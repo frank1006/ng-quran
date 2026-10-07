@@ -123,9 +123,12 @@
                 <ul class="ayahs" aria-label="Hadith">
                   @for (hadith of exchange.result!.hadiths!; track hadith.ref) {
                     @let key = exchange.id + '/' + hadith.ref;
-                    @let arabicFirst = exchange.lang === 'ar' && !!hadith.ar;
+                    @let text = hadithFull(hadith);
+                    @let translated = hadithText(text, exchange.lang);
+                    <!-- The Arabic leads for Arabic readers and when there's no translation to show -->
+                    @let arabicFirst = exchange.lang === 'ar' || !translated;
+                    @let other = arabicFirst ? (exchange.lang === 'ar' ? text.translation?.en?.text : '') : text.ar;
                     <li class="ayah hadith">
-                      @let text = hadithFull(hadith);
                       <div class="ayah-head">
                         <span class="ayah-ref">{{ hadith.bookName }} · {{ hadith.number }}</span>
                       </div>
@@ -134,11 +137,11 @@
                         [class.hadith-text--ar]="arabicFirst"
                         [class.ayah-translation]="!arabicFirst"
                         [class.hadith-text--open]="isExpanded(key)"
-                        [attr.lang]="arabicFirst ? 'ar' : hadithLang(hadith, exchange.lang)"
+                        [attr.lang]="arabicFirst ? 'ar' : hadithLang(text, exchange.lang)"
                         [attr.dir]="arabicFirst ? 'rtl' : 'auto'"
                         qflowClamped
                         #clamp="clamp"
-                      >{{ arabicFirst ? text.ar : hadithText(text, exchange.lang) }}</p>
+                      >{{ arabicFirst ? text.ar : translated }}</p>
                       @if (clamp.clamped() || isExpanded(key)) {
                         <button
                           type="button"
@@ -153,17 +156,23 @@
                       @if (hadithError() === hadith.ref) {
                         <p class="hadith-error" role="status">Couldn't load the rest of this hadith. Please try again.</p>
                       }
-                      @if (arabicFirst ? text.en : text.ar) {
+                      @if (!translated && exchange.lang !== 'ar') {
+                        <p class="hadith-note" [attr.lang]="exchange.lang" dir="auto">{{ noTranslationNote(exchange.lang) }}</p>
+                      }
+                      @if (other) {
                         <details class="hadith-other" (toggle)="onOtherToggle($event, hadith)">
                           <summary>{{ arabicFirst ? 'English' : 'Arabic' }}</summary>
                           @if (arabicFirst) {
-                            <p class="ayah-translation" lang="en">{{ text.en }}</p>
+                            <p class="ayah-translation" lang="en">{{ other }}</p>
                           } @else {
-                            <p class="hadith-text--ar" lang="ar" dir="rtl">{{ text.ar }}</p>
+                            <p class="hadith-text--ar" lang="ar" dir="rtl">{{ other }}</p>
                           }
                         </details>
                       }
                       <p class="dua-source">{{ hadithGrade(hadith) }}</p>
+                      @if (hadith.translation) {
+                        <p class="hadith-credit" [attr.lang]="hadithLang(hadith, exchange.lang)" dir="auto">{{ hadithCredit(hadith, exchange.lang) }}</p>
+                      }
                     </li>
                   }
                 </ul>

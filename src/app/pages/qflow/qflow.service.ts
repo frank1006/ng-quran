@@ -34,22 +34,38 @@ export interface QFlowAnswer {
   hadiths?: QFlowHadith[];
 }
 
+/** Mirrors HadithTranslationText in api/_lib/hadith.ts: one language of HadeethEnc.com's, verbatim */
+export interface QFlowHadithTranslationText {
+  text: string;
+  grade?: string;
+  attribution?: string;
+}
+
+/** Mirrors HadithTranslation in api/_lib/hadith.ts */
+export interface QFlowHadithTranslation {
+  source: 'HadeethEnc';
+  id: string;
+  en?: QFlowHadithTranslationText;
+  ur?: QFlowHadithTranslationText;
+}
+
 /** Mirrors Hadith in api/_lib/hadith.ts */
 export interface QFlowHadith {
   ref: string;
   book: string;
   bookName: string;
   number: string;
+  /** The Arabic (public domain) */
   ar: string;
-  en: string;
-  ur: string;
+  /** Only when HadeethEnc has this hadith; the collection's own translations aren't shown */
+  translation?: QFlowHadithTranslation;
   grades: { grader: string; grade: string }[];
   collectionGrade?: string;
   /** Only part of the text was sent; QFlowService.fullHadith has all of it */
   shortened?: boolean;
 }
 
-export type QFlowHadithText = Pick<QFlowHadith, 'ref' | 'ar' | 'en' | 'ur'>;
+export type QFlowHadithText = Pick<QFlowHadith, 'ref' | 'ar' | 'translation'>;
 
 /** Mirrors NameOfAllah in api/_lib/names.ts */
 export interface QFlowName {

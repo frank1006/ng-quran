@@ -424,6 +424,27 @@
   }
 }
 
+.hadith-note,
+.hadith-credit {
+  margin-top: var(--space-xs);
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
+.hadith-credit {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.hadith-note[lang='ur'] {
+  font-family: var(--font-arabic);
+  font-size: var(--font-sm);
+  line-height: 2;
+}
+
 .hadith-error {
   font-size: var(--font-sm);
   color: var(--color-danger-strong);

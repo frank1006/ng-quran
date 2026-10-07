@@ -21,7 +21,7 @@ import {
   type AnswerAction, type AppContext, nearbyMasjidsText, prayerTimesText, qiblaText, weatherText,
 } from './app-tools';
 import { type Dua, DUA_CATEGORY_GUIDE, DUA_CATEGORY_IDS, duaForModel, findDuas } from './duas';
-import { type Hadith, HADITH_BOOK_NAMES, asksForRuling, hadithForModel, searchHadith, takeHadithCitations } from './hadith';
+import { type Hadith, HADITH_BOOK_NAMES, asksForRuling, hadithForModel, quotableText, searchHadith, takeHadithCitations } from './hadith';
 import { type NameOfAllah, findNames } from './names';
 import { postAI } from './ai-gateway';
 import { embedQuery, vector } from './vector';
@@ -91,6 +91,12 @@ const SEARCH_TOP_K = 6;
  * events" 0.66, "Python code" 0.58). Used only when no model could answer.
  */
 const SEARCH_ONLY_MIN_SCORE = 0.68;
+/**
+ * The same for hadith, which score lower: most are embedded from their Arabic alone (no open
+ * translation). Measured on a sample, real matches ~0.3-0.6; provisional until re-measured on the
+ * full import.
+ */
+const HADITH_SEARCH_ONLY_MIN_SCORE = 0.45;
 const MAX_SEARCHES = 2;
 const MAX_HADITH_SEARCHES = 2;
 const MAX_AYAH_FETCH = 12;
@@ -641,9 +647,9 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
       }
       hadiths.forEach(h => knownHadiths.set(h.ref, h));
       // Short phrases from them may be quoted in the answer
-      appText += ` ${hadiths.map(h => `${h.en} ${h.ur} ${h.ar}`).join(' ')}`;
+      appText += ` ${hadiths.map(quotableText).join(' ')}`;
       if (!hadiths.length) return 'No hadith found.';
-      // The excerpts are English; without this the reply tends to follow them, not the question
+      // The excerpts are English or Arabic; without this the reply tends to follow them, not the question
       const reminder = lang === 'en' ? '' : `\nReply in ${REPLY_LANGUAGE[lang]}, not in the language of these excerpts.`;
       return `${hadiths.map(hadithForModel).join('\n')}\nName the collection in words for each hadith you use.${reminder}`;
     }
@@ -787,7 +793,7 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
     searchQuran(input.question).catch(() => [] as Ayah[]),
     searchHadith(input.question).catch(() => [] as Hadith[]),
   ]);
-  const close = <T extends { score?: number }>(hits: T[]) => hits.filter(h => (h.score ?? 0) >= SEARCH_ONLY_MIN_SCORE);
+  const close = <T extends { score?: number }>(hits: T[], min = SEARCH_ONLY_MIN_SCORE) => hits.filter(h => (h.score ?? 0) >= min);
   return {
     mode: 'search-only',
     answer: null,
@@ -798,7 +804,7 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
     actions: [],
     duas: [],
     names: [],
-    hadiths: close(hadiths).slice(0, 3),
+    hadiths: close(hadiths, HADITH_SEARCH_ONLY_MIN_SCORE).slice(0, 3),
   };
 }
 

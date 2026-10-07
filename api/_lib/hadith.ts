@@ -1,9 +1,15 @@
 /**
  * Hadith for QuranFlow AI: semantic search over the collections imported from the Hugging Face
  * dataset quranlab/hadith (scripts/import-hadith.mjs, namespace "hadith", ids like "bukhari:1").
- * The AI cites a hadith with a "[hadith bukhari:1]" marker; the app shows it in full (Arabic,
- * translation, grade), so nothing is quoted from the model's memory. Long hadith are sent
- * shortened; the app loads the rest with getHadith (GET /api/qflow/hadith) when it's opened.
+ * The AI cites a hadith with a "[hadith bukhari:1]" marker; the app shows it in full, so nothing
+ * is quoted from the model's memory. Long hadith are sent shortened; the app loads the rest with
+ * getHadith (GET /api/qflow/hadith) when it's opened.
+ *
+ * Text: the Arabic (public domain), and a translation only where HadeethEnc.com (open, with
+ * attribution) has the same hadith, matched by its Arabic at import. The collections' own
+ * translations (e.g. Muhsin Khan's English, the Urdu) are copyrighted: they are never stored,
+ * shown or sent to a model. Records imported before that still hold them in `en`/`ur`; toHadith
+ * and getHadith ignore those fields.
  *
  * Grades are only ever the dataset's: a named muhaddith's grade on the Sunan, or the
  * collection-level note for the two Sahihs. An empty grade means no grade is known, not weak.
@@ -15,14 +21,32 @@ export interface HadithGrade {
   grade: string;
 }
 
+/** One language of HadeethEnc's translation, verbatim */
+export interface HadithTranslationText {
+  text: string;
+  /** e.g. "Authentic" (Urdu: "صحيح"), by HadeethEnc's editorial board */
+  grade?: string;
+  /** e.g. "Narrated by Bukhari", "Agreed upon" */
+  attribution?: string;
+}
+
+/** HadeethEnc's translation of the same hadith, in English and/or Urdu */
+export interface HadithTranslation {
+  source: 'HadeethEnc';
+  /** HadeethEnc's own id */
+  id: string;
+  en?: HadithTranslationText;
+  ur?: HadithTranslationText;
+}
+
 export interface Hadith {
   ref: string; // "bukhari:1"
   book: string; // "bukhari"
   bookName: string; // "Sahih al-Bukhari"
   number: string; // "1", or "402.2" for a second chain
   ar: string;
-  en: string;
-  ur: string;
+  /** Only when HadeethEnc has this hadith */
+  translation?: HadithTranslation;
   /** Each grader's verdict, as the dataset gives it */
   grades: HadithGrade[];
   /** For the two Sahihs: their grade as a whole collection */
@@ -55,19 +79,36 @@ const MAX_MODEL_CHARS = 600;
 
 const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max).replace(/\s+\S*$/, '')}…` : text);
 
+/** The HadeethEnc translation stored with a record (`he`), if any; never the old `en`/`ur` fields */
+function translationOf(data: any, max = Infinity): HadithTranslation | undefined {
+  const he = data?.he;
+  const language = (l: any): HadithTranslationText | undefined =>
+    l?.text
+      ? {
+          text: clip(String(l.text), max),
+          ...(l.grade ? { grade: String(l.grade) } : {}),
+          ...(l.attribution ? { attribution: String(l.attribution) } : {}),
+        }
+      : undefined;
+  const en = language(he?.en);
+  const ur = language(he?.ur);
+  if (!he?.id || !(en || ur)) return undefined;
+  return { source: 'HadeethEnc', id: String(he.id), ...(en ? { en } : {}), ...(ur ? { ur } : {}) };
+}
+
 function toHadith(hit: any): Hadith {
   const data = JSON.parse(hit.data ?? '{}');
   const book = String(hit.metadata?.book ?? hit.id.split(':')[0]);
-  const texts = { ar: data.ar ?? '', en: data.en ?? '', ur: data.ur ?? '' };
-  const shortened = Object.values(texts).some(t => t.length > MAX_APP_CHARS);
+  const ar = String(data.ar ?? '');
+  const translation = translationOf(data, MAX_APP_CHARS);
+  const shortened = ar.length > MAX_APP_CHARS || [data.he?.en?.text, data.he?.ur?.text].some(t => String(t ?? '').length > MAX_APP_CHARS);
   return {
     ref: hit.id,
     book,
     bookName: COLLECTIONS[book]?.name ?? book,
     number: String(hit.metadata?.number ?? hit.id.split(':')[1]),
-    ar: clip(texts.ar, MAX_APP_CHARS),
-    en: clip(texts.en, MAX_APP_CHARS),
-    ur: clip(texts.ur, MAX_APP_CHARS),
+    ar: clip(ar, MAX_APP_CHARS),
+    ...(translation ? { translation } : {}),
     grades: Array.isArray(data.grades) ? data.grades : [],
     ...(COLLECTIONS[book]?.collectionGrade ? { collectionGrade: COLLECTIONS[book].collectionGrade } : {}),
     ...(shortened ? { shortened } : {}),
@@ -86,13 +127,14 @@ export async function searchHadith(query: string): Promise<Hadith[]> {
 }
 
 /** A hadith's full text in every language, for a card opened in the app; null if unknown */
-export async function getHadith(ref: string): Promise<Pick<Hadith, 'ref' | 'ar' | 'en' | 'ur'> | null> {
+export async function getHadith(ref: string): Promise<Pick<Hadith, 'ref' | 'ar' | 'translation'> | null> {
   const match = /^([a-z]+):(\d{1,5}(?:\.\d{1,2})?)$/.exec(ref);
   if (!match || !HADITH_BOOKS.includes(match[1])) return null;
   const [hit] = (await vector(`fetch/${NAMESPACE}`, { ids: [ref], includeData: true })) ?? [];
   if (!hit?.data) return null;
   const data = JSON.parse(hit.data);
-  return { ref, ar: data.ar ?? '', en: data.en ?? '', ur: data.ur ?? '' };
+  const translation = translationOf(data);
+  return { ref, ar: String(data.ar ?? ''), ...(translation ? { translation } : {}) };
 }
 
 /** "Sahih (al-Albani); Hasan (Zubair Ali Zai)", the collection's note, or that none is known */
@@ -101,13 +143,34 @@ export function gradeText(hadith: Hadith): string {
   return hadith.collectionGrade ?? 'no grade given';
 }
 
+/** Where the Prophet's ﷺ words or the event usually start, after the chain of narrators */
+const MATN_START = /(?:قال|أن|ان|عن|سمعت|رأيت)\s+(?:رسول\s+الله|النبي)/;
+
 /**
- * What the model sees: the English (narrator first, then what was said), whatever the reply
- * language. The Arabic and Urdu start with the long chain of narrators, which would use up the
- * excerpt; the model replies in the person's language and the card shows their translation.
+ * The Arabic for the model: without diacritics, starting near what was said or done (the chain of
+ * narrators before it would use up the excerpt).
+ */
+function arabicForModel(ar: string): string {
+  const plain = ar.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '');
+  const start = plain.search(MATN_START);
+  return clip(start > 0 ? plain.slice(start) : plain, MAX_MODEL_CHARS);
+}
+
+/**
+ * What the model sees: HadeethEnc's English when there is one, otherwise the Arabic, so it explains
+ * the gist in the reply language in its own words; never a copyrighted translation.
  */
 export function hadithForModel(hadith: Hadith): string {
-  return `[hadith ${hadith.ref}] ${hadith.bookName} ${hadith.number}, grade: ${gradeText(hadith)}: ${clip(hadith.en || hadith.ar, MAX_MODEL_CHARS)}`;
+  const head = `[hadith ${hadith.ref}] ${hadith.bookName} ${hadith.number}, grade: ${gradeText(hadith)}`;
+  const english = hadith.translation?.en?.text;
+  return english
+    ? `${head}; translation (HadeethEnc): ${clip(english, MAX_MODEL_CHARS)}`
+    : `${head}; Arabic only (no translation to show; explain it in your own words): ${arabicForModel(hadith.ar)}`;
+}
+
+/** Text an answer may quote from: the Arabic and HadeethEnc's translation only */
+export function quotableText(hadith: Hadith): string {
+  return [hadith.ar, hadith.translation?.en?.text, hadith.translation?.ur?.text].filter(Boolean).join(' ');
 }
 
 /** Questions asking whether something is allowed, in English, Roman Urdu, Urdu or Arabic */

@@ -5,7 +5,7 @@ import { GoogleSignInComponent } from '../../shared/components/google-sign-in/go
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 import { AuthService } from '../../core/auth.service';
 import { QFlowAppContextService } from './qflow-app-context';
-import { QFlowAction, QFlowAyah, QFlowHadith, QFlowHadithText, QFlowService } from './qflow.service';
+import { QFlowAction, QFlowAyah, QFlowHadith, QFlowHadithText, QFlowHadithTranslationText, QFlowService } from './qflow.service';
 import { QuranAudioService } from '../../services/quran-audio.service';
 import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter } from '../../services/quran-api.types';
@@ -163,13 +163,31 @@ export class QFlowComponent implements AfterViewInit {
     return lang === 'ur' && ayah.ur ? ayah.ur : ayah.en;
   }
 
-  /** Urdu readers see the Urdu translation when the hadith has one (564 in Bukhari don't) */
+  /** HadeethEnc's translation for the reader: Urdu for Urdu readers when it has one, else English */
+  protected hadithTranslation(hadith: QFlowHadithText, lang: QFlowLang): QFlowHadithTranslationText | undefined {
+    const t = hadith.translation;
+    return (lang === 'ur' && t?.ur) || t?.en || t?.ur;
+  }
+
   protected hadithText(hadith: QFlowHadithText, lang: QFlowLang): string {
-    return lang === 'ur' && hadith.ur ? hadith.ur : hadith.en;
+    return this.hadithTranslation(hadith, lang)?.text ?? '';
   }
 
   protected hadithLang(hadith: QFlowHadithText, lang: QFlowLang): 'ur' | 'en' {
-    return lang === 'ur' && hadith.ur ? 'ur' : 'en';
+    const t = hadith.translation;
+    return this.hadithTranslation(hadith, lang) === t?.ur && t?.ur ? 'ur' : 'en';
+  }
+
+  /** "Translation: HadeethEnc.com · Authentic · Agreed upon", in the language of the translation shown */
+  protected hadithCredit(hadith: QFlowHadith, lang: QFlowLang): string {
+    const t = this.hadithTranslation(hadith, lang);
+    const label = t && t === hadith.translation?.ur ? 'ترجمہ: HadeethEnc.com' : 'Translation: HadeethEnc.com';
+    return [label, t?.grade, t?.attribution].filter(Boolean).join(' · ');
+  }
+
+  /** Under an Arabic-only hadith: the answer above explains it */
+  protected noTranslationNote(lang: QFlowLang): string {
+    return lang === 'ur' ? 'ترجمہ دستیاب نہیں، اوپر کا خلاصہ دیکھیں' : 'Translation not available. See the summary above.';
   }
 
   /** Long hadith arrive shortened; their full text once it has been loaded, by ref */

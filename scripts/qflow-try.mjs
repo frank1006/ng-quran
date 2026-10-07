@@ -152,7 +152,7 @@ function show(question, result, ms) {
   if (result.actions?.length) console.log(`   buttons: ${result.actions.map((a) => a.label).join(' | ')}`);
   if (result.names?.length) console.log(`   names: ${result.names.map((n) => `${n.number} ${n.transliteration}`).join(' | ')}`);
   if (result.duas?.length) console.log(`   du'as: ${result.duas.map((d) => `${d.id} ${d.title} (${d.source})`).join(' | ')}`);
-  if (result.hadiths?.length) console.log(`   hadith: ${result.hadiths.map((h) => `${h.ref}${h.shortened ? ' (shortened)' : ''} ${h.en.slice(0, 60)}…`).join(' | ')}`);
+  if (result.hadiths?.length) console.log(`   hadith: ${result.hadiths.map((h) => `${h.ref}${h.shortened ? ' (shortened)' : ''} ${h.translation ? `HadeethEnc ${h.translation.id}: ${(h.translation.en ?? h.translation.ur).text.slice(0, 50)}…` : 'Arabic only'}`).join(' | ')}`);
   console.log(`   ayahs: ${result.ayahs.map((a) => a.ref).join(', ') || '—'} | model: ${result.model ?? '—'} | searches: ${JSON.stringify(result.searches)} | ${ms}ms`);
 }
 
