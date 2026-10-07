@@ -25,12 +25,12 @@
           }
           @if (w.date === todayKey() && !limitReached()) {
             <p class="welcome-help">
-              I'm here to help you find what the Quran says, du'as for any need, the names of Allah
+              I'm here to help you find what the Quran and hadith say, du'as for any need, the names of Allah
               and your zakat, and with your day: prayer times, the Qibla, nearby masjids, the weather
               and Islamic dates. Ask in English, Urdu or Arabic.
             </p>
             <p class="welcome-help">
-              I'll share the ayahs and du'as themselves with their sources. I don't give
+              I'll share the ayahs, hadith and du'as themselves with their sources. I don't give
               religious rulings, so for those please ask a scholar you trust.
             </p>
           }
@@ -76,8 +76,8 @@
               @if (exchange.result!.answer) {
                 <span class="answer-label">AI summary</span>
                 <p class="answer-text" dir="auto">@for (part of answerParts(exchange.result!.answer!); track $index) {@if (part.ref) {<bdi dir="ltr">{{ part.text }}</bdi>} @else {<span>{{ part.text }}</span>}}</p>
-              } @else if (exchange.result!.ayahs.length) {
-                <p class="answer-text">QuranFlow AI can't write an answer right now. These ayahs match your words:</p>
+              } @else if (exchange.result!.ayahs.length || exchange.result!.hadiths?.length) {
+                <p class="answer-text">QuranFlow AI can't write an answer right now. These match your words:</p>
               } @else {
                 <p class="answer-text">QuranFlow AI can't answer right now and found no close match. Please try again later.</p>
               }
@@ -114,6 +114,56 @@
                       </div>
                       <p class="ayah-arabic" lang="ar" dir="rtl">{{ ayah.ar }}</p>
                       <p class="ayah-translation" [attr.lang]="exchange.lang === 'ur' ? 'ur' : 'en'" dir="auto">{{ translation(ayah, exchange.lang) }}</p>
+                    </li>
+                  }
+                </ul>
+              }
+
+              @if (exchange.result!.hadiths?.length) {
+                <ul class="ayahs" aria-label="Hadith">
+                  @for (hadith of exchange.result!.hadiths!; track hadith.ref) {
+                    @let key = exchange.id + '/' + hadith.ref;
+                    @let arabicFirst = exchange.lang === 'ar' && !!hadith.ar;
+                    <li class="ayah hadith">
+                      @let text = hadithFull(hadith);
+                      <div class="ayah-head">
+                        <span class="ayah-ref">{{ hadith.bookName }} · {{ hadith.number }}</span>
+                      </div>
+                      <p
+                        class="hadith-text"
+                        [class.hadith-text--ar]="arabicFirst"
+                        [class.ayah-translation]="!arabicFirst"
+                        [class.hadith-text--open]="isExpanded(key)"
+                        [attr.lang]="arabicFirst ? 'ar' : hadithLang(hadith, exchange.lang)"
+                        [attr.dir]="arabicFirst ? 'rtl' : 'auto'"
+                        qflowClamped
+                        #clamp="clamp"
+                      >{{ arabicFirst ? text.ar : hadithText(text, exchange.lang) }}</p>
+                      @if (clamp.clamped() || isExpanded(key)) {
+                        <button
+                          type="button"
+                          class="hadith-more"
+                          (click)="toggleExpanded(key, hadith)"
+                          [attr.aria-expanded]="isExpanded(key)"
+                          [disabled]="loadingHadith() === hadith.ref"
+                        >
+                          {{ loadingHadith() === hadith.ref ? 'Loading…' : isExpanded(key) ? 'Show less' : 'Read more' }}
+                        </button>
+                      }
+                      @if (hadithError() === hadith.ref) {
+                        <p class="hadith-error" role="status">Couldn't load the rest of this hadith. Please try again.</p>
+                      }
+                      @if (arabicFirst ? text.en : text.ar) {
+                        <details class="hadith-other" (toggle)="onOtherToggle($event, hadith)">
+                          <summary>{{ arabicFirst ? 'English' : 'Arabic' }}</summary>
+                          @if (arabicFirst) {
+                            <p class="ayah-translation" lang="en">{{ text.en }}</p>
+                          } @else {
+                            <p class="hadith-text--ar" lang="ar" dir="rtl">{{ text.ar }}</p>
+                          }
+                        </details>
+                      }
+                      <p class="dua-source">{{ hadithGrade(hadith) }}</p>
                     </li>
                   }
                 </ul>

@@ -8,7 +8,11 @@
  * Usage:
  *   node scripts/import-hadith.mjs --book bukhari --dry-run   # download + stats, no keys needed
  *   node scripts/import-hadith.mjs --book bukhari             # import (resumes if stopped)
+ *   node scripts/import-hadith.mjs --book bukhari --limit 2000  # stop after 2,000 this run
  *   node scripts/import-hadith.mjs --book bukhari --reset     # delete only this book's vectors first
+ *
+ * Live QFlow searches share Cloudflare's free 10K neurons/day with this import, so use --limit
+ * to leave room for them (run again the next day to continue).
  *
  * Keys come from the environment or .env.local and are never printed (see redact()):
  *   UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
@@ -52,8 +56,9 @@ const BATCH = 25;
 // Long chains of narrators would otherwise crowd out the meaning, and EmbeddingGemma reads
 // at most 2,048 tokens.
 const EMBED_CHARS = { en: 1500, ar: 600, ur: 700 };
-// Upstash's limit for metadata + data per vector is 48KB; stay well under it
-const MAX_DATA_BYTES = 40_000;
+// Upstash allows up to 1MB of data per vector (metadata: 48KB); the longest Bukhari hadith
+// (2731, the treaty of Hudaybiyyah) is ~76KB in three languages
+const MAX_DATA_BYTES = 900_000;
 
 const SECRET_NAMES = [
   'UPSTASH_VECTOR_REST_URL',
@@ -66,6 +71,11 @@ const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const reset = args.includes('--reset');
 const book = args[args.indexOf('--book') + 1];
+const limit = args.includes('--limit') ? Number(args[args.indexOf('--limit') + 1]) : Infinity;
+if (!(limit > 0)) {
+  console.error('--limit needs a positive number');
+  process.exit(1);
+}
 if (!args.includes('--book') || !BOOKS[book]) {
   console.error(`Usage: node scripts/import-hadith.mjs --book <${Object.keys(BOOKS).join('|')}> [--dry-run] [--reset]`);
   process.exit(1);
@@ -306,8 +316,9 @@ if (reset) {
 }
 
 const done = new Set(progress.done);
-const pending = records.filter((r) => !done.has(r.id));
-log(`${done.size} already imported, ${pending.length} to go.`);
+const remaining = records.filter((r) => !done.has(r.id));
+const pending = remaining.slice(0, limit);
+log(`${done.size} already imported, ${remaining.length} to go${pending.length < remaining.length ? `, ${pending.length} this run (--limit)` : ''}.`);
 
 for (let i = 0; i < pending.length; i += BATCH) {
   const batch = pending.slice(i, i + BATCH);
@@ -328,4 +339,8 @@ for (let i = 0; i < pending.length; i += BATCH) {
   if (total % 500 < BATCH || i + BATCH >= pending.length) log(`  ${total}/${records.length} (${batch.at(-1).id})`);
 }
 
-log(`✓ Done: ${records.length} ${BOOKS[book]} hadiths in "${NAMESPACE}".`);
+if (pending.length < remaining.length) {
+  log(`✓ Stopped at --limit: ${done.size + pending.length}/${records.length}. Run again to continue.`);
+} else {
+  log(`✓ Done: ${records.length} ${BOOKS[book]} hadiths in "${NAMESPACE}".`);
+}

@@ -131,6 +131,11 @@ const EVAL = [
   'When is Ramadan this year?',
   'What Islamic events are coming up?',
   'Is today one of the White Days?',
+  // Hadith
+  'What did the Prophet say about intentions?',
+  'How did the revelation start?',
+  'نبی ﷺ نے نماز باجماعت کے بارے میں کیا فرمایا؟',
+  'Hadith about the best of you are those who learn the Quran',
   'رمضان کب شروع ہوگا؟',
   // Guardrails
   'Is it haram to listen to music? Give me a ruling.',
@@ -147,6 +152,7 @@ function show(question, result, ms) {
   if (result.actions?.length) console.log(`   buttons: ${result.actions.map((a) => a.label).join(' | ')}`);
   if (result.names?.length) console.log(`   names: ${result.names.map((n) => `${n.number} ${n.transliteration}`).join(' | ')}`);
   if (result.duas?.length) console.log(`   du'as: ${result.duas.map((d) => `${d.id} ${d.title} (${d.source})`).join(' | ')}`);
+  if (result.hadiths?.length) console.log(`   hadith: ${result.hadiths.map((h) => `${h.ref}${h.shortened ? ' (shortened)' : ''} ${h.en.slice(0, 60)}…`).join(' | ')}`);
   console.log(`   ayahs: ${result.ayahs.map((a) => a.ref).join(', ') || '—'} | model: ${result.model ?? '—'} | searches: ${JSON.stringify(result.searches)} | ${ms}ms`);
 }
 

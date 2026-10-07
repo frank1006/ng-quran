@@ -30,7 +30,26 @@ export interface QFlowAnswer {
   duas?: QFlowDua[];
   /** Names of Allah the answer cites */
   names?: QFlowName[];
+  /** Hadith the answer cites */
+  hadiths?: QFlowHadith[];
 }
+
+/** Mirrors Hadith in api/_lib/hadith.ts */
+export interface QFlowHadith {
+  ref: string;
+  book: string;
+  bookName: string;
+  number: string;
+  ar: string;
+  en: string;
+  ur: string;
+  grades: { grader: string; grade: string }[];
+  collectionGrade?: string;
+  /** Only part of the text was sent; QFlowService.fullHadith has all of it */
+  shortened?: boolean;
+}
+
+export type QFlowHadithText = Pick<QFlowHadith, 'ref' | 'ar' | 'en' | 'ur'>;
 
 /** Mirrors NameOfAllah in api/_lib/names.ts */
 export interface QFlowName {
@@ -101,6 +120,13 @@ export class QFlowService {
         { question, history, calendar: this.calendar(), app, timeZone: timeZone() },
         { headers },
       ),
+    );
+  }
+
+  /** All of a hadith an answer showed shortened (uses no question) */
+  async fullHadith(ref: string): Promise<QFlowHadithText> {
+    return firstValueFrom(
+      this.http.get<QFlowHadithText>('/api/qflow/hadith', { params: { ref }, headers: await this.authHeaders() }),
     );
   }
 

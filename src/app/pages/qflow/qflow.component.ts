@@ -5,11 +5,12 @@ import { GoogleSignInComponent } from '../../shared/components/google-sign-in/go
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 import { AuthService } from '../../core/auth.service';
 import { QFlowAppContextService } from './qflow-app-context';
-import { QFlowAction, QFlowAyah } from './qflow.service';
+import { QFlowAction, QFlowAyah, QFlowHadith, QFlowHadithText, QFlowService } from './qflow.service';
 import { QuranAudioService } from '../../services/quran-audio.service';
 import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter } from '../../services/quran-api.types';
 import { QFlowChatStore, QFlowLang } from './qflow-chat.store';
+import { QFlowClampedDirective } from './qflow-clamped.directive';
 import { buildWelcome, isoDate } from './qflow-welcome';
 
 const MAX_QUESTION = 500;
@@ -23,7 +24,7 @@ const MAX_QUESTION = 500;
 @Component({
   selector: 'app-qflow',
   standalone: true,
-  imports: [RouterLink, GoogleSignInComponent],
+  imports: [RouterLink, GoogleSignInComponent, QFlowClampedDirective],
   templateUrl: './qflow.component.html',
   styleUrl: './qflow.component.css',
 })
@@ -31,6 +32,7 @@ export class QFlowComponent implements AfterViewInit {
   private readonly chat = inject(QFlowChatStore);
   private readonly hijri = inject(HijriCalendarService);
   private readonly audio = inject(QuranAudioService);
+  private readonly qflow = inject(QFlowService);
   /** Surah names and lengths, loaded ahead so a Play button starts audio within the tap */
   private chapters: Chapter[] = [];
   protected readonly auth = inject(AuthService);
@@ -159,6 +161,68 @@ export class QFlowComponent implements AfterViewInit {
 
   protected translation(ayah: QFlowAyah, lang: QFlowLang): string {
     return lang === 'ur' && ayah.ur ? ayah.ur : ayah.en;
+  }
+
+  /** Urdu readers see the Urdu translation when the hadith has one (564 in Bukhari don't) */
+  protected hadithText(hadith: QFlowHadithText, lang: QFlowLang): string {
+    return lang === 'ur' && hadith.ur ? hadith.ur : hadith.en;
+  }
+
+  protected hadithLang(hadith: QFlowHadithText, lang: QFlowLang): 'ur' | 'en' {
+    return lang === 'ur' && hadith.ur ? 'ur' : 'en';
+  }
+
+  /** Long hadith arrive shortened; their full text once it has been loaded, by ref */
+  private readonly fullHadiths = signal(new Map<string, QFlowHadithText>());
+  protected readonly loadingHadith = signal<string | null>(null);
+  protected readonly hadithError = signal<string | null>(null);
+
+  protected hadithFull(hadith: QFlowHadith): QFlowHadithText {
+    return this.fullHadiths().get(hadith.ref) ?? hadith;
+  }
+
+  /** Loads the rest of a shortened hadith (once); false if it couldn't */
+  private async loadFullHadith(hadith: QFlowHadith): Promise<boolean> {
+    if (!hadith.shortened || this.fullHadiths().has(hadith.ref)) return true;
+    this.loadingHadith.set(hadith.ref);
+    this.hadithError.set(null);
+    try {
+      const full = await this.qflow.fullHadith(hadith.ref);
+      this.fullHadiths.update(map => new Map(map).set(hadith.ref, full));
+      return true;
+    } catch {
+      this.hadithError.set(hadith.ref);
+      return false;
+    } finally {
+      this.loadingHadith.set(null);
+    }
+  }
+
+  /** Opening the other language of a shortened hadith shows all of it too */
+  protected onOtherToggle(event: Event, hadith: QFlowHadith): void {
+    if ((event.target as HTMLDetailsElement).open) void this.loadFullHadith(hadith);
+  }
+
+  /** Each grader's verdict as the collection gives it, or the collection's own note; never our own */
+  protected hadithGrade(hadith: QFlowHadith): string {
+    if (hadith.grades.length) return hadith.grades.map(g => `${g.grade} (${g.grader})`).join(' · ');
+    return hadith.collectionGrade ?? 'No grade given';
+  }
+
+  /** Hadith cards opened with "Read more", by exchange and ref */
+  private readonly expanded = signal(new Set<string>());
+
+  protected isExpanded(key: string): boolean {
+    return this.expanded().has(key);
+  }
+
+  protected async toggleExpanded(key: string, hadith: QFlowHadith): Promise<void> {
+    if (!this.isExpanded(key) && !(await this.loadFullHadith(hadith))) return;
+    this.expanded.update(keys => {
+      const next = new Set(keys);
+      if (!next.delete(key)) next.add(key);
+      return next;
+    });
   }
 
   /** Brings an answered question to the top, so its answer reads from the start */

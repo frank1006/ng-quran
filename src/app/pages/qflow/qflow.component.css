@@ -346,6 +346,89 @@
   color: var(--color-accent-dark);
 }
 
+/* Hadith: the translation first (the Arabic and Urdu open with a long chain of narrators), cut
+   to a few lines until "Read more"; the other language folds out under it */
+.hadith-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 8;
+  line-clamp: 8;
+  overflow: hidden;
+  margin-top: var(--space-xs);
+}
+
+.hadith-text--open {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: none;
+}
+
+.hadith-text--ar {
+  font-family: var(--font-arabic);
+  font-size: 1.125rem;
+  line-height: 2.1;
+  color: var(--color-text);
+  text-align: right;
+}
+
+.hadith-more {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-accent-dark);
+  cursor: pointer;
+}
+
+.hadith-other summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  list-style: none;
+  min-height: 2.75rem;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.hadith-other summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A chevron that turns down when the other language is open */
+.hadith-other summary::after {
+  content: '';
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease;
+}
+
+.hadith-other[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.hadith-other[open] summary {
+  margin-bottom: var(--space-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hadith-other summary::after {
+    transition: none;
+  }
+}
+
+.hadith-error {
+  font-size: var(--font-sm);
+  color: var(--color-danger-strong);
+}
+
 .name-number {
   font-size: var(--font-xs);
   color: var(--color-text-secondary);
