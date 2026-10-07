@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Runs QFlow's Vercel function (api/qflow/ask.ts) locally on http://localhost:3001, so the
- * Angular dev server can proxy /api/qflow here (proxy.conf.json) while every other /api call
+ * Runs QFlow's Vercel functions (api/qflow/*, api/auth/*) locally on http://localhost:3001, so the
+ * Angular dev server can proxy /api/qflow and /api/auth here (proxy.conf.json) while every other /api call
  * still goes to production. QFlow is off in production until release, so this is how to try it.
  *
  * Usage: node scripts/qflow-dev-server.mjs   (keys from .env.local; never printed)
- * Optional: QFLOW_ENABLED=false to test it switched off, QFLOW_DAILY_LIMIT=3 for a smaller limit
+ * Optional: QFLOW_DAILY_LIMIT=3 for a smaller limit
  * (0 = unlimited), QFLOW_GLOBAL_DAILY_LIMIT=1 to see the app-wide cap, QFLOW_PORT for another port.
  */
 import { createServer } from 'node:http';
@@ -19,8 +19,6 @@ process.removeAllListeners('warning'); // Node's notice about loading .ts files
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.QFLOW_PORT) || 3001;
 if (existsSync(join(ROOT, '.env.local'))) process.loadEnvFile(join(ROOT, '.env.local'));
-// On by default locally; set QFLOW_ENABLED=false (in .env.local or the shell) to test it switched off
-process.env.QFLOW_ENABLED ??= 'true';
 
 // Vercel resolves extensionless imports ("../_lib/qflow"); Node needs ".ts" spelled out
 register(
@@ -39,6 +37,7 @@ register(
 const routes = {
   '/api/qflow/ask': await import(pathToFileURL(join(ROOT, 'api/qflow/ask.ts')).href),
   '/api/qflow/quota': await import(pathToFileURL(join(ROOT, 'api/qflow/quota.ts')).href),
+  '/api/auth/account': await import(pathToFileURL(join(ROOT, 'api/auth/account.ts')).href),
 };
 
 createServer(async (req, res) => {

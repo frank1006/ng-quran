@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, DestroyRef, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { GoogleSignInComponent } from '../../shared/components/google-sign-in/google-sign-in.component';
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
+import { AuthService } from '../../core/auth.service';
 import { QFlowAyah } from './qflow.service';
 import { QFlowChatStore, QFlowLang } from './qflow-chat.store';
 import { buildWelcome, isoDate } from './qflow-welcome';
@@ -8,20 +10,22 @@ import { buildWelcome, isoDate } from './qflow-welcome';
 const MAX_QUESTION = 500;
 
 /**
- * QuranFlow AI (code name QFlow): not in the production nav yet; released after Google login.
+ * QuranFlow AI (code name QFlow). Signed-in users only: guests see
+ * the greeting and a sign-in card where the question box would be.
  * Answers come only from ayahs it retrieved; the cards show the exact text from our index.
  * The conversation itself lives in QFlowChatStore, so it survives leaving the page.
  */
 @Component({
   selector: 'app-qflow',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, GoogleSignInComponent],
   templateUrl: './qflow.component.html',
   styleUrl: './qflow.component.css',
 })
 export class QFlowComponent implements AfterViewInit {
   private readonly chat = inject(QFlowChatStore);
   private readonly hijri = inject(HijriCalendarService);
+  protected readonly auth = inject(AuthService);
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
   private readonly field = viewChild<ElementRef<HTMLInputElement>>('field');
 
@@ -36,7 +40,8 @@ export class QFlowComponent implements AfterViewInit {
   protected readonly quota = this.chat.quota;
   protected readonly limitReached = this.chat.limitReached;
   protected readonly busyToday = this.chat.busyToday;
-  protected readonly unavailable = this.chat.unavailable;
+  protected readonly signInNeeded = this.chat.signInNeeded;
+
   protected readonly canSend = computed(() => !this.busy() && !this.limitReached() && this.draft().trim().length > 0);
   /** "5 h 12 min" until the user's midnight, when the limit resets */
   protected readonly resetIn = computed(() => {
@@ -53,10 +58,12 @@ export class QFlowComponent implements AfterViewInit {
     const timer = setInterval(() => this.now.set(new Date()), 60_000);
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
 
-    // The first visit each day starts with the day's greeting (also when the date changes while open)
+    // The first visit each day starts with the day's greeting (also when the date changes while
+    // open); signing in puts the person's first name in it
     effect(() => {
       this.todayKey();
-      untracked(() => this.chat.welcome(buildWelcome(this.hijri)));
+      const firstName = this.auth.user()?.firstName;
+      untracked(() => this.chat.welcome(buildWelcome(this.hijri, firstName)));
     });
 
     // When an answer (or error) arrives, announce it and bring its question to the top
@@ -87,7 +94,7 @@ export class QFlowComponent implements AfterViewInit {
   }
 
   protected send(text = this.draft()): void {
-    if (this.busy() || this.limitReached() || this.unavailable() || !text.trim()) return;
+    if (this.busy() || this.limitReached() || !text.trim()) return;
     this.chat.ask(text);
     this.draft.set('');
     this.announcement.set('');
@@ -100,7 +107,7 @@ export class QFlowComponent implements AfterViewInit {
 
   protected newChat(): void {
     this.chat.clear();
-    this.chat.welcome(buildWelcome(this.hijri));
+    this.chat.welcome(buildWelcome(this.hijri, this.auth.user()?.firstName));
     this.announcement.set('');
     this.field()?.nativeElement.focus();
   }

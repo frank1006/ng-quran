@@ -9,6 +9,7 @@ import { MiniPlayerComponent } from './shared/components/mini-player/mini-player
 import { NotificationWorkerService } from './services/notification-worker.service';
 import { BackgroundSyncService } from './services/background-sync.service';
 import { PushReminderService } from './services/push-reminder.service';
+import { AuthService } from './core/auth.service';
 
 
 @Component({
@@ -22,6 +23,8 @@ export class App implements OnInit {
   private readonly notificationWorker = inject(NotificationWorkerService);
   private readonly backgroundSync = inject(BackgroundSyncService);
   private readonly pushReminders = inject(PushReminderService);
+  /** Started here so a returning Google sign-in is finished on whichever page it lands */
+  private readonly auth = inject(AuthService);
 
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);

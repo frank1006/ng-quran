@@ -29,7 +29,7 @@
       [routerLink]="tab.path"
       routerLinkActive
       ariaCurrentWhenActive="page"
-      [routerLinkActiveOptions]="{ exact: tab.exact }"
+      [routerLinkActiveOptions]="tab.matchOptions"
       (isActiveChange)="setActive($index, $event)"
       (click)="select($index)"
       [attr.aria-label]="tab.ariaLabel ?? null"

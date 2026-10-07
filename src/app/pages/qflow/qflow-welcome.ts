@@ -2,9 +2,6 @@ import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 import { isWhiteDay } from '../../calendar/islamic-events';
 import { QFlowWelcome } from './qflow-chat.store';
 
-/** Until Google login gives us the account's name */
-export const PLACEHOLDER_NAME = 'Ahmad';
-
 const DAY_MS = 86_400_000;
 /** An event this close shapes the day's suggested question */
 const EVENT_SOON_DAYS = 30;
@@ -28,10 +25,10 @@ const GENERAL_QUESTION = 'What does the Quran say about patience?';
 const URDU_QUESTION = 'صبر کے بارے میں قرآن کیا کہتا ہے؟';
 
 /**
- * The day's greeting for QuranFlow AI, built from the app's own calendar (the user's moon-sighting
+ * The day's greeting for QuranFlow AI (by first name once signed in), built from the app's own calendar (the user's moon-sighting
  * setting and hidden events apply). No AI involved, so it's instant and doesn't use a question.
  */
-export function buildWelcome(hijri: HijriCalendarService, name = PLACEHOLDER_NAME, now = new Date()): QFlowWelcome {
+export function buildWelcome(hijri: HijriCalendarService, firstName?: string, now = new Date()): QFlowWelcome {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
   const weekday = today.toLocaleDateString('en', { weekday: 'long' });
   const h = hijri.toHijri(today);
@@ -59,7 +56,7 @@ export function buildWelcome(hijri: HijriCalendarService, name = PLACEHOLDER_NAM
 
   return {
     date: isoDate(today),
-    greeting: `Assalamu alaikum, ${name}`,
+    greeting: firstName ? `Assalamu alaikum, ${firstName}` : 'Assalamu alaikum',
     today: `Today is ${weekday}, ${h.day} ${h.monthName} ${h.year} AH.`,
     event,
     suggestions: [...new Set([dayQuestion, dateQuestion, URDU_QUESTION])],

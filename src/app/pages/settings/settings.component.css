@@ -21,6 +21,74 @@
   margin-bottom: var(--space-lg);
 }
 
+/* Signed in: name as the page title, email as its subtitle, Sign out (round, white) on the
+   right, centred on the pair, like the Quran page's search button */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.profile-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  margin-bottom: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-email {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.profile-email-icon {
+  flex: none;
+  display: block;
+}
+
+.profile-email-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Guest: a cream card under the title offering sign-in */
+.account-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--color-cream);
+}
+
+.account-title {
+  font-size: var(--font-sm);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.account-detail {
+  margin-top: 0.125rem;
+  font-size: var(--font-xs);
+  color: var(--color-accent-dark);
+}
+
+.account-error {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--font-xs);
+  color: var(--color-danger-strong);
+}
+
 /* Profile tabs: a full-width ui-segmented control */
 .tabs {
   display: grid;
@@ -330,6 +398,12 @@
   font-weight: 600;
   color: var(--color-text);
   text-align: right;
+}
+
+.app-info-link {
+  color: var(--color-accent-dark);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .app-features {

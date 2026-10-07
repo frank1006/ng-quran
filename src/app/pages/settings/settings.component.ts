@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, computed, isDevMode, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { SettingsService, TimeFormat, AsrSchool, CALCULATION_METHODS } from '../../services/settings.service';
 import { DistanceUnit, TemperatureUnit } from '../../services/units';
@@ -15,6 +15,8 @@ import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter } from '../../services/quran-api.types';
 import { SegmentedIndicatorDirective } from '../../shared/directives/segmented-indicator.directive';
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
+import { AuthService } from '../../core/auth.service';
+import { GoogleSignInComponent } from '../../shared/components/google-sign-in/google-sign-in.component';
 
 type ProfileTab = 'bookmarks' | 'preferences' | 'app';
 const TAB_STORAGE_KEY = 'profile-tab';
@@ -22,7 +24,7 @@ const TAB_STORAGE_KEY = 'profile-tab';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, SegmentedIndicatorDirective],
+  imports: [CommonModule, RouterLink, SegmentedIndicatorDirective, GoogleSignInComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css'
 })
@@ -33,6 +35,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { id: 'app', label: 'App' },
   ];
   protected readonly activeTab = signal<ProfileTab>(this.readStoredTab());
+
+  protected readonly auth = inject(AuthService);
+  protected readonly deletingAccount = signal(false);
+  protected readonly accountError = signal<string | null>(null);
 
   protected readonly TimeFormat = TimeFormat;
   protected readonly PermissionStatus = PermissionStatus;
@@ -133,7 +139,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   // App Information
   protected readonly appName = signal<string>('QuranFlow');
-  protected readonly appVersion = signal<string>('Beta-v1');
+  protected readonly appVersion = signal<string>('Beta-v2');
   protected readonly buildNumber = signal<string | null>(null);
 
   // Accordion state
@@ -403,6 +409,25 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /**
    * Reset permissions and clear all cache data (preserves user-store with user preferences)
    */
+  protected async signOut(): Promise<void> {
+    await this.auth.signOut();
+  }
+
+  protected async deleteAccount(): Promise<void> {
+    if (!confirm('Delete your QuranFlow account? You will be signed out and your QuranFlow AI chat on this device will be cleared. This cannot be undone.')) {
+      return;
+    }
+    this.deletingAccount.set(true);
+    this.accountError.set(null);
+    try {
+      await this.auth.deleteAccount();
+    } catch {
+      this.accountError.set('Could not delete your account right now. Please try again.');
+    } finally {
+      this.deletingAccount.set(false);
+    }
+  }
+
   protected resetDataAndPermissions(): void {
     if (!confirm('Are you sure you want to reset permissions and clear all cache data? This will clear API cache and reset permissions, but your preferences (time format, bookmarks, etc.) will be preserved. This action cannot be undone.')) {
       return;

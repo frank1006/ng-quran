@@ -1,6 +1,6 @@
-import { Component, isDevMode, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { IsActiveMatchOptions, RouterLink, RouterLinkActive } from '@angular/router';
 
 interface NavTab {
   path: string;
@@ -10,6 +10,18 @@ interface NavTab {
   icon: 'prayer' | 'quran' | 'ai' | 'qibla' | 'profile';
   exact: boolean;
 }
+
+/**
+ * A tab is active by its path alone. Query strings and #fragments never matter: with Angular's
+ * plain `exact: true` they had to match too, so /prayer?code=… (coming back from Google sign-in)
+ * left no tab active and the bar's dip slid off the side.
+ */
+const matchOptions = (exact: boolean): IsActiveMatchOptions => ({
+  paths: exact ? 'exact' : 'subset',
+  queryParams: 'ignored',
+  fragment: 'ignored',
+  matrixParams: 'ignored',
+});
 
 const TABS: NavTab[] = [
   { path: '/prayer', label: 'Prayer', icon: 'prayer', exact: true },
@@ -33,8 +45,10 @@ const TABS: NavTab[] = [
   styleUrl: './bottom-nav.component.css',
 })
 export class BottomNavComponent {
-  /** QuranFlow AI is released after Google login; until then the tab shows in local development only */
-  protected readonly tabs = TABS.filter(tab => tab.icon !== 'ai' || isDevMode());
+  protected readonly tabs = TABS.map(tab => ({
+    ...tab,
+    matchOptions: matchOptions(tab.exact),
+  }));
   protected readonly active = signal(-1);
   /** Animations start after the first active tab is known, so nothing moves on load */
   protected readonly ready = signal(false);

@@ -1,5 +1,39 @@
 <div class="settings-container page-pattern">
-  <h1 class="settings-title">Profile</h1>
+  <!-- Signed in, the page is theirs: their name as the title, email as the subtitle (like the
+       reciter under "Quran") and Sign out on the right. Guests see "Profile" and a card
+       offering sign-in (only QuranFlow AI needs it): offered, never required. -->
+  @if (auth.user(); as user) {
+    <header class="profile-header ui-fade-in">
+      <div class="profile-heading">
+        <h1 class="settings-title profile-name">{{ user.name }}</h1>
+        <p class="ui-page-subtitle profile-email">
+          <svg class="profile-email-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+          </svg>
+          <span class="profile-email-text">{{ user.email }}</span>
+        </p>
+      </div>
+      <button class="ui-icon-btn ui-icon-btn--white ui-icon-btn--lg" type="button" aria-label="Sign out" title="Sign out" (click)="signOut()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </header>
+  } @else {
+    <h1 class="settings-title">Profile</h1>
+    @if (auth.ready()) {
+      <section class="account-card ui-fade-in" aria-label="Account">
+        <div class="account-text">
+          <p class="account-title">Sign in to use QuranFlow AI</p>
+          <p class="account-detail">Everything else works without an account.</p>
+        </div>
+        <app-google-sign-in class="account-signin" />
+      </section>
+    }
+  }
 
   <div class="ui-segmented ui-segmented--white tabs" role="tablist" aria-label="Profile sections" (keydown)="onTabKeydown($event)">
     @for (tab of tabs; track tab.id) {
@@ -335,6 +369,29 @@
               </div>
             </div>
 
+            @if (auth.signedIn()) {
+              <!-- Delete account (Google Play requires this in the app) -->
+              <div class="permission-item permission-item-danger">
+                <div class="permission-info">
+                  <h3 class="permission-name">Delete Account</h3>
+                  <p class="permission-description">Deletes your QuranFlow account and signs you out. Your QuranFlow AI chat on this device is cleared. Bookmarks and preferences stay on this device.</p>
+                </div>
+                <div class="permission-status">
+                  <button
+                    class="ui-button ui-button--danger clear-data-button"
+                    type="button"
+                    (click)="deleteAccount()"
+                    [disabled]="deletingAccount()"
+                  >
+                    {{ deletingAccount() ? 'Deleting…' : 'Delete Account' }}
+                  </button>
+                </div>
+              </div>
+              @if (accountError(); as error) {
+                <p class="account-error" role="alert">{{ error }}</p>
+              }
+            }
+
             <!-- Reset Data & Permissions -->
             <div class="permission-item permission-item-danger">
               <div class="permission-info">
@@ -377,14 +434,20 @@
               <span class="app-info-value">{{ buildNumber() }}</span>
             </div>
           }
+          <div class="app-info-item">
+            <span class="app-info-label">Privacy</span>
+            <a class="app-info-value app-info-link" routerLink="/privacy">Privacy policy</a>
+          </div>
         </div>
 
         <!-- App Features -->
         <div class="app-features">
           <p class="app-features-text">
-            This app provides accurate prayer times based on your location, an interactive Qibla compass
-            to find the direction of Mecca, nearby masjids, and the complete Quran with audio recitation.
-            Prayer times and the Quran text work offline, and your preferences and bookmarks stay on your device.
+            QuranFlow gives you accurate prayer times for your location with reminders, a Qibla compass,
+            nearby masjids, and the complete Quran with audio recitation. QuranFlow AI answers your
+            questions about the Quran and Islamic dates with the ayahs themselves, in English, Urdu or
+            Arabic (sign in with Google to use it). Prayer times and the Quran text work offline, and your
+            preferences and bookmarks stay on your device.
           </p>
         </div>
 

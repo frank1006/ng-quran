@@ -142,10 +142,10 @@ row gets `--color-fill-current` with no separators touching it; buttons inside i
 **Name:** users see "QuranFlow AI" everywhere (title, copy, errors, the AI's own wording);
 "QFlow" is only the code name (files, `/qflow`, the API).
 
-**Nav entry (local development only until release):** a normal tab, "Ask AI" (aria-label
+**Nav entry:** a normal tab, "Ask AI" (aria-label
 "QuranFlow AI"), its icon kept brand brown so it stands out without a bubble of its own.
 
-`/qflow`, not in the nav until release. One column: title, the conversation (scrolls), and the
+`/qflow`. One column: title, the conversation (scrolls), and the
 question box pinned above the nav.
 
 - **Bottom dock:** the counter and the question box (or the limit card) sit in a dock that
@@ -182,18 +182,25 @@ question box pinned above the nav.
   exchanges) so it survives reopening the app. "New conversation" (+) clears it. No footer
   disclaimer; the intro says it doesn't give rulings, and every answer is labelled "AI summary".
 - **Daily greeting:** the first visit each day adds a greeting to the conversation, built by the
-  app from the calendar (no AI, uses no question): "Assalamu alaikum, {name}" (Ahmad until
-  Google login), today's weekday and Hijri date, the next event (or "Today is …", White Days),
+  app from the calendar (no AI, uses no question): "Assalamu alaikum, {first name}" (just
+  "Assalamu alaikum" for guests), today's weekday and Hijri date, the next event (or "Today is …", White Days),
   a one-line explanation, and three day-aware example questions (Al-Kahf on Fridays, the coming
   event's theme within 30 days, its date, one in Urdu). Earlier days' greetings stay as snapshots
   without suggestions. A new chat starts with today's greeting; the + only shows once there's a
   question to clear.
-- **Daily limit:** "N of 5 questions left today" in small muted text above the question box (the
+- **Daily limit:** "N of 10 questions left today" in small muted text above the question box (the
   server's count; QFLOW_DAILY_LIMIT, 0 = unlimited and the line hides). At the limit the question
-  box is **replaced** by a cream card: moon icon, "That's today's 5 questions", "You can ask again
+  box is **replaced** by a cream card: moon icon, "That's today's 10 questions", "You can ask again
   after midnight, in 5 h 12 min" (live), and a white "Continue reading" button to the Quran. The
   greeting's suggestions hide. A limit message never offers "Try again", and it's brown, not red:
   it isn't an error. A new chat does not reset the limit (it's per person per day).
+- **Sign-in:** only QuranFlow AI needs an account (Google, through Supabase); nothing else is
+  ever gated and there's no sign-in screen at launch. Guests see the greeting and a cream card in
+  the dock: "Sign in to ask QuranFlow AI" / "It's free. We only use your Google name to greet
+  you." with a white "Continue with Google" button (four-colour G). Signing out clears the chat on
+  the device. Profile, signed in: their name is the page title, the email the subtitle (envelope
+  icon), a round white Sign out button on the right; guests see "Profile" and the same sign-in
+  card. Delete Account sits with the other danger actions in Profile → App.
 - **Global cap:** the whole app answers at most QFLOW_GLOBAL_DAILY_LIMIT questions a day (default
   250, about what the free AI tiers allow; resets at midnight Pacific, with Gemini's quota). Once
   it's used, everyone gets the same card with "QuranFlow AI is resting for today" / "It has

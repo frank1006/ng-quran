@@ -1,16 +1,19 @@
 /**
  * GET /api/qflow/quota?tz=Asia/Karachi
  * How many QuranFlow AI questions this user has left today (uses none). See ../_lib/qflow-limit.
+ * Signed-in users only (Authorization: Bearer <Supabase access token>); guests get 401.
  */
-import { clientId, peekQuota, validTimeZone } from '../_lib/qflow-limit';
+import { getUser } from '../_lib/auth';
+import { peekQuota, validTimeZone } from '../_lib/qflow-limit';
 
 export const maxDuration = 10;
 
 export async function GET(request: Request): Promise<Response> {
-  if (process.env.QFLOW_ENABLED !== 'true') return json({ error: 'QuranFlow AI is not available yet' }, 404);
   const timeZone = validTimeZone(new URL(request.url).searchParams.get('tz'));
   try {
-    return json(await peekQuota(clientId(request), timeZone));
+    const user = await getUser(request);
+    if (!user) return json({ error: 'Sign in to use QuranFlow AI' }, 401);
+    return json(await peekQuota(user.id, timeZone));
   } catch (error) {
     console.error('qflow/quota failed:', (error as Error).message);
     return json({ error: 'Could not read the daily limit' }, 503);

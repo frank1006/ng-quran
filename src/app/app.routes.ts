@@ -36,10 +36,15 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
   },
   {
-    // QFlow: not in the nav until it's released (after Google login); the API is off in production
+    // QuranFlow AI: signed-in users ask; guests see a sign-in card
     path: 'qflow',
     title: 'QuranFlow AI',
     loadComponent: () => import('./pages/qflow/qflow.component').then(m => m.QFlowComponent)
+  },
+  {
+    path: 'privacy',
+    title: 'Privacy policy · QuranFlow',
+    loadComponent: () => import('./pages/privacy/privacy.component').then(m => m.PrivacyComponent)
   },
   {
     path: '**',

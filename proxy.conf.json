@@ -5,6 +5,12 @@
     "changeOrigin": true,
     "logLevel": "warn"
   },
+  "/api/auth": {
+    "target": "http://localhost:3001",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "warn"
+  },
   "/api": {
     "target": "https://thequranflow.vercel.app",
     "secure": true,

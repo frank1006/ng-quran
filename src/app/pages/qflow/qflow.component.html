@@ -23,11 +23,13 @@
           @if (w.event) {
             <p class="welcome-event">{{ w.event }}</p>
           }
-          @if (w.date === todayKey() && !limitReached() && !unavailable()) {
+          @if (w.date === todayKey() && !limitReached()) {
             <p class="welcome-help">
               Ask me about the Quran or Islamic dates, in English, Urdu or Arabic. I answer with the
               ayahs themselves and their references, and I don't give religious rulings.
             </p>
+          }
+          @if (w.date === todayKey() && !limitReached() && !signInNeeded()) {
             <h2 class="ui-section-label welcome-label">Try asking</h2>
             <ul class="suggestions">
               @for (suggestion of w.suggestions; track suggestion) {
@@ -109,8 +111,8 @@
 
   <!-- The bottom dock: the conversation fades out underneath it instead of being cut off -->
   <div class="dock">
-    @if (unavailable()) {
-      <!-- Switched off on the server (before release): say so instead of offering a box that can't work -->
+    @if (signInNeeded()) {
+      <!-- Guests: QuranFlow AI is for signed-in users; the rest of the app needs no account -->
       <section class="limit-card ui-fade-in" aria-live="polite">
         <span class="limit-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -119,10 +121,10 @@
           </svg>
         </span>
         <div class="limit-text">
-          <p class="limit-title">QuranFlow AI isn't available yet</p>
-          <p class="limit-detail">It's coming soon, in sha Allah. Meanwhile, the Quran is a tap away.</p>
+          <p class="limit-title">Sign in to ask QuranFlow AI</p>
+          <p class="limit-detail">It's free. We only use your Google name to greet you.</p>
         </div>
-        <a class="ui-button ui-button--secondary limit-action" routerLink="/quran">Continue reading</a>
+        <app-google-sign-in class="signin-action" />
       </section>
     } @else if (busyToday()) {
       <!-- The app's global cap: everyone together has used today's free AI quota -->

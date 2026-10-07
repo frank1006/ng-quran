@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
+import { AuthService } from '../../core/auth.service';
 import { isWhiteDay } from '../../calendar/islamic-events';
 
 /** Mirrors api/_lib/qflow.ts */
@@ -46,23 +47,35 @@ const EVENTS_FROM_DAYS = -30;
 const EVENTS_TO_DAYS = 400;
 
 /**
- * Talks to /api/qflow/ask. Dates are worked out here by the app's own HijriCalendarService
+ * Talks to /api/qflow/ask, signed in (the API answers signed-in users only). Dates are worked out here by the app's own HijriCalendarService
  * (with the user's moon-sighting setting and hidden events), so QFlow never calculates them.
  */
 @Injectable({ providedIn: 'root' })
 export class QFlowService {
   private readonly http = inject(HttpClient);
   private readonly hijri = inject(HijriCalendarService);
+  private readonly auth = inject(AuthService);
 
-  ask(question: string, history: QFlowTurn[]): Promise<QFlowAnswer> {
+  async ask(question: string, history: QFlowTurn[]): Promise<QFlowAnswer> {
     return firstValueFrom(
-      this.http.post<QFlowAnswer>('/api/qflow/ask', { question, history, calendar: this.calendar(), timeZone: timeZone() }),
+      this.http.post<QFlowAnswer>(
+        '/api/qflow/ask',
+        { question, history, calendar: this.calendar(), timeZone: timeZone() },
+        { headers: await this.authHeaders() },
+      ),
     );
   }
 
   /** Questions left today, without using one */
-  quota(): Promise<QFlowQuota> {
-    return firstValueFrom(this.http.get<QFlowQuota>('/api/qflow/quota', { params: { tz: timeZone() } }));
+  async quota(): Promise<QFlowQuota> {
+    return firstValueFrom(
+      this.http.get<QFlowQuota>('/api/qflow/quota', { params: { tz: timeZone() }, headers: await this.authHeaders() }),
+    );
+  }
+
+  private async authHeaders(): Promise<Record<string, string>> {
+    const token = await this.auth.accessToken();
+    return token ? { authorization: `Bearer ${token}` } : {};
   }
 
   private calendar() {

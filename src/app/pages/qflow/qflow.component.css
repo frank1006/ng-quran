@@ -386,6 +386,11 @@
   }
 }
 
+/* The guest card's Google button: full width under the text, like the cards' other actions */
+.signin-action {
+  flex: 1 0 100%;
+}
+
 /* Reaching the limit isn't a failure: brown, not red */
 .error-text--calm {
   color: var(--color-accent-dark);

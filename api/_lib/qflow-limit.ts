@@ -4,14 +4,14 @@
  * - for the whole app (the global cap), so everyone together stays inside the free tiers. Free
  *   Gemini + Groq answer roughly 250 questions a day in total, however many users there are.
  *
- * Counted per user per day in Upstash Redis (the same database as push reminders). Until Google
- * login exists, a "user" is the client's IP address, stored only as a salted hash. The day is the
- * user's own calendar day (their time zone), so it resets at their local midnight.
+ * Counted per account per day in Upstash Redis (the same database as push reminders). Only
+ * signed-in users can ask (see ./auth); their account id is stored only as a salted hash. The day
+ * is the user's own calendar day (their time zone), so it resets at their local midnight.
  *
  * Without Redis configured (local development), counts are kept in memory on the dev server.
  * In production a missing Redis refuses questions rather than allowing unlimited ones.
  *
- * Env: QFLOW_DAILY_LIMIT        per user (default 5; 0 = unlimited)
+ * Env: QFLOW_DAILY_LIMIT        per user (default 10; 0 = unlimited)
  *      QFLOW_GLOBAL_DAILY_LIMIT whole app (default 250; 0 = no cap)
  *      KV_REST_API_URL / KV_REST_API_TOKEN (or UPSTASH_REDIS_*).
  */
@@ -29,7 +29,7 @@ export interface Quota {
   busyToday: boolean;
 }
 
-const DEFAULT_LIMIT = 5;
+const DEFAULT_LIMIT = 10;
 const DEFAULT_GLOBAL_LIMIT = 250;
 /** The global day follows Gemini's free quota, which resets at midnight Pacific time */
 const GLOBAL_DAY_ZONE = 'America/Los_Angeles';
@@ -52,12 +52,6 @@ export function globalDailyLimit(): number | null {
 }
 
 const UNLIMITED: Quota = { limit: null, used: 0, remaining: null, resetsAt: '', busyToday: false };
-
-/** The client's IP from Vercel's headers ("local" on the dev server) */
-export function clientId(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  return forwarded || request.headers.get('x-real-ip') || 'local';
-}
 
 export function validTimeZone(value: unknown): string {
   if (typeof value === 'string' && value.length <= 64) {
@@ -134,7 +128,7 @@ function globalKey(): string {
 }
 
 function key(id: string, timeZone: string): string {
-  // Salted so the stored key can't be turned back into an IP address
+  // Salted so the stored key can't be turned back into an account id
   const salt = process.env.QFLOW_LIMIT_SALT ?? 'quranflow-ai';
   const hashed = createHash('sha256').update(`${salt}:${id}`).digest('hex').slice(0, 24);
   return `qflow:questions:${hashed}:${localDate(new Date(), timeZone)}`;
