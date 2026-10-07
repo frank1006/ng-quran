@@ -18,7 +18,7 @@ import { ask, type AskInput, type CalendarContext, type ChatTurn } from '../_lib
 import { getUser } from '../_lib/auth';
 import { refundQuestion, takeQuestion, validTimeZone } from '../_lib/qflow-limit';
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 const MAX_QUESTION = 500;
 const MAX_HISTORY = 6;
@@ -81,7 +81,10 @@ export async function POST(request: Request): Promise<Response> {
   const app = body.app && JSON.stringify(body.app).length <= MAX_CALENDAR_JSON ? cleanContext(body.app) : undefined;
   const input: AskInput = { question, history, calendar, app };
   try {
-    const result = await ask(input);
+    // Why a model was skipped (busy, quota, timeout) shows in the Vercel logs; questions aren't logged
+    const result = await ask(input, line => {
+      if (line.includes('✗')) console.warn('qflow/ask model failed:', line.replace('✗', '').trim());
+    });
     // No AI answer (every model failed): the question doesn't count
     if (result.mode === 'search-only') {
       await refundQuestion(id, timeZone);

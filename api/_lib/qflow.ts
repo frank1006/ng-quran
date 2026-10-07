@@ -88,6 +88,10 @@ const MAX_SEARCHES = 2;
 const MAX_AYAH_FETCH = 12;
 const MAX_TURNS = 4;
 const LLM_TIMEOUT_MS = 15_000;
+/** No new model is tried after this, so the answer (or the ayah fallback) arrives within the function's time */
+const DEADLINE_MS = 40_000;
+/** A busy or rate-limited model gets one more try after this pause */
+const RETRY_AFTER_MS = 1_200;
 /** Phrases from the system prompt; an answer containing one has leaked its instructions */
 const PROMPT_LEAK = /rules \(never break|never give fatwas|tool results|search_quran|get_ayahs|get_islamic_events|get_prayer_times|get_qibla|find_nearby_masjids|get_weather|play_surah|find_duas|zakat_info|calculate_zakat|names_of_allah|these instructions/i;
 
@@ -102,7 +106,8 @@ const PROVIDERS = {
 } as const;
 
 // Flash-Lite first: it follows the rules well and has the largest free daily quota
-const DEFAULT_MODELS = 'gemini:gemini-3.5-flash-lite,gemini:gemini-2.5-flash,groq:openai/gpt-oss-120b';
+// Fastest first (tested 2026-10-07: 2.5-flash is gone for new keys, 3.5/3.7-flash often 503 or time out); Groq is last (its 8k tokens/minute fits only short questions)
+const DEFAULT_MODELS = 'gemini:gemini-3.5-flash-lite,gemini:gemini-flash-lite-latest,gemini:gemini-3.1-flash-lite,groq:openai/gpt-oss-120b';
 
 function modelChain(): ModelConfig[] {
   return (process.env.QFLOW_MODELS || DEFAULT_MODELS)
@@ -440,9 +445,27 @@ interface Message {
   tool_call_id?: string;
 }
 
-class ModelError extends Error {}
+class ModelError extends Error {
+  readonly retryable: boolean;
 
+  constructor(message: string, retryable = false) {
+    super(message);
+    this.retryable = retryable;
+  }
+}
+
+/** One call, tried again once if the provider was momentarily busy (429 per minute, 500, 503) */
 async function chat(config: ModelConfig, messages: Message[], tools: 'required' | 'auto' | 'none'): Promise<Message> {
+  try {
+    return await chatOnce(config, messages, tools);
+  } catch (error) {
+    if (!(error instanceof ModelError) || !error.retryable) throw error;
+    await new Promise(resolve => setTimeout(resolve, RETRY_AFTER_MS));
+    return chatOnce(config, messages, tools);
+  }
+}
+
+async function chatOnce(config: ModelConfig, messages: Message[], tools: 'required' | 'auto' | 'none'): Promise<Message> {
   const provider = PROVIDERS[config.provider];
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
@@ -462,7 +485,10 @@ async function chat(config: ModelConfig, messages: Message[], tools: 'required' 
     const body: any = await response.json().catch(() => null);
     const message = body?.choices?.[0]?.message;
     if (!response.ok || !message) {
-      throw new ModelError(`${config.model}: HTTP ${response.status} ${body?.error?.message ?? ''}`.slice(0, 200));
+      const detail = String(body?.error?.message ?? '');
+      // A daily quota or a request bigger than the per-minute budget won't pass on a retry
+      const retryable = [429, 500, 502, 503, 504].includes(response.status) && !/per day|tokens per minute|TPM|ITPM/i.test(detail);
+      throw new ModelError(`${config.model}: HTTP ${response.status} ${detail}`.slice(0, 200), retryable);
     }
     return {
       role: 'assistant',
@@ -635,6 +661,7 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
   ];
 
   for (const config of modelChain()) {
+    if (Date.now() - started > DEADLINE_MS) break;
     // Each model starts from the same conversation with its own search allowance
     const convo = [...messages];
     searches = [];
