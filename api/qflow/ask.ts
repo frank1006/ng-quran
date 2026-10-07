@@ -56,8 +56,9 @@ export async function POST(request: Request): Promise<Response> {
     calendar = body.calendar;
   }
 
-  // Daily limit per account (see ../_lib/qflow-limit); a question is only used when it's answered
-  const id = user.id;
+  // Daily limit per person (their Google account, see ../_lib/auth); a question is only used when
+  // it's answered
+  const id = user.limitKey;
   const timeZone = validTimeZone(body.timeZone);
   let taken;
   try {

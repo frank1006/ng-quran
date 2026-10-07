@@ -69,8 +69,8 @@ import { RouterLink } from '@angular/router';
           Islamic calendar dates are sent to our AI providers to produce the answer: Cloudflare (to
           search the Quran), Google Gemini and, as a backup, Groq. We don't store your questions or
           answers on our servers. To keep the service fair, we keep a count of your questions for
-          the day, stored under a scrambled form of your account id, and it expires after a day and a
-          half. Please don't include personal details in your questions.
+          the day, stored under a scrambled form of your Google account id, and it expires after a day and a
+          half (also if you delete your account). Please don't include personal details in your questions.
         </p>
       </section>
 

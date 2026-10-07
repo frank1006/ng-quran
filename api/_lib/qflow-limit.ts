@@ -4,8 +4,9 @@
  * - for the whole app (the global cap), so everyone together stays inside the free tiers. Free
  *   Gemini + Groq answer roughly 250 questions a day in total, however many users there are.
  *
- * Counted per account per day in Upstash Redis (the same database as push reminders). Only
- * signed-in users can ask (see ./auth); their account id is stored only as a salted hash. The day
+ * Counted per person per day in Upstash Redis (the same database as push reminders). Only
+ * signed-in users can ask (see ./auth); they're counted by their Google account id (so deleting
+ * the account and signing up again doesn't reset the day), stored only as a salted hash. The day
  * is the user's own calendar day (their time zone), so it resets at their local midnight.
  *
  * Without Redis configured (local development), counts are kept in memory on the dev server.

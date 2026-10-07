@@ -9,8 +9,14 @@
  */
 
 export interface AuthUser {
-  /** Supabase's user id (a UUID); stable for the account */
+  /** Supabase's user id (a UUID); a new one if the account is deleted and made again */
   id: string;
+  /**
+   * Who the person is for the daily limit: their Google account id, which Google never changes,
+   * so deleting the account and signing up again doesn't reset the day's count. Falls back to
+   * the Supabase id if no Google identity is found.
+   */
+  limitKey: string;
 }
 
 /** A token's answer is reused briefly, so a page's few requests cost one check */
@@ -34,11 +40,18 @@ export async function getUser(request: Request): Promise<AuthUser | null> {
   });
   if (response.status >= 500) throw new Error(`Supabase auth HTTP ${response.status}`);
   const body: any = response.ok ? await response.json().catch(() => null) : null;
-  const user = typeof body?.id === 'string' ? { id: body.id } : null;
+  const user: AuthUser | null = typeof body?.id === 'string' ? { id: body.id, limitKey: limitKey(body) } : null;
 
   if (cache.size > 1000) cache.clear();
   cache.set(token, { user, until: Date.now() + CACHE_MS });
   return user;
+}
+
+function limitKey(user: any): string {
+  const google = Array.isArray(user.identities) ? user.identities.find((i: any) => i?.provider === 'google') : null;
+  // Google's "sub" (its permanent account id); Supabase copies it into user_metadata too
+  const sub = google?.identity_data?.sub ?? user.user_metadata?.sub ?? user.user_metadata?.provider_id;
+  return typeof sub === 'string' && sub ? `google:${sub}` : `user:${user.id}`;
 }
 
 /** Deletes the account from Supabase (Google Play requires in-app deletion) */

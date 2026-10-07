@@ -13,7 +13,7 @@ export async function GET(request: Request): Promise<Response> {
   try {
     const user = await getUser(request);
     if (!user) return json({ error: 'Sign in to use QuranFlow AI' }, 401);
-    return json(await peekQuota(user.id, timeZone));
+    return json(await peekQuota(user.limitKey, timeZone));
   } catch (error) {
     console.error('qflow/quota failed:', (error as Error).message);
     return json({ error: 'Could not read the daily limit' }, 503);
