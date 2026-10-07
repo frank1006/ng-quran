@@ -11,7 +11,8 @@
  * results so the feature never fully breaks.
  *
  * Env: UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_READONLY_TOKEN, CLOUDFLARE_ACCOUNT_ID,
- * CLOUDFLARE_API_TOKEN, GEMINI_API_KEY, GROQ_API_KEY, optional QFLOW_MODELS.
+ * CLOUDFLARE_API_TOKEN (search, and the Workers AI backup model), GEMINI_API_KEY, GROQ_API_KEY,
+ * optional QFLOW_MODELS.
  */
 
 import {
@@ -96,18 +97,36 @@ const RETRY_AFTER_MS = 1_200;
 const PROMPT_LEAK = /rules \(never break|never give fatwas|tool results|search_quran|get_ayahs|get_islamic_events|get_prayer_times|get_qibla|find_nearby_masjids|get_weather|play_surah|find_duas|zakat_info|calculate_zakat|names_of_allah|these instructions/i;
 
 interface ModelConfig {
-  provider: 'gemini' | 'groq';
+  provider: keyof typeof PROVIDERS;
   model: string;
 }
 
-const PROVIDERS = {
-  gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: 'GEMINI_API_KEY' },
-  groq: { url: 'https://api.groq.com/openai/v1/chat/completions', key: 'GROQ_API_KEY' },
-} as const;
+interface Provider {
+  url: () => string;
+  /** Env var holding the key */
+  key: string;
+  /** Per-step time limit, if not LLM_TIMEOUT_MS */
+  timeoutMs?: number;
+}
+
+const PROVIDERS: Record<'gemini' | 'groq' | 'cloudflare', Provider> = {
+  gemini: { url: () => 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: 'GEMINI_API_KEY' },
+  groq: { url: () => 'https://api.groq.com/openai/v1/chat/completions', key: 'GROQ_API_KEY' },
+  // Workers AI (the account that embeds searches): open models such as Gemma 4 and Kimi K2, free daily allowance
+  cloudflare: {
+    url: () => `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions`,
+    key: 'CLOUDFLARE_API_TOKEN',
+    // Slower per step than Gemini, but no per-minute token cap
+    timeoutMs: 30_000,
+  },
+};
 
 // Flash-Lite first: it follows the rules well and has the largest free daily quota
-// Fastest first (tested 2026-10-07: 2.5-flash is gone for new keys, 3.5/3.7-flash often 503 or time out); Groq is last (its 8k tokens/minute fits only short questions)
-const DEFAULT_MODELS = 'gemini:gemini-3.5-flash-lite,gemini:gemini-flash-lite-latest,gemini:gemini-3.1-flash-lite,groq:openai/gpt-oss-120b';
+// Fastest first (tested 2026-10-07: 2.5-flash is gone for new keys, 3.5/3.7-flash often 503 or time out).
+// Then gpt-oss-120b on Workers AI (followed the rules in tests; Llama 4 Scout didn't, Gemma 4 was too slow).
+// Groq is last (its 8k tokens/minute fits only short questions).
+const DEFAULT_MODELS =
+  'gemini:gemini-3.5-flash-lite,gemini:gemini-flash-lite-latest,cloudflare:@cf/openai/gpt-oss-120b,gemini:gemini-3.1-flash-lite,groq:openai/gpt-oss-120b';
 
 function modelChain(): ModelConfig[] {
   return (process.env.QFLOW_MODELS || DEFAULT_MODELS)
@@ -468,9 +487,9 @@ async function chat(config: ModelConfig, messages: Message[], tools: 'required' 
 async function chatOnce(config: ModelConfig, messages: Message[], tools: 'required' | 'auto' | 'none'): Promise<Message> {
   const provider = PROVIDERS[config.provider];
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), provider.timeoutMs ?? LLM_TIMEOUT_MS);
   try {
-    const response = await fetch(provider.url, {
+    const response = await fetch(provider.url(), {
       method: 'POST',
       signal: controller.signal,
       headers: { authorization: `Bearer ${process.env[provider.key]}`, 'content-type': 'application/json' },
