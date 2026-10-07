@@ -125,8 +125,7 @@
 
 .setting-row + .setting-row,
 .permission-item + .permission-item,
-.accordion-item + .accordion-item,
-.app-info-item + .app-info-item {
+.about-link + .about-link {
   border-top: 1px solid var(--color-border);
 }
 
@@ -374,143 +373,57 @@
   }
 }
 
-/* About */
-.app-info {
+/* About: "QuranFlow · v1.0", the description, then rows linking to Mission and Privacy */
+.app-version {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.app-features-text {
+  margin: 0;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.about-links {
   display: flex;
   flex-direction: column;
 }
 
-.app-info-item {
+.about-link {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-sm) 0;
-}
-
-.app-info-label {
-  font-size: var(--font-sm);
-  color: var(--color-text-muted);
-}
-
-.app-info-value {
-  font-size: var(--font-sm);
+  min-height: 2.75rem;
+  padding: var(--space-md) 0;
+  font-size: var(--font-md);
   font-weight: 600;
   color: var(--color-text);
-  text-align: right;
-}
-
-.app-info-link {
-  color: var(--color-accent-dark);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-.app-features {
-  padding: var(--space-md) 0;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.app-features-text {
-  font-size: var(--font-sm);
-  color: var(--color-text-secondary);
-  margin: 0;
-  line-height: 1.6;
-}
-
-.accordion-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.accordion-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: var(--space-md) 0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
+  text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-.accordion-header:active .accordion-title,
-.accordion-header:active .accordion-icon {
+.about-link:active {
   opacity: 0.6;
 }
 
-.accordion-header:focus-visible {
+.about-link:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: var(--radius-md);
 }
 
-.accordion-title {
-  font-family: var(--font-body);
-  font-size: var(--font-md);
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.accordion-icon {
-  flex-shrink: 0;
+.about-link-icon {
+  flex: none;
   width: 1.25rem;
   height: 1.25rem;
   color: var(--color-text-muted);
-  transition: transform var(--motion-base) var(--ease-standard);
-}
-
-.accordion-icon.expanded {
-  transform: rotate(180deg);
-}
-
-.accordion-content {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows var(--motion-exit) var(--ease-in);
-}
-
-/* Opens to the content's real height (max-height guessed one, so timing was off) */
-.accordion-content.expanded {
-  grid-template-rows: 1fr;
-  transition: grid-template-rows var(--motion-slow) var(--ease-out);
-}
-
-.accordion-content-inner {
-  min-height: 0;
-  overflow: hidden;
-  padding: 0;
-}
-
-.accordion-content.expanded .accordion-content-inner {
-  padding-bottom: var(--space-md);
-}
-
-.accordion-text {
-  font-size: var(--font-sm);
-  color: var(--color-text-secondary);
-  margin: 0 0 var(--space-md);
-  line-height: 1.6;
-}
-
-.accordion-text:last-child {
-  margin-bottom: 0;
-}
-
-.accordion-list {
-  margin: 0 0 var(--space-sm);
-  padding-left: 1.1rem;
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  line-height: 1.6;
-  color: var(--color-text-secondary);
-}
-
-.accordion-list a {
-  color: var(--color-primary-text);
 }
 
 /* Moon sighting: four choices across the full width under the label */

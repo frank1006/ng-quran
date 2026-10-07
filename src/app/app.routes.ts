@@ -42,6 +42,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/qflow/qflow.component').then(m => m.QFlowComponent)
   },
   {
+    path: 'mission',
+    title: 'Our mission · QuranFlow',
+    loadComponent: () => import('./pages/mission/mission.component').then(m => m.MissionComponent)
+  },
+  {
     path: 'privacy',
     title: 'Privacy policy · QuranFlow',
     loadComponent: () => import('./pages/privacy/privacy.component').then(m => m.PrivacyComponent)

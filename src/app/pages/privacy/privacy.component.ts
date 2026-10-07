@@ -3,18 +3,20 @@ import { RouterLink } from '@angular/router';
 
 /**
  * Privacy policy (/privacy). Linked from Profile and from Google's sign-in consent screen, so it
- * must stay accurate: update it whenever the app starts sending or keeping new data.
+ * must stay accurate: update it whenever the app starts sending or keeping new data. It also
+ * carries the data credits the sources' licences ask for (OpenStreetMap ODbL, Open-Meteo CC BY).
+ * Layout: the shared .ui-doc-page styles (styles.css).
  */
 @Component({
   selector: 'app-privacy',
   standalone: true,
   imports: [RouterLink],
   template: `
-    <article class="privacy page-pattern">
-      <h1 class="privacy-title">Privacy policy</h1>
+    <article class="ui-doc-page page-pattern">
+      <h1 class="ui-doc-title">Privacy policy</h1>
       <p class="ui-page-subtitle">Last updated 7 October 2026</p>
 
-      <p class="lead">
+      <p class="ui-doc-lead">
         QuranFlow is a free app for prayer times, the Quran, Qibla direction and nearby masjids. Most
         of it works without an account, and what you do in the app stays on your device unless a
         feature below needs to send it somewhere. We don't sell your data or show ads.
@@ -98,41 +100,20 @@ import { RouterLink } from '@angular/router';
         <p>If this policy changes, we'll update it here and change the date at the top.</p>
       </section>
 
-      <a class="ui-button ui-button--secondary back" routerLink="/profile">Back to Profile</a>
+      <section>
+        <h2 class="ui-section-label">Data sources and credits</h2>
+        <ul>
+          <li>Prayer times by <a href="https://aladhan.com" target="_blank" rel="noopener">AlAdhan</a></li>
+          <li>Quran text and audio via <a href="https://github.com/The-Quran-Project/Quran-API" target="_blank" rel="noopener">The Quran Project</a> (MIT)</li>
+          <li>Masjid and map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL); fallback by <a href="https://www.geoapify.com" target="_blank" rel="noopener">Geoapify</a></li>
+          <li>Weather data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)</li>
+        </ul>
+      </section>
+
+      <div class="ui-doc-back">
+        <a class="ui-button ui-button--secondary" routerLink="/profile">Back to Profile</a>
+      </div>
     </article>
-  `,
-  styles: `
-    .privacy {
-      max-width: 40rem;
-      margin: 0 auto;
-      padding: var(--space-xl) var(--space-xl) calc(var(--nav-space) + var(--space-xl));
-    }
-
-    .privacy-title {
-      font-size: var(--page-title-size);
-      line-height: var(--page-title-line-height);
-      font-weight: 700;
-      color: var(--color-text);
-      letter-spacing: -0.03125rem;
-    }
-
-    .lead {
-      margin-top: var(--space-lg);
-    }
-
-    section {
-      margin-top: var(--space-xl);
-    }
-
-    p {
-      font-size: var(--font-sm);
-      line-height: 1.6;
-      color: var(--color-text);
-    }
-
-    .back {
-      margin-top: var(--space-xl);
-    }
   `,
 })
 export class PrivacyComponent {}

@@ -222,6 +222,65 @@ html, body, .main {
    Design system components. Pages use these instead of styling their own copies.
    ============================================================================ */
 
+/* Text pages (Privacy, Mission): like every page, the page itself is the scroll area (html, body
+   and .main don't scroll), padded to clear the nav and the floating player. A readable column of
+   short sections, each under a small uppercase label. */
+.ui-doc-page {
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  padding: var(--space-lg) var(--space-xl) calc(var(--space-xl) + var(--nav-space) + var(--mini-player-space, 0px));
+}
+
+.ui-doc-page > * {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.ui-doc-title {
+  font-size: var(--page-title-size);
+  line-height: var(--page-title-line-height);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.03125rem;
+}
+
+.ui-doc-page section {
+  margin-top: var(--space-xl);
+}
+
+.ui-doc-page p,
+.ui-doc-page li {
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.ui-doc-page p + p {
+  margin-top: var(--space-sm);
+}
+
+.ui-doc-page ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.ui-doc-page a:not(.ui-button) {
+  color: var(--color-accent-dark);
+  text-underline-offset: 0.2em;
+}
+
+.ui-doc-lead {
+  margin-top: var(--space-lg);
+}
+
+.ui-doc-back {
+  display: flex;
+  margin-top: var(--space-xl);
+}
+
 /* Plain brown line under a page title (country, reciter, countdown, translation) */
 .ui-page-subtitle {
   margin: var(--title-subtitle-gap) 0 0;

@@ -137,17 +137,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
   });
 
-  // App Information
-  protected readonly appName = signal<string>('QuranFlow');
-  protected readonly appVersion = signal<string>('Beta-v2');
-  protected readonly buildNumber = signal<string | null>(null);
-
-  // Accordion state
-  protected readonly expandedSections = signal<{ mission: boolean; privacy: boolean; credits: boolean }>({
-    credits: false,
-    mission: false,
-    privacy: false
-  });
+  protected readonly appName = 'QuranFlow';
+  protected readonly appVersion = 'v1.0';
 
   private verifyInterval: number | null = null;
 
@@ -366,9 +357,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Toggle accordion section
-   */
   protected selectTab(tab: ProfileTab): void {
     this.activeTab.set(tab);
     try {
@@ -396,14 +384,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } catch {
       return 'bookmarks';
     }
-  }
-
-  protected toggleAccordion(section: 'mission' | 'privacy' | 'credits'): void {
-    const current = this.expandedSections();
-    this.expandedSections.set({
-      ...current,
-      [section]: !current[section]
-    });
   }
 
   /**
