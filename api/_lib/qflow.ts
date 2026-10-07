@@ -741,6 +741,8 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
     knownDuas = new Map();
     knownNames = new Map();
     try {
+      // One chance per model to fix a quote that isn't word for word from the retrieved text
+      let quoteCorrected = false;
       for (let turn = 0; turn < MAX_TURNS; turn++) {
         // The first turn must use a tool, so nothing is answered from memory
         const tools = turn === 0 ? 'required' : turn === MAX_TURNS - 1 ? 'none' : 'auto';
@@ -756,6 +758,16 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
           if (!text) throw new ModelError(`${config.model}: empty answer`);
           if (PROMPT_LEAK.test(text)) throw new ModelError(`${config.model}: answer repeated its instructions`);
           const quote = unsupportedQuote(text, known, appText);
+          if (quote && !quoteCorrected && turn < MAX_TURNS - 1) {
+            // Models often quote a translation from memory; ask for the exact words instead of dropping the answer
+            log(`  ${config.model}: quote not in the retrieved text, asking to correct it`);
+            quoteCorrected = true;
+            convo.push({
+              role: 'user',
+              content: `Your answer put this in quotation marks, but it is not word for word in the tool results: ${quote}. Rewrite the whole answer: quote only words copied exactly from the tool results, or describe the ayahs in your own words without quotation marks. Keep the references.`,
+            });
+            continue;
+          }
           if (quote) throw new ModelError(`${config.model}: quoted text not in the retrieved ayahs: ${quote}`);
           return {
             mode: 'ai',
