@@ -1,18 +1,20 @@
 /**
- * Retrieval for QFlow: questions are embedded with Cloudflare Workers AI EmbeddingGemma (768 dims)
- * and searched in Upstash Vector with the read-only token. Namespaces: "quran"
- * (scripts/import-quran.mjs) and "hadith" (scripts/import-hadith.mjs), both embedded the same way.
+ * Retrieval for QFlow: questions are embedded with Cloudflare Workers AI EmbeddingGemma (768 dims,
+ * through the AI Gateway, ./ai-gateway) and searched in Upstash Vector with the read-only token.
+ * Namespaces: "quran" (scripts/import-quran.mjs) and "hadith" (scripts/import-hadith.mjs), both
+ * embedded the same way.
  *
  * Env: UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_READONLY_TOKEN, CLOUDFLARE_ACCOUNT_ID,
  * CLOUDFLARE_API_TOKEN.
  */
+import { postAI } from './ai-gateway';
 
 const EMBED_MODEL = '@cf/google/embeddinggemma-300m';
 /** EmbeddingGemma's retrieval prompt for queries; documents were embedded with "title: … | text: …" */
 const QUERY_PREFIX = 'task: search result | query: ';
 /**
  * Recent query embeddings: the model often searches the Quran and hadith with the same words,
- * and the search-only fallback re-embeds the question. Saves Cloudflare's daily free quota.
+ * and the search-only fallback re-embeds the question. Saves Cloudflare neurons.
  */
 const embedCache = new Map<string, number[]>();
 const EMBED_CACHE_SIZE = 50;
@@ -20,7 +22,8 @@ const EMBED_CACHE_SIZE = 50;
 export async function embedQuery(text: string): Promise<number[]> {
   const cached = embedCache.get(text);
   if (cached) return cached;
-  const response = await fetch(
+  const response = await postAI(
+    `workers-ai/${EMBED_MODEL}`,
     `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/${EMBED_MODEL}`,
     {
       method: 'POST',

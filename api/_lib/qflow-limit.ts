@@ -2,7 +2,7 @@
  * Daily question limits for QuranFlow AI:
  * - per user, so one person can't use up the shared free AI quota;
  * - for the whole app (the global cap), so everyone together stays inside the free tiers. Free
- *   Gemini + Groq answer roughly 250 questions a day in total, however many users there are.
+ *   Gemini answers roughly 400 questions a day in total; the default cap of 250 leaves headroom.
  *
  * Counted per person per day in Upstash Redis (the same database as push reminders). Only
  * signed-in users can ask (see ./auth); they're counted by their Google account id (so deleting
@@ -14,6 +14,8 @@
  *
  * Env: QFLOW_DAILY_LIMIT        per user (default 10; 0 = unlimited)
  *      QFLOW_GLOBAL_DAILY_LIMIT whole app (default 250; 0 = no cap)
+ *      QFLOW_CLOUDFLARE_DAILY_LIMIT questions the paid Cloudflare backup model may take a day
+ *                               (default 15, inside Workers Paid's included 10,000 neurons; 0 = never)
  *      KV_REST_API_URL / KV_REST_API_TOKEN (or UPSTASH_REDIS_*).
  */
 import { createHash } from 'node:crypto';
@@ -32,6 +34,7 @@ export interface Quota {
 
 const DEFAULT_LIMIT = 10;
 const DEFAULT_GLOBAL_LIMIT = 250;
+const DEFAULT_CLOUDFLARE_LIMIT = 15;
 /** The global day follows Gemini's free quota, which resets at midnight Pacific time */
 const GLOBAL_DAY_ZONE = 'America/Los_Angeles';
 const KEY_TTL_SECONDS = 36 * 60 * 60; // covers any time zone's day
@@ -99,6 +102,20 @@ export async function takeQuestion(
     return { allowed: false, reason: 'busy', quota: quota(used - 1, timeZone, true) };
   }
   return { allowed: true, quota: quota(used, timeZone, false) };
+}
+
+/**
+ * Whether the Cloudflare backup model may take one more question today. It's the only model
+ * that costs money past an included allowance (10,000 neurons a day, about 20 of our
+ * questions), so it's capped below that; past the cap the free models carry on. Counted per UTC
+ * day, as Cloudflare resets the allowance at midnight UTC.
+ */
+export async function takeCloudflareSlot(): Promise<boolean> {
+  const raw = process.env.QFLOW_CLOUDFLARE_DAILY_LIMIT?.trim();
+  const limit = raw !== undefined && raw !== '' && Number.isInteger(Number(raw)) ? Number(raw) : DEFAULT_CLOUDFLARE_LIMIT;
+  if (limit <= 0) return false;
+  const used = await store().incr(`qflow:cloudflare:${new Date().toISOString().slice(0, 10)}`, KEY_TTL_SECONDS);
+  return used <= limit;
 }
 
 /** Gives a question back (to the user and the app) when no answer could be produced */

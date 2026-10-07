@@ -12,7 +12,9 @@
  * results so the feature never fully breaks.
  *
  * Env: UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_READONLY_TOKEN, CLOUDFLARE_ACCOUNT_ID,
- * CLOUDFLARE_API_TOKEN, GEMINI_API_KEY, GROQ_API_KEY, optional QFLOW_MODELS.
+ * CLOUDFLARE_API_TOKEN (search, and the Workers AI backup model), GEMINI_API_KEY, GROQ_API_KEY,
+ * optional QFLOW_MODELS, optional CLOUDFLARE_AI_GATEWAY (default "quranflow"; "off" = direct) and
+ * CLOUDFLARE_AI_GATEWAY_TOKEN (for an authenticated gateway).
  */
 
 import {
@@ -21,6 +23,7 @@ import {
 import { type Dua, DUA_CATEGORY_GUIDE, DUA_CATEGORY_IDS, duaForModel, findDuas } from './duas';
 import { type Hadith, HADITH_BOOK_NAMES, hadithForModel, searchHadith, takeHadithCitations } from './hadith';
 import { type NameOfAllah, findNames } from './names';
+import { postAI } from './ai-gateway';
 import { embedQuery, vector } from './vector';
 import { calculateZakat, zakatInfoText } from './zakat';
 
@@ -58,6 +61,8 @@ export interface AskInput {
   calendar?: CalendarContext;
   /** Prayer times, place, Qibla… as the app has them (see ./app-tools) */
   app?: AppContext;
+  /** Asked before trying a model; false skips it (e.g. a paid model's daily cap is reached) */
+  allowModel?: (config: { provider: string; model: string }) => Promise<boolean>;
 }
 
 export interface AskResult {
@@ -99,18 +104,43 @@ const RETRY_AFTER_MS = 1_200;
 const PROMPT_LEAK = /rules \(never break|never give fatwas|tool results|search_quran|get_ayahs|search_hadith|get_islamic_events|get_prayer_times|get_qibla|find_nearby_masjids|get_weather|play_surah|find_duas|zakat_info|calculate_zakat|names_of_allah|these instructions/i;
 
 interface ModelConfig {
-  provider: 'gemini' | 'groq';
+  provider: keyof typeof PROVIDERS;
   model: string;
 }
 
-const PROVIDERS = {
-  gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: 'GEMINI_API_KEY' },
-  groq: { url: 'https://api.groq.com/openai/v1/chat/completions', key: 'GROQ_API_KEY' },
-} as const;
+interface Provider {
+  url: () => string;
+  /** The same endpoint through AI Gateway */
+  gatewayPath: string;
+  /** Env var holding the key */
+  key: string;
+  /** Per-step time limit, if not LLM_TIMEOUT_MS */
+  timeoutMs?: number;
+}
+
+const PROVIDERS: Record<'gemini' | 'groq' | 'cloudflare', Provider> = {
+  gemini: {
+    url: () => 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+    gatewayPath: 'google-ai-studio/v1beta/openai/chat/completions',
+    key: 'GEMINI_API_KEY',
+  },
+  groq: { url: () => 'https://api.groq.com/openai/v1/chat/completions', gatewayPath: 'groq/openai/v1/chat/completions', key: 'GROQ_API_KEY' },
+  // Workers AI (the account that embeds searches): open models such as Gemma 4 and Kimi K2, free daily allowance
+  cloudflare: {
+    url: () => `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions`,
+    gatewayPath: 'workers-ai/v1/chat/completions',
+    key: 'CLOUDFLARE_API_TOKEN',
+    // Slower per step than Gemini, but no per-minute token cap
+    timeoutMs: 30_000,
+  },
+};
 
 // Flash-Lite first: it follows the rules well and has the largest free daily quota
-// Fastest first (tested 2026-10-07: 2.5-flash is gone for new keys, 3.5/3.7-flash often 503 or time out); Groq is last (its 8k tokens/minute fits only short questions)
-const DEFAULT_MODELS = 'gemini:gemini-3.5-flash-lite,gemini:gemini-flash-lite-latest,gemini:gemini-3.1-flash-lite,groq:openai/gpt-oss-120b';
+// Fastest first (tested 2026-10-07: 2.5-flash is gone for new keys, 3.5/3.7-flash often 503 or time out).
+// Then gpt-oss-120b on Workers AI (followed the rules in tests; Llama 4 Scout didn't, Gemma 4 was too slow).
+// Groq is last (its 8k tokens/minute fits only short questions).
+const DEFAULT_MODELS =
+  'gemini:gemini-3.5-flash-lite,gemini:gemini-flash-lite-latest,cloudflare:@cf/openai/gpt-oss-120b,gemini:gemini-3.1-flash-lite,groq:openai/gpt-oss-120b';
 
 function modelChain(): ModelConfig[] {
   return (process.env.QFLOW_MODELS || DEFAULT_MODELS)
@@ -457,9 +487,9 @@ async function chat(config: ModelConfig, messages: Message[], tools: 'required' 
 async function chatOnce(config: ModelConfig, messages: Message[], tools: 'required' | 'auto' | 'none'): Promise<Message> {
   const provider = PROVIDERS[config.provider];
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), provider.timeoutMs ?? LLM_TIMEOUT_MS);
   try {
-    const response = await fetch(provider.url, {
+    const response = await postAI(provider.gatewayPath, provider.url(), {
       method: 'POST',
       signal: controller.signal,
       headers: { authorization: `Bearer ${process.env[provider.key]}`, 'content-type': 'application/json' },
@@ -584,7 +614,14 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
       if (searches.filter(q => !q.startsWith('hadith: ')).length >= MAX_SEARCHES) return 'Search limit reached. Answer now from the ayahs you have.';
       const query = String(args.query ?? '').slice(0, 300);
       searches.push(query);
-      const ayahs = await searchQuran(query);
+      let ayahs: Ayah[];
+      try {
+        ayahs = await searchQuran(query);
+      } catch (error) {
+        // Search depends on the embedding service; the other tools still work without it
+        log(`  search unavailable: ${(error as Error).message}`);
+        return 'Quran search is unavailable right now. Do not say the Quran has nothing on this. For a named passage, surah or reference use get_ayahs; otherwise say Quran search is busy right now and to please try again a little later.';
+      }
       ayahs.forEach(a => known.set(a.ref, a));
       return ayahs.length ? ayahs.map(a => forModel(a, lang)).join('\n') : 'No ayahs found.';
     }
@@ -593,7 +630,13 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
       hadithSearches++;
       const query = String(args.query ?? '').slice(0, 300);
       searches.push(`hadith: ${query}`);
-      const hadiths = await searchHadith(query);
+      let hadiths: Hadith[];
+      try {
+        hadiths = await searchHadith(query);
+      } catch (error) {
+        log(`  hadith search unavailable: ${(error as Error).message}`);
+        return 'Hadith search is unavailable right now. Do not say there is no hadith on this; say hadith search is busy right now and to please try again a little later.';
+      }
       hadiths.forEach(h => knownHadiths.set(h.ref, h));
       // Short phrases from them may be quoted in the answer
       appText += ` ${hadiths.map(h => `${h.en} ${h.ur} ${h.ar}`).join(' ')}`;
@@ -668,6 +711,10 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
 
   for (const config of modelChain()) {
     if (Date.now() - started > DEADLINE_MS) break;
+    if (input.allowModel && !(await input.allowModel(config))) {
+      log(`  skipped ${config.model} (daily cap)`);
+      continue;
+    }
     // Each model starts from the same conversation with its own search allowance
     const convo = [...messages];
     searches = [];
@@ -678,6 +725,8 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
     knownHadiths = new Map();
     hadithSearches = 0;
     try {
+      // One chance per model to fix a quote that isn't word for word from the retrieved text
+      let quoteCorrected = false;
       for (let turn = 0; turn < MAX_TURNS; turn++) {
         // The first turn must use a tool, so nothing is answered from memory
         const tools = turn === 0 ? 'required' : turn === MAX_TURNS - 1 ? 'none' : 'auto';
@@ -694,6 +743,16 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
           if (!text) throw new ModelError(`${config.model}: empty answer`);
           if (PROMPT_LEAK.test(text)) throw new ModelError(`${config.model}: answer repeated its instructions`);
           const quote = unsupportedQuote(text, known, appText);
+          if (quote && !quoteCorrected && turn < MAX_TURNS - 1) {
+            // Models often quote a translation from memory; ask for the exact words instead of dropping the answer
+            log(`  ${config.model}: quote not in the retrieved text, asking to correct it`);
+            quoteCorrected = true;
+            convo.push({
+              role: 'user',
+              content: `Your answer put this in quotation marks, but it is not word for word in the tool results: ${quote}. Rewrite the whole answer: quote only words copied exactly from the tool results, or describe the ayahs in your own words without quotation marks. Keep the references.`,
+            });
+            continue;
+          }
           if (quote) throw new ModelError(`${config.model}: quoted text not in the retrieved ayahs: ${quote}`);
           return {
             mode: 'ai',
@@ -722,7 +781,10 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
   }
 
   // Every model failed: show the closest ayahs and hadith (if any are close enough) without an AI answer
-  const [ayahs, hadiths] = await Promise.all([searchQuran(input.question), searchHadith(input.question)]);
+  const [ayahs, hadiths] = await Promise.all([
+    searchQuran(input.question).catch(() => [] as Ayah[]),
+    searchHadith(input.question).catch(() => [] as Hadith[]),
+  ]);
   const close = <T extends { score?: number }>(hits: T[]) => hits.filter(h => (h.score ?? 0) >= SEARCH_ONLY_MIN_SCORE);
   return {
     mode: 'search-only',
