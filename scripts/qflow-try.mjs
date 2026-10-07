@@ -68,6 +68,7 @@ function buildApp() {
       current: 'Asr',
       next: { name: 'Maghrib', at: '6:49 PM', inMinutes: 95 },
       tomorrowFajr: '6:03 AM',
+      ishraq: '7:41 AM',
       method: 'ISNA',
       asrSchool: 'Standard (Shafi, Maliki, Hanbali)',
     },
@@ -108,6 +109,10 @@ const EVAL = [
   'qibla kis taraf hai',
   'Can you play Surah Rahman?',
   'surah yaseen sunao',
+  'When is Jumu\'ah prayer?',
+  'When is Ishraq?',
+  'Can I pray at sunrise?',
+  'ishraq ka waqt kab hai',
   // Events (calendar tool)
   'When is Ramadan this year?',
   'What Islamic events are coming up?',

@@ -18,6 +18,8 @@ export interface AppContext {
     current?: string;
     next?: { name: string; at: string; inMinutes: number };
     tomorrowFajr?: string;
+    /** About 20 minutes after sunrise */
+    ishraq?: string;
     method?: string;
     asrSchool?: string;
   };
@@ -70,6 +72,7 @@ export function cleanContext(raw: unknown): AppContext | undefined {
         ? { name: str(c.prayers.next.name, 20)!, at: str(c.prayers.next.at, 20) ?? '', inMinutes: num(c.prayers.next.inMinutes) ?? 0 }
         : undefined,
       tomorrowFajr: str(c.prayers.tomorrowFajr, 20),
+      ishraq: str(c.prayers.ishraq, 20),
       method: str(c.prayers.method),
       asrSchool: str(c.prayers.asrSchool, 40),
     };
@@ -94,8 +97,13 @@ export function prayerTimesText(ctx: AppContext | undefined): string {
     currentPrayer: p.current ?? 'none (between prayer times)',
     next: p.next,
     tomorrowFajr: p.tomorrowFajr,
+    ishraq: p.ishraq,
     calculation: [p.method, p.asrSchool].filter(Boolean).join(', '),
-    windows: 'Each prayer lasts until the next one starts; Fajr ends at Sunrise; Isha lasts until Fajr.',
+    windows:
+      'Each prayer lasts until the next one starts; Fajr ends at Sunrise; Isha lasts until Fajr. ' +
+      'Sunrise (Shuruq) is not a prayer: no salah is offered while the sun is rising. ' +
+      'Ishraq (optional, 2 rak\'ahs, the earliest time of Duha/Chasht) starts at the ishraq time, once the sun has risen about a spear\'s length (15–20 minutes after sunrise); Duha lasts until shortly before Dhuhr. ' +
+      'Jumu\'ah (Friday prayer) replaces Dhuhr on Fridays; each masjid sets its own khutbah and prayer time.',
   });
 }
 

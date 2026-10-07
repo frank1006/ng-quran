@@ -15,6 +15,8 @@ export interface QFlowAppContext {
     current?: string;
     next?: { name: string; at: string; inMinutes: number };
     tomorrowFajr?: string;
+    /** About 20 minutes after sunrise (see ISHRAQ_AFTER_SUNRISE_MIN) */
+    ishraq?: string;
     method?: string;
     asrSchool?: string;
   };
@@ -34,6 +36,8 @@ const ORDER: { key: keyof PrayerTimings; name: string }[] = [
   { key: 'maghrib', name: 'Maghrib' },
   { key: 'isha', name: 'Isha' },
 ];
+/** Ishraq starts once the sun has risen "a spear's length", about 15–20 minutes after sunrise; the later end is used */
+const ISHRAQ_AFTER_SUNRISE_MIN = 20;
 /** Longer than the store's once-a-session GPS re-check (5s), which warmUp() usually covers */
 const WAIT_MS = 6000;
 
@@ -94,6 +98,7 @@ export class QFlowAppContextService {
         times: Object.fromEntries(ORDER.map(p => [p.name, formatTime(today.timings[p.key], format)])),
         ...currentAndNext(today.timings, now, format, next?.timings.fajr),
         tomorrowFajr: next ? formatTime(next.timings.fajr, format) : undefined,
+        ishraq: formatTime(addMinutes(today.timings.sunrise, ISHRAQ_AFTER_SUNRISE_MIN), format),
         // null = Automatic: the local authority for the location
         method: CALCULATION_METHODS.find(m => m.id === this.settings.calcMethod())?.name ?? 'Automatic (local authority for this location)',
         asrSchool: school === 1 ? 'Hanafi (later Asr)' : 'Standard (Shafi, Maliki, Hanbali)',
@@ -130,6 +135,12 @@ function currentAndNext(timings: PrayerTimings, now: Date, format: Parameters<ty
 function toMinutes(time24: string): number {
   const [h, m] = (time24 ?? '').split(':').map(Number);
   return h * 60 + m;
+}
+
+/** "07:24" + 20 → "07:44" */
+function addMinutes(time24: string, minutes: number): string {
+  const total = (toMinutes(time24) + minutes) % (24 * 60);
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
 
 function hhmm(date: Date): string {

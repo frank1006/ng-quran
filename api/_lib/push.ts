@@ -157,14 +157,22 @@ export async function removeSubscriber(id: string): Promise<void> {
   await redis().zrem('push:refill', id);
 }
 
+/** Ishraq starts once the sun has risen "a spear's length", about 15–20 minutes after sunrise; the later end is used */
+export const ISHRAQ_AFTER_SUNRISE_MIN = 20;
+
 export function reminderPayload(key: PrayerKey, at: number, timeZone: string): string {
   const name = PRAYER_NAMES[key];
-  const time = new Intl.DateTimeFormat('en', { timeZone, hour: 'numeric', minute: '2-digit' }).format(at);
+  const format = new Intl.DateTimeFormat('en', { timeZone, hour: 'numeric', minute: '2-digit' });
+  const time = format.format(at);
+  // Shuruq isn't a prayer: it ends Fajr's time, and Ishraq follows once the sun is up (same text as the in-app reminder)
+  const sunrise = key === 'sunrise';
   // Angular's service worker shows payloads in this shape and handles the click
   return JSON.stringify({
     notification: {
-      title: key === 'sunrise' ? `${name} (Sunrise)` : `${name} Prayer Time`,
-      body: key === 'sunrise' ? `The sun rises at ${time}` : `Time for ${name} prayer (${time})`,
+      title: sunrise ? `${name} · Sunrise ${time}` : `${name} Prayer Time`,
+      body: sunrise
+        ? `Fajr time has ended. Ishraq can be prayed from about ${format.format(at + ISHRAQ_AFTER_SUNRISE_MIN * 60_000)}.`
+        : `Time for ${name} prayer (${time})`,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
       tag: `prayer-${name.toLowerCase()}`, // same tag as in-app reminders, so they replace each other

@@ -449,8 +449,13 @@ export class NotificationService {
     }
 
     const deviceInfo = this.deviceDetection.deviceInfo();
+    // Shuruq isn't a prayer: it ends Fajr's time, and Ishraq follows once the sun is up (same text as push reminders)
+    const sunrise = prayerName === 'Shuruq';
+    const title = sunrise ? `Shuruq · Sunrise ${prayerTime}` : `${prayerName} Prayer Time`;
     const options: NotificationOptions & { vibrate?: number[] } = {
-      body: `Time for ${prayerName} prayer (${prayerTime})`,
+      body: sunrise
+        ? `Fajr time has ended. Ishraq can be prayed from about ${addMinutes(prayerTime, ISHRAQ_AFTER_SUNRISE_MIN)}.`
+        : `Time for ${prayerName} prayer (${prayerTime})`,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
       tag: `prayer-${prayerName.toLowerCase()}`,
@@ -473,7 +478,7 @@ export class NotificationService {
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.ready;
-        await registration.showNotification(`${prayerName} Prayer Time`, options);
+        await registration.showNotification(title, options);
         return;
       } catch (error) {
         Logger.warn(
@@ -485,7 +490,7 @@ export class NotificationService {
 
     // Fallback to regular notification API
     if ('Notification' in window) {
-      const notification = new Notification(`${prayerName} Prayer Time`, options);
+      const notification = new Notification(title, options);
       
       // Handle click for regular notifications (when service worker not available)
       notification.onclick = (event) => {
@@ -694,3 +699,18 @@ export class NotificationService {
   }
 }
 
+/** Ishraq starts once the sun has risen "a spear's length", about 15–20 minutes after sunrise; the later end is used */
+const ISHRAQ_AFTER_SUNRISE_MIN = 20;
+
+/** "07:24" + 20 → "07:44" (keeps AM/PM if the time has it) */
+function addMinutes(time: string, minutes: number): string {
+  const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!match) return time;
+  const [, hh, mm, ampm] = match;
+  let hours = Number(hh);
+  if (ampm) hours = (hours % 12) + (ampm.toUpperCase() === 'PM' ? 12 : 0);
+  const total = (hours * 60 + Number(mm) + minutes) % (24 * 60);
+  const h = Math.floor(total / 60);
+  const m = String(total % 60).padStart(2, '0');
+  return ampm ? `${h % 12 || 12}:${m} ${h < 12 ? 'AM' : 'PM'}` : `${String(h).padStart(2, '0')}:${m}`;
+}
