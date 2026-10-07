@@ -16,7 +16,7 @@
 import { cleanContext } from '../_lib/app-tools';
 import { ask, type AskInput, type CalendarContext, type ChatTurn } from '../_lib/qflow';
 import { getUser } from '../_lib/auth';
-import { refundQuestion, takeQuestion, validTimeZone } from '../_lib/qflow-limit';
+import { refundQuestion, takeCloudflareSlot, takeQuestion, validTimeZone } from '../_lib/qflow-limit';
 
 export const maxDuration = 60;
 
@@ -79,7 +79,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const app = body.app && JSON.stringify(body.app).length <= MAX_CALENDAR_JSON ? cleanContext(body.app) : undefined;
-  const input: AskInput = { question, history, calendar, app };
+  // The Cloudflare backup is paid past a small daily allowance, so it has its own cap
+  const allowModel = async (config: { provider: string }) => config.provider !== 'cloudflare' || (await takeCloudflareSlot().catch(() => false));
+  const input: AskInput = { question, history, calendar, app, allowModel };
   try {
     // Why a model was skipped (busy, quota, timeout) shows in the Vercel logs; questions aren't logged
     const result = await ask(input, line => {

@@ -56,6 +56,8 @@ export interface AskInput {
   calendar?: CalendarContext;
   /** Prayer times, place, Qibla… as the app has them (see ./app-tools) */
   app?: AppContext;
+  /** Asked before trying a model; false skips it (e.g. a paid model's daily cap is reached) */
+  allowModel?: (config: { provider: string; model: string }) => Promise<boolean>;
 }
 
 export interface AskResult {
@@ -688,6 +690,10 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
 
   for (const config of modelChain()) {
     if (Date.now() - started > DEADLINE_MS) break;
+    if (input.allowModel && !(await input.allowModel(config))) {
+      log(`  skipped ${config.model} (daily cap)`);
+      continue;
+    }
     // Each model starts from the same conversation with its own search allowance
     const convo = [...messages];
     searches = [];
