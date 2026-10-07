@@ -38,7 +38,7 @@ export class AuthService {
   readonly error = signal<string | null>(null);
 
   private readonly http = inject(HttpClient);
-  private client?: Promise<SupabaseClient | null>;
+  private clientPromise?: Promise<SupabaseClient | null>;
   private readonly signedOutListeners: SignedOutListener[] = [];
 
   constructor() {
@@ -93,9 +93,14 @@ export class AuthService {
     this.signedOutListeners.push(listener);
   }
 
+  /** The Supabase client (null if sign-in isn't configured), e.g. for account sync */
+  client(): Promise<SupabaseClient | null> {
+    return this.supabase();
+  }
+
   private supabase(): Promise<SupabaseClient | null> {
-    this.client ??= this.createClient();
-    return this.client;
+    this.clientPromise ??= this.createClient();
+    return this.clientPromise;
   }
 
   private async createClient(): Promise<SupabaseClient | null> {

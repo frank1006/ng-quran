@@ -26,9 +26,10 @@ import { RouterLink } from '@angular/router';
         <h2 class="ui-section-label">Kept on your device</h2>
         <p>
           Your settings, bookmarks, reading progress, last location and your QuranFlow AI
-          conversation are saved in your browser's storage on this device only. Clearing this
-          site's data in your browser removes them; signing out clears the QuranFlow AI
-          conversation.
+          conversation are saved in your browser's storage on this device. Without an account they
+          stay on this device only, and clearing this site's data in your browser removes them.
+          Signing out clears the QuranFlow AI conversation, bookmarks and reading progress from the
+          device (they stay with your account).
         </p>
       </section>
 
@@ -59,6 +60,13 @@ import { RouterLink } from '@angular/router';
           use your first name to greet you and your account to count your daily questions. We
           never see your Google password. You can delete your account at any time in Profile → App
           → Delete Account.
+        </p>
+        <p>
+          While you're signed in, your bookmarks, reading progress and app settings (reciter,
+          translation, time format, prayer calculation, units and Hijri date adjustment) are also
+          saved with your account at Supabase, so they're the same on all your devices. Only you can
+          read them. Your location and your QuranFlow AI conversation are not saved with your
+          account. Deleting your account deletes this copy too.
         </p>
       </section>
 

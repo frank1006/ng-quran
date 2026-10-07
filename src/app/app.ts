@@ -10,6 +10,7 @@ import { NotificationWorkerService } from './services/notification-worker.servic
 import { BackgroundSyncService } from './services/background-sync.service';
 import { PushReminderService } from './services/push-reminder.service';
 import { AuthService } from './core/auth.service';
+import { AccountSyncService } from './core/account-sync.service';
 
 
 @Component({
@@ -25,6 +26,8 @@ export class App implements OnInit {
   private readonly pushReminders = inject(PushReminderService);
   /** Started here so a returning Google sign-in is finished on whichever page it lands */
   private readonly auth = inject(AuthService);
+  /** Bookmarks and preferences follow the signed-in account */
+  private readonly accountSync = inject(AccountSyncService);
 
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);

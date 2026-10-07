@@ -41,7 +41,7 @@ const HANAFI_TIME_ZONES = [
 const CALC_STORAGE_KEY = 'prayer-calc-settings';
 const UNITS_STORAGE_KEY = 'unit-settings';
 
-interface UnitSettings {
+export interface UnitSettings {
   distance: DistanceUnit | null;
   temperature: TemperatureUnit | null;
 }
@@ -94,6 +94,24 @@ export class SettingsService {
 
   setTemperatureUnit(temperature: TemperatureUnit): void {
     this.saveUnitSettings({ ...this.unitSettings(), temperature });
+  }
+
+  /** Prayer calculation and units as chosen (null = automatic), synced to the account */
+  syncedPrefs(): { calc: PrayerCalcSettings; units: UnitSettings } {
+    return { calc: this.calcSettings(), units: this.unitSettings() };
+  }
+
+  applySyncedPrefs(prefs: { calc?: Partial<PrayerCalcSettings>; units?: Partial<UnitSettings> }): void {
+    if (prefs.calc) {
+      const method = Number.isInteger(prefs.calc.method) ? prefs.calc.method! : null;
+      const school = prefs.calc.school === 0 || prefs.calc.school === 1 ? prefs.calc.school : null;
+      this.saveCalcSettings({ method, school });
+    }
+    if (prefs.units) {
+      const distance = prefs.units.distance === 'km' || prefs.units.distance === 'mi' ? prefs.units.distance : null;
+      const temperature = prefs.units.temperature === 'C' || prefs.units.temperature === 'F' ? prefs.units.temperature : null;
+      this.saveUnitSettings({ distance, temperature });
+    }
   }
 
   private loadUnitSettings(): UnitSettings {

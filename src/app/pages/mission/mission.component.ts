@@ -26,7 +26,7 @@ import { RouterLink } from '@angular/router';
         <h2 class="ui-section-label">What we hold to</h2>
         <ul>
           <li><strong>Free, with no ads.</strong> Nothing is sold, and nothing distracts from prayer.</li>
-          <li><strong>Private.</strong> Most of the app works without an account, and your data stays on your device.</li>
+          <li><strong>Private.</strong> Most of the app works without an account. Your data stays on your device, and with your account only if you sign in.</li>
           <li><strong>Accurate.</strong> Prayer times follow your location and the calculation method you choose.</li>
           <li><strong>Always there.</strong> Prayer times and the Quran text work offline.</li>
           <li><strong>For everyone.</strong> Clear text, good contrast and screen reader support.</li>

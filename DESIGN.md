@@ -213,6 +213,12 @@ question box pinned above the nav.
   the device. Profile, signed in: their name is the page title, the email the subtitle (envelope
   icon), a round white Sign out button on the right; guests see "Profile" and the same sign-in
   card. Delete Account sits with the other danger actions in Profile → App.
+- **Account sync:** signed in, bookmarks, reading place and preferences follow the account
+  (Supabase `public.user_data`, one RLS-protected row per user; `AccountSyncService`). Silent, no
+  UI: the device stays the main copy, changes go up in one debounced upsert (2s, flushed when
+  the app is hidden), and the row is re-read on sign-in and at most every 5 min on resume. First
+  sign-in on a device merges bookmarks; after that the newer copy wins. Sign-out clears
+  bookmarks and reading place from the device, keeps preferences.
 - **Global cap:** the whole app answers at most QFLOW_GLOBAL_DAILY_LIMIT questions a day (default
   250, about what the free AI tiers allow; resets at midnight Pacific, with Gemini's quota). Once
   it's used, everyone gets the same card with "QuranFlow AI is resting for today" / "It has

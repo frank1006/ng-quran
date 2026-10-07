@@ -27,6 +27,16 @@ export interface LastRead {
   via: 'read' | 'listen';
 }
 
+/** The part of the user store that follows the account */
+export interface SyncedUserData {
+  bookmarks: Bookmark[];
+  lastRead: LastRead | null;
+  lastReadPositions: { [chapterId: number]: number };
+  reciterId: number | null;
+  timeFormat: TimeFormat | null;
+  translation: TranslationLanguage | null;
+}
+
 interface StoredUserData {
   selectedReciterId: number | null;
   bookmarks: Bookmark[];
@@ -159,6 +169,38 @@ export class UserStoreService {
 
   setPrayerScheduledNotifications(notifications: ScheduledNotification[]): void {
     this.updateState({ prayerScheduledNotifications: notifications });
+  }
+
+  // --- What follows the signed-in account (AccountSyncService) ---------------------------
+
+  /** Bookmarks, reading place and Quran preferences, as synced to the account */
+  syncedData(): SyncedUserData {
+    const s = this.state();
+    return {
+      bookmarks: s.bookmarks,
+      lastRead: s.lastRead,
+      lastReadPositions: s.lastReadPositions,
+      reciterId: s.selectedReciterId,
+      timeFormat: s.timeFormat,
+      translation: s.quranTranslationLanguage,
+    };
+  }
+
+  /** Takes the account's copy (only the fields it has) */
+  applySynced(data: Partial<SyncedUserData>): void {
+    const partial: Partial<StoredUserData> = {};
+    if (Array.isArray(data.bookmarks)) partial.bookmarks = data.bookmarks;
+    if (data.lastRead !== undefined) partial.lastRead = data.lastRead;
+    if (data.lastReadPositions) partial.lastReadPositions = data.lastReadPositions;
+    if (data.reciterId !== undefined && data.reciterId !== null) partial.selectedReciterId = data.reciterId;
+    if (data.timeFormat) partial.timeFormat = data.timeFormat;
+    if (data.translation) partial.quranTranslationLanguage = data.translation;
+    if (Object.keys(partial).length) this.updateState(partial);
+  }
+
+  /** Signing out on a shared phone: their bookmarks and reading place don't stay behind */
+  clearPersonal(): void {
+    this.updateState({ bookmarks: [], lastRead: null, lastReadPositions: {} });
   }
 
   private updateState(partial: Partial<StoredUserData>): void {
