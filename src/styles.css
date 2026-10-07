@@ -604,9 +604,18 @@ html.vt-forward::view-transition-new(root) { animation-name: vt-in-from-right; }
 html.vt-back::view-transition-old(root) { animation-name: vt-out-to-right; }
 html.vt-back::view-transition-new(root) { animation-name: vt-in-from-left; }
 
+/* They're shown live, not cross-faded: the browser's default fades a frozen picture of the old
+   nav over the live one, so the nav's own animation (bubble sinking, dip gliding) showed twice */
 ::view-transition-group(bottom-nav),
-::view-transition-group(player-fab) {
+::view-transition-group(player-fab),
+::view-transition-new(bottom-nav),
+::view-transition-new(player-fab) {
   animation: none;
+}
+
+::view-transition-old(bottom-nav),
+::view-transition-old(player-fab) {
+  display: none;
 }
 
 @keyframes vt-fade-out { to { opacity: 0; } }
