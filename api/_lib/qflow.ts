@@ -12,7 +12,8 @@
  *
  * Env: UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_READONLY_TOKEN, CLOUDFLARE_ACCOUNT_ID,
  * CLOUDFLARE_API_TOKEN (search, and the Workers AI backup model), GEMINI_API_KEY, GROQ_API_KEY,
- * optional QFLOW_MODELS, optional CLOUDFLARE_AI_GATEWAY (default "quranflow"; "off" = direct).
+ * optional QFLOW_MODELS, optional CLOUDFLARE_AI_GATEWAY (default "quranflow"; "off" = direct) and
+ * CLOUDFLARE_AI_GATEWAY_TOKEN (for an authenticated gateway).
  */
 
 import {
@@ -115,12 +116,18 @@ function viaGateway(path: string): string | null {
   return id && id !== 'off' && account ? `https://gateway.ai.cloudflare.com/v1/${account}/${id}/${path}` : null;
 }
 
-/** POSTs through the gateway when there is one, and directly if the gateway can't be reached */
-async function postAI(gatewayPath: string, directUrl: string, init: RequestInit): Promise<Response> {
+/**
+ * POSTs through the gateway when there is one, and directly if the gateway can't be reached.
+ * CLOUDFLARE_AI_GATEWAY_TOKEN (an "AI Gateway: Run" token) lets the gateway require
+ * authentication, so only our server can use it.
+ */
+async function postAI(gatewayPath: string, directUrl: string, init: RequestInit & { headers: Record<string, string> }): Promise<Response> {
   const gatewayUrl = viaGateway(gatewayPath);
   if (!gatewayUrl) return fetch(directUrl, init);
+  const token = process.env.CLOUDFLARE_AI_GATEWAY_TOKEN;
+  const headers = token ? { ...init.headers, 'cf-aig-authorization': `Bearer ${token}` } : init.headers;
   try {
-    return await fetch(gatewayUrl, init);
+    return await fetch(gatewayUrl, { ...init, headers });
   } catch (error) {
     if ((error as Error).name === 'AbortError') throw error;
     return fetch(directUrl, init);
