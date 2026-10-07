@@ -124,8 +124,7 @@
 }
 
 .setting-row + .setting-row,
-.permission-item + .permission-item,
-.about-link + .about-link {
+.permission-item + .permission-item {
   border-top: 1px solid var(--color-border);
 }
 
@@ -395,35 +394,56 @@
   flex-direction: column;
 }
 
+/* Rows that open a page, like the Events list's rows: they bleed slightly past the text so the
+   pressed cream tint has room, separators stay lined up with the text, the chevron is brown */
 .about-link {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--space-md);
   min-height: 2.75rem;
-  padding: var(--space-md) 0;
+  margin-inline: calc(-1 * var(--space-xs));
+  padding: var(--space-md) var(--space-xs);
+  border-radius: var(--radius-md);
   font-size: var(--font-md);
   font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+.about-link + .about-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--space-xs);
+  right: var(--space-xs);
+  height: 1px;
+  background: var(--color-border);
 }
 
 .about-link:active {
-  opacity: 0.6;
+  background: var(--color-cream);
 }
 
 .about-link:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: var(--radius-md);
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .about-link:hover {
+    background: var(--color-cream);
+  }
 }
 
 .about-link-icon {
   flex: none;
   width: 1.25rem;
   height: 1.25rem;
-  color: var(--color-text-muted);
+  color: var(--color-control-ink);
 }
 
 /* Moon sighting: four choices across the full width under the label */
