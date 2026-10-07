@@ -278,6 +278,8 @@ html, body, .main {
 
 .ui-doc-back {
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
   margin-top: var(--space-xl);
 }
 

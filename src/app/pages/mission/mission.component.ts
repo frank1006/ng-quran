@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-/** Our mission (/mission), linked from Profile → App → About. Layout: .ui-doc-page (styles.css). */
+/**
+ * Our mission (/mission), linked from Profile → App → About. Also the "App home page" on Google's
+ * sign-in branding: it must say what the app does and link to the privacy policy.
+ * Layout: .ui-doc-page (styles.css).
+ */
 @Component({
   selector: 'app-mission',
   standalone: true,
@@ -38,8 +42,16 @@ import { RouterLink } from '@angular/router';
         </p>
       </section>
 
+      <section>
+        <h2 class="ui-section-label">Your privacy</h2>
+        <p>
+          Read how QuranFlow handles your data in our <a routerLink="/privacy">privacy policy</a>.
+        </p>
+      </section>
+
       <div class="ui-doc-back">
-        <a class="ui-button ui-button--secondary" routerLink="/profile">Back to Profile</a>
+        <a class="ui-button ui-button--secondary" routerLink="/prayer">Open QuranFlow</a>
+        <a class="ui-button ui-button--secondary" routerLink="/privacy">Privacy policy</a>
       </div>
     </article>
   `,
