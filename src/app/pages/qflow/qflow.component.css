@@ -94,6 +94,10 @@
   color: var(--color-text-secondary);
 }
 
+.welcome-help + .welcome-help {
+  margin-top: var(--space-sm);
+}
+
 .welcome-label {
   margin-top: var(--space-lg);
 }

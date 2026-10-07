@@ -25,9 +25,12 @@
           }
           @if (w.date === todayKey() && !limitReached()) {
             <p class="welcome-help">
-              Ask me about the Quran, prayer times, the Qibla, nearby masjids, the weather or Islamic
-              dates, in English, Urdu or Arabic. For the Quran I answer with the ayahs themselves and
-              their references, and I don't give religious rulings.
+              I'm here to help you find what the Quran says, and with your day: prayer times, the
+              Qibla, nearby masjids, the weather and Islamic dates. Ask in English, Urdu or Arabic.
+            </p>
+            <p class="welcome-help">
+              For the Quran, I'll share the ayahs themselves with their references. I don't give
+              religious rulings, so for those please ask a scholar you trust.
             </p>
           }
           @if (w.date === todayKey() && !limitReached() && !signInNeeded()) {
