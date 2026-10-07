@@ -75,7 +75,7 @@ import { RouterLink } from '@angular/router';
         <p>
           Your question, a few earlier questions and answers from the same conversation, and the
           Islamic calendar dates are sent to our AI providers to produce the answer: Cloudflare (to
-          search the Quran), Google Gemini and, as backups, Cloudflare Workers AI and Groq. So it can answer about your day,
+          search the Quran), Google Gemini and, as backups, Cloudflare Workers AI and Groq. These requests pass through Cloudflare AI Gateway, which counts them (time, model, size, errors) without storing their content. So it can answer about your day,
           it also receives your city, today's prayer times, the Qibla direction and, when you ask,
           the names and distances of nearby masjids and the weather forecast; it never receives
           your exact location. To look those up, our server uses your location rounded to about

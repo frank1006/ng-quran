@@ -12,7 +12,7 @@
  *
  * Env: UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_READONLY_TOKEN, CLOUDFLARE_ACCOUNT_ID,
  * CLOUDFLARE_API_TOKEN (search, and the Workers AI backup model), GEMINI_API_KEY, GROQ_API_KEY,
- * optional QFLOW_MODELS.
+ * optional QFLOW_MODELS, optional CLOUDFLARE_AI_GATEWAY (default "quranflow"; "off" = direct).
  */
 
 import {
@@ -103,8 +103,34 @@ interface ModelConfig {
   model: string;
 }
 
+/**
+ * Model and embedding calls go through Cloudflare AI Gateway, whose analytics show requests,
+ * errors, tokens and cost per provider and model. Its logs are off, so no question or answer is
+ * stored there. CLOUDFLARE_AI_GATEWAY names the gateway (default "quranflow"; "off" calls the
+ * providers directly). If the gateway itself can't be reached, the call goes direct.
+ */
+function viaGateway(path: string): string | null {
+  const id = process.env.CLOUDFLARE_AI_GATEWAY?.trim() ?? 'quranflow';
+  const account = process.env.CLOUDFLARE_ACCOUNT_ID;
+  return id && id !== 'off' && account ? `https://gateway.ai.cloudflare.com/v1/${account}/${id}/${path}` : null;
+}
+
+/** POSTs through the gateway when there is one, and directly if the gateway can't be reached */
+async function postAI(gatewayPath: string, directUrl: string, init: RequestInit): Promise<Response> {
+  const gatewayUrl = viaGateway(gatewayPath);
+  if (!gatewayUrl) return fetch(directUrl, init);
+  try {
+    return await fetch(gatewayUrl, init);
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') throw error;
+    return fetch(directUrl, init);
+  }
+}
+
 interface Provider {
   url: () => string;
+  /** The same endpoint through AI Gateway */
+  gatewayPath: string;
   /** Env var holding the key */
   key: string;
   /** Per-step time limit, if not LLM_TIMEOUT_MS */
@@ -112,11 +138,16 @@ interface Provider {
 }
 
 const PROVIDERS: Record<'gemini' | 'groq' | 'cloudflare', Provider> = {
-  gemini: { url: () => 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: 'GEMINI_API_KEY' },
-  groq: { url: () => 'https://api.groq.com/openai/v1/chat/completions', key: 'GROQ_API_KEY' },
+  gemini: {
+    url: () => 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+    gatewayPath: 'google-ai-studio/v1beta/openai/chat/completions',
+    key: 'GEMINI_API_KEY',
+  },
+  groq: { url: () => 'https://api.groq.com/openai/v1/chat/completions', gatewayPath: 'groq/openai/v1/chat/completions', key: 'GROQ_API_KEY' },
   // Workers AI (the account that embeds searches): open models such as Gemma 4 and Kimi K2, free daily allowance
   cloudflare: {
     url: () => `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions`,
+    gatewayPath: 'workers-ai/v1/chat/completions',
     key: 'CLOUDFLARE_API_TOKEN',
     // Slower per step than Gemini, but no per-minute token cap
     timeoutMs: 30_000,
@@ -345,7 +376,8 @@ const TOOLS = [
 // --- retrieval -----------------------------------------------------------------------------
 
 async function embedQuery(text: string): Promise<number[]> {
-  const response = await fetch(
+  const response = await postAI(
+    `workers-ai/${EMBED_MODEL}`,
     `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/${EMBED_MODEL}`,
     {
       method: 'POST',
@@ -491,7 +523,7 @@ async function chatOnce(config: ModelConfig, messages: Message[], tools: 'requir
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), provider.timeoutMs ?? LLM_TIMEOUT_MS);
   try {
-    const response = await fetch(provider.url(), {
+    const response = await postAI(provider.gatewayPath, provider.url(), {
       method: 'POST',
       signal: controller.signal,
       headers: { authorization: `Bearer ${process.env[provider.key]}`, 'content-type': 'application/json' },
