@@ -216,7 +216,10 @@ question box pinned above the nav.
 - **Du'a cards:** a du'a answer shows each cited du'a as a row like an ayah row: title (accent,
   bold, xs), Arabic, transliteration (italic, sm), meaning (secondary), then the source in accent
   and "· Say it N times" in secondary. Quranic du'as get the same ↗ link into the reader.
-  Data: `api/_lib/duas-data.ts` (UmmahAPI snapshot, `node scripts/fetch-duas.mjs`).
+  Names of Allah use the same row: "Al-Wadood · The Loving" (accent) with "47 of 99" (secondary)
+  on the right, Arabic, meaning. Zakat answers are text only (amounts worked out in
+  `api/_lib/zakat.ts` with live nisab prices, never by the model).
+  Data: `api/_lib/{duas,names,zakat}-data.ts` (UmmahAPI snapshots, `node scripts/fetch-ummahapi.mjs`).
 - **Account sync:** signed in, bookmarks, reading place and preferences follow the account
   (Supabase `public.user_data`, one RLS-protected row per user; `AccountSyncService`). Silent, no
   UI: the device stays the main copy, changes go up in one debounced upsert (2s, flushed when

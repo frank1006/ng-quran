@@ -346,6 +346,11 @@
   color: var(--color-accent-dark);
 }
 
+.name-number {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
 .dua-repeat {
   font-weight: 500;
   color: var(--color-text-secondary);

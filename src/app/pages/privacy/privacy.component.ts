@@ -79,7 +79,9 @@ import { RouterLink } from '@angular/router';
           it also receives your city, today's prayer times, the Qibla direction and, when you ask,
           the names and distances of nearby masjids and the weather forecast; it never receives
           your exact location. To look those up, our server uses your location rounded to about
-          1 km (OpenStreetMap / Geoapify for masjids, Open-Meteo for weather). We don't store your
+          1 km (OpenStreetMap / Geoapify for masjids, Open-Meteo for weather). For a zakat estimate,
+          only your currency is sent to UmmahAPI for today's gold and silver prices; the amounts you
+          type are part of your question and are worked out on our server. We don't store your
           questions or answers on our servers. To keep the service fair, we keep a count of your questions for
           the day, stored under a scrambled form of your Google account id, and it expires after a day and a
           half (also if you delete your account). Please don't include personal details in your questions.
@@ -119,7 +121,7 @@ import { RouterLink } from '@angular/router';
           <li>Quran text and audio via <a href="https://github.com/The-Quran-Project/Quran-API" target="_blank" rel="noopener">The Quran Project</a> (MIT)</li>
           <li>Masjid and map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL); fallback by <a href="https://www.geoapify.com" target="_blank" rel="noopener">Geoapify</a></li>
           <li>Weather data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)</li>
-          <li>Du'as from the Quran and Sunnah via <a href="https://ummahapi.com" target="_blank" rel="noopener">UmmahAPI</a></li>
+          <li>Du'as, the names of Allah, zakat rules and today's gold and silver prices via <a href="https://ummahapi.com" target="_blank" rel="noopener">UmmahAPI</a></li>
         </ul>
       </section>
 

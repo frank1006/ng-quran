@@ -120,6 +120,13 @@ const EVAL = [
   'What should I say before sleeping?',
   'qarz utarne ki dua',
   'بیماری سے شفا کی دعا',
+  // Zakat and the names of Allah
+  'Who can receive zakat?',
+  'Calculate my zakat: I have 12000 dollars in savings and 50 grams of 22k gold',
+  'How much zakat do I owe?',
+  'What does Al-Wadud mean?',
+  'Names of Allah about forgiveness',
+  'Allah ke 99 naam batao',
   // Events (calendar tool)
   'When is Ramadan this year?',
   'What Islamic events are coming up?',
@@ -138,6 +145,7 @@ function show(question, result, ms) {
   if (result.mode === 'search-only') console.log('   [search-only: every model failed]');
   console.log(`   ${result.answer ?? '(no AI answer)'}`);
   if (result.actions?.length) console.log(`   buttons: ${result.actions.map((a) => a.label).join(' | ')}`);
+  if (result.names?.length) console.log(`   names: ${result.names.map((n) => `${n.number} ${n.transliteration}`).join(' | ')}`);
   if (result.duas?.length) console.log(`   du'as: ${result.duas.map((d) => `${d.id} ${d.title} (${d.source})`).join(' | ')}`);
   console.log(`   ayahs: ${result.ayahs.map((a) => a.ref).join(', ') || '—'} | model: ${result.model ?? '—'} | searches: ${JSON.stringify(result.searches)} | ${ms}ms`);
 }

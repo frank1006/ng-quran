@@ -28,6 +28,17 @@ export interface QFlowAnswer {
   actions?: QFlowAction[];
   /** Du'as the answer cites (Quran and Sunnah, with sources) */
   duas?: QFlowDua[];
+  /** Names of Allah the answer cites */
+  names?: QFlowName[];
+}
+
+/** Mirrors NameOfAllah in api/_lib/names.ts */
+export interface QFlowName {
+  number: number;
+  arabic: string;
+  transliteration: string;
+  english: string;
+  meaning: string;
 }
 
 /** Mirrors Dua in api/_lib/duas.ts */

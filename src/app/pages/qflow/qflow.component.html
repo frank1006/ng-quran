@@ -25,9 +25,9 @@
           }
           @if (w.date === todayKey() && !limitReached()) {
             <p class="welcome-help">
-              I'm here to help you find what the Quran says and du'as for any need, and with your
-              day: prayer times, the Qibla, nearby masjids, the weather and Islamic dates. Ask in
-              English, Urdu or Arabic.
+              I'm here to help you find what the Quran says, du'as for any need, the names of Allah
+              and your zakat, and with your day: prayer times, the Qibla, nearby masjids, the weather
+              and Islamic dates. Ask in English, Urdu or Arabic.
             </p>
             <p class="welcome-help">
               I'll share the ayahs and du'as themselves with their sources. I don't give
@@ -114,6 +114,21 @@
                       </div>
                       <p class="ayah-arabic" lang="ar" dir="rtl">{{ ayah.ar }}</p>
                       <p class="ayah-translation" [attr.lang]="exchange.lang === 'ur' ? 'ur' : 'en'" dir="auto">{{ translation(ayah, exchange.lang) }}</p>
+                    </li>
+                  }
+                </ul>
+              }
+
+              @if (exchange.result!.names?.length) {
+                <ul class="ayahs" aria-label="Names of Allah">
+                  @for (name of exchange.result!.names!; track name.number) {
+                    <li class="ayah dua">
+                      <div class="ayah-head">
+                        <span class="ayah-ref">{{ name.transliteration }} · {{ name.english }}</span>
+                        <span class="name-number">{{ name.number }} of 99</span>
+                      </div>
+                      <p class="ayah-arabic" lang="ar" dir="rtl">{{ name.arabic }}</p>
+                      <p class="ayah-translation" lang="en">{{ name.meaning }}</p>
                     </li>
                   }
                 </ul>
