@@ -4,7 +4,8 @@ import { RouterLink } from '@angular/router';
 /**
  * Privacy policy (/privacy). Linked from Profile and from Google's sign-in consent screen, so it
  * must stay accurate: update it whenever the app starts sending or keeping new data. It also
- * carries the data credits the sources' licences ask for (OpenStreetMap ODbL, Open-Meteo CC BY).
+ * carries the data credits the sources' licences ask for (OpenStreetMap ODbL, Open-Meteo CC BY,
+ * the hadith dataset's attribution).
  * Layout: the shared .ui-doc-page styles (styles.css).
  */
 @Component({
@@ -122,6 +123,12 @@ import { RouterLink } from '@angular/router';
           <li>Masjid and map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL); fallback by <a href="https://www.geoapify.com" target="_blank" rel="noopener">Geoapify</a></li>
           <li>Weather data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)</li>
           <li>Du'as, the names of Allah, zakat rules and today's gold and silver prices via <a href="https://ummahapi.com" target="_blank" rel="noopener">UmmahAPI</a></li>
+          <li>
+            Hadith of Sahih al-Bukhari from the <a href="https://huggingface.co/datasets/quranlab/hadith" target="_blank" rel="noopener">QuranLab hadith dataset</a>,
+            compiled from <a href="https://github.com/fawazahmed0/hadith-api" target="_blank" rel="noopener">fawazahmed0/hadith-api</a>.
+            The Arabic text is public domain. The English translation by Muhammad Muhsin Khan and the
+            Urdu translation remain &copy; their translators and publishers and are shown with this credit.
+          </li>
         </ul>
       </section>
 
