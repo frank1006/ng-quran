@@ -202,7 +202,8 @@ question box pinned above the nav.
 - **Sign-in:** only QuranFlow AI needs an account (Google, through Supabase); nothing else is
   ever gated and there's no sign-in screen at launch. Guests see the greeting and a cream card in
   the dock: "Sign in to ask QuranFlow AI" / "It's free. We only use your Google name to greet
-  you." with a white "Continue with Google" button (four-colour G). Signing out clears the chat on
+  you." with a white "Continue with Google" button (four-colour G). After Google, sign-in always lands on
+  QuranFlow AI (from Profile too), greeting them by name. Signing out clears the chat on
   the device. Profile, signed in: their name is the page title, the email the subtitle (envelope
   icon), a round white Sign out button on the right; guests see "Profile" and the same sign-in
   card. Delete Account sits with the other danger actions in Profile → App.

@@ -4,7 +4,7 @@ import { AuthService } from '../../../core/auth.service';
 /**
  * "Continue with Google": the app's one sign-in button (QuranFlow AI, Profile). White with the
  * standard four-colour G, as Google's branding guidelines ask. Tapping it leaves for Google and
- * comes back to the same page; any error from that trip shows under the button.
+ * comes back to QuranFlow AI; any error from that trip shows under the button.
  */
 @Component({
   selector: 'app-google-sign-in',

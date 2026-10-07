@@ -46,7 +46,7 @@ export class AuthService {
     void this.supabase();
   }
 
-  /** Goes to Google and comes back to the page the person is on */
+  /** Goes to Google and comes back to QuranFlow AI, the reason to have an account */
   async signIn(): Promise<void> {
     this.error.set(null);
     const supabase = await this.supabase();
@@ -57,7 +57,7 @@ export class AuthService {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}${location.pathname}`,
+        redirectTo: `${location.origin}/qflow`,
         queryParams: { prompt: 'select_account' },
       },
     });
