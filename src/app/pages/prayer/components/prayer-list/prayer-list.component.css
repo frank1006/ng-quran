@@ -117,6 +117,29 @@
   background: var(--color-surface);
 }
 
+/* Skeleton rows: the real rows' layout with shimmering bars and a round bell */
+.prayer-info .ui-skeleton {
+  align-self: center;
+}
+
+.skeleton-name {
+  height: 1rem;
+  margin-right: auto;
+}
+
+.skeleton-time {
+  width: 4rem;
+  height: 1rem;
+  margin-right: 1rem;
+}
+
+.skeleton-bell {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+}
+
 .notification-button.loading {
   opacity: 0.6;
   cursor: not-allowed;

@@ -1,7 +1,6 @@
 import { Component, input, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
-import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { NotificationService } from '../../../../services/notification.service';
 import { DeviceDetectionService } from '../../../../services/device-detection.service';
 import { Logger } from '../../../../core/logger.util';
@@ -20,22 +19,11 @@ interface PrayerItem {
 @Component({
   selector: 'app-prayer-list',
   standalone: true,
-  imports: [CommonModule, ConnectionErrorComponent, LoadingSpinnerComponent],
+  imports: [CommonModule, ConnectionErrorComponent],
+  // Times on screen stay while they refresh. With none yet: an error if there is one, otherwise a
+  // skeleton of the six rows (loading, or waiting for the location), never an empty space.
   template: `
-    @if (loading()) {
-      <app-loading-spinner />
-    }
-
-    @if (error() && prayers().length === 0) {
-      <div class="prayer-state">
-        <app-connection-error
-          [errorMessage]="error()!"
-          (retry)="onRetry()"
-        />
-      </div>
-    }
-
-    @if (!loading() && prayers().length > 0) {
+    @if (prayers().length > 0) {
       <div class="prayer-list-container">
         <div class="prayer-list">
           @for (prayer of prayers(); track prayer.key) {
@@ -63,6 +51,27 @@ interface PrayerItem {
           }
         </div>
       </div>
+    } @else if (error() && !loading()) {
+      <div class="prayer-state">
+        <app-connection-error
+          [errorMessage]="error()!"
+          (retry)="onRetry()"
+        />
+      </div>
+    } @else {
+      <div class="prayer-list-container" role="status" aria-label="Loading prayer times">
+        <div class="prayer-list">
+          @for (row of skeletonRows; track $index) {
+            <div class="prayer-card" aria-hidden="true">
+              <div class="prayer-info">
+                <span class="ui-skeleton skeleton-name" [style.width.rem]="row"></span>
+                <span class="ui-skeleton skeleton-time"></span>
+              </div>
+              <span class="ui-skeleton skeleton-bell"></span>
+            </div>
+          }
+        </div>
+      </div>
     }
   `,
   styleUrls: ['./prayer-list.component.css']
@@ -72,6 +81,8 @@ export class PrayerListComponent {
   readonly loading = input<boolean>(false);
   readonly error = input<string | null>(null);
   readonly retry = output<void>();
+  /** Name widths of the six skeleton rows (Fajr … Isha), so it looks like the real list */
+  protected readonly skeletonRows = [3, 4.25, 3.75, 2.5, 4.5, 2.75];
 
   private readonly notificationService = inject(NotificationService);
   private readonly deviceDetection = inject(DeviceDetectionService);
