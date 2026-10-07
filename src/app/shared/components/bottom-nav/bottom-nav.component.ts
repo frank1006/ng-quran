@@ -49,7 +49,13 @@ export class BottomNavComponent {
     ...tab,
     matchOptions: matchOptions(tab.exact),
   }));
+  /** The active tab, or -1 on a page that isn't one of the tabs (e.g. Privacy) */
   protected readonly active = signal(-1);
+  /**
+   * Where the dip sits: the active tab, or the last one while no tab is active (the dip is closed
+   * then, see .nav-flat). Always a real tab, so the sliding strip always covers the whole bar.
+   */
+  protected readonly dipAt = signal(0);
   /** Animations start after the first active tab is known, so nothing moves on load */
   protected readonly ready = signal(false);
 
@@ -70,5 +76,6 @@ export class BottomNavComponent {
 
   private moveTo(index: number): void {
     this.active.set(index);
+    this.dipAt.set(index);
   }
 }

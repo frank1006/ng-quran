@@ -59,6 +59,11 @@ Controls on a cream surface (hero headers, the cream part of a page) use the `--
   ~365ms (only its spring settle is later). Keep the two in step if either changes. It reacts on
   the tap itself, not after the next page loads; nothing moves on first load. Position is pure
   CSS (`--active` / `--tabs` against the nav's width in `cqw`).
+- **No tab active** (a page outside the tabs, e.g. Privacy): the U closes into a plain bar where
+  it is (a cream layer fades in over the strip) and every tab shows its label; returning to a tab
+  reopens it from there. The dip's position is always a real tab, never parked off the bar, so
+  the strip always covers the whole bar. A tab is active by its path alone (query strings and
+  #fragments are ignored).
 
 ## Elevation
 

@@ -77,6 +77,30 @@
   opacity: 0;
 }
 
+/* No tab active: a plain bar fades in over the strip and closes the U where it is, so returning
+   to a tab reopens it from there. Leaving a tab, it closes once that tab's bubble has half sunk;
+   returning, it opens as the dip arrives (like the bubble). */
+.nav-flat {
+  position: absolute;
+  inset: 0;
+  background: var(--bar);
+  border-top: 1px solid var(--color-cream-strong);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.no-tab .nav-flat {
+  opacity: 1;
+}
+
+.is-ready .nav-flat {
+  transition: opacity var(--motion-fast) var(--ease-standard) var(--arrive);
+}
+
+.is-ready.no-tab .nav-flat {
+  transition-delay: var(--glide-delay);
+}
+
 .nav-track {
   position: absolute;
   top: 0;

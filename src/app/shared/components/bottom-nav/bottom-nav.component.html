@@ -1,9 +1,10 @@
 <nav
   class="bottom-nav"
   [class.is-ready]="ready()"
+  [class.no-tab]="active() < 0"
   [class.at-start]="active() === 0"
   [class.at-end]="active() === tabs.length - 1"
-  [style.--active]="active() >= 0 ? active() : -2"
+  [style.--active]="dipAt()"
   [style.--tabs]="tabs.length"
 >
   <!-- The bar: a wide cream strip with a U-shaped dip in it, slid under the active tab.
@@ -19,6 +20,8 @@
       </span>
       <span class="nav-slab"></span>
     </div>
+    <!-- No tab active (a page outside the tabs, like Privacy): a plain bar closes the U -->
+    <span class="nav-flat"></span>
   </div>
 
   @for (tab of tabs; track tab.path) {
