@@ -5,6 +5,18 @@
     ],
     "target": {
       "namespace": "android_app",
+      "package_name": "com.jahaznova.qflowai.twa",
+      "sha256_cert_fingerprints": [
+        "DE:88:52:60:6B:9D:D9:BE:41:12:CA:D6:A0:C6:10:DF:E9:CC:9F:61:9B:E2:AC:FE:60:BD:53:2E:E7:99:D1:27"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
       "package_name": "app.vercel.thequranflow.twa",
       "sha256_cert_fingerprints": [
         "20:B9:15:16:0B:1B:40:7D:17:CC:6E:9C:5C:01:EF:90:D0:78:4C:9C:21:86:71:6A:0E:2A:76:E6:C2:37:69:2A",
