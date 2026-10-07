@@ -1,9 +1,14 @@
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AfterViewInit, Component, DestroyRef, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { GoogleSignInComponent } from '../../shared/components/google-sign-in/google-sign-in.component';
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 import { AuthService } from '../../core/auth.service';
-import { QFlowAyah } from './qflow.service';
+import { QFlowAppContextService } from './qflow-app-context';
+import { QFlowAction, QFlowAyah } from './qflow.service';
+import { QuranAudioService } from '../../services/quran-audio.service';
+import { QuranApiService } from '../../services/quran-api.service';
+import { Chapter } from '../../services/quran-api.types';
 import { QFlowChatStore, QFlowLang } from './qflow-chat.store';
 import { buildWelcome, isoDate } from './qflow-welcome';
 
@@ -25,6 +30,9 @@ const MAX_QUESTION = 500;
 export class QFlowComponent implements AfterViewInit {
   private readonly chat = inject(QFlowChatStore);
   private readonly hijri = inject(HijriCalendarService);
+  private readonly audio = inject(QuranAudioService);
+  /** Surah names and lengths, loaded ahead so a Play button starts audio within the tap */
+  private chapters: Chapter[] = [];
   protected readonly auth = inject(AuthService);
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
   private readonly field = viewChild<ElementRef<HTMLInputElement>>('field');
@@ -55,6 +63,10 @@ export class QFlowComponent implements AfterViewInit {
   protected readonly announcement = signal('');
 
   constructor() {
+    // Prayer times etc. sent with questions: start loading them now, not on the first question
+    inject(QFlowAppContextService).warmUp();
+    inject(QuranApiService).getChapters().pipe(takeUntilDestroyed()).subscribe({ next: c => (this.chapters = c), error: () => {} });
+
     const timer = setInterval(() => this.now.set(new Date()), 60_000);
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
 
@@ -91,6 +103,16 @@ export class QFlowComponent implements AfterViewInit {
     // Coming back to the page: continue where the conversation left off (today's greeting is last)
     if (this.hasQuestions()) this.scrollToEnd('auto');
     void this.chat.refreshQuota();
+  }
+
+  /**
+   * An answer's button. "Play Surah …" starts the recitation here, inside the tap (phones only
+   * let audio start from one), from ayah 1 with the chosen reciter; the link then opens the surah.
+   */
+  protected onAction(action: QFlowAction): void {
+    if (!action.play) return;
+    const chapter = this.chapters.find(c => c.id === action.play);
+    if (chapter) this.audio.playVerse(chapter, 1);
   }
 
   protected send(text = this.draft()): void {

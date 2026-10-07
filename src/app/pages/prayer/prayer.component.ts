@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, effect, isDevMode, untracked } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
@@ -66,6 +67,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
   protected readonly cityName = signal<string>('Current Location');
   protected readonly quadrant = signal<string>('');
   protected readonly showMasjidList = signal<boolean>(false);
+  private readonly route = inject(ActivatedRoute);
   protected readonly masjidSearchRadius = signal<number>(1);
   protected readonly masjidListRefreshTrigger = signal<number>(0);
   protected readonly locating = signal(false);
@@ -449,6 +451,8 @@ export class PrayerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadPrayerTimes();
+    // /prayer?view=masjids (e.g. QuranFlow AI's "See nearby masjids") opens the Masjids list
+    if (this.route.snapshot.queryParamMap.get('view') === 'masjids') this.displayMasjidList();
     document.addEventListener('visibilitychange', this.onVisibilityChange);
     this.timeInterval = window.setInterval(() => {
       this.trajectoryService.updateCurrentTime();

@@ -67,8 +67,12 @@ import { RouterLink } from '@angular/router';
         <p>
           Your question, a few earlier questions and answers from the same conversation, and the
           Islamic calendar dates are sent to our AI providers to produce the answer: Cloudflare (to
-          search the Quran), Google Gemini and, as a backup, Groq. We don't store your questions or
-          answers on our servers. To keep the service fair, we keep a count of your questions for
+          search the Quran), Google Gemini and, as a backup, Groq. So it can answer about your day,
+          it also receives your city, today's prayer times, the Qibla direction and, when you ask,
+          the names and distances of nearby masjids and the weather forecast; it never receives
+          your exact location. To look those up, our server uses your location rounded to about
+          1 km (OpenStreetMap / Geoapify for masjids, Open-Meteo for weather). We don't store your
+          questions or answers on our servers. To keep the service fair, we keep a count of your questions for
           the day, stored under a scrambled form of your Google account id, and it expires after a day and a
           half (also if you delete your account). Please don't include personal details in your questions.
         </p>

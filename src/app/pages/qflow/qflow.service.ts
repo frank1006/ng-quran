@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 import { AuthService } from '../../core/auth.service';
+import { QFlowAppContextService } from './qflow-app-context';
 import { isWhiteDay } from '../../calendar/islamic-events';
 
 /** Mirrors api/_lib/qflow.ts */
@@ -23,6 +24,16 @@ export interface QFlowAnswer {
   ayahs: QFlowAyah[];
   /** Questions left today (the server's count) */
   quota?: QFlowQuota;
+  /** Buttons under the answer that open part of the app (e.g. the Qibla compass) */
+  actions?: QFlowAction[];
+}
+
+export interface QFlowAction {
+  label: string;
+  route: string;
+  query?: Record<string, string>;
+  /** Surah number: the button starts its recitation */
+  play?: number;
 }
 
 /** The daily question limit (api/_lib/qflow-limit.ts) */
@@ -47,7 +58,8 @@ const EVENTS_FROM_DAYS = -30;
 const EVENTS_TO_DAYS = 400;
 
 /**
- * Talks to /api/qflow/ask, signed in (the API answers signed-in users only). Dates are worked out here by the app's own HijriCalendarService
+ * Talks to /api/qflow/ask, signed in (the API answers signed-in users only), sending the
+ * person's day as the app has it (QFlowAppContextService: place, prayer times, Qibla). Dates are worked out here by the app's own HijriCalendarService
  * (with the user's moon-sighting setting and hidden events), so QFlow never calculates them.
  */
 @Injectable({ providedIn: 'root' })
@@ -55,13 +67,15 @@ export class QFlowService {
   private readonly http = inject(HttpClient);
   private readonly hijri = inject(HijriCalendarService);
   private readonly auth = inject(AuthService);
+  private readonly appContext = inject(QFlowAppContextService);
 
   async ask(question: string, history: QFlowTurn[]): Promise<QFlowAnswer> {
+    const [headers, app] = await Promise.all([this.authHeaders(), this.appContext.build()]);
     return firstValueFrom(
       this.http.post<QFlowAnswer>(
         '/api/qflow/ask',
-        { question, history, calendar: this.calendar(), timeZone: timeZone() },
-        { headers: await this.authHeaders() },
+        { question, history, calendar: this.calendar(), app, timeZone: timeZone() },
+        { headers },
       ),
     );
   }

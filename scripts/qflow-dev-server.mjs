@@ -10,29 +10,14 @@
  */
 import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';
-import { register } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-process.removeAllListeners('warning'); // Node's notice about loading .ts files
+import './ts-resolve.mjs'; // extensionless imports in api/, like Vercel
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.QFLOW_PORT) || 3001;
 if (existsSync(join(ROOT, '.env.local'))) process.loadEnvFile(join(ROOT, '.env.local'));
-
-// Vercel resolves extensionless imports ("../_lib/qflow"); Node needs ".ts" spelled out
-register(
-  'data:text/javascript,' +
-    encodeURIComponent(`
-      export async function resolve(specifier, context, next) {
-        try { return await next(specifier, context); }
-        catch (error) {
-          if (specifier.startsWith('.') && !/\\.[cm]?[jt]s$/.test(specifier)) return next(specifier + '.ts', context);
-          throw error;
-        }
-      }`),
-  pathToFileURL(ROOT + '/'),
-);
 
 const routes = {
   '/api/qflow/ask': await import(pathToFileURL(join(ROOT, 'api/qflow/ask.ts')).href),

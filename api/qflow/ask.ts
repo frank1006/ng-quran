@@ -1,6 +1,7 @@
 /**
  * POST /api/qflow/ask
- * Body: { question, history?, calendar?, timeZone? }  (see AskInput in ../_lib/qflow)
+ * Body: { question, history?, calendar?, app?, timeZone? }  (see AskInput in ../_lib/qflow; `app` is
+ * the person's day as the app has it: place, prayer times, Qibla, see ../_lib/app-tools)
  * Signed-in users only (Authorization: Bearer <Supabase access token>); guests get 401.
  * Each answer includes `quota` (questions left today). Over the user's daily limit, or the app's
  * global cap: 429 with `quota` (`quota.busyToday` is true for the global cap).
@@ -8,9 +9,11 @@
  * QFlow, the QuranFlow assistant: a short answer grounded in Quran ayahs it retrieved, with
  * those ayahs returned as cards.
  *
- * Privacy: nothing is stored. The question and the calendar dates are sent to the embedding
- * and AI providers to produce the answer.
+ * Privacy: nothing is stored. The question, calendar dates and app context (city, prayer times,
+ * Qibla, nearby masjid names, weather; never coordinates) are sent to the embedding and AI
+ * providers to produce the answer. The rounded location is used here to look up masjids/weather.
  */
+import { cleanContext } from '../_lib/app-tools';
 import { ask, type AskInput, type CalendarContext, type ChatTurn } from '../_lib/qflow';
 import { getUser } from '../_lib/auth';
 import { refundQuestion, takeQuestion, validTimeZone } from '../_lib/qflow-limit';
@@ -75,7 +78,8 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error, quota: taken.quota }, 429);
   }
 
-  const input: AskInput = { question, history, calendar };
+  const app = body.app && JSON.stringify(body.app).length <= MAX_CALENDAR_JSON ? cleanContext(body.app) : undefined;
+  const input: AskInput = { question, history, calendar, app };
   try {
     const result = await ask(input);
     // No AI answer (every model failed): the question doesn't count

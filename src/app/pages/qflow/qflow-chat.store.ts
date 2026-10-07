@@ -183,7 +183,8 @@ function httpStatus(error: unknown): number | undefined {
 const ROMAN_URDU_WORDS = new Set(
   ('hai hy hain hn kya kia kyun kyu kaise kese kesay kab kb ka ki ke k ko se mein mai aur ' +
     'nahi nahin nhi btao batao bataen bataein baare bare baary barey chahiye chahye karna karo krna ' +
-    'hota hoti hotay wala wali walay jab tak sath saath liye lye kon kaun konsi kahan').split(' '),
+    'hota hoti hotay wala wali walay jab tak sath saath liye lye kon kaun konsi kahan ' +
+    'sunao sunaen sunayein chalao lagao parho padho dikhao bolo').split(' '),
 );
 
 /**

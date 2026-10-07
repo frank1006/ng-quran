@@ -199,6 +199,12 @@ question box pinned above the nav.
   after midnight, in 5 h 12 min" (live), and a white "Continue reading" button to the Quran. The
   greeting's suggestions hide. A limit message never offers "Try again", and it's brown, not red:
   it isn't an error. A new chat does not reset the limit (it's per person per day).
+- **Knows the person's day:** each question carries the app's snapshot (city, today's prayer
+  times with current/next prayer, Qibla bearing, units); the server adds nearby masjids and the
+  forecast on demand. Answers about a part of the app end with a button to it: cream "Open Qibla
+  compass", "See nearby masjids" (`/prayer?view=masjids`), "Open prayer times"; and an amber
+  "▶ Play Surah …" that starts the recitation inside the tap (phones only allow audio from one)
+  and opens the surah.
 - **Sign-in:** only QuranFlow AI needs an account (Google, through Supabase); nothing else is
   ever gated and there's no sign-in screen at launch. Guests see the greeting and a cream card in
   the dock: "Sign in to ask QuranFlow AI" / "It's free. We only use your Google name to greet

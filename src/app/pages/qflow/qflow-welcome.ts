@@ -45,21 +45,20 @@ export function buildWelcome(hijri: HijriCalendarService, firstName?: string, no
   }
   if (isWhiteDay(h.month, h.day)) event = `${event ? `${event} ` : ''}Today is one of the White Days.`;
 
-  // One question for the day, one about the coming event's date, one in Urdu
+  // One question for the day (Quran), two about the person's day (app data), one in Urdu
   const dayQuestion =
     weekday === 'Friday'
       ? 'Show me the first ten ayahs of Al-Kahf'
       : next && daysAway !== null && daysAway <= EVENT_SOON_DAYS
         ? EVENT_QUESTIONS[next.event.id] ?? GENERAL_QUESTION
         : GENERAL_QUESTION;
-  const dateQuestion = next ? `When is ${next.event.name}?` : 'Show me Ayat al-Kursi';
 
   return {
     date: isoDate(today),
     greeting: firstName ? `Assalamu alaikum, ${firstName}` : 'Assalamu alaikum',
     today: `Today is ${weekday}, ${h.day} ${h.monthName} ${h.year} AH.`,
     event,
-    suggestions: [...new Set([dayQuestion, dateQuestion, URDU_QUESTION])],
+    suggestions: [...new Set([dayQuestion, 'When is the next prayer?', 'Which masjids are near me?', URDU_QUESTION])],
   };
 }
 

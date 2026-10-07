@@ -10,7 +10,7 @@
         </button>
       }
     </div>
-    <p class="ui-page-subtitle">Ask about the Quran and Islamic dates</p>
+    <p class="ui-page-subtitle">Ask about the Quran and your day</p>
   </header>
 
   <div class="qflow-scroll" #scroller>
@@ -25,8 +25,9 @@
           }
           @if (w.date === todayKey() && !limitReached()) {
             <p class="welcome-help">
-              Ask me about the Quran or Islamic dates, in English, Urdu or Arabic. I answer with the
-              ayahs themselves and their references, and I don't give religious rulings.
+              Ask me about the Quran, prayer times, the Qibla, nearby masjids, the weather or Islamic
+              dates, in English, Urdu or Arabic. For the Quran I answer with the ayahs themselves and
+              their references, and I don't give religious rulings.
             </p>
           }
           @if (w.date === todayKey() && !limitReached() && !signInNeeded()) {
@@ -53,7 +54,7 @@
         @switch (exchange.status) {
           @case ('loading') {
             <div class="answer" aria-hidden="true">
-              <span class="answer-label">Searching the Quran…</span>
+              <span class="answer-label">Looking it up…</span>
               <span class="ui-skeleton skeleton-line"></span>
               <span class="ui-skeleton skeleton-line skeleton-line--short"></span>
             </div>
@@ -75,6 +76,19 @@
                 <p class="answer-text">QuranFlow AI can't write an answer right now. These ayahs match your words:</p>
               } @else {
                 <p class="answer-text">QuranFlow AI can't answer right now and found no close match. Please try again later.</p>
+              }
+
+              @if (exchange.result!.actions?.length) {
+                <div class="answer-actions">
+                  @for (action of exchange.result!.actions!; track action.route + action.label) {
+                    <a class="ui-button ui-button--secondary" [class.answer-action--play]="action.play" [routerLink]="action.route" [queryParams]="action.query" (click)="onAction(action)">
+                      @if (action.play) {
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" /></svg>
+                      }
+                      {{ action.label }}
+                    </a>
+                  }
+                </div>
               }
 
               @if (exchange.result!.ayahs.length) {
@@ -171,7 +185,7 @@
           dir="auto"
           enterkeyhint="send"
           autocomplete="off"
-          placeholder="Ask about the Quran…"
+          placeholder="Ask QuranFlow AI…"
           [maxLength]="maxQuestion"
           [value]="draft()"
           (input)="onInput($event)"
