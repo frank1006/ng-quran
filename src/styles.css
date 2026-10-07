@@ -222,6 +222,37 @@ html, body, .main {
    Design system components. Pages use these instead of styling their own copies.
    ============================================================================ */
 
+/* The screen in index.html before the app starts (and for tools that don't run it) */
+.boot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: 100dvh;
+  padding: var(--space-xl);
+  text-align: center;
+  font-family: var(--font-body);
+}
+
+.boot-name {
+  font-size: var(--page-title-size);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.boot-text,
+.boot-links {
+  max-width: 22rem;
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-accent-dark);
+}
+
+.boot-links a {
+  color: var(--color-accent-dark);
+}
+
 /* Text pages (Privacy, Mission): like every page, the page itself is the scroll area (html, body
    and .main don't scroll), padded to clear the nav and the floating player. A readable column of
    short sections, each under a small uppercase label. */

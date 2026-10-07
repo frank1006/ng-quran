@@ -43,7 +43,7 @@ export const routes: Routes = [
   },
   {
     path: 'mission',
-    title: 'Our mission · QuranFlow',
+    title: 'QuranFlow · Our mission',
     loadComponent: () => import('./pages/mission/mission.component').then(m => m.MissionComponent)
   },
   {

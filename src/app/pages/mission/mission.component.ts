@@ -12,8 +12,8 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink],
   template: `
     <article class="ui-doc-page page-pattern">
-      <h1 class="ui-doc-title">Our mission</h1>
-      <p class="ui-page-subtitle">Why we build QuranFlow</p>
+      <h1 class="ui-doc-title">QuranFlow</h1>
+      <p class="ui-page-subtitle">Our mission</p>
 
       <p class="ui-doc-lead">
         Our mission is to provide a beautiful, accessible and accurate Islamic app that helps Muslims

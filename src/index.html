@@ -31,7 +31,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 </head>
 <body>
-  <app-root></app-root>
+  <!-- Shown until the app starts (Angular replaces it), and what tools that don't run the app see,
+       such as Google's sign-in branding check: the app's name, what it does, the privacy policy -->
+  <app-root>
+    <main class="boot">
+      <h1 class="boot-name">QuranFlow</h1>
+      <p class="boot-text">Prayer times, the Quran with audio, Qibla direction, nearby masjids and QuranFlow AI.</p>
+      <p class="boot-links"><a href="/mission">About QuranFlow</a> · <a href="/privacy">Privacy policy</a></p>
+    </main>
+  </app-root>
   <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 </html>
