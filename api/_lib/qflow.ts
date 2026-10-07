@@ -592,7 +592,14 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
       if (searches.length >= MAX_SEARCHES) return 'Search limit reached. Answer now from the ayahs you have.';
       const query = String(args.query ?? '').slice(0, 300);
       searches.push(query);
-      const ayahs = await searchQuran(query);
+      let ayahs: Ayah[];
+      try {
+        ayahs = await searchQuran(query);
+      } catch (error) {
+        // Search depends on the embedding service; the other tools still work without it
+        log(`  search unavailable: ${(error as Error).message}`);
+        return 'Quran search is unavailable right now. Do not say the Quran has nothing on this. For a named passage, surah or reference use get_ayahs; otherwise say Quran search is busy right now and to please try again a little later.';
+      }
       ayahs.forEach(a => known.set(a.ref, a));
       return ayahs.length ? ayahs.map(a => forModel(a, lang)).join('\n') : 'No ayahs found.';
     }
@@ -712,7 +719,7 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
   }
 
   // Every model failed: show the closest ayahs (if any are close enough) without an AI answer
-  const ayahs = (await searchQuran(input.question)).filter(a => (a.score ?? 0) >= SEARCH_ONLY_MIN_SCORE);
+  const ayahs = (await searchQuran(input.question).catch(() => [] as Ayah[])).filter(a => (a.score ?? 0) >= SEARCH_ONLY_MIN_SCORE);
   return { mode: 'search-only', answer: null, ayahs: ayahs.slice(0, 5), model: null, searches: [input.question], ms: Date.now() - started, actions: [], duas: [], names: [] };
 }
 
