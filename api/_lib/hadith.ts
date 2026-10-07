@@ -110,6 +110,20 @@ export function hadithForModel(hadith: Hadith): string {
   return `[hadith ${hadith.ref}] ${hadith.bookName} ${hadith.number}, grade: ${gradeText(hadith)}: ${clip(hadith.en || hadith.ar, MAX_MODEL_CHARS)}`;
 }
 
+/** Questions asking whether something is allowed, in English, Roman Urdu, Urdu or Arabic */
+const RULING_QUESTION = /\b(haram|halal|allowed|permissible|permitted|forbidden|jaiz|ja'iz|najaiz|makruh|makrooh|sinful)\b|حرام|حلال|جائز|ناجائز|مکروہ|يجوز|محرم/i;
+
+export function asksForRuling(question: string): boolean {
+  return RULING_QUESTION.test(question);
+}
+
+/** How a model may write a collection's name inside a marker: "bukhari", "صحیح بخاری", "صحيح البخاري" */
+const BOOK_NAMES: Record<string, string> = {
+  bukhari: 'bukhari', 'sahih bukhari': 'bukhari', 'sahih al-bukhari': 'bukhari', 'صحیح بخاری': 'bukhari', 'صحيح البخاري': 'bukhari', 'بخاری': 'bukhari', 'البخاري': 'bukhari',
+  muslim: 'muslim', 'sahih muslim': 'muslim', 'صحیح مسلم': 'muslim', 'صحيح مسلم': 'muslim',
+  abudawud: 'abudawud', tirmidhi: 'tirmidhi', nasai: 'nasai', ibnmajah: 'ibnmajah',
+};
+
 /**
  * "[hadith bukhari:1]" markers → the hadith to show (only ones search_hadith returned); the
  * markers are removed. Without a marker nothing is shown: an answer can name a collection to
@@ -117,10 +131,19 @@ export function hadithForModel(hadith: Hadith): string {
  */
 export function takeHadithCitations(answer: string, known: Map<string, Hadith>): { text: string; hadiths: Hadith[] } {
   const refs: string[] = [];
-  const text = answer.replace(/\s*[\[(]\s*(?:hadith|hadees|حديث|حدیث)\s*#?\s*([a-z]+)\s*[: ]\s*(\d+(?:\.\d+)?)\s*[\])]/gi, (_, book: string, n: string) => {
-    const ref = `${book.toLowerCase()}:${n}`;
+  // "[hadith bukhari:1]", also "(hadith bukhari 1)" and "[صحیح بخاری:646]"; a bracket that isn't
+  // a hadith marker (e.g. an ayah reference) is left alone
+  const marker = /\s*(?:\[\s*(?:hadith|hadees|حديث|حدیث)?|\(\s*(?:hadith|hadees|حديث|حدیث))\s*#?\s*([^\[\]():\d]{2,30}?)\s*[: ]\s*(\d+(?:\.\d+)?)\s*[\])]/gi;
+  const text = answer.replace(marker, (whole, name: string, n: string) => {
+    const book = BOOK_NAMES[name.trim().toLowerCase().replace(/\s+/g, ' ')];
+    if (!book) return whole;
+    const ref = `${book}:${n}`;
     if (known.has(ref)) refs.push(ref);
     return '';
   });
-  return { text: text.replace(/[ \t]+\n/g, '\n'), hadiths: [...new Set(refs)].map(r => known.get(r)!).slice(0, 4) };
+  // What's left of "(Sahih Bukhari — [marker])" once the marker is gone: a bracket holding only a
+  // collection's name and punctuation, or nothing
+  const shell = new RegExp(String.raw`\s*[(\[]\s*(?:(?:${Object.keys(BOOK_NAMES).join('|')})\s*)?[—–\-,:،.\s]*[)\]]`, 'gi');
+  const cleaned = text.replace(shell, '').replace(/[ \t]+([.,،۔])/g, '$1').replace(/[ \t]+\n/g, '\n');
+  return { text: cleaned, hadiths: [...new Set(refs)].map(r => known.get(r)!).slice(0, 4) };
 }
