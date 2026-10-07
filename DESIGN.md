@@ -188,11 +188,16 @@ question box pinned above the nav.
   event's theme within 30 days, its date, one in Urdu). Earlier days' greetings stay as snapshots
   without suggestions. A new chat starts with today's greeting; the + only shows once there's a
   question to clear.
-- **Daily limit:** "N of 7 questions left today" in small muted text above the question box (the
-  server's count). At the limit the question box is **replaced** by a cream card: moon icon,
-  "That's today's 7 questions", "You can ask again after midnight, in 5 h 12 min" (live), and a
-  white "Continue reading" button to the Quran. The greeting's suggestions hide. A limit message
-  never offers "Try again", and it's brown, not red: it isn't an error. A new chat does not reset
-  the limit (it's per person per day).
+- **Daily limit:** "N of 5 questions left today" in small muted text above the question box (the
+  server's count; QFLOW_DAILY_LIMIT, 0 = unlimited and the line hides). At the limit the question
+  box is **replaced** by a cream card: moon icon, "That's today's 5 questions", "You can ask again
+  after midnight, in 5 h 12 min" (live), and a white "Continue reading" button to the Quran. The
+  greeting's suggestions hide. A limit message never offers "Try again", and it's brown, not red:
+  it isn't an error. A new chat does not reset the limit (it's per person per day).
+- **Global cap:** the whole app answers at most QFLOW_GLOBAL_DAILY_LIMIT questions a day (default
+  250, about what the free AI tiers allow; resets at midnight Pacific, with Gemini's quota). Once
+  it's used, everyone gets the same card with "QuranFlow AI is resting for today" / "It has
+  answered all it can today. Please ask again tomorrow, in sha Allah." A question refused by
+  the cap doesn't count against the user.
 - **Context sent with each question:** the last 3 question/answer pairs as text (answers carry
   their citations, so follow-ups can fetch those ayahs again).

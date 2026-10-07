@@ -35,6 +35,7 @@ export class QFlowComponent implements AfterViewInit {
   protected readonly todayKey = computed(() => isoDate(this.now()));
   protected readonly quota = this.chat.quota;
   protected readonly limitReached = this.chat.limitReached;
+  protected readonly busyToday = this.chat.busyToday;
   protected readonly unavailable = this.chat.unavailable;
   protected readonly canSend = computed(() => !this.busy() && !this.limitReached() && this.draft().trim().length > 0);
   /** "5 h 12 min" until the user's midnight, when the limit resets */

@@ -1,7 +1,8 @@
 /**
  * POST /api/qflow/ask
  * Body: { question, history?, calendar?, timeZone? }  (see AskInput in ../_lib/qflow)
- * Each answer includes `quota` (questions left today). Over the daily limit: 429 with `quota`.
+ * Each answer includes `quota` (questions left today). Over the user's daily limit, or the app's
+ * global cap: 429 with `quota` (`quota.busyToday` is true for the global cap).
  *
  * QFlow, the QuranFlow assistant: a short answer grounded in Quran ayahs it retrieved, with
  * those ayahs returned as cards. Not released yet: it only answers when QFLOW_ENABLED is "true"
@@ -58,10 +59,11 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error: 'QuranFlow AI is unavailable right now. Please try again later.' }, 503);
   }
   if (!taken.allowed) {
-    return json(
-      { error: `You've asked today's ${taken.quota.limit} questions. You can ask more tomorrow.`, quota: taken.quota },
-      429,
-    );
+    const error =
+      taken.reason === 'busy'
+        ? 'QuranFlow AI has answered all it can for today. Please try again tomorrow.'
+        : `You've asked today's ${taken.quota.limit} questions. You can ask more tomorrow.`;
+    return json({ error, quota: taken.quota }, 429);
   }
 
   const input: AskInput = { question, history, calendar };
@@ -70,7 +72,9 @@ export async function POST(request: Request): Promise<Response> {
     // No AI answer (every model failed): the question doesn't count
     if (result.mode === 'search-only') {
       await refundQuestion(id, timeZone);
-      return json({ ...result, quota: { ...taken.quota, used: taken.quota.used - 1, remaining: taken.quota.remaining + 1 } });
+      const { quota } = taken;
+      const refunded = quota.limit === null ? quota : { ...quota, used: quota.used - 1, remaining: (quota.remaining ?? 0) + 1 };
+      return json({ ...result, quota: refunded });
     }
     return json({ ...result, quota: taken.quota });
   } catch (error) {

@@ -124,6 +124,20 @@
         </div>
         <a class="ui-button ui-button--secondary limit-action" routerLink="/quran">Continue reading</a>
       </section>
+    } @else if (busyToday()) {
+      <!-- The app's global cap: everyone together has used today's free AI quota -->
+      <section class="limit-card ui-fade-in" aria-live="polite">
+        <span class="limit-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"></path>
+          </svg>
+        </span>
+        <div class="limit-text">
+          <p class="limit-title">QuranFlow AI is resting for today</p>
+          <p class="limit-detail">It has answered all it can today. Please ask again tomorrow, in sha Allah.</p>
+        </div>
+        <a class="ui-button ui-button--secondary limit-action" routerLink="/quran">Continue reading</a>
+      </section>
     } @else if (limitReached() && quota(); as q) {
       <section class="limit-card ui-fade-in" aria-live="polite">
         <span class="limit-icon" aria-hidden="true">
@@ -138,8 +152,11 @@
         <a class="ui-button ui-button--secondary limit-action" routerLink="/quran">Continue reading</a>
       </section>
     } @else {
+      <!-- No line when there's no daily limit -->
       @if (quota(); as q) {
-        <p class="quota">{{ q.remaining }} of {{ q.limit }} questions left today</p>
+        @if (q.limit !== null) {
+          <p class="quota">{{ q.remaining }} of {{ q.limit }} questions left today</p>
+        }
       }
 
       <form class="composer" (submit)="$event.preventDefault(); send()">

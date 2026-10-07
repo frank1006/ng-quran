@@ -53,7 +53,10 @@ export class QFlowChatStore {
   readonly lastSettled = signal<QFlowExchange | null>(null);
   /** Questions left today (from the server); null until known */
   readonly quota = signal<QFlowQuota | null>(null);
-  readonly limitReached = computed(() => this.quota()?.remaining === 0);
+  /** The whole app has used today's questions (the server's global cap), not just this user */
+  readonly busyToday = computed(() => this.quota()?.busyToday === true);
+  /** No more questions today, for either reason: the box goes away */
+  readonly limitReached = computed(() => this.quota()?.remaining === 0 || this.busyToday());
   /** The server has QuranFlow AI switched off (QFLOW_ENABLED isn't "true"), e.g. before release */
   readonly unavailable = signal(false);
 
@@ -145,9 +148,23 @@ function httpStatus(error: unknown): number | undefined {
   return typeof status === 'number' ? status : undefined;
 }
 
+/** Common Urdu words as people type them in Latin letters (same list as api/_lib/qflow.ts) */
+const ROMAN_URDU_WORDS = new Set(
+  ('hai hy hain hn kya kia kyun kyu kaise kese kesay kab kb ka ki ke k ko se mein mai aur ' +
+    'nahi nahin nhi btao batao bataen bataein baare bare baary barey chahiye chahye karna karo krna ' +
+    'hota hoti hotay wala wali walay jab tak sath saath liye lye kon kaun konsi kahan').split(' '),
+);
+
+/**
+ * The language whose translation the ayah cards show. Roman Urdu counts as Urdu: the answer is in
+ * Roman Urdu, but the ayahs show the Urdu translation (there's no trusted Roman Urdu one).
+ */
 export function detectLang(text: string): QFlowLang {
   if (/[ٹڈڑںےۓہھگکپچژ]/.test(text)) return 'ur';
   if (/[؀-ۿ]/.test(text)) return 'ar';
+  const words = text.toLowerCase().match(/[a-z]+/g) ?? [];
+  const urdu = words.filter(w => ROMAN_URDU_WORDS.has(w)).length;
+  if (urdu >= 2 || (urdu === 1 && words.length <= 3)) return 'ur';
   return 'en';
 }
 

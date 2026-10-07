@@ -5,8 +5,8 @@
  * still goes to production. QFlow is off in production until release, so this is how to try it.
  *
  * Usage: node scripts/qflow-dev-server.mjs   (keys from .env.local; never printed)
- * Optional: QFLOW_ENABLED=false to test it switched off, QFLOW_DAILY_LIMIT=3 for a smaller limit,
- * QFLOW_PORT for another port.
+ * Optional: QFLOW_ENABLED=false to test it switched off, QFLOW_DAILY_LIMIT=3 for a smaller limit
+ * (0 = unlimited), QFLOW_GLOBAL_DAILY_LIMIT=1 to see the app-wide cap, QFLOW_PORT for another port.
  */
 import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';

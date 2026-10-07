@@ -41,7 +41,7 @@ function buildCalendar() {
   today.setHours(12, 0, 0, 0);
   const h = toHijri(today);
   const events = [];
-  for (let i = -30; i <= 200; i++) {
+  for (let i = -30; i <= 400; i++) {
     const date = new Date(today.getTime() + i * 86_400_000);
     const dh = toHijri(date);
     for (const e of ISLAMIC_EVENTS) {
@@ -73,6 +73,11 @@ const EVAL = [
   'روزے کے بارے میں آیات بتائیں',
   'ماذا يقول القرآن عن الصبر والصلاة؟',
   'آية الكرسي',
+  // Roman Urdu and surahs by name
+  'surah nas k baary mai btao',
+  'eid kb hy 2027',
+  'sabr k baare mein quran kya kehta hai',
+  'Tell me about Surah Al-Mulk',
   // Events (calendar tool)
   'When is Ramadan this year?',
   'What Islamic events are coming up?',

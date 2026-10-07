@@ -26,10 +26,13 @@ export interface QFlowAnswer {
 
 /** The daily question limit (api/_lib/qflow-limit.ts) */
 export interface QFlowQuota {
-  limit: number;
+  /** null when there's no daily limit (QFLOW_DAILY_LIMIT=0) */
+  limit: number | null;
   used: number;
-  remaining: number;
+  remaining: number | null;
   resetsAt: string;
+  /** The whole app has used today's questions (the global cap) */
+  busyToday?: boolean;
 }
 
 export interface QFlowTurn {
@@ -38,9 +41,9 @@ export interface QFlowTurn {
 }
 
 const DAY_MS = 86_400_000;
-/** Recent and coming events QFlow can talk about */
+/** Recent and coming events QFlow can talk about: a full Hijri year ahead, so every event has a date */
 const EVENTS_FROM_DAYS = -30;
-const EVENTS_TO_DAYS = 200;
+const EVENTS_TO_DAYS = 400;
 
 /**
  * Talks to /api/qflow/ask. Dates are worked out here by the app's own HijriCalendarService
