@@ -170,6 +170,15 @@ html {
   -ms-touch-action: manipulation;
 }
 
+/* Feel like an app: no page bounce or pull-to-refresh at the edges, no dragging images or links */
+html, body {
+  overscroll-behavior: none;
+}
+
+img, a {
+  -webkit-user-drag: none;
+}
+
 html, body, .main {
   height: 100%;
   height: 100dvh;
