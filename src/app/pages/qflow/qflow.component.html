@@ -219,13 +219,16 @@
         }
       }
 
+      @if (draft().length >= maxQuestion - 100) {
+        <p class="quota" [class.quota--full]="draft().length >= maxQuestion">{{ draft().length }} / {{ maxQuestion }} characters</p>
+      }
       <form class="composer" (submit)="$event.preventDefault(); send()">
         <label class="visually-hidden" for="qflow-question">Ask QuranFlow AI</label>
-        <input
+        <textarea
           #field
           id="qflow-question"
           class="composer-input"
-          type="text"
+          rows="1"
           dir="auto"
           enterkeyhint="send"
           autocomplete="off"
@@ -233,7 +236,8 @@
           [maxLength]="maxQuestion"
           [value]="draft()"
           (input)="onInput($event)"
-        />
+          (keydown.enter)="onEnter($event)"
+        ></textarea>
         <button type="submit" class="ui-icon-btn ui-icon-btn--primary" [disabled]="!canSend()" aria-label="Send question">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 19V5M5 12l7-7 7 7"></path>
