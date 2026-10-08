@@ -236,30 +236,71 @@ html, body, .main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
   min-height: 100dvh;
-  padding: var(--space-xl);
+  padding: calc(var(--space-xl) + env(safe-area-inset-top, 0px)) var(--space-xl) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
   text-align: center;
   font-family: var(--font-body);
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 70%);
+}
+
+/* Logo, name and what the app does, centred in the space above the links */
+.boot-brand {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  animation: boot-in 600ms ease-out both;
+}
+
+.boot-logo {
+  width: 7rem;
+  height: 7rem;
+  margin-bottom: var(--space-sm);
+  border-radius: 1.75rem;
+  background: var(--color-surface);
+  box-shadow: 0 10px 30px rgba(135, 77, 20, 0.14);
 }
 
 .boot-name {
-  font-size: var(--page-title-size);
+  font-size: 2rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--color-text);
+}
+
+.boot-tagline {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-accent-dark);
 }
 
 .boot-text,
 .boot-links {
-  max-width: 22rem;
+  max-width: 20rem;
   font-size: var(--font-sm);
   line-height: 1.6;
   color: var(--color-accent-dark);
 }
 
+.boot-text {
+  margin-top: var(--space-sm);
+  opacity: 0.85;
+}
+
 .boot-links a {
   color: var(--color-accent-dark);
+}
+
+@keyframes boot-in {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-brand { animation: none; }
 }
 
 /* Text pages (Privacy, Mission): like every page, the page itself is the scroll area (html, body
