@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, effect, isDevMode, untracked } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, DestroyRef, inject, effect, isDevMode, untracked, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -73,6 +73,17 @@ export class PrayerComponent implements OnInit, OnDestroy {
   protected readonly locating = signal(false);
   /** Widen the masjid distance automatically when nothing is found, until the user picks one */
   protected readonly masjidAutoExpand = signal(true);
+  /** The calendar sheet loads just after the page (@defer), keeping it out of the startup bundle */
+  private readonly calendarSheet = viewChild<CalendarSheetComponent>('calendarSheet');
+  /** A tap on the date before the sheet has loaded: opened as soon as it's there */
+  protected readonly pendingCalendarDate = signal<Date | null>(null);
+  private readonly openPendingCalendar = effect(() => {
+    const sheet = this.calendarSheet();
+    const date = this.pendingCalendarDate();
+    if (!sheet || !date) return;
+    this.pendingCalendarDate.set(null);
+    untracked(() => sheet.open(date));
+  });
   protected readonly masjidRadiusNote = signal('');
   private masjidAutoFrom: number | null = null;
   /** Distance filter options (km) in round numbers of the user's unit */
@@ -655,6 +666,12 @@ export class PrayerComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  protected openCalendar(): void {
+    const sheet = this.calendarSheet();
+    if (sheet) sheet.open(this.currentDate());
+    else this.pendingCalendarDate.set(this.currentDate());
+  }
 
   protected goToToday(): void {
     const today = new Date();
