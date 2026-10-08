@@ -127,37 +127,44 @@
   },
   "screenshots": [
     {
-      "src": "screenshots/prayer.webp",
-      "sizes": "1080x2160",
-      "type": "image/webp",
+      "src": "screenshots/prayer.png",
+      "sizes": "618x1386",
+      "type": "image/png",
       "form_factor": "narrow",
-      "label": "Prayer times with the sun's path through the day"
+      "label": "Prayer times for your location, with the sun's path through the day"
     },
     {
-      "src": "screenshots/masjids.webp",
-      "sizes": "1080x2160",
-      "type": "image/webp",
+      "src": "screenshots/ai.png",
+      "sizes": "618x1386",
+      "type": "image/png",
       "form_factor": "narrow",
-      "label": "Nearby masjids with walking distance and directions"
+      "label": "QuranFlow AI: ask about the Quran, du'as, zakat and prayer times"
     },
     {
-      "src": "screenshots/quran.webp",
-      "sizes": "1080x2160",
-      "type": "image/webp",
+      "src": "screenshots/masjids.png",
+      "sizes": "618x1386",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Nearby masjids with distance and directions"
+    },
+    {
+      "src": "screenshots/quran.png",
+      "sizes": "618x1386",
+      "type": "image/png",
       "form_factor": "narrow",
       "label": "All 114 surahs with your chosen reciter"
     },
     {
-      "src": "screenshots/surah.webp",
-      "sizes": "1080x2160",
-      "type": "image/webp",
+      "src": "screenshots/surah.png",
+      "sizes": "618x1386",
+      "type": "image/png",
       "form_factor": "narrow",
       "label": "Read each ayah in Arabic with a translation and audio"
     },
     {
-      "src": "screenshots/qibla.webp",
-      "sizes": "1080x2160",
-      "type": "image/webp",
+      "src": "screenshots/qibla.png",
+      "sizes": "618x1386",
+      "type": "image/png",
       "form_factor": "narrow",
       "label": "Qibla compass for your location"
     }
