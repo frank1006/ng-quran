@@ -25,6 +25,17 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
   
+  <!-- Installed Android app: Android shows its own launch screen (icon on the manifest's
+       background) while it starts, so ours stays empty: no second logo flashing by.
+       Runs before the first paint; src/main.ts reads the class too. -->
+  <script>
+    if (/Android/i.test(navigator.userAgent) &&
+        (document.referrer.indexOf('android-app://') === 0 ||
+         matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches)) {
+      document.documentElement.classList.add('android-app');
+    }
+  </script>
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">

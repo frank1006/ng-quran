@@ -5,10 +5,10 @@ import { inject } from '@vercel/analytics';
 
 /**
  * On a fresh start the launch screen stays at least this long (from the tap), so it reads as a
- * splash, not a flash. Not in the installed Android app: Android shows its own launch screen
- * (icon on the manifest's background) while it starts, so ours only covers what's left of loading.
+ * splash, not a flash. Not in the installed Android app (the "android-app" class, set in
+ * index.html): Android shows its own launch screen there and ours stays empty.
  */
-const SPLASH_MIN_MS = isInstalledAndroidApp() ? 0 : 1000;
+const SPLASH_MIN_MS = document.documentElement.classList.contains('android-app') ? 0 : 1000;
 
 // Initialize Vercel Analytics
 inject();
@@ -29,10 +29,4 @@ function hideSplash(): void {
     // After the fade (or at once with reduced motion, where there is no transition)
     setTimeout(() => splash.remove(), 300);
   }, Math.max(0, SPLASH_MIN_MS - performance.now()));
-}
-
-/** The Play Store app (opened by its package) or a web app installed from Chrome on Android */
-function isInstalledAndroidApp(): boolean {
-  if (!/Android/i.test(navigator.userAgent)) return false;
-  return document.referrer.startsWith('android-app://') || matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
 }

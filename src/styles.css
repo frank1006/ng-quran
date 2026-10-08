@@ -298,6 +298,11 @@ html, body, .main {
   color: var(--color-accent-dark);
 }
 
+/* Installed Android app: only the cream background, after Android's own launch screen */
+.android-app .boot > * {
+  visibility: hidden;
+}
+
 .boot--hidden {
   opacity: 0;
   pointer-events: none;
