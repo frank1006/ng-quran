@@ -231,8 +231,12 @@ html, body, .main {
    Design system components. Pages use these instead of styling their own copies.
    ============================================================================ */
 
-/* The screen in index.html before the app starts (and for tools that don't run it) */
+/* The launch screen in index.html: over the app until src/main.ts fades it out */
 .boot {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -294,6 +298,12 @@ html, body, .main {
   color: var(--color-accent-dark);
 }
 
+.boot--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease-out;
+}
+
 @keyframes boot-in {
   from { opacity: 0; transform: translateY(0.5rem); }
   to { opacity: 1; transform: none; }
@@ -301,6 +311,7 @@ html, body, .main {
 
 @media (prefers-reduced-motion: reduce) {
   .boot-brand { animation: none; }
+  .boot--hidden { transition: none; }
 }
 
 /* Text pages (Privacy, Mission): like every page, the page itself is the scroll area (html, body
