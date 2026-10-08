@@ -1,8 +1,8 @@
 /**
  * GET /api/push/dispatch  (Authorization: Bearer CRON_SECRET)
  *
- * Called every minute by an external scheduler (cron-job.org; Vercel Hobby cron only
- * runs daily). Sends the reminders that are due and queues the next day for subscribers
+ * Called every minute by a Cloudflare Worker cron (workers/push-cron; Vercel Hobby cron
+ * only runs daily). Sends the reminders that are due and queues the next day for subscribers
  * whose top-up is due.
  */
 import webpush from 'web-push';

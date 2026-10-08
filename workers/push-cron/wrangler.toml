@@ -1,0 +1,15 @@
+# Calls the app's push dispatch every minute (replaces cron-job.org).
+# Deploy: npx wrangler deploy   Secret: npx wrangler secret put CRON_SECRET
+name = "quranflow-push-cron"
+main = "index.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+DISPATCH_URL = "https://qflowai.jahaznova.com/api/push/dispatch"
+
+[observability]
+enabled = true
