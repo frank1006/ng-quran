@@ -124,7 +124,7 @@ import { RouterLink } from '@angular/router';
           <li>Weather data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)</li>
           <li>Du'as, the names of Allah, zakat rules and today's gold and silver prices via <a href="https://ummahapi.com" target="_blank" rel="noopener">UmmahAPI</a></li>
           <li>
-            Hadith of Sahih al-Bukhari via the <a href="https://huggingface.co/datasets/quranlab/hadith" target="_blank" rel="noopener">QuranLab hadith dataset</a>:
+            Hadith of Sahih al-Bukhari and Sahih Muslim via the <a href="https://huggingface.co/datasets/quranlab/hadith" target="_blank" rel="noopener">QuranLab hadith dataset</a>:
             the Arabic text (public domain) from <a href="https://github.com/fawazahmed0/hadith-api" target="_blank" rel="noopener">fawazahmed0/hadith-api</a>,
             and English and Urdu translations, with their grades, from
             <a href="https://hadeethenc.com" target="_blank" rel="noopener">HadeethEnc.com</a> (the Encyclopedia of

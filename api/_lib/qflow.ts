@@ -91,12 +91,6 @@ const SEARCH_TOP_K = 6;
  * events" 0.66, "Python code" 0.58). Used only when no model could answer.
  */
 const SEARCH_ONLY_MIN_SCORE = 0.68;
-/**
- * The same for hadith, which score lower: most are embedded from their Arabic alone (no open
- * translation). Measured on a sample, real matches ~0.3-0.6; provisional until re-measured on the
- * full import.
- */
-const HADITH_SEARCH_ONLY_MIN_SCORE = 0.45;
 const MAX_SEARCHES = 2;
 const MAX_HADITH_SEARCHES = 2;
 const MAX_AYAH_FETCH = 12;
@@ -788,12 +782,10 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
     }
   }
 
-  // Every model failed: show the closest ayahs and hadith (if any are close enough) without an AI answer
-  const [ayahs, hadiths] = await Promise.all([
-    searchQuran(input.question).catch(() => [] as Ayah[]),
-    searchHadith(input.question).catch(() => [] as Hadith[]),
-  ]);
-  const close = <T extends { score?: number }>(hits: T[], min = SEARCH_ONLY_MIN_SCORE) => hits.filter(h => (h.score ?? 0) >= min);
+  // Every model failed: show the closest ayahs without an AI answer. No hadith: their scores don't
+  // separate related from unrelated ones (both ~0.70-0.77), so only a model may pick them
+  const ayahs = await searchQuran(input.question).catch(() => [] as Ayah[]);
+  const close = <T extends { score?: number }>(hits: T[]) => hits.filter(h => (h.score ?? 0) >= SEARCH_ONLY_MIN_SCORE);
   return {
     mode: 'search-only',
     answer: null,
@@ -804,7 +796,7 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
     actions: [],
     duas: [],
     names: [],
-    hadiths: close(hadiths, HADITH_SEARCH_ONLY_MIN_SCORE).slice(0, 3),
+    hadiths: [],
   };
 }
 

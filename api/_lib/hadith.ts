@@ -67,7 +67,7 @@ const COLLECTIONS: Record<string, { name: string; collectionGrade?: string }> = 
 };
 
 /** The collections in the index so far; add each book here when its import is complete */
-export const HADITH_BOOKS = ['bukhari'];
+export const HADITH_BOOKS = ['bukhari', 'muslim'];
 export const HADITH_BOOK_NAMES = HADITH_BOOKS.map(b => COLLECTIONS[b].name).join(', ');
 
 const NAMESPACE = 'hadith';
@@ -120,6 +120,8 @@ export async function searchHadith(query: string): Promise<Hadith[]> {
   const hits = await vector(`query/${NAMESPACE}`, {
     vector: await embedQuery(query),
     topK: SEARCH_TOP_K,
+    // Books are imported before they're switched on here
+    filter: `book IN (${HADITH_BOOKS.map(b => `'${b}'`).join(', ')})`,
     includeMetadata: true,
     includeData: true,
   });
