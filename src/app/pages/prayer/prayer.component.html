@@ -84,7 +84,7 @@
       [locationMessage]="locationMessage()"
       (dateNavigate)="navigateDate($event)"
       (goToToday)="goToToday()"
-      (openCalendar)="calendarSheet.open(currentDate())"
+      (openCalendar)="openCalendar()"
       (refreshLocation)="refreshLocation()"
     />
   }
@@ -132,4 +132,6 @@
   }
 </section>
 
-<app-calendar-sheet #calendarSheet />
+@defer (on idle; when pendingCalendarDate()) {
+  <app-calendar-sheet #calendarSheet />
+}

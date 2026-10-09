@@ -37,7 +37,7 @@ export class QFlowComponent implements AfterViewInit {
   private chapters: Chapter[] = [];
   protected readonly auth = inject(AuthService);
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
-  private readonly field = viewChild<ElementRef<HTMLInputElement>>('field');
+  private readonly field = viewChild<ElementRef<HTMLTextAreaElement>>('field');
 
   protected readonly maxQuestion = MAX_QUESTION;
   protected readonly draft = signal('');
@@ -121,6 +121,11 @@ export class QFlowComponent implements AfterViewInit {
     if (this.busy() || this.limitReached() || !text.trim()) return;
     this.chat.ask(text);
     this.draft.set('');
+    const field = this.field()?.nativeElement;
+    if (field) {
+      field.value = '';
+      fitToText(field);
+    }
     this.announcement.set('');
     this.scrollToEnd('smooth');
   }
@@ -137,7 +142,17 @@ export class QFlowComponent implements AfterViewInit {
   }
 
   protected onInput(event: Event): void {
-    this.draft.set((event.target as HTMLInputElement).value);
+    const field = event.target as HTMLTextAreaElement;
+    this.draft.set(field.value);
+    fitToText(field);
+  }
+
+  /** Enter sends, like a chat app; Shift+Enter (or Enter while an IME is composing) doesn't */
+  protected onEnter(event: Event): void {
+    const key = event as KeyboardEvent;
+    if (key.shiftKey || key.isComposing) return;
+    key.preventDefault();
+    this.send();
   }
 
   /**
@@ -247,4 +262,10 @@ export class QFlowComponent implements AfterViewInit {
       el?.scrollTo({ top: el.scrollHeight, behavior });
     });
   }
+}
+
+/** The question box grows with the text (up to its CSS max-height, then it scrolls) */
+function fitToText(field: HTMLTextAreaElement): void {
+  field.style.height = 'auto';
+  field.style.height = `${field.scrollHeight}px`;
 }

@@ -477,6 +477,10 @@
 }
 
 /* Questions left today: a quiet line above the question box */
+.quota--full {
+  color: var(--color-accent-dark);
+}
+
 .quota {
   flex: none;
   margin: 0 var(--space-xs) var(--space-xs);
@@ -560,13 +564,14 @@
 .composer {
   flex: none;
   display: flex;
-  align-items: center;
+  align-items: flex-end; /* the send button stays at the bottom as the text grows */
   gap: var(--space-xs);
-  height: var(--dock-row);
+  min-height: var(--dock-row);
   margin-bottom: var(--dock-bottom);
-  padding: 0 0.375rem 0 var(--space-md); /* the 36px send button sits centred, 6px from the end */
+  /* One line: the 36px box and 36px send button, 7px above and below, 1px border = the 3.25rem row */
+  padding: 0.4375rem 0.375rem 0.4375rem var(--space-md);
   border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
+  border-radius: calc(var(--dock-row) / 2); /* a pill on one line, a rounded box when it grows */
   background: var(--color-surface);
   transition: box-shadow var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
 }
@@ -579,11 +584,17 @@
 .composer-input {
   flex: 1;
   min-width: 0;
-  height: 2.5rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  max-height: 7.5rem; /* about five lines, then it scrolls */
+  padding: 0.4rem 0;
   border: none;
   background: transparent;
+  resize: none;
+  overflow-y: auto;
   font-family: var(--font-body);
   font-size: 16px; /* iOS doesn't zoom into 16px+ fields */
+  line-height: 1.4;
   color: var(--color-text);
 }
 

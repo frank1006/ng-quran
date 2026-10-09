@@ -497,7 +497,9 @@ async function chatOnce(config: ModelConfig, messages: Message[], tools: 'requir
         model: config.model,
         messages,
         temperature: 0.2,
-        max_tokens: 900,
+        // gpt-oss thinks before it answers and that counts against max_tokens: keep the
+        // thinking short and leave room for it, or a long answer gets cut off
+        ...(isReasoningModel(config.model) ? { max_tokens: 2000, reasoning_effort: 'low' } : { max_tokens: 900 }),
         ...(tools === 'none' ? {} : { tools: TOOLS, tool_choice: tools }),
       }),
     });
@@ -508,6 +510,10 @@ async function chatOnce(config: ModelConfig, messages: Message[], tools: 'requir
       // A daily quota or a request bigger than the per-minute budget won't pass on a retry
       const retryable = [429, 500, 502, 503, 504].includes(response.status) && !/per day|tokens per minute|TPM|ITPM/i.test(detail);
       throw new ModelError(`${config.model}: HTTP ${response.status} ${detail}`.slice(0, 200), retryable);
+    }
+    // Ran out of tokens mid-answer: let the next model answer rather than show half a reply
+    if (body.choices[0].finish_reason === 'length' && !message.tool_calls?.length) {
+      throw new ModelError(`${config.model}: answer cut off (max_tokens)`);
     }
     return {
       role: 'assistant',
@@ -520,6 +526,10 @@ async function chatOnce(config: ModelConfig, messages: Message[], tools: 'requir
   } finally {
     clearTimeout(timer);
   }
+}
+
+function isReasoningModel(model: string): boolean {
+  return /gpt-oss/i.test(model);
 }
 
 // --- the agent -----------------------------------------------------------------------------
