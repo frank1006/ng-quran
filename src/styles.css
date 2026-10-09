@@ -166,6 +166,7 @@ body {
 }
 
 html {
+  color-scheme: only light; /* no forced dark mode or inverted colours from the phone */
   touch-action: manipulation;
   -ms-touch-action: manipulation;
 }
