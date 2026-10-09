@@ -178,13 +178,6 @@ export class QFlowComponent implements AfterViewInit {
     return this.hadithTranslation(hadith, lang) === t?.ur && t?.ur ? 'ur' : 'en';
   }
 
-  /** "Translation: HadeethEnc.com · Authentic · Agreed upon", in the language of the translation shown */
-  protected hadithCredit(hadith: QFlowHadith, lang: QFlowLang): string {
-    const t = this.hadithTranslation(hadith, lang);
-    const label = t && t === hadith.translation?.ur ? 'ترجمہ: HadeethEnc.com' : 'Translation: HadeethEnc.com';
-    return [label, t?.grade, t?.attribution].filter(Boolean).join(' · ');
-  }
-
   /** Under an Arabic-only hadith: the answer above explains it */
   protected noTranslationNote(lang: QFlowLang): string {
     return lang === 'ur' ? 'ترجمہ دستیاب نہیں، اوپر کا خلاصہ دیکھیں' : 'Translation not available. See the summary above.';
@@ -219,12 +212,6 @@ export class QFlowComponent implements AfterViewInit {
   /** Opening the other language of a shortened hadith shows all of it too */
   protected onOtherToggle(event: Event, hadith: QFlowHadith): void {
     if ((event.target as HTMLDetailsElement).open) void this.loadFullHadith(hadith);
-  }
-
-  /** Each grader's verdict as the collection gives it, or the collection's own note; never our own */
-  protected hadithGrade(hadith: QFlowHadith): string {
-    if (hadith.grades.length) return hadith.grades.map(g => `${g.grade} (${g.grader})`).join(' · ');
-    return hadith.collectionGrade ?? 'No grade given';
   }
 
   /** Hadith cards opened with "Read more", by exchange and ref */

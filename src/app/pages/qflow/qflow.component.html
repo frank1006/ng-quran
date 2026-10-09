@@ -169,10 +169,6 @@
                           }
                         </details>
                       }
-                      <p class="dua-source">{{ hadithGrade(hadith) }}</p>
-                      @if (hadith.translation) {
-                        <p class="hadith-credit" [attr.lang]="hadithLang(hadith, exchange.lang)" dir="auto">{{ hadithCredit(hadith, exchange.lang) }}</p>
-                      }
                     </li>
                   }
                 </ul>
