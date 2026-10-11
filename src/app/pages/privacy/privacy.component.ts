@@ -131,9 +131,11 @@ import { RouterLink } from '@angular/router';
             Translated Prophetic Hadiths), used with attribution. Hadith without a HadeethEnc translation are shown in Arabic only.
           </li>
           <li>
-            Tafsir, which QuranFlow AI summarises in its own words when asked what an ayah means: Tafsir Ibn Kathir
-            (abridged, English and Urdu) and Al-Tafsir al-Muyassar (Arabic), via the
-            <a href="https://quran.foundation" target="_blank" rel="noopener">Quran Foundation</a> API. The tafsir text itself isn't shown in the app.
+            Tafsir, which QuranFlow AI summarises in its own words when asked what an ayah means, via the
+            <a href="https://quran.foundation" target="_blank" rel="noopener">Quran Foundation</a> API: Tafsir Ibn Kathir
+            (English, Urdu, Arabic), Ma'arif al-Qur'an by Mufti Muhammad Shafi, Tazkir ul Quran by Maulana Wahiduddin Khan,
+            Bayan ul Quran by Dr. Israr Ahmad, Fi Zilal al-Quran by Sayyid Qutb, Al-Tafsir al-Muyassar, and the tafsirs of
+            al-Tabari, al-Qurtubi, al-Sa'di, al-Baghawi and Tantawi (Al-Wasit). The tafsir text itself isn't shown in the app.
           </li>
         </ul>
       </section>
