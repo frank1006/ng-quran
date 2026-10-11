@@ -39,22 +39,25 @@ export class PushReminderService {
     if (!this.swPush.isEnabled) return;
 
     effect(() => {
-      const enabled = this.notifications.isNotificationEnabled();
-      const preferences = this.notifications.currentSettings().preferences;
+      // What the user chose, whatever the permission reads right now: only their own "all off"
+      // removes this device from the server
+      const { enabled, preferences } = this.notifications.currentSettings();
       const prayers = enabled ? Object.keys(preferences).filter(key => preferences[key]) : [];
+      const permitted = this.notifications.isPermissionGranted();
       const location = this.prayerStore.currentLocation();
       const method = this.settings.calcMethod();
       const school = this.settings.asrSchool();
 
       untracked(() => {
         clearTimeout(this.syncTimer);
-        this.syncTimer = setTimeout(() => this.sync(prayers, location, method, school), SYNC_DEBOUNCE_MS);
+        this.syncTimer = setTimeout(() => this.sync(prayers, permitted, location, method, school), SYNC_DEBOUNCE_MS);
       });
     });
   }
 
   private async sync(
     prayers: string[],
+    permitted: boolean,
     location: { latitude: number; longitude: number } | null,
     method: number | null,
     school: number
@@ -69,6 +72,12 @@ export class PushReminderService {
         }
         this.active.set(false);
         this.writeRecord(null);
+        return;
+      }
+      if (!permitted) {
+        // Reminders are wanted but not allowed right now: keep the server's copy, so they carry
+        // on if the permission was only misread, and nothing is lost if it comes back
+        this.active.set(false);
         return;
       }
       if (!location) return; // wait for a location

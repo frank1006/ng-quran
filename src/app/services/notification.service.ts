@@ -55,10 +55,15 @@ export class NotificationService {
 
   constructor() {
     this.loadSettings();
-    this.checkPermissionStatus();
 
     // Check scheduled notifications on app load
     if (typeof window !== 'undefined') {
+      // The permission can change while the app is closed or in the background (phone settings),
+      // and the first read right after a cold start isn't always the final one
+      void this.refreshPermission();
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') void this.refreshPermission();
+      });
       this.checkScheduledNotifications();
       this.setupOfflineHandling();
       this.setupDateRolloverHandling();
@@ -232,6 +237,34 @@ export class NotificationService {
       this.permissionStatus.set(NotificationPermissionStatus.DENIED);
       return NotificationPermissionStatus.DENIED;
     }
+  }
+
+  /**
+   * Brings the permission up to date. When the page says "not asked yet", the service worker's
+   * push permission is checked too: an installed app that was just reopened can still report
+   * "not asked" on the page although the user allowed notifications earlier.
+   */
+  private async refreshPermission(): Promise<void> {
+    let status = this.checkPermissionStatus();
+    if (status === NotificationPermissionStatus.PROMPT) {
+      status = (await this.pushPermission()) ?? status;
+    }
+    if (status === this.permissionStatus()) return;
+
+    this.permissionStatus.set(status);
+    if (status === NotificationPermissionStatus.GRANTED) void this.handleDateRollover();
+  }
+
+  private async pushPermission(): Promise<NotificationPermissionStatus | null> {
+    try {
+      const registration = await navigator.serviceWorker?.getRegistration();
+      const state = await registration?.pushManager?.permissionState({ userVisibleOnly: true });
+      if (state === 'granted') return NotificationPermissionStatus.GRANTED;
+      if (state === 'denied') return NotificationPermissionStatus.DENIED;
+    } catch {
+      // No service worker or push here: the page's own answer stands
+    }
+    return null;
   }
 
   /**
