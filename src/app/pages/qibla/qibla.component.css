@@ -11,7 +11,7 @@
      the panel's padding, the button or instruction, the two facts, and the gaps between them
      (measured: the last row ends about 0.75rem above the nav's bubble) */
   --hero-height: 11rem;
-  --beside-compass: 18.375rem;
+  --beside-compass: 19.125rem;
   --compass-size: clamp(
     9rem,
     calc(100dvh - env(safe-area-inset-top, 0px) - var(--nav-space) - var(--mini-player-space, 0px) - var(--beside-compass) - var(--extra-lines, 0px)),
@@ -35,7 +35,7 @@
 @media (min-height: 46rem) {
   .qibla-container {
     --hero-height: 12.5rem;
-    --beside-compass: 19.875rem;
+    --beside-compass: 20.625rem;
   }
 }
 
@@ -45,7 +45,8 @@
   background: var(--color-surface);
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
-  padding: 1.25rem var(--space-xl) calc(var(--space-sm) + var(--nav-space) + var(--mini-player-space, 0px));
+  /* 2rem at the top: with the compass's own lift, the Kaaba marker above it straddles this panel's edge */
+  padding: var(--space-xl) var(--space-xl) calc(var(--space-sm) + var(--nav-space) + var(--mini-player-space, 0px));
   max-width: var(--app-max-width);
   width: 100%;
   margin-inline: auto;

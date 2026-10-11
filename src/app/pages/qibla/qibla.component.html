@@ -74,7 +74,7 @@
             }
 
             <!-- No usable compass (laptop, desktop, or a browser without true north): the dial is
-                 fixed with north at the top, and the bearing is given in words -->
+                 drawn facing the Qibla with north marked on its rim, and the bearing is given in words -->
             @if (!compassAvailable()) {
               <div class="instruction-card">
                 <p class="instruction-text">Qibla is {{ bearingText() }} from north</p>

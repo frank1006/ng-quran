@@ -74,11 +74,27 @@
   display: block;
 }
 
-/* "N" above a fixed dial, where the Kaaba marker sits on a live one */
-.north-point {
-  transform: translateY(-95%);
+/* "N" on the rim of a fixed dial: the layer turns to where north is, the letter stays upright */
+.north-mark {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.north-mark span {
+  margin-top: 1.5%;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 2px var(--color-primary);
   font-family: var(--font-body);
-  font-size: var(--font-xl);
+  font-size: var(--font-xs);
   font-weight: 700;
   line-height: 1;
   color: var(--color-accent-dark);
