@@ -147,7 +147,7 @@
                           @if (clamp.clamped() || isExpanded(key)) {
                             <button
                               type="button"
-                              class="ui-chip hadith-action"
+                              class="ui-button ui-button--secondary hadith-action"
                               (click)="toggleExpanded(key, hadith)"
                               [attr.aria-expanded]="isExpanded(key)"
                               [disabled]="loadingHadith() === hadith.ref"
@@ -158,13 +158,12 @@
                           @if (arabic) {
                             <button
                               type="button"
-                              class="ui-chip hadith-action"
-                              [class.is-on]="isArabicShown(key)"
+                              class="ui-button ui-button--secondary hadith-action"
                               (click)="toggleArabic(key, hadith)"
                               [attr.aria-expanded]="isArabicShown(key)"
                               [disabled]="loadingHadith() === hadith.ref"
                             >
-                              Arabic
+                              {{ isArabicShown(key) ? 'Hide Arabic' : 'Arabic' }}
                             </button>
                           }
                           @if (loadingHadith() === hadith.ref) {

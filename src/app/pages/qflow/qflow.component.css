@@ -389,15 +389,11 @@
   margin-top: var(--space-xs);
 }
 
-.hadith-action {
-  min-height: 2.75rem;
-  padding-inline: var(--space-md);
-  font-size: var(--font-sm);
-}
-
-.hadith-action:disabled {
-  opacity: 0.6;
-  cursor: default;
+/* The cream text buttons of Profile's "Our mission / Privacy policy", a size smaller */
+.answer .hadith-action {
+  min-height: 2.25rem;
+  padding: 0 var(--space-md);
+  font-size: var(--font-xs);
 }
 
 .hadith-loading {
