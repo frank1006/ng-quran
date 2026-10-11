@@ -6,10 +6,16 @@ export interface NotificationPreferences {
   [prayerKey: string]: boolean; // e.g., { fajr: true, dhuhr: false }
 }
 
+/** How a prayer's reminder arrives: with the phone's sound, quietly, or not at all */
+export type ReminderMode = 'off' | 'sound' | 'silent';
+
 export interface NotificationSettings {
   enabled: boolean;
   advanceMinutes: number; // Minutes before prayer to notify (default: 5)
+  /** Prayers with a reminder */
   preferences: NotificationPreferences;
+  /** Of those, the ones that arrive without sound or vibration */
+  silent?: NotificationPreferences;
 }
 
 export interface ScheduledNotification {

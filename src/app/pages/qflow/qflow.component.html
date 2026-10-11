@@ -23,7 +23,9 @@
           @if (w.event) {
             <p class="welcome-event">{{ w.event }}</p>
           }
-          @if (w.date === todayKey() && !limitReached()) {
+          <!-- The introduction is for a new conversation; a later day's greeting in one that is
+               already going stays short -->
+          @if (w.date === todayKey() && !limitReached() && !askedBefore(exchange.id)) {
             <p class="welcome-help">
               Ask me about the Quran, hadith, du'as, zakat, prayer times, the Qibla or nearby masjids,
               in English, Urdu or Arabic.

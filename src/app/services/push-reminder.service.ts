@@ -41,8 +41,9 @@ export class PushReminderService {
     effect(() => {
       // What the user chose, whatever the permission reads right now: only their own "all off"
       // removes this device from the server
-      const { enabled, preferences } = this.notifications.currentSettings();
+      const { enabled, preferences, silent } = this.notifications.currentSettings();
       const prayers = enabled ? Object.keys(preferences).filter(key => preferences[key]) : [];
+      const quiet = prayers.filter(key => silent?.[key]);
       const permitted = this.notifications.isPermissionGranted();
       const location = this.prayerStore.currentLocation();
       const method = this.settings.calcMethod();
@@ -50,13 +51,14 @@ export class PushReminderService {
 
       untracked(() => {
         clearTimeout(this.syncTimer);
-        this.syncTimer = setTimeout(() => this.sync(prayers, permitted, location, method, school), SYNC_DEBOUNCE_MS);
+        this.syncTimer = setTimeout(() => this.sync(prayers, quiet, permitted, location, method, school), SYNC_DEBOUNCE_MS);
       });
     });
   }
 
   private async sync(
     prayers: string[],
+    silent: string[],
     permitted: boolean,
     location: { latitude: number; longitude: number } | null,
     method: number | null,
@@ -93,6 +95,7 @@ export class PushReminderService {
         school,
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         prayers,
+        silent,
       };
       const payload = JSON.stringify(body);
       const previous = this.readRecord();

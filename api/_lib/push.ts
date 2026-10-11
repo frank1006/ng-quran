@@ -35,6 +35,8 @@ export interface Subscriber {
   school: 0 | 1;
   timeZone: string;
   prayers: PrayerKey[];
+  /** Of those, the ones sent without sound or vibration (missing on devices saved before this existed) */
+  silent?: PrayerKey[];
   /** Last local date (YYYY-MM-DD) whose reminders are queued. */
   queuedUntil: string;
 }
@@ -160,7 +162,7 @@ export async function removeSubscriber(id: string): Promise<void> {
 /** Ishraq starts once the sun has risen "a spear's length", about 15–20 minutes after sunrise; the later end is used */
 export const ISHRAQ_AFTER_SUNRISE_MIN = 20;
 
-export function reminderPayload(key: PrayerKey, at: number, timeZone: string): string {
+export function reminderPayload(key: PrayerKey, at: number, timeZone: string, silent = false): string {
   const name = PRAYER_NAMES[key];
   const format = new Intl.DateTimeFormat('en', { timeZone, hour: 'numeric', minute: '2-digit' });
   const time = format.format(at);
@@ -176,7 +178,8 @@ export function reminderPayload(key: PrayerKey, at: number, timeZone: string): s
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
       tag: `prayer-${name.toLowerCase()}`, // same tag as in-app reminders, so they replace each other
-      vibrate: [200, 100, 200],
+      // A silent reminder may not carry a vibration pattern (browsers reject the pair)
+      ...(silent ? { silent: true } : { vibrate: [200, 100, 200] }),
       data: { onActionClick: { default: { operation: 'navigateLastFocusedOrOpen', url: '/prayer' } } },
     },
   });

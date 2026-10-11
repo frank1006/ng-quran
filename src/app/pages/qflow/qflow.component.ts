@@ -173,6 +173,14 @@ export class QFlowComponent implements AfterViewInit {
     return match ? { surah: Number(match[1]), ayah: Number(match[2]) } : null;
   }
 
+  /** True when the conversation already had a question before this greeting was added */
+  protected askedBefore(greetingId: number): boolean {
+    const first = this.firstQuestionId();
+    return first !== null && first < greetingId;
+  }
+
+  private readonly firstQuestionId = computed(() => this.exchanges().find(e => e.kind !== 'welcome')?.id ?? null);
+
   /** Right to left for Urdu and Arabic text, wherever it appears in the chat */
   protected readonly dir = textDir;
 

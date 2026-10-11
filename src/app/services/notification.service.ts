@@ -5,7 +5,8 @@ import {
   NotificationPreferences,
   NotificationSettings,
   ScheduledNotification,
-  NotificationPermissionStatus
+  NotificationPermissionStatus,
+  ReminderMode
 } from './notification.types';
 import { DeviceDetectionService } from './device-detection.service';
 import { PrayerTimeStore } from '../store/prayer-time.store';
@@ -308,13 +309,11 @@ export class NotificationService {
   }
 
   /**
-   * Toggle notification for a specific prayer
+   * Set how a prayer's reminder arrives. Turning one on asks for the notification permission
+   * if the phone hasn't given it yet.
    */
-  async togglePrayerNotification(
-    prayerKey: string,
-    enabled: boolean
-  ): Promise<void> {
-    if (!this.isPermissionGranted() && enabled) {
+  async setPrayerMode(prayerKey: string, mode: ReminderMode): Promise<void> {
+    if (mode !== 'off' && !this.isPermissionGranted()) {
       const permission = await this.requestPermission();
       if (permission !== NotificationPermissionStatus.GRANTED) {
         throw new Error('Notification permission is required');
@@ -322,29 +321,24 @@ export class NotificationService {
     }
 
     const currentSettings = this.settings();
-    const newPreferences = {
-      ...currentSettings.preferences,
-      [prayerKey]: enabled
-    };
-
     this.settings.set({
       ...currentSettings,
       enabled: true, // Auto-enable if any prayer has notifications
-      preferences: newPreferences
+      preferences: { ...currentSettings.preferences, [prayerKey]: mode !== 'off' },
+      silent: { ...currentSettings.silent, [prayerKey]: mode === 'silent' }
     });
     this.saveSettings();
+
+    if (mode === 'off') await this.cancelPrayerNotification(prayerKey);
   }
 
-  /**
-   * Check if notification is enabled for a specific prayer
-   */
-  isPrayerNotificationEnabled(prayerKey: string): boolean {
+  /** How a prayer's reminder arrives right now ('off' too while notifications aren't allowed) */
+  prayerMode(prayerKey: string): ReminderMode {
     const settings = this.settings();
-    return (
-      settings.enabled &&
-      settings.preferences[prayerKey] === true &&
-      this.isPermissionGranted()
-    );
+    if (!settings.enabled || settings.preferences[prayerKey] !== true || !this.isPermissionGranted()) {
+      return 'off';
+    }
+    return settings.silent?.[prayerKey] === true ? 'silent' : 'sound';
   }
 
   /**
@@ -454,7 +448,7 @@ export class NotificationService {
     // Use setTimeout for near-term notifications (within 24 hours)
     if (delay <= 24 * 60 * 60 * 1000) {
       const timeoutId = window.setTimeout(() => {
-        this.showNotification(prayerName, timeString);
+        this.showNotification(prayerKey, prayerName, timeString);
       }, delay);
 
       // Store timeout ID for cancellation
@@ -474,6 +468,7 @@ export class NotificationService {
    * Show a notification
    */
   private async showNotification(
+    prayerKey: string,
     prayerName: string,
     prayerTime: string
   ): Promise<void> {
@@ -482,6 +477,7 @@ export class NotificationService {
     }
 
     const deviceInfo = this.deviceDetection.deviceInfo();
+    const silent = this.settings().silent?.[prayerKey] === true;
     // Shuruq isn't a prayer: it ends Fajr's time, and Ishraq follows once the sun is up (same text as push reminders)
     const sunrise = prayerName === 'Shuruq';
     const title = sunrise ? `Shuruq · Sunrise ${prayerTime}` : `${prayerName} Prayer Time`;
@@ -493,7 +489,7 @@ export class NotificationService {
       badge: '/icons/icon-96x96.png',
       tag: `prayer-${prayerName.toLowerCase()}`,
       requireInteraction: false,
-      silent: false,
+      silent,
       data: {
         prayerName,
         prayerTime,
@@ -502,8 +498,8 @@ export class NotificationService {
       }
     };
 
-    // Add vibration for mobile devices (if supported)
-    if (deviceInfo.isMobile && 'vibrate' in navigator) {
+    // Add vibration for mobile devices (if supported); a silent reminder must not carry one
+    if (!silent && deviceInfo.isMobile && 'vibrate' in navigator) {
       (options as any).vibrate = [200, 100, 200];
     }
 
@@ -664,7 +660,7 @@ export class NotificationService {
 
     // Trigger due notifications
     for (const notification of due) {
-      await this.showNotification(notification.prayerName, notification.notificationId || '');
+      await this.showNotification(notification.prayerKey, notification.prayerName, notification.notificationId || '');
     }
 
     // Re-schedule future notifications
@@ -673,7 +669,7 @@ export class NotificationService {
       const delay = notification.scheduledTime - now;
       if (delay <= 24 * 60 * 60 * 1000) {
         const timeoutId = window.setTimeout(() => {
-          this.showNotification(notification.prayerName, notification.notificationId || '');
+          this.showNotification(notification.prayerKey, notification.prayerName, notification.notificationId || '');
         }, delay);
         this.storeNotificationTimeout(notification.prayerKey, timeoutId);
       }
