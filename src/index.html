@@ -45,18 +45,23 @@
 </head>
 <body>
   <!-- The launch screen: covers the app while it starts and stays at least a moment on a fresh
-       start (src/main.ts removes it). It's also what tools that don't run the app see, such as
-       Google's sign-in branding check: the app's name, what it does, the privacy policy -->
+       start (src/main.ts removes it). Only the logo, name and one line: nobody reads or taps
+       anything in a second. -->
   <main class="boot" id="boot">
     <div class="boot-brand">
       <img class="boot-logo" src="icons/icon-192x192.png" width="112" height="112" alt="">
       <h1 class="boot-name">QuranFlow</h1>
       <p class="boot-tagline">Prayer · Quran · Qibla · AI</p>
-      <p class="boot-text">Prayer times, the Quran with audio, Qibla direction, nearby masjids and QuranFlow AI.</p>
     </div>
-    <p class="boot-links"><a href="/mission">About QuranFlow</a> · <a href="/privacy">Privacy policy</a> · <a href="/terms">Terms of use</a></p>
   </main>
   <app-root></app-root>
-  <noscript>Please enable JavaScript to continue using this application.</noscript>
+  <!-- Without JavaScript the app can't start: say so, and say what it is and where its pages are -->
+  <noscript>
+    <div class="boot-noscript">
+      <p>QuranFlow: prayer times, the Quran with audio, Qibla direction, nearby masjids and QuranFlow AI.</p>
+      <p>Please enable JavaScript to use the app.</p>
+      <p><a href="/mission">About QuranFlow</a> · <a href="/privacy">Privacy policy</a> · <a href="/terms">Terms of use</a></p>
+    </div>
+  </noscript>
 </body>
 </html>
