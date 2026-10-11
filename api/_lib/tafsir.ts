@@ -20,8 +20,11 @@ export interface Tafsir {
   name: string;
   /** The ayahs this passage explains (tafsirs often treat a few together), e.g. ["2:183", "2:184"] */
   covers: string[];
-  /** Plain text, cut to a length a model can read quickly */
+  /** Plain text: one part of the passage, a length a model can read quickly */
   text: string;
+  /** Which part this is, and how many the passage has ("tell me more" asks for the next) */
+  part: number;
+  parts: number;
 }
 
 /** Ibn Kathir where there is one in the language; the short, plain Muyassar for Arabic */
@@ -31,8 +34,10 @@ const SOURCES: Record<TafsirLang, { id: number; name: string }> = {
   ar: { id: 16, name: 'Al-Tafsir al-Muyassar' },
 };
 
-/** A passage can run to thousands of words; the opening carries the meaning of the ayah */
+/** A passage can run to thousands of words: it is read a part at a time. The opening carries the
+ *  meaning of the ayah; later parts are for follow-up questions. */
 const MAX_CHARS = 2400;
+const MAX_PARTS = 4;
 const TIMEOUT_MS = 8000;
 const PUBLIC_BASE = 'https://api.quran.com/api/v4';
 
@@ -41,29 +46,28 @@ const ENVIRONMENTS = {
   prelive: { auth: 'https://prelive-oauth2.quran.foundation', api: 'https://apis-prelive.quran.foundation' },
 };
 
-const cache = new Map<string, Tafsir>();
+/** Whole passages, by tafsir and ayah */
+const cache = new Map<string, { covers: string[]; parts: string[] }>();
 let token: { value: string; expires: number } | undefined;
 
-/** The tafsir of one ayah ("2:255"), or null when there is none to give */
-export async function getTafsir(ref: string, lang: TafsirLang): Promise<Tafsir | null> {
+/** The tafsir of one ayah ("2:255"), or null when there is none to give. `part` starts at 1. */
+export async function getTafsir(ref: string, lang: TafsirLang, part = 1): Promise<Tafsir | null> {
   if (!/^\d{1,3}:\d{1,3}$/.test(ref)) return null;
   const source = SOURCES[lang];
   const key = `${source.id}|${ref}`;
-  const cached = cache.get(key);
-  if (cached) return cached;
+  let passage = cache.get(key);
+  if (!passage) {
+    const path = `/tafsirs/${source.id}/by_ayah/${ref}`;
+    const body = (await fromFoundation(path)) ?? (await getJson(`${PUBLIC_BASE}${path}`));
+    const text = plainText(body?.tafsir?.text);
+    if (!text) return null;
+    const covers = Object.keys(body.tafsir.verses ?? {});
+    passage = { covers: covers.length ? covers : [ref], parts: split(text) };
+    cache.set(key, passage);
+  }
 
-  const path = `/tafsirs/${source.id}/by_ayah/${ref}`;
-  const body = (await fromFoundation(path)) ?? (await getJson(`${PUBLIC_BASE}${path}`));
-  const text = plainText(body?.tafsir?.text);
-  if (!text) return null;
-
-  const tafsir: Tafsir = {
-    name: source.name,
-    covers: Object.keys(body.tafsir.verses ?? {}).length ? Object.keys(body.tafsir.verses) : [ref],
-    text: shorten(text),
-  };
-  cache.set(key, tafsir);
-  return tafsir;
+  const index = Math.min(Math.max(Math.round(part) || 1, 1), passage.parts.length) - 1;
+  return { name: source.name, covers: passage.covers, text: passage.parts[index], part: index + 1, parts: passage.parts.length };
 }
 
 /** The same request through the Quran Foundation API; null when it isn't set up or doesn't answer */
@@ -148,10 +152,21 @@ function plainText(html: unknown): string {
     .trim();
 }
 
-/** The first MAX_CHARS, ending on a whole sentence where one ends in the last stretch */
-function shorten(text: string): string {
-  if (text.length <= MAX_CHARS) return text;
-  const cut = text.slice(0, MAX_CHARS);
-  const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('۔'), cut.lastIndexOf('\n'));
-  return `${end > MAX_CHARS * 0.6 ? cut.slice(0, end + 1) : cut} …`;
+/** The passage in parts of up to MAX_CHARS, each ending on a whole sentence where one ends in
+ *  its last stretch; what is left after MAX_PARTS is dropped */
+function split(text: string): string[] {
+  const parts: string[] = [];
+  let rest = text;
+  while (rest && parts.length < MAX_PARTS) {
+    if (rest.length <= MAX_CHARS) {
+      parts.push(rest);
+      break;
+    }
+    const cut = rest.slice(0, MAX_CHARS);
+    const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('۔'), cut.lastIndexOf('\n'));
+    const length = end > MAX_CHARS * 0.6 ? end + 1 : MAX_CHARS;
+    parts.push(rest.slice(0, length).trim());
+    rest = rest.slice(length).trim();
+  }
+  return parts;
 }
