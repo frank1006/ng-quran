@@ -200,6 +200,17 @@ export function detectLang(text: string): QFlowLang {
   return 'en';
 }
 
+/**
+ * Which way a piece of chat text reads. The browser's own dir="auto" goes by the first letter
+ * alone, so an Urdu answer that opens with a Latin word ("Surah Al-Baqarah میں …") was laid out
+ * left to right; this goes by the script most of the text is written in.
+ */
+export function textDir(text: string): 'rtl' | 'ltr' {
+  const rtl = text.match(/[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFC]/g)?.length ?? 0;
+  const ltr = text.match(/[A-Za-z\u00C0-\u024F]/g)?.length ?? 0;
+  return rtl > ltr ? 'rtl' : 'ltr';
+}
+
 /** Only answered (or failed) exchanges are saved; a question still loading when the app closes isn't kept */
 function save(exchanges: QFlowExchange[]): void {
   try {

@@ -13,6 +13,8 @@ import {
   HijriDate
 } from './prayer-time.types';
 
+export type LocationPermission = PermissionState | 'unknown' | 'unsupported';
+
 export interface PrayerCalcParams {
   method: number | null;
   school: 0 | 1;
@@ -23,6 +25,20 @@ export interface PrayerCalcParams {
 })
 export class PrayerTimeService {
   private readonly baseUrl = 'https://api.aladhan.com/v1';
+
+  /**
+   * Whether location is already allowed, asked without showing a prompt. 'prompt' means reading
+   * the location now would make the phone ask (an iPhone Home Screen app asks again every time
+   * it is opened); 'unknown' is a browser that can't say.
+   */
+  async locationPermission(): Promise<LocationPermission> {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return 'unsupported';
+    try {
+      return (await navigator.permissions.query({ name: 'geolocation' })).state;
+    } catch {
+      return 'unknown';
+    }
+  }
 
   getCurrentLocation(overrides?: PositionOptions): Observable<LocationCoordinates> {
     return new Observable<LocationCoordinates>((observer) => {

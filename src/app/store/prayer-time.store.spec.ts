@@ -12,6 +12,7 @@ describe('PrayerTimeStore', () => {
   beforeEach(() => {
     const serviceSpy = {
       getCurrentLocation: vi.fn(),
+      locationPermission: vi.fn().mockResolvedValue('granted'),
       getPrayerTimesByCoordinates: vi.fn()
     };
 

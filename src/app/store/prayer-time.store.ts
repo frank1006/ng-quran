@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, DestroyRef, inject } from '@angular/core';
-import { Observable, of, forkJoin } from 'rxjs';
+import { Observable, of, forkJoin, from } from 'rxjs';
 import { map, catchError, tap, switchMap } from 'rxjs/operators';
 import { PrayerTimeService, PrayerCalcParams } from '../services/prayer-time.service';
 import { SettingsService } from '../services/settings.service';
@@ -113,6 +113,9 @@ export class PrayerTimeStore {
   /**
    * Returns the stored location, re-checking GPS once per app session so that
    * travellers get times for where they are now. Falls back to the stored location.
+   * The re-check is silent: it only runs when location is already allowed, so a phone that
+   * would ask again (an iPhone Home Screen app does on every launch) keeps the stored place
+   * until the user taps to update it.
    */
   private resolveLocation(): Observable<LocationCoordinates> {
     const stored = this.state().currentLocation!;
@@ -120,6 +123,12 @@ export class PrayerTimeStore {
       return of(stored);
     }
 
+    return from(this.prayerTimeService.locationPermission()).pipe(
+      switchMap(permission => (permission === 'granted' ? this.recheckLocation(stored) : of(stored)))
+    );
+  }
+
+  private recheckLocation(stored: LocationCoordinates): Observable<LocationCoordinates> {
     return this.prayerTimeService
       .getCurrentLocation({ enableHighAccuracy: false, timeout: 5000, maximumAge: 10 * 60 * 1000 })
       .pipe(

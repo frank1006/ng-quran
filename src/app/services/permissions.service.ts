@@ -1,7 +1,8 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Logger } from '../core/logger.util';
+import { PrayerTimeService } from './prayer-time.service';
 
 /**
  * Permission status types
@@ -35,6 +36,7 @@ export interface CompassPermissionState {
   providedIn: 'root'
 })
 export class PermissionsService {
+  private readonly prayerTimeService = inject(PrayerTimeService);
   private readonly locationPermission = signal<PermissionStatus>(PermissionStatus.NOT_REQUESTED);
   private readonly compassPermission = signal<PermissionStatus>(PermissionStatus.NOT_REQUESTED);
   private readonly compassSupported = signal<boolean>(false);
@@ -71,31 +73,25 @@ export class PermissionsService {
   }
 
   /**
-   * Check location permission status
+   * Check location permission status. Only asks the browser what it already knows: reading the
+   * position here would make the phone show its location prompt just for opening a page.
    */
   private checkLocationPermission(): void {
-    if (!navigator.geolocation) {
-      this.locationPermission.set(PermissionStatus.NOT_SUPPORTED);
-      return;
-    }
-
-    // Geolocation API doesn't have a direct permission query API
-    // We'll try to get the current position to check permission
-    // But we'll use a timeout to avoid blocking
-    navigator.geolocation.getCurrentPosition(
-      () => {
-        this.locationPermission.set(PermissionStatus.GRANTED);
-      },
-      (error: GeolocationPositionError) => {
-        if (error.code === error.PERMISSION_DENIED) {
-          this.locationPermission.set(PermissionStatus.DENIED);
-        } else {
-          // Could be unavailable or timeout, but permission might still be prompt
-          this.locationPermission.set(PermissionStatus.PROMPT);
-        }
-      },
-      { timeout: 100, maximumAge: Infinity }
-    );
+    void this.prayerTimeService.locationPermission().then(permission => {
+      switch (permission) {
+        case 'granted':
+          return this.locationPermission.set(PermissionStatus.GRANTED);
+        case 'denied':
+          return this.locationPermission.set(PermissionStatus.DENIED);
+        case 'unsupported':
+          return this.locationPermission.set(PermissionStatus.NOT_SUPPORTED);
+        default:
+          // Keep what a request in this session already found out
+          if (this.locationPermission() === PermissionStatus.NOT_REQUESTED) {
+            this.locationPermission.set(PermissionStatus.PROMPT);
+          }
+      }
+    });
   }
 
   /**

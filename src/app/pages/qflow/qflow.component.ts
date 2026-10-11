@@ -9,7 +9,7 @@ import { QFlowAction, QFlowAyah, QFlowHadith, QFlowHadithText, QFlowHadithTransl
 import { QuranAudioService } from '../../services/quran-audio.service';
 import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter } from '../../services/quran-api.types';
-import { QFlowChatStore, QFlowLang } from './qflow-chat.store';
+import { QFlowChatStore, QFlowLang, textDir } from './qflow-chat.store';
 import { QFlowClampedDirective } from './qflow-clamped.directive';
 import { buildWelcome, isoDate } from './qflow-welcome';
 
@@ -167,13 +167,16 @@ export class QFlowComponent implements AfterViewInit {
       .filter(part => part.text);
   }
 
-  /** Urdu readers see the Urdu translation; everyone else the English one */
   /** "Quran 21:83, At-Tirmidhi" → 21:83, to open a Quranic du'a in the reader */
   protected quranRef(source: string): { surah: number; ayah: number } | null {
     const match = source.match(/^Quran (\d{1,3}):(\d{1,3})/i);
     return match ? { surah: Number(match[1]), ayah: Number(match[2]) } : null;
   }
 
+  /** Right to left for Urdu and Arabic text, wherever it appears in the chat */
+  protected readonly dir = textDir;
+
+  /** Urdu readers see the Urdu translation; everyone else the English one */
   protected translation(ayah: QFlowAyah, lang: QFlowLang): string {
     return lang === 'ur' && ayah.ur ? ayah.ur : ayah.en;
   }
