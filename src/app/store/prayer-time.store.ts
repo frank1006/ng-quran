@@ -296,6 +296,11 @@ export class PrayerTimeStore {
       .filter((data): data is PrayerTimeData => data !== null);
   }
 
+  /** Today's prayer times if they have been loaded (a signal read: callers update when they arrive) */
+  todayPrayerTimes(): PrayerTimeData | null {
+    return this.getCachedPrayerTimes(this.getDateKey(new Date()));
+  }
+
   getCachedPrayerTimes(dateKey: string): PrayerTimeData | null {
     return this.state().cache[dateKey] || null;
   }

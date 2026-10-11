@@ -50,6 +50,31 @@
   flex-direction: column;
 }
 
+/* Place on the left, next prayer on the right; a long place name gives way with an ellipsis */
+.location-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.location-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.next-prayer {
+  flex: none;
+  margin: var(--title-subtitle-gap) 0 0;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent-dark);
+  white-space: nowrap;
+}
+
 .city-name {
   font-family: var(--font-body);
   font-size: var(--page-title-size);
@@ -101,6 +126,7 @@
 }
 
 .instruction-text {
+  font-variant-numeric: tabular-nums; /* the degrees count down without the line shifting */
   font-family: var(--font-body);
   font-size: var(--font-lg);
   font-weight: 600;

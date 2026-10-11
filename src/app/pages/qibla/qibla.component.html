@@ -12,17 +12,23 @@
           <span class="visually-hidden">Finding your location</span>
         }
       </h1>
-      <p class="ui-page-subtitle location-label">
-        @if (error() && !loading() && !countryName()) {
-          <!-- nothing to show until location is allowed -->
-        } @else if (!countryName()) {
-          <span class="ui-skeleton country-skeleton" aria-hidden="true"></span>
-        } @else if (quadrant() && quadrant() !== cityName()) {
-          {{ quadrant() }}, {{ countryName() }}
-        } @else {
-          {{ countryName() }}
+      <!-- The line under the title: where you are, and the next prayer with its countdown -->
+      <div class="location-line">
+        <p class="ui-page-subtitle location-label">
+          @if (error() && !loading() && !countryName()) {
+            <!-- nothing to show until location is allowed -->
+          } @else if (!countryName()) {
+            <span class="ui-skeleton country-skeleton" aria-hidden="true"></span>
+          } @else if (quadrant() && quadrant() !== cityName()) {
+            {{ quadrant() }}, {{ countryName() }}
+          } @else {
+            {{ countryName() }}
+          }
+        </p>
+        @if (nextPrayer(); as next) {
+          <p class="next-prayer">{{ next }}</p>
         }
-      </p>
+      </div>
     </div>
   </app-hero-header>
 

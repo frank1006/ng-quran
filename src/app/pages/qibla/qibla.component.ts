@@ -10,6 +10,7 @@ import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-he
 import { PermissionsService } from '../../services/permissions.service';
 import { SettingsService } from '../../services/settings.service';
 import { KM_PER_MILE } from '../../services/units';
+import { nextPrayerText, turnText } from './services/qibla-live';
 
 @Component({
   selector: 'app-qibla',
@@ -76,6 +77,9 @@ export class QiblaComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const minuteTimer = window.setInterval(() => this.minute.set(Math.floor(Date.now() / 60_000)), 15_000);
+    this.destroyRef.onDestroy(() => clearInterval(minuteTimer));
+
     this.initializeQibla();
     document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
@@ -388,7 +392,21 @@ export class QiblaComponent implements OnInit, OnDestroy {
     this.instruction.set(instruction);
   }
 
-  protected readonly instructionText = computed<string>(() => this.instruction());
+  /** Live with the compass: how far there is left to turn, then "You're facing Makkah" */
+  protected readonly instructionText = computed<string>(() => {
+    const heading = this.currentHeading();
+    if (heading === null) return this.instruction();
+    return turnText(this.qiblaService.calculateAngleDifference(heading, this.qiblaBearing())) ?? CompassInstruction.FACING_MAKKAH;
+  });
+
+  /** The current minute, so the countdown in the header keeps time */
+  private readonly minute = signal(Math.floor(Date.now() / 60_000));
+
+  /** "Asr in 1 hr 20 mins": people open this page when they are about to pray */
+  protected readonly nextPrayer = computed(() => {
+    this.minute();
+    return nextPrayerText(this.prayerTimeStore.todayPrayerTimes()?.timings);
+  });
 
   protected async requestLocation(): Promise<void> {
     this.loading.set(true);
