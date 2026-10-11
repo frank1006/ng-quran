@@ -285,11 +285,17 @@
   width: 60%;
 }
 
-/* ── Ayahs: rows with separators, like every list in the app ──── */
+/* ── Ayahs, hadith, names and du'as: rows with one line above each ────
+   The line divides a row from what is above it (the answer or the row before), so there is
+   never a line under the last row, and never two where one list follows another. */
 
 .ayahs {
   list-style: none;
   margin-top: var(--space-sm);
+}
+
+.ayahs + .ayahs {
+  margin-top: 0;
 }
 
 .ayah {
@@ -298,7 +304,11 @@
 }
 
 .ayah:last-child {
-  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0;
+}
+
+.ayahs:has(+ .ayahs) .ayah:last-child {
+  padding-bottom: var(--space-md);
 }
 
 .ayah-head {
