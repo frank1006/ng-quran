@@ -35,6 +35,8 @@ const MAX_SAVED = 30;
 /** Follow-up context sent with each question: the last few question + answer pairs */
 const HISTORY_EXCHANGES = 3;
 const MAX_QUESTION = 500;
+/** Tafsir text is kept on the device for less than a week (Quran Foundation's terms); the card loads it again */
+const TAFSIR_KEPT_MS = 6 * 24 * 60 * 60 * 1000;
 
 /**
  * The QuranFlow AI conversation. Lives for the whole app (not the page), so it survives page
@@ -132,6 +134,7 @@ export class QFlowChatStore {
     try {
       const result = await this.qflow.ask(exchange.question, history);
       if (result.quota) this.quota.set(result.quota);
+      result.tafsirs?.forEach(tafsir => (tafsir.at = Date.now()));
       this.update(exchange.id, { status: 'done', result });
     } catch (error) {
       const status = httpStatus(error);
@@ -234,7 +237,12 @@ function save(exchanges: QFlowExchange[]): void {
 function restore(): QFlowExchange[] {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
-    return Array.isArray(saved) ? saved.filter(e => e && typeof e.id === 'number' && typeof e.question === 'string') : [];
+    if (!Array.isArray(saved)) return [];
+    const exchanges: QFlowExchange[] = saved.filter(e => e && typeof e.id === 'number' && typeof e.question === 'string');
+    for (const tafsir of exchanges.flatMap(e => e.result?.tafsirs ?? [])) {
+      if (Date.now() - (tafsir.at ?? 0) > TAFSIR_KEPT_MS) delete tafsir.text;
+    }
+    return exchanges;
   } catch {
     return [];
   }

@@ -118,6 +118,60 @@
                 </ul>
               }
 
+              @if (exchange.result!.tafsirs?.length) {
+                <!-- The scholar's own words, a part at a time; the AI only points here -->
+                <ul class="ayahs" aria-label="Tafsir">
+                  @for (tafsir of exchange.result!.tafsirs!; track tafsir.key + tafsir.ref) {
+                    @let key = exchange.id + '/tafsir/' + tafsir.key + '/' + tafsir.ref;
+                    @let passage = tafsirText(key, tafsir);
+                    @let next = nextTafsirPart(key, tafsir);
+                    <li class="ayah tafsir">
+                      <div class="ayah-head">
+                        <span class="ayah-ref">{{ tafsir.name }} · {{ tafsir.ref }}</span>
+                      </div>
+                      @if (passage) {
+                        <p
+                          class="hadith-text tafsir-text"
+                          [class.hadith-text--open]="isExpanded(key)"
+                          [attr.lang]="tafsir.lang"
+                          [attr.dir]="dir(passage)"
+                          qflowClamped
+                          #clamp="clamp"
+                        >{{ passage }}</p>
+                        <div class="hadith-actions">
+                          @if (clamp.clamped() || isExpanded(key)) {
+                            <button type="button" class="ui-button ui-button--secondary hadith-action" (click)="toggleTafsir(key)" [attr.aria-expanded]="isExpanded(key)">
+                              {{ isExpanded(key) ? 'Show less' : 'Read more' }}
+                            </button>
+                          }
+                          @if (next && (isExpanded(key) || !clamp.clamped())) {
+                            <button type="button" class="ui-button ui-button--secondary hadith-action" (click)="continueTafsir(key, tafsir)" [disabled]="loadingTafsir() === key">
+                              Continue reading
+                            </button>
+                          }
+                          @if (loadingTafsir() === key) {
+                            <span class="hadith-loading" role="status">Loading…</span>
+                          }
+                        </div>
+                      } @else {
+                        <!-- A chat saved over a week ago no longer holds the passage -->
+                        <div class="hadith-actions">
+                          <button type="button" class="ui-button ui-button--secondary hadith-action" (click)="continueTafsir(key, tafsir)" [disabled]="loadingTafsir() === key">
+                            Show tafsir
+                          </button>
+                          @if (loadingTafsir() === key) {
+                            <span class="hadith-loading" role="status">Loading…</span>
+                          }
+                        </div>
+                      }
+                      @if (tafsirError() === key) {
+                        <p class="hadith-error" role="status">Couldn't load the tafsir. Please try again.</p>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+
               @if (exchange.result!.hadiths?.length) {
                 <ul class="ayahs" aria-label="Hadith">
                   @for (hadith of exchange.result!.hadiths!; track hadith.ref) {

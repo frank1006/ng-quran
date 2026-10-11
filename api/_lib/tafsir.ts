@@ -1,8 +1,9 @@
 /**
  * Tafsir for QuranFlow AI: the explanation of one ayah, fetched when a question asks for it.
  * Nothing is imported or stored: a tafsir belongs to its ayah, so there is nothing to search.
- * The AI explains from this text in its own words and names the tafsir; the text itself is
- * never shown in the app (the English and Urdu ones are published translations).
+ * The app shows the passage itself under the answer, a part at a time (Quran Foundation's terms
+ * allow showing its content to an app's users, and keeping it for up to a week); the AI only
+ * points to it, and summarises it when asked to.
  *
  * Source: the Quran Foundation Content API (https://api-docs.quran.foundation), with OAuth2
  * client credentials. Without credentials, or when that request fails (a new app starts in
@@ -16,6 +17,8 @@
 export type TafsirLang = 'en' | 'ur' | 'ar';
 
 export interface Tafsir {
+  /** The ayah it was asked for, e.g. "2:255" */
+  ref: string;
   /** Which tafsir this is (a key of TAFSIRS) */
   key: string;
   /** The tafsir's name, as the answer should give it */
@@ -82,6 +85,11 @@ const LANG_ORDER: TafsirLang[] = ['en', 'ur', 'ar'];
 /** For the AI: what it may offer when someone asks which tafsirs there are */
 export const TAFSIR_NAMES = Object.values(TAFSIRS).map(t => t.name).join('; ');
 
+/** True for a tafsir the app has (a key of TAFSIRS) */
+export function isTafsirKey(key: string): boolean {
+  return Object.hasOwn(TAFSIRS, key);
+}
+
 /** The tafsirs a text names, by key ("Tabari's tafsir", "تفسیر ابنِ کثیر") */
 export function tafsirsNamed(text: string): string[] {
   return Object.keys(TAFSIRS).filter(key => TAFSIRS[key].pattern.test(text));
@@ -126,6 +134,7 @@ export async function getTafsir(ref: string, lang: TafsirLang, part = 1, key = D
 
   const index = Math.min(Math.max(Math.round(part) || 1, 1), passage.parts.length) - 1;
   return {
+    ref,
     key,
     name: source.name,
     lang: textLang,

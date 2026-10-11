@@ -23,6 +23,7 @@ const routes = {
   '/api/qflow/ask': await import(pathToFileURL(join(ROOT, 'api/qflow/ask.ts')).href),
   '/api/qflow/quota': await import(pathToFileURL(join(ROOT, 'api/qflow/quota.ts')).href),
   '/api/qflow/hadith': await import(pathToFileURL(join(ROOT, 'api/qflow/hadith.ts')).href),
+  '/api/qflow/tafsir': await import(pathToFileURL(join(ROOT, 'api/qflow/tafsir.ts')).href),
   '/api/auth/account': await import(pathToFileURL(join(ROOT, 'api/auth/account.ts')).href),
 };
 

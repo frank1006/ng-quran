@@ -32,6 +32,25 @@ export interface QFlowAnswer {
   names?: QFlowName[];
   /** Hadith the answer cites */
   hadiths?: QFlowHadith[];
+  /** The tafsir passage the answer points to */
+  tafsirs?: QFlowTafsir[];
+}
+
+/** Mirrors Tafsir in api/_lib/tafsir.ts: one part of a tafsir's passage on an ayah, verbatim */
+export interface QFlowTafsir {
+  ref: string;
+  /** Which tafsir, e.g. "ibn-kathir" */
+  key: string;
+  name: string;
+  /** The language of the text (a tafsir asked for by name isn't always in the reader's) */
+  lang: 'en' | 'ur' | 'ar';
+  covers: string[];
+  /** Missing in a chat saved over a week ago: QFlowService.tafsirPart loads it again */
+  text?: string;
+  part: number;
+  parts: number;
+  /** When the device received it (ms) */
+  at?: number;
 }
 
 /** Mirrors HadithTranslationText in api/_lib/hadith.ts: one language of HadeethEnc.com's, verbatim */
@@ -143,6 +162,16 @@ export class QFlowService {
   async fullHadith(ref: string): Promise<QFlowHadithText> {
     return firstValueFrom(
       this.http.get<QFlowHadithText>('/api/qflow/hadith', { params: { ref }, headers: await this.authHeaders() }),
+    );
+  }
+
+  /** One part of a tafsir passage: the next one to read, or one a saved chat no longer holds (uses no question) */
+  async tafsirPart(tafsir: QFlowTafsir, part: number): Promise<QFlowTafsir> {
+    return firstValueFrom(
+      this.http.get<QFlowTafsir>('/api/qflow/tafsir', {
+        params: { ref: tafsir.ref, tafsir: tafsir.key, lang: tafsir.lang, part },
+        headers: await this.authHeaders(),
+      }),
     );
   }
 

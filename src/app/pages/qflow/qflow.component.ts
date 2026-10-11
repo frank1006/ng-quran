@@ -5,7 +5,7 @@ import { GoogleSignInComponent } from '../../shared/components/google-sign-in/go
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 import { AuthService } from '../../core/auth.service';
 import { QFlowAppContextService } from './qflow-app-context';
-import { QFlowAction, QFlowAyah, QFlowHadith, QFlowHadithText, QFlowHadithTranslationText, QFlowService } from './qflow.service';
+import { QFlowAction, QFlowAyah, QFlowHadith, QFlowHadithText, QFlowHadithTranslationText, QFlowService, QFlowTafsir } from './qflow.service';
 import { QuranAudioService } from '../../services/quran-audio.service';
 import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter } from '../../services/quran-api.types';
@@ -233,6 +233,45 @@ export class QFlowComponent implements AfterViewInit {
     } finally {
       this.loadingHadith.set(null);
     }
+  }
+
+  /** Parts of a tafsir passage loaded after the answer came, by card ("Continue reading") */
+  private readonly tafsirParts = signal(new Map<string, QFlowTafsir[]>());
+  protected readonly loadingTafsir = signal<string | null>(null);
+  protected readonly tafsirError = signal<string | null>(null);
+
+  /** The passage as far as it has been read: the part the answer brought, then those loaded since */
+  protected tafsirText(key: string, tafsir: QFlowTafsir): string {
+    return [tafsir, ...(this.tafsirParts().get(key) ?? [])].map(part => part.text ?? '').filter(Boolean).join('\n\n');
+  }
+
+  /** The number of the next part to read, or 0 when the passage has been read to its end */
+  protected nextTafsirPart(key: string, tafsir: QFlowTafsir): number {
+    if (!tafsir.text && !this.tafsirParts().get(key)?.length) return tafsir.part;
+    const last = this.tafsirParts().get(key)?.at(-1) ?? tafsir;
+    return last.part < last.parts ? last.part + 1 : 0;
+  }
+
+  /** Loads the next part and opens the card, so the new text is in view */
+  protected async continueTafsir(key: string, tafsir: QFlowTafsir): Promise<void> {
+    const next = this.nextTafsirPart(key, tafsir);
+    if (!next || this.loadingTafsir()) return;
+    this.loadingTafsir.set(key);
+    this.tafsirError.set(null);
+    try {
+      const part = await this.qflow.tafsirPart(tafsir, next);
+      this.tafsirParts.update(map => new Map(map).set(key, [...(map.get(key) ?? []), part]));
+      this.expanded.update(keys => new Set(keys).add(key));
+    } catch {
+      this.tafsirError.set(key);
+    } finally {
+      this.loadingTafsir.set(null);
+    }
+  }
+
+  /** "Read more" / "Show less" on a tafsir card (its text is already here) */
+  protected toggleTafsir(key: string): void {
+    this.expanded.update(keys => toggled(keys, key));
   }
 
   /** Hadith cards showing their Arabic, by exchange and ref */

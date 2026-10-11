@@ -390,6 +390,23 @@
   text-align: right;
 }
 
+/* Tafsir: the passage as the scholar wrote it, in the look of a translation, paragraphs kept */
+.tafsir-text {
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  white-space: pre-line;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.tafsir-text[dir='rtl'] {
+  font-family: var(--font-arabic);
+  font-size: var(--font-md);
+  line-height: 2;
+  text-align: right;
+}
+
 /* Under a hadith: "Read more" for a long one, and its Arabic on request */
 .hadith-actions {
   display: flex;
