@@ -17,7 +17,7 @@ export interface PlayerState {
   currentTime: number;
 }
 
-export type TranslationLanguage = 'english' | 'bengali' | 'urdu';
+export type TranslationLanguage = 'english' | 'urdu';
 
 /** The reader's place in the Quran: the ayah read or listened to most recently, in any surah */
 export interface LastRead {
@@ -194,7 +194,7 @@ export class UserStoreService {
     if (data.lastReadPositions) partial.lastReadPositions = data.lastReadPositions;
     if (data.reciterId !== undefined && data.reciterId !== null) partial.selectedReciterId = data.reciterId;
     if (data.timeFormat) partial.timeFormat = data.timeFormat;
-    if (data.translation) partial.quranTranslationLanguage = data.translation;
+    if (data.translation) partial.quranTranslationLanguage = this.validateTranslationLanguage(data.translation);
     if (Object.keys(partial).length) this.updateState(partial);
   }
 
@@ -283,9 +283,8 @@ export class UserStoreService {
   }
 
   private validateTranslationLanguage(value: any): TranslationLanguage | null {
-    return value === 'english' || value === 'bengali' || value === 'urdu' 
-      ? value 
-      : null;
+    // Anything else (e.g. 'bengali', which the reader no longer has) falls back to the default
+    return value === 'english' || value === 'urdu' ? value : null;
   }
 
   private migrateFromOldKeys(): void {

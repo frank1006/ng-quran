@@ -22,7 +22,7 @@ function testMigration() {
   
   localStorage.setItem('quran-store', JSON.stringify(oldQuranStore));
   localStorage.setItem('app_time_format', '12h');
-  localStorage.setItem('quran-translation-language', 'bengali');
+  localStorage.setItem('quran-translation-language', 'urdu');
   localStorage.setItem('prayer_scheduled_notifications', JSON.stringify([
     { prayerKey: 'fajr', prayerName: 'Fajr', scheduledTime: Date.now() + 86400000 }
   ]));

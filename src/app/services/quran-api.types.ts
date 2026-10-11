@@ -32,7 +32,6 @@ export interface SurahResponse {
   english: string[];
   arabic1: string[]; // Uthmani
   arabic2: string[]; // Simple
-  bengali?: string[];
   urdu?: string[];
 }
 
@@ -56,7 +55,6 @@ export interface VerseResponse {
   english: string;
   arabic1: string;
   arabic2: string;
-  bengali?: string;
   urdu?: string;
 }
 
@@ -148,4 +146,4 @@ export interface AudioRecitation {
   format?: string;
 }
 
-export type TranslationLanguage = 'en' | 'bn' | 'ar' | 'urdu';
+export type TranslationLanguage = 'en' | 'ar' | 'urdu';

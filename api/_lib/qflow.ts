@@ -194,7 +194,7 @@ const ABOUT_QURANFLOW = `QuranFlow AI:
 - A limited number of questions per day; the + button starts a new conversation. The conversation is kept on the device only.
 The app:
 - Prayer tab: today's times, the next prayer countdown, ‹ › to change day, the calendar icon for the Islamic calendar and events, Masjids to see nearby masjids. The bell on a prayer sets its reminder: tap to switch between sound, silent and off (on iPhone, add the app to the Home Screen first).
-- Quran tab: all 114 surahs, search, play audio, bookmark ayahs; "Continue reading" returns to the last ayah. The reader's translation (English, Urdu or Bengali) and the reciter are chosen in Profile, under Preferences.
+- Quran tab: all 114 surahs, search, play audio, bookmark ayahs; "Continue reading" returns to the last ayah. The reader's translation (English or Urdu) and the reciter are chosen in Profile, under Preferences.
 - Qibla tab: a compass pointing to the Kaaba, with the direction and distance (allow location and motion).
 - Profile: bookmarks, preferences (Quran translation and reciter, time format, units, calculation method, Asr time, moon sighting), account (sign in with Google, sign out, delete account), the privacy policy and the terms of use.`;
 

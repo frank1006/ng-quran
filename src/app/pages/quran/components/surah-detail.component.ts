@@ -5,7 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QuranApiService } from '../../../services/quran-api.service';
-import { UserStoreService } from '../../../services/user-store.service';
+import { TranslationLanguage, UserStoreService } from '../../../services/user-store.service';
 import { ChapterWithVerses, Verse } from '../../../services/quran-api.types';
 import { AudioPlayerComponent } from './audio-player.component';
 import { HeroHeaderComponent } from '../../../shared/components/hero-header/hero-header.component';
@@ -280,11 +280,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         this.title.setTitle(`${chapterData.transliteration} · QuranFlow`);
         this.userStore.lastOpenedChapterId.set(chapterId);
         
-        // Verify translations are attached (silently handle missing translations)
-        if (!chapterData._translations && !(chapterData as any)._translations_bengali && !(chapterData as any)._translations_urdu) {
-          // Translations may not be available - continue without them
-        }
-        
         // Get translations for the selected language
         const translations = this.getTranslationsForLanguage(
           chapterData, 
@@ -338,7 +333,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private updateVersesWithTranslation(language: 'english' | 'bengali' | 'urdu'): void {
+  private updateVersesWithTranslation(language: TranslationLanguage): void {
     const chapterData = this.chapter();
     if (!chapterData) {
       return;
@@ -369,20 +364,12 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private getTranslationsForLanguage(
     chapter: ChapterWithVerses, 
-    language: 'english' | 'bengali' | 'urdu'
+    language: TranslationLanguage
   ): string[] {
     // Check if translations are stored in the chapter object
     if (language === 'english') {
       if (chapter._translations && Array.isArray(chapter._translations)) {
         return chapter._translations;
-      }
-    }
-    
-    // For bengali and urdu, check if they're stored in the chapter object
-    if (language === 'bengali') {
-      const bengaliTranslations = (chapter as any)._translations_bengali;
-      if (bengaliTranslations && Array.isArray(bengaliTranslations) && bengaliTranslations.length > 0) {
-        return bengaliTranslations;
       }
     }
     

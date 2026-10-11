@@ -109,12 +109,10 @@ export class QuranApiService {
           // Save to localStorage with all translations
           this.setCachedChapter(chapterId, chapter, {
             english: response.english,
-            bengali: response.bengali,
             urdu: response.urdu
           });
           // Attach all translations to chapter object for component use
           chapter._translations = response.english;
-          (chapter as any)._translations_bengali = response.bengali || [];
           (chapter as any)._translations_urdu = response.urdu || [];
           return chapter;
         }),
@@ -155,7 +153,7 @@ export class QuranApiService {
   /**
    * Get full translation of the Quran
    * Endpoint: GET /api/{language}.json
-   * @param language - Translation language ('en', 'bn', 'urdu', etc.)
+   * @param language - Translation language ('en', 'urdu', etc.)
    * @returns Observable of TranslationResponse
    */
   getTranslation(language: TranslationLanguage): Observable<TranslationResponse> {
@@ -547,16 +545,14 @@ export class QuranApiService {
             const data = cache.chapterCache[chapterId.toString()];
             const chapter = data.chapter as ChapterWithVerses;
             if (data.translations) {
-              // Handle both old format (string[]) and new format (object with english/bengali/urdu)
+              // Handle both old format (string[]) and new format (object with english/urdu)
               if (Array.isArray(data.translations)) {
                 // Old format - only english translations
                 chapter._translations = data.translations;
-                (chapter as any)._translations_bengali = [];
                 (chapter as any)._translations_urdu = [];
               } else {
                 // New format - all translations
                 chapter._translations = data.translations.english || [];
-                (chapter as any)._translations_bengali = data.translations.bengali || [];
                 (chapter as any)._translations_urdu = data.translations.urdu || [];
               }
             }
@@ -582,16 +578,14 @@ export class QuranApiService {
             // Attach translations if available
             const chapter = data.chapter as ChapterWithVerses;
             if (data.translations) {
-              // Handle both old format (string[]) and new format (object with english/bengali/urdu)
+              // Handle both old format (string[]) and new format (object with english/urdu)
               if (Array.isArray(data.translations)) {
                 // Old format - only english translations
                 chapter._translations = data.translations;
-                (chapter as any)._translations_bengali = [];
                 (chapter as any)._translations_urdu = [];
               } else {
                 // New format - all translations
                 chapter._translations = data.translations.english || [];
-                (chapter as any)._translations_bengali = data.translations.bengali || [];
                 (chapter as any)._translations_urdu = data.translations.urdu || [];
               }
             }
@@ -618,7 +612,7 @@ export class QuranApiService {
   private setCachedChapter(
     chapterId: number, 
     chapter: ChapterWithVerses, 
-    translations?: { english?: string[]; bengali?: string[]; urdu?: string[] }
+    translations?: { english?: string[]; urdu?: string[] }
   ): void {
     try {
       if (typeof localStorage === 'undefined') {
@@ -648,7 +642,7 @@ export class QuranApiService {
         chapter: ChapterWithVerses;
         timestamp: string;
         chapterId: number;
-        translations?: { english?: string[]; bengali?: string[]; urdu?: string[] };
+        translations?: { english?: string[]; urdu?: string[] };
       }
       
       const chapterData: ChapterCacheData = {
@@ -696,7 +690,7 @@ export class QuranApiService {
               chapter: ChapterWithVerses;
               timestamp: string;
               chapterId: number;
-              translations?: { english?: string[]; bengali?: string[]; urdu?: string[] };
+              translations?: { english?: string[]; urdu?: string[] };
             }
             const chapterData: ChapterCacheData = {
               version: this.CACHE_VERSION,

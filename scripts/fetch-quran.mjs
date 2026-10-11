@@ -4,7 +4,8 @@
  * into public/data/quran/ so the app serves it from its own origin.
  *
  * Usage: node scripts/fetch-quran.mjs
- * Output: surah.json, reciters.json and 1.json … 114.json (same format as the API)
+ * Output: surah.json, reciters.json and 1.json … 114.json (the API's format, without the
+ *         translations the app doesn't offer)
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -45,6 +46,8 @@ for (let i = 0; i < ids.length; i += CONCURRENCY) {
       if (surah.totalAyah !== surahs[id - 1].totalAyah || surah.arabic1?.length !== surah.totalAyah) {
         throw new Error(`Surah ${id}: verse count mismatch`);
       }
+      // The reader offers English and Urdu
+      delete surah.bengali;
       await save(`${id}.json`, surah);
     })
   );

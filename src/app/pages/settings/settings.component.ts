@@ -73,7 +73,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly translationLanguages: { id: TranslationLanguage; name: string }[] = [
     { id: 'english', name: 'English' },
     { id: 'urdu', name: 'Urdu' },
-    { id: 'bengali', name: 'Bengali' },
   ];
   protected readonly translationLanguage = computed(() => this.userStore.quranTranslationLanguage() ?? 'english');
   protected readonly reciters = signal<Reciter[]>([]);
