@@ -1,37 +1,47 @@
-/* The page is its own scroller (the app shell doesn't scroll): on a short phone the facts and
-   the tip under the compass scroll clear of the bottom nav. The header scrolls with them, so
-   the Kaaba marker above the compass is never cut off. */
+/* Everything fits one screen: there is nothing to scroll to. The compass takes the height the
+   rest leaves, so on a short phone it is smaller, and the tip appears only where there is room.
+   (overflow-y: auto is a safety net for an unusually short window, not the design.) */
 :host {
   display: block;
   height: 100%;
 }
 
 .qibla-container {
+  /* What is on the screen besides the compass, top to bottom: the header above the white panel,
+     the panel's padding, the button or instruction, the two facts, and the gaps between them
+     (measured: the last row ends about 0.75rem above the nav's bubble) */
+  --hero-height: 11rem;
+  --beside-compass: 18.375rem;
+  --compass-size: clamp(
+    9rem,
+    calc(100dvh - env(safe-area-inset-top, 0px) - var(--nav-space) - var(--mini-player-space, 0px) - var(--beside-compass)),
+    min(20rem, 100vw - 5.5rem)
+  );
   height: 100%;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--nav-space) + var(--mini-player-space, 0px));
+  overflow-y: auto;
   background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 40%);
 }
 
-/* A title and the Kaaba marker need less than the default hero */
-app-hero-header {
-  --hero-height: 12.5rem;
-}
-
-/* The white panel reaches the bottom of the screen however short its content */
-.qibla-content-section {
-  min-height: calc(100% - 12.5rem + var(--space-lg));
+/* Tall phones: a roomier header, and the tip under the facts (4.75rem with its gap) */
+@media (min-height: 46rem) {
+  .qibla-container {
+    --hero-height: 12.5rem;
+    --beside-compass: 24.375rem;
+  }
 }
 
 .qibla-content-section {
   position: relative;
+  flex: 1;
   background: var(--color-surface);
   border-radius: var(--border-radius-tl);
   box-shadow: 0 -1rem 1rem rgba(0, 0, 0, 0.06);
-  padding: var(--space-xl);
+  padding: 1.25rem var(--space-xl) calc(var(--space-sm) + var(--nav-space) + var(--mini-player-space, 0px));
   max-width: var(--app-max-width);
+  width: 100%;
   margin-inline: auto;
 }
 
@@ -69,6 +79,7 @@ app-hero-header {
 .instruction-section {
   width: 100%;
   max-width: 25rem; /* 400px */
+  margin-top: var(--space-sm);
 }
 
 .instruction-card {
@@ -159,11 +170,11 @@ app-hero-header {
   gap: var(--space-sm);
   width: 100%;
   max-width: 25rem; /* as wide as the instruction above */
-  margin: var(--space-md) 0 0;
+  margin: var(--space-sm) 0 0;
 }
 
 .qibla-fact {
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-lg);
   background: var(--color-cream);
   text-align: center;
@@ -184,11 +195,11 @@ app-hero-header {
 }
 
 .qibla-tip {
-  display: flex;
+  display: none; /* short phones: the compass gets the room */
   gap: var(--space-xs);
   width: 100%;
   max-width: 25rem;
-  margin: var(--space-md) 0 0;
+  margin: var(--space-sm) 0 0;
   font-size: var(--font-sm);
   line-height: 1.5;
   color: var(--color-text-muted);
@@ -197,4 +208,10 @@ app-hero-header {
 .qibla-tip svg {
   flex: none;
   margin-top: 0.15em;
+}
+
+@media (min-height: 46rem) {
+  .qibla-tip {
+    display: flex;
+  }
 }

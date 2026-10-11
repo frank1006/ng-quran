@@ -1,8 +1,7 @@
 .compass-wrapper {
   position: relative;
-  width: 90%;
-  max-width: 18rem; /* 288px max on larger screens */
-  min-width: 18rem; /* 288px min on small screens */
+  /* The page sets the size from the room it has (qibla.component.css); 288px without one */
+  width: var(--compass-size, 18rem);
   aspect-ratio: 1 / 1; /* Maintain square shape */
   margin: calc(-1 * var(--space-md)) auto 0;
 }
