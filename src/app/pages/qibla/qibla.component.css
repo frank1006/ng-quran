@@ -14,7 +14,7 @@
   --beside-compass: 19.125rem;
   --compass-size: clamp(
     9rem,
-    calc(100dvh - env(safe-area-inset-top, 0px) - var(--nav-space) - var(--mini-player-space, 0px) - var(--beside-compass) - var(--extra-lines, 0px)),
+    calc(100dvh - env(safe-area-inset-top, 0px) - var(--nav-space) - var(--mini-player-space, 0px) - var(--beside-compass)),
     min(20rem, 100vw - 5.5rem)
   );
   height: 100%;
@@ -23,12 +23,6 @@
   overflow-x: hidden;
   overflow-y: auto;
   background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 40%);
-}
-
-/* No compass: the bearing and a two-line note stand where the button was (up to 3.5rem taller
-   at the largest text size), so the dial gives way */
-.qibla-container.no-compass {
-  --extra-lines: 3.5rem;
 }
 
 /* Tall phones: a roomier header (1.5rem more) */
@@ -145,7 +139,13 @@
   color: var(--color-accent-dark);
 }
 
-/* Under the bearing on a device with no compass: why the dial is still */
+/* A device with no compass: the bearing as plain centred text, no card and no dial */
+.instruction-plain {
+  padding-top: var(--space-md);
+  text-align: center;
+}
+
+/* Under that bearing: why there is no compass here */
 .instruction-note {
   margin: 0.125rem 0 0;
   font-size: var(--font-xs);

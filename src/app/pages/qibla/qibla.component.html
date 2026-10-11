@@ -1,4 +1,4 @@
-<div class="qibla-container" [class.no-compass]="!loading() && !!location() && !compassAvailable()">
+<div class="qibla-container">
   <!-- Header with city location (Hero section style) -->
   <app-hero-header>
     <div class="location-title">
@@ -73,10 +73,10 @@
               }
             }
 
-            <!-- No usable compass (laptop, desktop, or a browser without true north): the dial is
-                 drawn facing the Qibla with north marked on its rim, and the bearing is given in words -->
+            <!-- No usable compass (laptop, desktop, or a browser without true north): no dial,
+                 the bearing in plain words -->
             @if (!compassAvailable()) {
-              <div class="instruction-card">
+              <div class="instruction-plain">
                 <p class="instruction-text">Qibla is {{ bearingText() }} from north</p>
                 <p class="instruction-note">
                   @if (relativeCompassOnly()) {

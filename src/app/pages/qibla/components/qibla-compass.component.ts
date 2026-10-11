@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="compass-wrapper">
+    <div class="compass-wrapper" [class.compass-wrapper--marker-only]="fixed()">
       <!-- The Kaaba above the dial: the arrow points at it once you face the Qibla -->
       <div class="qibla-point">
         <svg class="qibla-point-svg" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet">
@@ -20,57 +20,53 @@ import { CommonModule } from '@angular/common';
           <path fill="#FFD983" d="M18 7.614v3.764l18 3.268v-3.5z"></path>
         </svg>
       </div>
-      <div class="compass-container">
-        @if (fixed()) {
-          <!-- No compass: the dial is drawn as if you were facing the Qibla, and shows where
-               north would then be -->
-          <div class="north-mark" [style.transform]="'rotate(' + northAngle() + 'deg)'" aria-hidden="true">
-            <span [style.transform]="'rotate(' + -northAngle() + 'deg)'">N</span>
-          </div>
-        }
-        <div
-          class="compass-svg-wrapper"
-          [style.transform]="'rotate(' + compassRotation() + 'deg)'"
-        >
-          <svg class="compass-svg" viewBox="0 0 745 740.19" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd">
-            <g>
+      <!-- The dial needs a compass to turn it: a device without one shows only the marker -->
+      @if (!fixed()) {
+        <div class="compass-container">
+          <div
+            class="compass-svg-wrapper"
+            [style.transform]="'rotate(' + compassRotation() + 'deg)'"
+          >
+            <svg class="compass-svg" viewBox="0 0 745 740.19" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd">
               <g>
                 <g>
-                  <line fill="none" stroke="#ffb030" stroke-width="5.34" stroke-miterlimit="2.61313" x1="666.29" y1="364.83" x2="74.02" y2="364.83" />
-                  <line fill="none" stroke="#ffb030" stroke-width="5.34" stroke-miterlimit="2.61313" x1="370.16" y1="67.28" x2="370.16" y2="662.38" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="323.93" y1="101.42" x2="416.38" y2="628.23" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="279.12" y1="113.49" x2="461.19" y2="616.17" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="237.07" y1="133.19" x2="503.24" y2="596.46" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="199.06" y1="159.93" x2="541.25" y2="569.72" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="166.25" y1="192.9" x2="574.06" y2="536.75" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="139.64" y1="231.09" x2="600.67" y2="498.56" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="120.03" y1="273.35" x2="620.28" y2="456.31" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="108.02" y1="318.38" x2="632.29" y2="411.27" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="416.38" y1="101.42" x2="323.93" y2="628.23" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="461.19" y1="113.49" x2="279.12" y2="616.17" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="503.24" y1="133.19" x2="237.07" y2="596.46" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="600.67" y1="231.09" x2="139.64" y2="498.56" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="541.25" y1="159.93" x2="199.06" y2="569.72" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="620.28" y1="273.35" x2="120.03" y2="456.31" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="574.06" y1="192.9" x2="166.25" y2="536.75" />
-                  <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="632.29" y1="318.38" x2="108.02" y2="411.27" />
+                  <g>
+                    <line fill="none" stroke="#ffb030" stroke-width="5.34" stroke-miterlimit="2.61313" x1="666.29" y1="364.83" x2="74.02" y2="364.83" />
+                    <line fill="none" stroke="#ffb030" stroke-width="5.34" stroke-miterlimit="2.61313" x1="370.16" y1="67.28" x2="370.16" y2="662.38" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="323.93" y1="101.42" x2="416.38" y2="628.23" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="279.12" y1="113.49" x2="461.19" y2="616.17" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="237.07" y1="133.19" x2="503.24" y2="596.46" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="199.06" y1="159.93" x2="541.25" y2="569.72" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="166.25" y1="192.9" x2="574.06" y2="536.75" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="139.64" y1="231.09" x2="600.67" y2="498.56" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="120.03" y1="273.35" x2="620.28" y2="456.31" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="108.02" y1="318.38" x2="632.29" y2="411.27" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="416.38" y1="101.42" x2="323.93" y2="628.23" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="461.19" y1="113.49" x2="279.12" y2="616.17" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="503.24" y1="133.19" x2="237.07" y2="596.46" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="600.67" y1="231.09" x2="139.64" y2="498.56" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="541.25" y1="159.93" x2="199.06" y2="569.72" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="620.28" y1="273.35" x2="120.03" y2="456.31" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="574.06" y1="192.9" x2="166.25" y2="536.75" />
+                    <line fill="none" stroke="#874d14" stroke-width="0.67" stroke-miterlimit="2.61313" x1="632.29" y1="318.38" x2="108.02" y2="411.27" />
+                  </g>
+                  <ellipse fill="#ffffff" stroke="#874d14" stroke-width="4.01" stroke-miterlimit="2.61313" cx="370.16" cy="364.83" rx="241.57" ry="244.02"/>
                 </g>
-                <ellipse fill="#ffffff" stroke="#874d14" stroke-width="4.01" stroke-miterlimit="2.61313" cx="370.16" cy="364.83" rx="241.57" ry="244.02"/>
+                <circle fill="none" stroke="#ffb030" stroke-width="10.68" stroke-miterlimit="2.61313" cx="372.48" cy="366.6" r="297.77"/>
+                <polygon fill="none" stroke="#874d14" stroke-width="13.35" stroke-miterlimit="2.61313" points="209.99,199.31 302.4,199.31 370.34,130.35 437.28,199.31 532.4,199.31 532.4,297.32 597.47,364.36 532.4,430.41 532.4,529.03 435.24,529.03 368.63,596.64 303.02,529.03 209.99,529.03 209.99,433.17 141.51,362.62 209.99,293.11 "/>
+                <path fill="#ffb030" stroke="#ffb030" stroke-width="0.67" stroke-miterlimit="2.61313" d="M369.76 202.4l-76.11 113.67c47.82,-47.51 97.27,-50.18 150.16,0l-74.05 -113.67z"/>
+                <ellipse fill="#ffffff" stroke="#ffb030" stroke-width="13.35" stroke-miterlimit="2.61313" cx="368.75" cy="362.23" rx="84.01" ry="82.23"/>
+                <g transform="translate(360 362) scale(0.5355) translate(-87 -371)">
+                  <path fill="#874d14" d="M61.11,306.155c0-6.695,5.427-12.122,12.122-12.122c0.151,0,0.298,0.017,0.447,0.023
+                    c0.439-21.88,24.359-22.002,29.237-33.848c4.878,11.846,28.798,11.968,29.237,33.848c0.15-0.005,0.296-0.023,0.447-0.023
+                    c6.695,0,12.122,5.427,12.122,12.122c6.695,0,12.122,5.427,12.122,12.122v149.891H48.988V318.277
+                    C48.988,311.582,54.415,306.155,61.11,306.155z"/>
+                </g>
               </g>
-              <circle fill="none" stroke="#ffb030" stroke-width="10.68" stroke-miterlimit="2.61313" cx="372.48" cy="366.6" r="297.77"/>
-              <polygon fill="none" stroke="#874d14" stroke-width="13.35" stroke-miterlimit="2.61313" points="209.99,199.31 302.4,199.31 370.34,130.35 437.28,199.31 532.4,199.31 532.4,297.32 597.47,364.36 532.4,430.41 532.4,529.03 435.24,529.03 368.63,596.64 303.02,529.03 209.99,529.03 209.99,433.17 141.51,362.62 209.99,293.11 "/>
-              <path fill="#ffb030" stroke="#ffb030" stroke-width="0.67" stroke-miterlimit="2.61313" d="M369.76 202.4l-76.11 113.67c47.82,-47.51 97.27,-50.18 150.16,0l-74.05 -113.67z"/>
-              <ellipse fill="#ffffff" stroke="#ffb030" stroke-width="13.35" stroke-miterlimit="2.61313" cx="368.75" cy="362.23" rx="84.01" ry="82.23"/>
-              <g transform="translate(360 362) scale(0.5355) translate(-87 -371)">
-                <path fill="#874d14" d="M61.11,306.155c0-6.695,5.427-12.122,12.122-12.122c0.151,0,0.298,0.017,0.447,0.023
-                  c0.439-21.88,24.359-22.002,29.237-33.848c4.878,11.846,28.798,11.968,29.237,33.848c0.15-0.005,0.296-0.023,0.447-0.023
-                  c6.695,0,12.122,5.427,12.122,12.122c6.695,0,12.122,5.427,12.122,12.122v149.891H48.988V318.277
-                  C48.988,311.582,54.415,306.155,61.11,306.155z"/>
-              </g>
-            </g>
-          </svg>
+            </svg>
+          </div>
         </div>
-      </div>
+      }
     </div>
   `,
   styleUrls: ['./qibla-compass.component.css']
@@ -78,18 +74,12 @@ import { CommonModule } from '@angular/common';
 export class QiblaCompassComponent {
   readonly qiblaBearing = input<number>(0);
   readonly currentHeading = input<number | null>(0);
-  /** No compass on this device: the dial doesn't turn */
+  /** No compass on this device: no dial, only the Kaaba marker above where it would be */
   readonly fixed = input(false);
-
-  /** Where north is on a fixed dial: as far anticlockwise of the arrow as the Qibla is clockwise of north */
-  readonly northAngle = computed(() => Math.round((360 - (this.qiblaBearing() % 360)) % 360));
 
   readonly compassRotation = computed<number>(() => {
     const bearing = this.qiblaBearing();
     const heading = this.currentHeading();
-
-    // No compass: drawn facing the Qibla, the arrow straight up at the Kaaba
-    if (this.fixed()) return 0;
 
     if (heading === null || heading === undefined) {
       const rotation = bearing % 360;
