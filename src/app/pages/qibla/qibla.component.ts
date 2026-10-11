@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, effect, inject, DestroyRef, isDevMode } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, effect, untracked, inject, DestroyRef, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -11,6 +11,7 @@ import { PermissionsService } from '../../services/permissions.service';
 import { SettingsService } from '../../services/settings.service';
 import { KM_PER_MILE } from '../../services/units';
 import { nextPrayerText, turnText } from './services/qibla-live';
+import { ToastService } from '../../core/toast.service';
 
 @Component({
   selector: 'app-qibla',
@@ -48,6 +49,7 @@ export class QiblaComponent implements OnInit, OnDestroy {
   private readonly permissionsService = inject(PermissionsService);
   protected readonly location = computed(() => this.prayerTimeStore.currentLocation());
   private readonly settings = inject(SettingsService);
+  private readonly toasts = inject(ToastService);
 
   /** "263° W": the direction to face, for a wall compass or a map */
   protected readonly bearingText = computed(() => {
@@ -67,6 +69,12 @@ export class QiblaComponent implements OnInit, OnDestroy {
   private lastHeadingReceivedTime: number | null = null;
 
   constructor() {
+    // A compass problem is said in a toast, so the page under the compass doesn't shift
+    effect(() => {
+      const problem = this.compassError();
+      if (problem) untracked(() => this.toasts.error(problem));
+    });
+
     effect(() => {
       const currentLocation = this.location();
       const hasError = this.error();

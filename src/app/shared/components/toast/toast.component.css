@@ -1,0 +1,61 @@
+/* Above the bottom nav and the mini player, centred, never wider than the screen */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-space) + var(--mini-player-space, 0px) + var(--space-sm));
+  z-index: 300; /* over the nav (100) and the update prompt (200) */
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  width: max-content;
+  max-width: min(calc(100vw - 2 * var(--space-lg)), 26rem);
+  padding: 0.625rem var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--color-text);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  color: var(--color-surface);
+  font-family: var(--font-body);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  cursor: pointer;
+
+  /* Hidden: a little lower and smaller, and out of the way of taps. Leaving is quicker than
+     arriving (motion rules in styles.css). */
+  opacity: 0;
+  transform: translate(-50%, 0.75rem) scale(0.96);
+  pointer-events: none;
+  transition:
+    opacity var(--motion-exit) var(--ease-in),
+    transform var(--motion-exit) var(--ease-in);
+}
+
+.toast.is-shown {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  pointer-events: auto;
+  transition:
+    opacity var(--motion-base) var(--ease-out),
+    transform var(--motion-base) var(--ease-spring);
+}
+
+/* A problem: the same pill with a warning mark in the app's soft red */
+.toast-icon {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-danger-soft);
+}
+
+.toast--error {
+  text-align: start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.is-shown {
+    transform: translate(-50%, 0);
+    transition: opacity var(--motion-fast) linear;
+  }
+}

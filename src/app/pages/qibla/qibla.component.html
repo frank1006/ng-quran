@@ -66,11 +66,6 @@
               >
                 {{ compassPermissionRequested() ? 'Requesting Permission...' : 'Enable Compass' }}
               </button>
-              @if (compassError()) {
-                <div class="compass-error-message">
-                  {{ compassError() }}
-                </div>
-              }
             }
 
             <!-- No usable compass (laptop, desktop, or a browser without true north): no dial,

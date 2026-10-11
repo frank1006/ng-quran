@@ -6,6 +6,7 @@ import { BottomNavComponent } from './shared/components/bottom-nav/bottom-nav.co
 import { OfflineBannerComponent } from './shared/components/offline-banner/offline-banner.component';
 import { UpdatePromptComponent } from './shared/components/update-prompt/update-prompt.component';
 import { MiniPlayerComponent } from './shared/components/mini-player/mini-player.component';
+import { ToastComponent } from './shared/components/toast/toast.component';
 import { NotificationWorkerService } from './services/notification-worker.service';
 import { BackgroundSyncService } from './services/background-sync.service';
 import { PushReminderService } from './services/push-reminder.service';
@@ -15,7 +16,7 @@ import { AccountSyncService } from './core/account-sync.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, BottomNavComponent, OfflineBannerComponent, UpdatePromptComponent, MiniPlayerComponent],
+  imports: [RouterOutlet, BottomNavComponent, OfflineBannerComponent, UpdatePromptComponent, MiniPlayerComponent, ToastComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

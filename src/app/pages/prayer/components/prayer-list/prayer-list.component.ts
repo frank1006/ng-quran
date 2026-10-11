@@ -1,10 +1,11 @@
-import { Component, DestroyRef, input, output, signal, inject } from '@angular/core';
+import { Component, input, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
 import { NotificationService } from '../../../../services/notification.service';
 import { DeviceDetectionService } from '../../../../services/device-detection.service';
 import { ReminderMode } from '../../../../services/notification.types';
 import { Logger } from '../../../../core/logger.util';
+import { ToastService } from '../../../../core/toast.service';
 
 /**
  * Prayer item for list display
@@ -68,7 +69,6 @@ const NEXT_MODE: Record<ReminderMode, ReminderMode> = { off: 'sound', sound: 'si
             </div>
           }
         </div>
-        <p class="mode-hint" role="status" [class.is-shown]="modeHint()">{{ modeHint() }}</p>
       </div>
     } @else if (error() && !loading()) {
       <div class="prayer-state">
@@ -105,22 +105,15 @@ export class PrayerListComponent {
 
   private readonly notificationService = inject(NotificationService);
   private readonly deviceDetection = inject(DeviceDetectionService);
+  private readonly toasts = inject(ToastService);
   readonly notificationLoadingStates = signal<Record<string, boolean>>({});
 
-  /** What each bell state is called, on the hint and for screen readers */
+  /** What each bell state is called, in the toast and for screen readers */
   protected readonly modeLabels: Record<ReminderMode, string> = {
     off: 'off',
     sound: 'with sound',
     silent: 'silent, no sound',
   };
-  /** Shown briefly after a tap, so the three bell states explain themselves */
-  protected readonly modeHint = signal('');
-  private hintTimer: ReturnType<typeof setTimeout> | undefined;
-
-  constructor() {
-    inject(DestroyRef).onDestroy(() => clearTimeout(this.hintTimer));
-  }
-
   protected reminderMode(prayerKey: string): ReminderMode {
     return this.notificationService.prayerMode(prayerKey);
   }
@@ -156,7 +149,8 @@ export class PrayerListComponent {
       }
 
       await this.notificationService.setPrayerMode(prayer.key, newMode);
-      this.showHint(`${prayer.name} reminder: ${this.modeLabels[newMode]}`);
+      // Says what the tap did, so the three bell states explain themselves
+      this.toasts.show(`${prayer.name} reminder: ${this.modeLabels[newMode]}`);
     } catch (error: any) {
       if (error.message === 'INSTALLATION_REQUIRED') {
         this.showInstallationPrompt();
@@ -174,12 +168,6 @@ export class PrayerListComponent {
       delete loadingStates[prayer.key];
       this.notificationLoadingStates.set(loadingStates);
     }
-  }
-
-  private showHint(text: string): void {
-    this.modeHint.set(text);
-    clearTimeout(this.hintTimer);
-    this.hintTimer = setTimeout(() => this.modeHint.set(''), 2500);
   }
 
   private showInstallationPrompt(): void {
