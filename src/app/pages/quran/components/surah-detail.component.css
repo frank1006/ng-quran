@@ -240,7 +240,7 @@ app-hero-header {
 
 .verse-arabic {
   font-family: var(--font-arabic);
-  font-size: 1.625rem; /* 26px */
+  font-size: clamp(1.375rem, 6.9vw, 1.625rem); /* 26px; down to 22px on the narrowest phones, for more words per line */
   font-weight: 400;
   color: var(--color-text);
   line-height: 2.1; /* room for the marks above and below, without a gap between lines */

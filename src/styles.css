@@ -120,6 +120,8 @@
 /* Extra small mobiles - further reduce font sizes */
 @media (max-width: 375px) {
   :root {
+    /* The bottom nav is a size down here (bottom-nav.component.css): bar 3.75rem + bubble rise 1.125rem */
+    --nav-space: calc(4.875rem + env(safe-area-inset-bottom, 0px));
     --font-xs: 0.75rem;       /* 12px: the minimum text size */
     --font-sm: 0.75rem;       /* 12px */
     --font-md: 0.875rem;      /* 14px */

@@ -3,13 +3,19 @@
    rises out of the dip with the icon and the label returns. Everything that moves uses
    transform/opacity only (DESIGN.md motion rules). */
 .bottom-nav {
+  /* Sizes: a smaller set for small phones is at the end of this file */
   --bubble-size: 3.5rem;
   /* The bubble rises this far above the bar */
   --bubble-rise: 1.5rem;
-  /* From the icon's centre (1.5rem below the bar's top) to the bubble's centre */
-  --icon-lift: calc(var(--bubble-size) / 2 - var(--bubble-rise) - 1.5rem);
-  /* The U in the bar (its curve is the SVG in the template, 120 × 40) */
+  --icon-size: 1.5rem;
+  --tab-pad: 0.75rem;
+  /* The row icon's centre, below the bar's top */
+  --icon-centre: calc(var(--tab-pad) + var(--icon-size) / 2);
+  /* From the icon's centre to the bubble's centre */
+  --icon-lift: calc(var(--bubble-size) / 2 - var(--bubble-rise) - var(--icon-centre));
+  /* The U in the bar (its curve is the SVG in the template, 120 × 40, stretched to this box) */
   --dip-width: 7.5rem;
+  --dip-height: 2.5rem;
   /* In order, overlapping a little, so the nav lands together with the page change
      (Angular's view transition is ~220ms and finishes ~330ms after the tap):
      the old bubble sinks, the dip glides once that's half done, the new bubble rises as the
@@ -128,7 +134,7 @@
   flex: none;
   width: var(--dip-width);
   /* Below the curve the dip piece is plain bar */
-  background: linear-gradient(var(--bar), var(--bar)) 0 2.5rem / 100% 100% no-repeat;
+  background: linear-gradient(var(--bar), var(--bar)) 0 var(--dip-height) / 100% 100% no-repeat;
 }
 
 .nav-dip-curve {
@@ -136,7 +142,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 2.5rem;
+  height: var(--dip-height);
   overflow: visible;
 }
 
@@ -161,7 +167,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-xxs);
-  padding: 0.75rem 0;
+  padding: var(--tab-pad) 0;
   text-decoration: none;
   color: var(--color-control-ink); /* brown on cream: 4.9:1 */
   transition: color var(--motion-base) var(--ease-standard);
@@ -179,8 +185,8 @@
 
 .nav-icon {
   display: block;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: var(--icon-size);
+  height: var(--icon-size);
 }
 
 /* The icon and label in the row. When the tab becomes active they hide at once (the bubble
@@ -218,7 +224,7 @@
 /* ── The bubble: one per tab, hidden inside the bar until its tab is active ── */
 .nav-drop {
   position: absolute;
-  top: calc(1.5rem - var(--bubble-size) / 2); /* centred on the row icon */
+  top: calc(var(--icon-centre) - var(--bubble-size) / 2); /* centred on the row icon */
   left: calc(50% - var(--bubble-size) / 2);
   display: grid;
   place-items: center;
@@ -258,5 +264,18 @@
 @media (hover: hover) {
   .nav-item:not(.active):hover {
     color: var(--color-accent-dark);
+  }
+}
+
+/* Small phones (iPhone SE and mini, compact Androids): the same bar a size down, so it takes
+   less of a short screen. Keep --nav-space in styles.css in step with these. */
+@media (max-width: 375px) {
+  .bottom-nav {
+    --bubble-size: 3rem;
+    --bubble-rise: 1.125rem;
+    --icon-size: 1.375rem;
+    --tab-pad: 0.5rem;
+    --dip-width: 6.5rem;
+    --dip-height: 2.125rem;
   }
 }
