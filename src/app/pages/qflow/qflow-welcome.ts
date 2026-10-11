@@ -21,8 +21,44 @@ const EVENT_QUESTIONS: Record<string, string> = {
   'eid-al-adha': 'Tell me the story of Ibrahim and his son',
 };
 
-const GENERAL_QUESTION = 'What does the Quran say about patience?';
-const URDU_QUESTION = 'صبر کے بارے میں قرآن کیا کہتا ہے؟';
+/**
+ * "Try asking" shows four questions, one from each list, and moves one step along each list every
+ * day, so over a week a person sees what the assistant covers. The lists have different lengths,
+ * so the same four don't come round together.
+ */
+const QURAN_QUESTIONS = [
+  'What does the Quran say about patience?',
+  'What does the Quran say about parents?',
+  'Show me the last two ayahs of Al-Baqarah',
+  'What does the Quran say about gratitude?',
+  'Tell me the story of Yusuf',
+  'What does the Quran say about anger?',
+  'Play Surah Ar-Rahman',
+];
+/** Answered from the app's own data: prayer times, place, Qibla, calendar */
+const MY_DAY_QUESTIONS = [
+  'When is the next prayer?',
+  'Which masjids are near me?',
+  'Which way is the Qibla?',
+  'What time is Fajr tomorrow?',
+  'Which Islamic events are coming up?',
+];
+/** Hadith, tafsir, du'as and the names of Allah */
+const SOURCE_QUESTIONS = [
+  'What did the Prophet ﷺ say about neighbours?',
+  'Explain Ayat al-Kursi',
+  "A du'a before sleeping",
+  'What does Al-Wadud mean?',
+  'Is there a hadith about intentions?',
+  'Why was Surah Al-Kawthar revealed?',
+];
+/** Urdu, in its own script and in Latin letters */
+const URDU_QUESTIONS = [
+  'صبر کے بارے میں قرآن کیا کہتا ہے؟',
+  'Agli namaz kab hai?',
+  'والدین کے بارے میں حدیث بتائیں',
+  'Safar ki dua btao',
+];
 
 /**
  * The day's greeting for QuranFlow AI (by first name once signed in), built from the app's own calendar (the user's moon-sighting
@@ -45,20 +81,18 @@ export function buildWelcome(hijri: HijriCalendarService, firstName?: string, no
   }
   if (isWhiteDay(h.month, h.day)) event = `${event ? `${event} ` : ''}Today is one of the White Days.`;
 
-  // One question for the day (Quran), two about the person's day (app data), one in Urdu
-  const dayQuestion =
-    weekday === 'Friday'
-      ? 'Show me the first ten ayahs of Al-Kahf'
-      : next && daysAway !== null && daysAway <= EVENT_SOON_DAYS
-        ? EVENT_QUESTIONS[next.event.id] ?? GENERAL_QUESTION
-        : GENERAL_QUESTION;
+  // The Quran question follows the day when it has something to follow: Friday, or an event that is near
+  const day = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / DAY_MS);
+  const ofTheDay = (questions: string[]) => questions[day % questions.length];
+  const eventQuestion = next && daysAway !== null && daysAway <= EVENT_SOON_DAYS ? EVENT_QUESTIONS[next.event.id] : undefined;
+  const quranQuestion = weekday === 'Friday' ? 'Show me the first ten ayahs of Al-Kahf' : eventQuestion ?? ofTheDay(QURAN_QUESTIONS);
 
   return {
     date: isoDate(today),
     greeting: firstName ? `Assalamu alaikum, ${firstName}` : 'Assalamu alaikum',
     today: `Today is ${weekday}, ${h.day} ${h.monthName} ${h.year} AH.`,
     event,
-    suggestions: [...new Set([dayQuestion, 'When is the next prayer?', 'Which masjids are near me?', URDU_QUESTION])],
+    suggestions: [quranQuestion, ofTheDay(MY_DAY_QUESTIONS), ofTheDay(SOURCE_QUESTIONS), ofTheDay(URDU_QUESTIONS)],
   };
 }
 
