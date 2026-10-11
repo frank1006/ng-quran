@@ -185,11 +185,13 @@ const NAMED_PASSAGES = [
 
 /** What about_quranflow returns: the app and the assistant, as they are */
 const ABOUT_QURANFLOW = `QuranFlow AI:
-- Languages: it answers in English, Urdu, Roman Urdu (Urdu in Latin letters) and Arabic, in the language the question is written in. It does not translate texts itself: every translation it shows is a published one.
-- Quran: the Arabic text with an English or Urdu translation under each answer.
-- Hadith: ${HADITH_BOOK_NAMES}, in Arabic with an English and Urdu translation where one is available (more collections are coming).
-- Tafsir: shown in the scholar's own words, in English, Urdu or Arabic depending on the tafsir: ${TAFSIR_NAMES}.
-- Du'as and the names of Allah: Arabic with the meaning in English.
+- Languages, by source (when asked about languages or translations, give this list source by source, in one or two sentences):
+  - Answers: English, Urdu, Roman Urdu (Urdu in Latin letters) and Arabic, in the language the question is written in.
+  - Quran: the Arabic text with an English or Urdu translation.
+  - Hadith (${HADITH_BOOK_NAMES}; more collections are coming): Arabic, with an English and Urdu translation where one is available.
+  - Tafsir: English, Urdu or Arabic, depending on the tafsir, in the scholar's own words: ${TAFSIR_NAMES}.
+  - Du'as and the names of Allah: Arabic with the meaning in English.
+  - It does not translate texts itself: every translation it shows is a published one.
 - It also answers about zakat, Islamic dates, prayer times, the Qibla, nearby masjids and the weather, and can start a surah playing. It does not give religious rulings.
 - A limited number of questions per day; the + button starts a new conversation. The conversation is kept on the device only.
 The app:
