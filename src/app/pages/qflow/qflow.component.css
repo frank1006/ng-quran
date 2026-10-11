@@ -250,6 +250,15 @@
   overflow-wrap: anywhere; /* never run off the screen, even if a model drops the spaces */
 }
 
+/* Urdu and Arabic text sits on the right. Stated outright (like the Arabic of an ayah) and not
+   left to text-align: start, which left Urdu on the left edge on iPhone. */
+.question[dir='rtl'],
+.answer-text[dir='rtl'],
+.ayah-translation[dir='rtl'],
+.hadith-note[dir='rtl'] {
+  text-align: right;
+}
+
 /* Urdu and Arabic answers read better in the Arabic-script font, a little larger */
 .answer-text:dir(rtl) {
   font-family: var(--font-arabic);
@@ -371,57 +380,34 @@
   text-align: right;
 }
 
-.hadith-more {
-  min-height: 2.75rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  font-size: var(--font-sm);
-  font-weight: 600;
-  color: var(--color-accent-dark);
-  cursor: pointer;
-}
-
-.hadith-other summary {
+/* Under a hadith: "Read more" for a long one, and its Arabic on request */
+.hadith-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-xs);
-  list-style: none;
+  margin-top: var(--space-xs);
+}
+
+.hadith-action {
   min-height: 2.75rem;
+  padding-inline: var(--space-md);
   font-size: var(--font-sm);
-  font-weight: 600;
+}
+
+.hadith-action:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.hadith-loading {
+  font-size: var(--font-sm);
   color: var(--color-text-secondary);
-  cursor: pointer;
 }
 
-.hadith-other summary::-webkit-details-marker {
-  display: none;
-}
-
-/* A chevron that turns down when the other language is open */
-.hadith-other summary::after {
-  content: '';
-  width: 0.4rem;
-  height: 0.4rem;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  transform: rotate(-45deg);
-  transition: transform 0.2s ease;
-}
-
-.hadith-other[open] summary::after {
-  transform: rotate(45deg);
-}
-
-.hadith-other[open] summary {
-  margin-bottom: var(--space-xs);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hadith-other summary::after {
-    transition: none;
-  }
+.hadith-actions + .hadith-text--ar,
+.hadith-note + .hadith-text--ar {
+  margin-top: var(--space-xs);
 }
 
 .hadith-note {

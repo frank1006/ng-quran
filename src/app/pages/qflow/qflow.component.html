@@ -126,7 +126,8 @@
                     @let translated = hadithText(text, exchange.lang);
                     <!-- The Arabic leads for Arabic readers and when there's no translation to show -->
                     @let arabicFirst = exchange.lang === 'ar' || !translated;
-                    @let other = arabicFirst ? (exchange.lang === 'ar' ? text.translation?.en?.text : '') : text.ar;
+                    <!-- The Arabic is offered under a translation; Arabic readers need no second language -->
+                    @let arabic = arabicFirst ? '' : text.ar;
                     <li class="ayah hadith">
                       <div class="ayah-head">
                         <span class="ayah-ref">{{ hadith.bookName }} · {{ hadith.number }}</span>
@@ -141,16 +142,35 @@
                         qflowClamped
                         #clamp="clamp"
                       >{{ arabicFirst ? text.ar : translated }}</p>
-                      @if (clamp.clamped() || isExpanded(key)) {
-                        <button
-                          type="button"
-                          class="hadith-more"
-                          (click)="toggleExpanded(key, hadith)"
-                          [attr.aria-expanded]="isExpanded(key)"
-                          [disabled]="loadingHadith() === hadith.ref"
-                        >
-                          {{ loadingHadith() === hadith.ref ? 'Loading…' : isExpanded(key) ? 'Show less' : 'Read more' }}
-                        </button>
+                      @if (clamp.clamped() || isExpanded(key) || arabic) {
+                        <div class="hadith-actions">
+                          @if (clamp.clamped() || isExpanded(key)) {
+                            <button
+                              type="button"
+                              class="ui-chip hadith-action"
+                              (click)="toggleExpanded(key, hadith)"
+                              [attr.aria-expanded]="isExpanded(key)"
+                              [disabled]="loadingHadith() === hadith.ref"
+                            >
+                              {{ isExpanded(key) ? 'Show less' : 'Read more' }}
+                            </button>
+                          }
+                          @if (arabic) {
+                            <button
+                              type="button"
+                              class="ui-chip hadith-action"
+                              [class.is-on]="isArabicShown(key)"
+                              (click)="toggleArabic(key, hadith)"
+                              [attr.aria-expanded]="isArabicShown(key)"
+                              [disabled]="loadingHadith() === hadith.ref"
+                            >
+                              Arabic
+                            </button>
+                          }
+                          @if (loadingHadith() === hadith.ref) {
+                            <span class="hadith-loading" role="status">Loading…</span>
+                          }
+                        </div>
                       }
                       @if (hadithError() === hadith.ref) {
                         <p class="hadith-error" role="status">Couldn't load the rest of this hadith. Please try again.</p>
@@ -158,15 +178,8 @@
                       @if (!translated && exchange.lang !== 'ar') {
                         <p class="hadith-note" [attr.lang]="exchange.lang" [attr.dir]="dir(noTranslationNote(exchange.lang))">{{ noTranslationNote(exchange.lang) }}</p>
                       }
-                      @if (other) {
-                        <details class="hadith-other" (toggle)="onOtherToggle($event, hadith)">
-                          <summary>{{ arabicFirst ? 'English' : 'Arabic' }}</summary>
-                          @if (arabicFirst) {
-                            <p class="ayah-translation" lang="en">{{ other }}</p>
-                          } @else {
-                            <p class="hadith-text--ar" lang="ar" dir="rtl">{{ other }}</p>
-                          }
-                        </details>
+                      @if (arabic && isArabicShown(key)) {
+                        <p class="hadith-text--ar ui-fade-in" lang="ar" dir="rtl">{{ arabic }}</p>
                       }
                     </li>
                   }

@@ -235,9 +235,17 @@ export class QFlowComponent implements AfterViewInit {
     }
   }
 
-  /** Opening the other language of a shortened hadith shows all of it too */
-  protected onOtherToggle(event: Event, hadith: QFlowHadith): void {
-    if ((event.target as HTMLDetailsElement).open) void this.loadFullHadith(hadith);
+  /** Hadith cards showing their Arabic, by exchange and ref */
+  private readonly arabicShown = signal(new Set<string>());
+
+  protected isArabicShown(key: string): boolean {
+    return this.arabicShown().has(key);
+  }
+
+  /** The Arabic comes on request; for a shortened hadith that loads all of it first */
+  protected async toggleArabic(key: string, hadith: QFlowHadith): Promise<void> {
+    if (!this.isArabicShown(key) && !(await this.loadFullHadith(hadith))) return;
+    this.arabicShown.update(keys => toggled(keys, key));
   }
 
   /** Hadith cards opened with "Read more", by exchange and ref */
@@ -249,11 +257,7 @@ export class QFlowComponent implements AfterViewInit {
 
   protected async toggleExpanded(key: string, hadith: QFlowHadith): Promise<void> {
     if (!this.isExpanded(key) && !(await this.loadFullHadith(hadith))) return;
-    this.expanded.update(keys => {
-      const next = new Set(keys);
-      if (!next.delete(key)) next.add(key);
-      return next;
-    });
+    this.expanded.update(keys => toggled(keys, key));
   }
 
   /** Brings an answered question to the top, so its answer reads from the start */
@@ -279,4 +283,11 @@ export class QFlowComponent implements AfterViewInit {
 function fitToText(field: HTMLTextAreaElement): void {
   field.style.height = 'auto';
   field.style.height = `${field.scrollHeight}px`;
+}
+
+/** A copy of the set with the key added, or removed if it was there */
+function toggled(keys: Set<string>, key: string): Set<string> {
+  const next = new Set(keys);
+  if (!next.delete(key)) next.add(key);
+  return next;
 }
