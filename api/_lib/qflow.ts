@@ -25,6 +25,7 @@ import { type Hadith, HADITH_BOOK_NAMES, asksForRuling, hadithForModel, quotable
 import { type NameOfAllah, findNames } from './names';
 import { postAI } from './ai-gateway';
 import { embedQuery, vector } from './vector';
+import { getTafsir } from './tafsir';
 import { calculateZakat, zakatInfoText } from './zakat';
 
 // --- types ---------------------------------------------------------------------------------
@@ -179,7 +180,7 @@ Rules (never break them):
 2. Before answering any question about the Quran, Islam or a topic, call search_quran (at most ${MAX_SEARCHES} searches; you may search once in English and once with Arabic wording, or two sub-topics). Write search queries in English, Arabic or Urdu script, never in Roman Urdu. For a named passage or an explicit reference, call get_ayahs instead. A surah asked for by name, in any spelling ("surah nas", "Yaseen", "سورہ ملک"), is in scope: call get_ayahs with that surah's ayahs (its first ${MAX_AYAH_FETCH} if it is longer) and say briefly what those ayahs are about.
 3. Cite every ayah you rely on as (surah:ayah), for example (2:153) or (2:183-185). Cite only references that appear in tool results. Never put times or anything else in brackets like that.
 4. The app shows every ayah you cite in full, in Arabic and translation, under your answer. So never copy whole ayahs and never write Arabic Quran text yourself. You may quote a short phrase (under 15 words) copied exactly from the translation in the tool results.
-5. Do not interpret or explain ayahs in your own words (no tafsir). Say briefly which ayahs relate to the question and why.
+5. Never interpret or explain an ayah from your own knowledge. Normally, say briefly which ayahs relate to the question and why. Only when the person asks what an ayah or surah means, for its explanation or tafsir, or why it was revealed ("explain 2:255", "tafseer", "is ayat ka matlab", "تفسیر", "شانِ نزول"): first get the ayah (get_ayahs, or search_quran when they gave a topic), then call get_tafsir once for the main ayah, and explain only from what it returns, in your own words, never copying its sentences. Name the tafsir in words ("Tafsir Ibn Kathir explains that …"; Urdu: تفسیر ابنِ کثیر; Arabic: التفسير الميسر) and cite the ayah as in rule 3. Such an answer may be up to 130 words. If get_tafsir has nothing, say so and keep to which ayahs relate.
 6. Never give fatwas or rulings (halal/haram, what someone must do in their situation, makeup prayers, divorce, inheritance, etc.; the general prayer windows in the get_prayer_times result, like Sunrise and Ishraq, are app facts, not rulings). Start with a gentle sentence, written in the reply language from rule 12, like "I'm not able to give religious rulings, so please ask a scholar you trust about your situation." (Roman Urdu: "Main deeni fatwa nahi de sakta, is liye apne masle ke liye kisi aise aalim se poochein jin par aap ko bharosa ho."; Urdu: "میں دینی فتویٰ نہیں دے سکتا، اس لیے اپنے مسئلے کے لیے کسی قابلِ اعتماد عالم سے پوچھیں۔") Then mention ayahs only if they directly address that exact topic; otherwise mention none.
 7. Only cite ayahs that directly address the question. If none do, say plainly that you did not find it in the Quran, but only after search_quran or get_ayahs found nothing for it in this turn (never claim it otherwise); never stretch loosely related ayahs to fit. Do not guess.
 7b. Hadith: the hadith collections available are ${HADITH_BOOK_NAMES} (more are coming). Call search_hadith (at most ${MAX_HADITH_SEARCHES} searches, in English, Arabic or Urdu script) when the question is about the Prophet ﷺ, what he said or did, the Sunnah, a hadith, or a practice the Quran doesn't detail (e.g. wudu, how to pray); for other topic questions, call it alongside search_quran when the Sunnah would help. Use only hadith that directly address the question. Name each in words ("In Sahih al-Bukhari, the Prophet ﷺ said that …") and put its marker [hadith book:number], e.g. [hadith bukhari:6018], at the END of that sentence (hidden from the reader; the app shows the hadith in full with its number). Say in your own words what it's about in one sentence; you may quote a short phrase (under 15 words) copied exactly from the result. Mention a grade only exactly as the result gives it; never call a hadith authentic, weak or fabricated yourself. If a hadith someone asks about isn't in the results, say you didn't find it in ${HADITH_BOOK_NAMES}, never that it doesn't exist. For a ruling question (rule 6: halal/haram, is X allowed), cite no hadith: scholars weigh many narrations, and one or two would read as an answer. In the sentence, write the collection's name in the reply's script (Urdu: صحیح بخاری; Arabic: صحيح البخاري), but always write the marker itself exactly as [hadith bukhari:N], in Latin letters.
@@ -236,6 +237,18 @@ const TOOLS = [
         type: 'object',
         properties: { refs: { type: 'array', items: { type: 'string' } } },
         required: ['refs'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_tafsir',
+      description: 'The tafsir (scholarly explanation) of one ayah, for questions asking what an ayah means, its explanation or why it was revealed. One call per question.',
+      parameters: {
+        type: 'object',
+        properties: { ref: { type: 'string', description: 'One ayah as surah:ayah, e.g. "2:255"' } },
+        required: ['ref'],
       },
     },
   },
@@ -440,6 +453,10 @@ const ROMAN_URDU_WORDS = new Set(
     'parhte prhna').split(' '),
 );
 
+/** A tafsir or commentator named in an answer ("Tafsir Ibn Kathir explains …", "تفسیر ابنِ کثیر") */
+const NAMES_A_TAFSIR =
+  /\b(tafsir|tafseer|tafsser)\s+(ibn|al|e|ul|of|by)\b|\b(ibn\s+kath[ie]r|tabari|qurtubi|jalalayn|baghawi|sa'?di|ma'?arif\s*(al|ul))\b|ابنِ? ?کثیر|ابن كثير|الطبري|القرطبي|التفسير الميسر/i;
+
 /** Same rules as the app's detectLang (qflow-chat.store.ts), plus Roman Urdu */
 function detectLang(text: string): Lang {
   if (/[ٹڈڑںےۓہھگکپچژ]/.test(text)) return 'ur';
@@ -615,6 +632,10 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
   /** Hadith search_hadith returned this turn, by ref */
   let knownHadiths = new Map<string, Hadith>();
   let hadithSearches = 0;
+  /** get_tafsir was used this turn (one passage is long enough) */
+  let tafsirAsked = false;
+  /** It returned a passage, so the answer may name a tafsir */
+  let tafsirGiven = false;
   // Times the app gave, so a bracketed time isn't mistaken for a citation ("16:19" vs 16:19)
   const times = new Set(
     Object.values(input.app?.prayers?.times ?? {}).flatMap(t => t.match(/\d{1,2}:\d{2}/g) ?? []),
@@ -671,6 +692,21 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
       const ayahs = await getAyahs(Array.isArray(args.refs) ? args.refs : []);
       ayahs.forEach(a => known.set(a.ref, a));
       return ayahs.length ? ayahs.map(a => forModel(a, lang)).join('\n') : 'No ayahs found for those references.';
+    }
+    if (name === 'get_tafsir') {
+      if (tafsirAsked) return 'Tafsir limit reached. Answer now from the tafsir you have.';
+      // Rule 6, enforced: the tafsir of a ruling ayah would read as a ruling
+      if (asksForRuling(input.question)) return 'This asks for a ruling, so give no tafsir (rule 6). Give the rule 6 sentence.';
+      const ref = String(args.ref ?? '').trim();
+      const [ayah] = await getAyahs([ref]);
+      if (!ayah) return 'Unknown ayah. Give one reference as surah:ayah.';
+      tafsirAsked = true;
+      known.set(ayah.ref, ayah);
+      const tafsir = await getTafsir(ayah.ref, lang === 'roman-ur' ? 'ur' : lang);
+      if (!tafsir) return 'No tafsir is available for this ayah right now. Say so, and keep to which ayahs relate (rule 5).';
+      tafsirGiven = true;
+      const reminder = lang === 'en' ? '' : `\nReply in ${REPLY_LANGUAGE[lang]}.`;
+      return `${tafsir.name}, on ${tafsir.covers.join(', ')}:\n${tafsir.text}\nExplain ${ayah.ref} from this in your own words, name the tafsir, and cite (${ayah.ref}).${reminder}`;
     }
     if (name === 'get_islamic_events') {
       return input.calendar ? JSON.stringify(input.calendar) : 'The app did not send calendar data; say the dates are in the Prayer tab calendar.';
@@ -746,9 +782,12 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
     knownNames = new Map();
     knownHadiths = new Map();
     hadithSearches = 0;
+    tafsirAsked = false;
+    tafsirGiven = false;
     try {
       // One chance per model to fix a quote that isn't word for word from the retrieved text
       let quoteCorrected = false;
+      let tafsirCorrected = false;
       for (let turn = 0; turn < MAX_TURNS; turn++) {
         // The first turn must use a tool, so nothing is answered from memory
         const tools = turn === 0 ? 'required' : turn === MAX_TURNS - 1 ? 'none' : 'auto';
@@ -776,6 +815,17 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
             continue;
           }
           if (quote) throw new ModelError(`${config.model}: quoted text not in the retrieved ayahs: ${quote}`);
+          if (!tafsirGiven && NAMES_A_TAFSIR.test(text)) {
+            // Rule 5, enforced: a tafsir named without get_tafsir's text is the model's own memory
+            if (tafsirCorrected || turn >= MAX_TURNS - 1) throw new ModelError(`${config.model}: named a tafsir it was not given`);
+            log(`  ${config.model}: named a tafsir it was not given, asking to correct it`);
+            tafsirCorrected = true;
+            convo.push({
+              role: 'user',
+              content: 'Your answer names a tafsir or a commentator, but get_tafsir gave you no tafsir text. Rewrite the whole answer without naming or drawing on any tafsir: say only which ayahs relate and why (rule 5).',
+            });
+            continue;
+          }
           return {
             mode: 'ai',
             answer: text,
