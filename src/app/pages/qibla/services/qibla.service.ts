@@ -76,6 +76,21 @@ export function toCompassHeading(
   providedIn: 'root'
 })
 export class QiblaService {
+  /** How far the Kaaba is, in km along the Earth's surface (the same great circle the bearing follows) */
+  distanceToKaabaKm(userLat: number, userLon: number): number {
+    const lat1 = this.toRadians(userLat);
+    const lat2 = this.toRadians(MAKKAH_COORDINATES.latitude);
+    const deltaLat = lat2 - lat1;
+    const deltaLon = this.toRadians(MAKKAH_COORDINATES.longitude - userLon);
+    const a = Math.sin(deltaLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) ** 2;
+    return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  /** A bearing as one of the eight compass points: 263° → "W" */
+  compassPoint(bearing: number): string {
+    return ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round((((bearing % 360) + 360) % 360) / 45) % 8];
+  }
+
   calculateQiblaBearing(userLat: number, userLon: number): number {
     const lat1 = this.toRadians(userLat);
     const lat2 = this.toRadians(MAKKAH_COORDINATES.latitude);

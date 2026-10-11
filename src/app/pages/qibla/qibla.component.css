@@ -1,6 +1,28 @@
+/* The page is its own scroller (the app shell doesn't scroll): on a short phone the facts and
+   the tip under the compass scroll clear of the bottom nav. The header scrolls with them, so
+   the Kaaba marker above the compass is never cut off. */
+:host {
+  display: block;
+  height: 100%;
+}
+
 .qibla-container {
-  min-height: 100vh;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--nav-space) + var(--mini-player-space, 0px));
   background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 40%);
+}
+
+/* A title and the Kaaba marker need less than the default hero */
+app-hero-header {
+  --hero-height: 12.5rem;
+}
+
+/* The white panel reaches the bottom of the screen however short its content */
+.qibla-content-section {
+  min-height: calc(100% - 12.5rem + var(--space-lg));
 }
 
 .qibla-content-section {
@@ -127,4 +149,52 @@
 
 .country-skeleton {
   width: 7rem;
+}
+
+/* ── Under the compass: the direction and distance as two cream tiles, then a tip ── */
+
+.qibla-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+  width: 100%;
+  max-width: 25rem; /* as wide as the instruction above */
+  margin: var(--space-md) 0 0;
+}
+
+.qibla-fact {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--color-cream);
+  text-align: center;
+}
+
+.qibla-fact dt {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.qibla-fact dd {
+  margin: 0.125rem 0 0;
+  font-size: var(--font-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent-dark);
+}
+
+.qibla-tip {
+  display: flex;
+  gap: var(--space-xs);
+  width: 100%;
+  max-width: 25rem;
+  margin: var(--space-md) 0 0;
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.qibla-tip svg {
+  flex: none;
+  margin-top: 0.15em;
 }

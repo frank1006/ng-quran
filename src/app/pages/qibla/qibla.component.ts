@@ -8,6 +8,8 @@ import { QiblaCompassComponent } from './components/qibla-compass.component';
 import { ConnectionErrorComponent } from '../../shared/components/connection-error/connection-error.component';
 import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-header.component';
 import { PermissionsService } from '../../services/permissions.service';
+import { SettingsService } from '../../services/settings.service';
+import { KM_PER_MILE } from '../../services/units';
 
 @Component({
   selector: 'app-qibla',
@@ -42,6 +44,22 @@ export class QiblaComponent implements OnInit, OnDestroy {
   private readonly qiblaService = inject(QiblaService);
   private readonly permissionsService = inject(PermissionsService);
   protected readonly location = computed(() => this.prayerTimeStore.currentLocation());
+  private readonly settings = inject(SettingsService);
+
+  /** "263° W": the direction to face, for a wall compass or a map */
+  protected readonly bearingText = computed(() => {
+    const bearing = this.qiblaBearing();
+    return `${Math.round(bearing)}° ${this.qiblaService.compassPoint(bearing)}`;
+  });
+
+  /** "2,430 km" to the Kaaba, in the unit chosen in Preferences */
+  protected readonly distanceText = computed(() => {
+    const location = this.location();
+    if (!location) return '';
+    const km = this.qiblaService.distanceToKaabaKm(location.latitude, location.longitude);
+    const miles = this.settings.distanceUnit() === 'mi';
+    return `${Math.round(miles ? km / KM_PER_MILE : km).toLocaleString()} ${miles ? 'mi' : 'km'}`;
+  });
   private compassDataTimeout: number | null = null;
   private lastHeadingReceivedTime: number | null = null;
 
