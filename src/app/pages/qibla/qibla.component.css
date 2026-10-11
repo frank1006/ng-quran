@@ -1,5 +1,5 @@
 /* Everything fits one screen: there is nothing to scroll to. The compass takes the height the
-   rest leaves, so on a short phone it is smaller, and the tip appears only where there is room.
+   rest leaves, so on a short phone it is smaller.
    (overflow-y: auto is a safety net for an unusually short window, not the design.) */
 :host {
   display: block;
@@ -25,11 +25,11 @@
   background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 40%);
 }
 
-/* Tall phones: a roomier header, and the tip under the facts (4.75rem with its gap) */
+/* Tall phones: a roomier header (1.5rem more) */
 @media (min-height: 46rem) {
   .qibla-container {
     --hero-height: 12.5rem;
-    --beside-compass: 24.375rem;
+    --beside-compass: 19.875rem;
   }
 }
 
@@ -162,7 +162,7 @@
   width: 7rem;
 }
 
-/* ── Under the compass: the direction and distance as two cream tiles, then a tip ── */
+/* ── Under the compass: the direction and distance as two cream tiles ── */
 
 .qibla-facts {
   display: grid;
@@ -192,26 +192,4 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--color-accent-dark);
-}
-
-.qibla-tip {
-  display: none; /* short phones: the compass gets the room */
-  gap: var(--space-xs);
-  width: 100%;
-  max-width: 25rem;
-  margin: var(--space-sm) 0 0;
-  font-size: var(--font-sm);
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
-
-.qibla-tip svg {
-  flex: none;
-  margin-top: 0.15em;
-}
-
-@media (min-height: 46rem) {
-  .qibla-tip {
-    display: flex;
-  }
 }
