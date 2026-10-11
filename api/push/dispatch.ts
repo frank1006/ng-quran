@@ -57,7 +57,7 @@ async function sendDue(): Promise<[number, number]> {
     const sub = await r.get<Subscriber>(subscriberKey(id));
     if (!sub) return;
     try {
-      await webpush.sendNotification(sub.subscription, reminderPayload(key as PrayerKey, at, sub.timeZone, sub.silent?.includes(key as PrayerKey)), {
+      await webpush.sendNotification(sub.subscription, reminderPayload(key as PrayerKey, at, sub), {
         TTL: 15 * 60,
         urgency: 'high',
       });

@@ -1,10 +1,10 @@
 /**
  * POST /api/push/subscribe
- * Body: { subscription, lat, lng, method, school, timeZone, prayers, silent }
+ * Body: { subscription, lat, lng, method, school, timeZone, prayers, silent, hour12 }
  *
  * Saves (or updates) a device's reminder settings and queues today's and tomorrow's
  * reminders. An empty `prayers` list removes the device; `silent` lists the chosen prayers
- * whose reminder arrives without sound. Location is rounded to ~1 km.
+ * whose reminder arrives without sound, and `hour12: false` asks for 24-hour times in the text. Location is rounded to ~1 km.
  */
 import {
   PRAYER_KEYS, PrayerKey, Subscriber, isValidTimeZone, json, removeSubscriber, resetQueue, subscriberId,
@@ -55,6 +55,7 @@ export async function POST(request: Request): Promise<Response> {
       school,
       timeZone: body.timeZone,
       prayers: prayers as PrayerKey[],
+      hour12: body.hour12 !== false,
       silent: (Array.isArray(body.silent) ? prayers.filter(key => body.silent.includes(key)) : []) as PrayerKey[],
       queuedUntil: '',
     };

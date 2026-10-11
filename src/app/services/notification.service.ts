@@ -12,6 +12,8 @@ import { DeviceDetectionService } from './device-detection.service';
 import { PrayerTimeStore } from '../store/prayer-time.store';
 import { UserStoreService } from './user-store.service';
 import { Logger } from '../core/logger.util';
+import { SettingsService } from './settings.service';
+import { formatTime } from './time-format.util';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +25,7 @@ export class NotificationService {
   private readonly deviceDetection = inject(DeviceDetectionService);
   private readonly prayerTimeStore = inject(PrayerTimeStore);
   private readonly userStore = inject(UserStoreService);
+  private readonly appSettings = inject(SettingsService);
 
   private readonly settings = signal<NotificationSettings>({
     enabled: false,
@@ -480,11 +483,15 @@ export class NotificationService {
     const silent = this.settings().silent?.[prayerKey] === true;
     // Shuruq isn't a prayer: it ends Fajr's time, and Ishraq follows once the sun is up (same text as push reminders)
     const sunrise = prayerName === 'Shuruq';
-    const title = sunrise ? `Shuruq · Sunrise ${prayerTime}` : `${prayerName} Prayer Time`;
+    // Times arrive as "13:05"; they are shown in the format chosen in Preferences (12- or 24-hour),
+    // the same as the push reminder that reaches a closed app
+    const timeFormat = this.appSettings.currentTimeFormat();
+    const shownTime = formatTime(prayerTime, timeFormat);
+    const title = sunrise ? `Shuruq · Sunrise ${shownTime}` : `${prayerName} Prayer Time`;
     const options: NotificationOptions & { vibrate?: number[] } = {
       body: sunrise
-        ? `Fajr time has ended. Ishraq can be prayed from about ${addMinutes(prayerTime, ISHRAQ_AFTER_SUNRISE_MIN)}.`
-        : `Time for ${prayerName} prayer (${prayerTime})`,
+        ? `Fajr time has ended. Ishraq can be prayed from about ${formatTime(addMinutes(prayerTime, ISHRAQ_AFTER_SUNRISE_MIN), timeFormat)}.`
+        : `Time for ${prayerName} prayer (${shownTime})`,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
       tag: `prayer-${prayerName.toLowerCase()}`,

@@ -37,6 +37,8 @@ export interface Subscriber {
   prayers: PrayerKey[];
   /** Of those, the ones sent without sound or vibration (missing on devices saved before this existed) */
   silent?: PrayerKey[];
+  /** The clock the person reads: false for 24-hour (missing on devices saved before this existed: 12-hour) */
+  hour12?: boolean;
   /** Last local date (YYYY-MM-DD) whose reminders are queued. */
   queuedUntil: string;
 }
@@ -162,9 +164,14 @@ export async function removeSubscriber(id: string): Promise<void> {
 /** Ishraq starts once the sun has risen "a spear's length", about 15–20 minutes after sunrise; the later end is used */
 export const ISHRAQ_AFTER_SUNRISE_MIN = 20;
 
-export function reminderPayload(key: PrayerKey, at: number, timeZone: string, silent = false): string {
+/** The notification for one reminder, worded for that subscriber: their time zone, clock and sound choice */
+export function reminderPayload(key: PrayerKey, at: number, sub: Pick<Subscriber, 'timeZone' | 'silent' | 'hour12'>): string {
   const name = PRAYER_NAMES[key];
-  const format = new Intl.DateTimeFormat('en', { timeZone, hour: 'numeric', minute: '2-digit' });
+  const silent = sub.silent?.includes(key) ?? false;
+  // "1:05 PM" or "13:05", as the app itself shows the time in each format
+  const format = new Intl.DateTimeFormat('en', sub.hour12 === false
+    ? { timeZone: sub.timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }
+    : { timeZone: sub.timeZone, hour: 'numeric', minute: '2-digit', hourCycle: 'h12' });
   const time = format.format(at);
   // Shuruq isn't a prayer: it ends Fajr's time, and Ishraq follows once the sun is up (same text as the in-app reminder)
   const sunrise = key === 'sunrise';

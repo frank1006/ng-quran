@@ -6,6 +6,7 @@ import { NotificationService } from './notification.service';
 import { SettingsService } from './settings.service';
 import { PrayerTimeStore } from '../store/prayer-time.store';
 import { Logger } from '../core/logger.util';
+import { TimeFormat } from './time-format.types';
 
 const SYNC_STORAGE_KEY = 'push-reminder-sync';
 /** Re-send unchanged settings this often, so the server's copy never goes stale. */
@@ -48,10 +49,12 @@ export class PushReminderService {
       const location = this.prayerStore.currentLocation();
       const method = this.settings.calcMethod();
       const school = this.settings.asrSchool();
+      // The reminder's text is written on the server, so it needs the clock the person chose
+      const hour12 = this.settings.currentTimeFormat() === TimeFormat.TWELVE_HOUR;
 
       untracked(() => {
         clearTimeout(this.syncTimer);
-        this.syncTimer = setTimeout(() => this.sync(prayers, quiet, permitted, location, method, school), SYNC_DEBOUNCE_MS);
+        this.syncTimer = setTimeout(() => this.sync(prayers, quiet, permitted, location, method, school, hour12), SYNC_DEBOUNCE_MS);
       });
     });
   }
@@ -62,7 +65,8 @@ export class PushReminderService {
     permitted: boolean,
     location: { latitude: number; longitude: number } | null,
     method: number | null,
-    school: number
+    school: number,
+    hour12: boolean
   ): Promise<void> {
     try {
       if (!prayers.length) {
@@ -96,6 +100,7 @@ export class PushReminderService {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         prayers,
         silent,
+        hour12,
       };
       const payload = JSON.stringify(body);
       const previous = this.readRecord();
