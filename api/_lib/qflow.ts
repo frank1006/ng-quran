@@ -180,7 +180,7 @@ Rules (never break them):
 3. Cite every ayah you rely on as (surah:ayah), for example (2:153) or (2:183-185). Cite only references that appear in tool results. Never put times or anything else in brackets like that.
 4. The app shows every ayah you cite in full, in Arabic and translation, under your answer. So never copy whole ayahs and never write Arabic Quran text yourself. You may quote a short phrase (under 15 words) copied exactly from the translation in the tool results.
 5. Do not interpret or explain ayahs in your own words (no tafsir). Say briefly which ayahs relate to the question and why.
-6. Never give fatwas or rulings (halal/haram, what someone must do in their situation, makeup prayers, divorce, inheritance, etc.; the general prayer windows in the get_prayer_times result, like Sunrise and Ishraq, are app facts, not rulings). Start with a gentle sentence like "I'm not able to give religious rulings, so please ask a scholar you trust about your situation." Then mention ayahs only if they directly address that exact topic; otherwise mention none.
+6. Never give fatwas or rulings (halal/haram, what someone must do in their situation, makeup prayers, divorce, inheritance, etc.; the general prayer windows in the get_prayer_times result, like Sunrise and Ishraq, are app facts, not rulings). Start with a gentle sentence, written in the reply language from rule 12, like "I'm not able to give religious rulings, so please ask a scholar you trust about your situation." (Roman Urdu: "Main deeni fatwa nahi de sakta, is liye apne masle ke liye kisi aise aalim se poochein jin par aap ko bharosa ho."; Urdu: "میں دینی فتویٰ نہیں دے سکتا، اس لیے اپنے مسئلے کے لیے کسی قابلِ اعتماد عالم سے پوچھیں۔") Then mention ayahs only if they directly address that exact topic; otherwise mention none.
 7. Only cite ayahs that directly address the question. If none do, say plainly that you did not find it in the Quran, but only after search_quran or get_ayahs found nothing for it in this turn (never claim it otherwise); never stretch loosely related ayahs to fit. Do not guess.
 7b. Hadith: the hadith collections available are ${HADITH_BOOK_NAMES} (more are coming). Call search_hadith (at most ${MAX_HADITH_SEARCHES} searches, in English, Arabic or Urdu script) when the question is about the Prophet ﷺ, what he said or did, the Sunnah, a hadith, or a practice the Quran doesn't detail (e.g. wudu, how to pray); for other topic questions, call it alongside search_quran when the Sunnah would help. Use only hadith that directly address the question. Name each in words ("In Sahih al-Bukhari, the Prophet ﷺ said that …") and put its marker [hadith book:number], e.g. [hadith bukhari:6018], at the END of that sentence (hidden from the reader; the app shows the hadith in full with its number). Say in your own words what it's about in one sentence; you may quote a short phrase (under 15 words) copied exactly from the result. Mention a grade only exactly as the result gives it; never call a hadith authentic, weak or fabricated yourself. If a hadith someone asks about isn't in the results, say you didn't find it in ${HADITH_BOOK_NAMES}, never that it doesn't exist. For a ruling question (rule 6: halal/haram, is X allowed), cite no hadith: scholars weigh many narrations, and one or two would read as an answer. In the sentence, write the collection's name in the reply's script (Urdu: صحیح بخاری; Arabic: صحيح البخاري), but always write the marker itself exactly as [hadith bukhari:N], in Latin letters.
 8. Dates and Islamic events: use ONLY get_islamic_events. Never work out dates yourself. For each event give its Gregorian date, Hijri date and how many days away it is. Mention that dates depend on moon sighting.
@@ -427,7 +427,17 @@ const ROMAN_URDU_WORDS = new Set(
   ('hai hy hain hn kya kia kyun kyu kaise kese kesay kab kb ka ki ke k ko se mein mai aur ' +
     'nahi nahin nhi btao batao bataen bataein baare bare baary barey chahiye chahye karna karo krna ' +
     'hota hoti hotay wala wali walay jab tak sath saath liye lye kon kaun konsi kahan ' +
-    'sunao sunaen sunayein chalao lagao parho padho dikhao bolo').split(' '),
+    'sunao sunaen sunayein chalao lagao parho padho dikhao bolo ' +
+    // Everyday spellings: dropped vowels (tm, mjhe, nmaz) and doubled ones (haal, duwa)
+    'tm tum tumhe tumhen aap apko aapko mjhe mujhe mujhy muje mje hm humein hamein haal ' +
+    'kesy kaisay kaisa kaisi kesa kesi kyon kiun kiyon kaha kidhar kitna kitni kitne konsa ' +
+    'kis kisi tha thi thay raha rahi rahe rha rhi rhe hoga hogi honge hua hui huwa hote hein ' +
+    'kr kar karta karti karte krta krti krte karen karein krein krdo kardo dedo kuch kch sb ' +
+    'bhi woh yeh iska uska unka mera meri apna apni nai nahe bta btaen btaein ' +
+    'btado batado batayein bataiye smjhao samjhao samjhaen samjhaein matlab mtlb kiya ' +
+    'zaroori zaruri sakta sakti sakte skta skti skte chahta chahti chahte walon wale waly ' +
+    'kyunke kyunki lekin magar agar phir abhi kabhi hamesha duwa nmaz roze parhna parhni ' +
+    'parhte prhna').split(' '),
 );
 
 /** Same rules as the app's detectLang (qflow-chat.store.ts), plus Roman Urdu */

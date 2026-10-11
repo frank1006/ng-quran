@@ -184,7 +184,17 @@ const ROMAN_URDU_WORDS = new Set(
   ('hai hy hain hn kya kia kyun kyu kaise kese kesay kab kb ka ki ke k ko se mein mai aur ' +
     'nahi nahin nhi btao batao bataen bataein baare bare baary barey chahiye chahye karna karo krna ' +
     'hota hoti hotay wala wali walay jab tak sath saath liye lye kon kaun konsi kahan ' +
-    'sunao sunaen sunayein chalao lagao parho padho dikhao bolo').split(' '),
+    'sunao sunaen sunayein chalao lagao parho padho dikhao bolo ' +
+    // Everyday spellings: dropped vowels (tm, mjhe, nmaz) and doubled ones (haal, duwa)
+    'tm tum tumhe tumhen aap apko aapko mjhe mujhe mujhy muje mje hm humein hamein haal ' +
+    'kesy kaisay kaisa kaisi kesa kesi kyon kiun kiyon kaha kidhar kitna kitni kitne konsa ' +
+    'kis kisi tha thi thay raha rahi rahe rha rhi rhe hoga hogi honge hua hui huwa hote hein ' +
+    'kr kar karta karti karte krta krti krte karen karein krein krdo kardo dedo kuch kch sb ' +
+    'bhi woh yeh iska uska unka mera meri apna apni nai nahe bta btaen btaein ' +
+    'btado batado batayein bataiye smjhao samjhao samjhaen samjhaein matlab mtlb kiya ' +
+    'zaroori zaruri sakta sakti sakte skta skti skte chahta chahti chahte walon wale waly ' +
+    'kyunke kyunki lekin magar agar phir abhi kabhi hamesha duwa nmaz roze parhna parhni ' +
+    'parhte prhna').split(' '),
 );
 
 /**
