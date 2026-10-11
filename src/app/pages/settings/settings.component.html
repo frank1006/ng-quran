@@ -170,6 +170,46 @@
         </section>
 
         <section class="settings-section">
+          <h2 class="ui-section-label">Quran</h2>
+
+          <div class="setting-row setting-row-stacked">
+            <div class="setting-text">
+              <h3 class="setting-name">Translation</h3>
+              <p class="setting-hint">Shown under each ayah</p>
+            </div>
+            <div class="ui-segmented translation-options" role="radiogroup" aria-label="Translation language">
+              @for (language of translationLanguages; track language.id) {
+                <label class="ui-segment" [class.is-on]="translationLanguage() === language.id">
+                  <input type="radio" name="translationLanguage" [checked]="translationLanguage() === language.id" (change)="setTranslationLanguage(language.id)" />
+                  {{ language.name }}
+                </label>
+              }
+            </div>
+          </div>
+
+          <div class="setting-row setting-row-stacked">
+            <div class="setting-text">
+              <label class="setting-name" for="reciter">Reciter</label>
+              <p class="setting-hint">The voice when you listen to a surah</p>
+            </div>
+            <select
+              id="reciter"
+              class="ui-select calc-select"
+              [disabled]="reciters().length === 0"
+              (change)="onReciterChange($any($event.target).value)"
+            >
+              @if (reciters().length === 0) {
+                <option value="">Loading reciters…</option>
+              } @else {
+                @for (reciter of reciters(); track reciter.id) {
+                  <option [value]="reciter.id" [selected]="reciterId() === reciter.id">{{ reciter.name }}</option>
+                }
+              }
+            </select>
+          </div>
+        </section>
+
+        <section class="settings-section">
           <h2 class="ui-section-label">Prayer Calculation</h2>
 
           <div class="setting-row setting-row-stacked">

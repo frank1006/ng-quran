@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { QuranApiService } from '../../../services/quran-api.service';
 import { UserStoreService } from '../../../services/user-store.service';
-import { Chapter, Reciter } from '../../../services/quran-api.types';
+import { Chapter } from '../../../services/quran-api.types';
 import { ConnectionErrorComponent } from '../../../shared/components/connection-error/connection-error.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { QuranAudioService } from '../../../services/quran-audio.service';
@@ -43,18 +43,11 @@ let listPosition: ListPosition | null = null;
 })
 export class SurahListComponent implements OnInit, OnDestroy {
   protected readonly chapters = signal<Chapter[]>([]);
-  protected readonly reciters = signal<Reciter[]>([]);
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
   protected readonly searchQuery = signal<string>('');
   /** The surah opened last: highlighted, and kept in view when the list comes back */
   protected readonly lastSurahId = signal<number | null>(null);
-
-  protected readonly selectedReciterId = computed(() => this.userStore.selectedReciterId());
-  protected readonly selectedReciterName = computed(() => {
-    const id = this.selectedReciterId();
-    return this.reciters().find(r => r.id === id)?.name ?? 'Choose reciter';
-  });
 
   /** Search is a button until tapped; it stays open while a search is active */
   protected readonly searchOpen = signal(false);
@@ -119,7 +112,6 @@ export class SurahListComponent implements OnInit, OnDestroy {
     // Highlight the surah opened last, however it was reached (list, card, bookmark, player)
     this.lastSurahId.set(this.userStore.lastOpenedChapterId() ?? listPosition.lastSurahId);
     this.loadChapters();
-    this.loadReciters();
   }
 
   private loadChapters(): void {
@@ -139,28 +131,6 @@ export class SurahListComponent implements OnInit, OnDestroy {
           this.loading.set(false);
           if (isDevMode()) {
             console.error('Error loading chapters:', err);
-          }
-        }
-      });
-  }
-
-  private loadReciters(): void {
-    this.quranApi.getReciters()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (reciters) => {
-          this.reciters.set(reciters);
-          
-          // Set default reciter only if no reciter is currently selected
-          // This must happen AFTER reciters are loaded to avoid race conditions
-          const currentReciterId = this.selectedReciterId();
-          if (reciters.length > 0 && currentReciterId === null) {
-            this.userStore.setSelectedReciter(reciters[0].id);
-          }
-        },
-        error: (err) => {
-          if (isDevMode()) {
-            console.error('Error loading reciters:', err);
           }
         }
       });
@@ -188,12 +158,6 @@ export class SurahListComponent implements OnInit, OnDestroy {
     this.searchQuery.set('');
     field?.blur();
     if (hadFocus) this.searchToggle()?.nativeElement.focus({ preventScroll: true });
-  }
-
-  onReciterChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const reciterId = select.value ? parseInt(select.value, 10) : null;
-    this.userStore.setSelectedReciter(reciterId);
   }
 
   navigateToSurah(chapterId: number): void {

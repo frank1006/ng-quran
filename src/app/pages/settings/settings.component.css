@@ -399,6 +399,12 @@
   text-decoration: none;
 }
 
+/* Translation: three choices across the full width under the label */
+.translation-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
 /* Moon sighting: four choices across the full width under the label */
 .hijri-offset {
   display: grid;

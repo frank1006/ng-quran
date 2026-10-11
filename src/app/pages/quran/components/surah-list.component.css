@@ -14,7 +14,7 @@
   margin-inline: auto;
 }
 
-/* Title, reciter, search and Continue reading stay put; only the list below scrolls */
+/* Title, subtitle, search and Continue reading stay put; only the list below scrolls */
 .header-section {
   flex: none;
   padding-bottom: var(--space-sm);
@@ -42,7 +42,7 @@
   letter-spacing: -0.03125rem; /* -0.5px */
 }
 
-/* Title and reciter as on every page, with search centred beside the pair. The field opens
+/* Title and subtitle as on every page, with search centred beside the pair. The field opens
    across the whole block (both lines fade out), so it has the same space above and below
    and nothing moves vertically. The text stays clear of the search column. */
 .header-top {
@@ -63,65 +63,29 @@
   opacity: 0;
 }
 
-/* The reciter is the page subtitle: same gap under the title as on every other page */
+/* Same gap under the title as on every other page */
 .header-row {
   display: flex;
   margin-top: var(--title-subtitle-gap);
 }
 
-/* Looks like the page subtitle with a chevron right after the name;
-   the real select is stretched invisibly over it so the native picker opens */
-.reciter-selector {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-width: 0;
-  color: var(--color-accent-dark);
-  cursor: pointer;
+/* The subtitle fades with the title while the search field is open over them */
+.list-subtitle {
+  margin: 0;
   transition: opacity var(--motion-base) var(--ease-standard);
 }
 
-.header-section.searching .reciter-selector {
+.header-section.searching .list-subtitle {
   opacity: 0;
-  pointer-events: none;
 }
 
-.reciter-icon,
-.reciter-chevron {
-  flex-shrink: 0;
-  display: block;
-}
-
-.reciter-name {
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.reciter-select {
-  position: absolute;
-  /* The line is text height; the invisible select reaches past it to a 44px tap area */
-  inset: -0.875rem 0;
-  width: 100%;
-  opacity: 0;
-  font-size: 16px; /* iOS doesn't zoom into 16px+ controls */
-  cursor: pointer;
-}
-
-.reciter-selector:has(.reciter-select:focus-visible) {
-  outline: 2px solid var(--color-primary-edge);
-  outline-offset: 4px;
-  border-radius: var(--radius-sm);
-}
 
 /* One white pill: a circle when closed, the full row when open.
    The pill is always full width and clipped down to the circle, so opening it only
    animates clip-path and transforms (no layout work each frame). Clipped parts don't take taps. */
 .search-box {
   position: absolute;
-  top: calc(50% - var(--search-size) / 2); /* centred on the title + reciter block */
+  top: calc(50% - var(--search-size) / 2); /* centred on the title + subtitle block */
   right: 0;
   width: 100%;
   height: var(--search-size);

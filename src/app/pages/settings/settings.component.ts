@@ -10,9 +10,9 @@ import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService } from '../qibla/services/qibla.service';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationPermissionStatus } from '../../services/notification.types';
-import { UserStoreService, Bookmark } from '../../services/user-store.service';
+import { UserStoreService, Bookmark, TranslationLanguage } from '../../services/user-store.service';
 import { QuranApiService } from '../../services/quran-api.service';
-import { Chapter } from '../../services/quran-api.types';
+import { Chapter, Reciter } from '../../services/quran-api.types';
 import { SegmentedIndicatorDirective } from '../../shared/directives/segmented-indicator.directive';
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
 import { AuthService } from '../../core/auth.service';
@@ -68,6 +68,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   // Bookmarks
   protected readonly bookmarks = computed(() => this.userStore.bookmarks());
+
+  // Quran: the translation under each ayah and the reciter (used by the reader and the player)
+  protected readonly translationLanguages: { id: TranslationLanguage; name: string }[] = [
+    { id: 'english', name: 'English' },
+    { id: 'urdu', name: 'Urdu' },
+    { id: 'bengali', name: 'Bengali' },
+  ];
+  protected readonly translationLanguage = computed(() => this.userStore.quranTranslationLanguage() ?? 'english');
+  protected readonly reciters = signal<Reciter[]>([]);
+  protected readonly reciterId = computed(() => this.userStore.selectedReciterId());
   protected readonly chapters = signal<Chapter[]>([]);
   protected readonly loadingChapters = signal<boolean>(false);
   
@@ -164,6 +174,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     
     // Load chapters for bookmark display
     this.loadChapters();
+    this.loadReciters();
     
     // Re-verify compass functionality periodically while on settings page
     // This ensures status reflects actual compass state
@@ -175,6 +186,25 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /**
    * Load chapters for bookmark display
    */
+  /** Loaded when Preferences is first shown with the Quran settings (the list is cached by QuranApiService) */
+  private loadReciters(): void {
+    this.quranApi.getReciters()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: reciters => this.reciters.set(reciters),
+        error: () => {} // the picker stays on "Loading reciters…"; the chosen reciter still plays
+      });
+  }
+
+  protected setTranslationLanguage(language: TranslationLanguage): void {
+    this.userStore.setQuranTranslationLanguage(language);
+  }
+
+  protected onReciterChange(value: string): void {
+    const id = parseInt(value, 10);
+    if (!Number.isNaN(id)) this.userStore.setSelectedReciter(id);
+  }
+
   private loadChapters(): void {
     this.loadingChapters.set(true);
     this.quranApi.getChapters()

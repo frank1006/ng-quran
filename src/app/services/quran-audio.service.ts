@@ -88,7 +88,13 @@ export class QuranAudioService {
     });
 
     this.quranApi.getReciters().subscribe({
-      next: reciters => (this.reciterNames = new Map(reciters.map(r => [r.id, r.name]))),
+      next: reciters => {
+        this.reciterNames = new Map(reciters.map(r => [r.id, r.name]));
+        // Until someone chooses one in Preferences, the first reciter recites
+        if (reciters.length && this.userStore.selectedReciterId() === null) {
+          this.userStore.setSelectedReciter(reciters[0].id);
+        }
+      },
       error: () => {}
     });
 

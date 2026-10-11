@@ -58,54 +58,6 @@
   flex-wrap: wrap;
 }
 
-.translation-selector {
-  margin-top: 0.75rem;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: fit-content;
-}
-
-.translation-icon {
-  color: var(--color-accent-dark);
-  flex-shrink: 0;
-  display: block;
-}
-
-.translation-select {
-  width: auto;
-  font-family: var(--font-body);
-  font-size: var(--font-sm);
-  font-weight: 500;
-  color: var(--color-accent-dark);
-  background: transparent;
-  border: none;
-  padding: 0;
-  padding-right: var(--space-md);
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23874d14' d='M5 7L1 3h8z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-size: 0.625rem; /* 10px */
-  min-width: 0;
-  max-width: fit-content;
-}
-
-.translation-select:focus {
-  outline: none;
-}
-
-.translation-select option {
-  text-transform: none;
-  color: var(--color-text);
-  background: var(--color-surface);
-  padding: 0.5rem;
-}
-
 .surah-type {
   font-family: var(--font-body);
   font-size: var(--font-xs);
@@ -145,7 +97,8 @@
   position: relative;
   background: var(--color-surface);
   border-radius: var(--border-radius-tl);
-  padding: var(--space-lg) var(--space-lg);
+  /* Reading room: a narrow edge so the text gets the width, and a short step down to the first ayah */
+  padding: var(--space-sm) var(--space-md);
   padding-bottom: calc(var(--space-xl) + var(--nav-space) + var(--mini-player-space, 0px));
   overflow-y: auto;
   overflow-x: hidden;
@@ -165,7 +118,7 @@
   transition: opacity var(--motion-fast) var(--ease-standard);
   content: "";
   position: sticky;
-  top: -1.5rem;
+  top: calc(-1 * var(--space-sm)); /* the container's top padding */
   left: -2rem;
   right: -2rem;
   height: 2rem;
@@ -187,7 +140,7 @@
 /* Ayahs flow down the page with thin separators, like the app's other lists */
 .verse-item {
   position: relative;
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-lg) var(--space-xs);
   border-radius: var(--radius-lg);
   transition: background-color var(--motion-base) var(--ease-standard);
 }
@@ -196,8 +149,8 @@
   content: "";
   position: absolute;
   top: 0;
-  left: var(--space-md);
-  right: var(--space-md);
+  left: var(--space-xs);
+  right: var(--space-xs);
   height: 1px;
   background: var(--color-border);
 }
@@ -223,7 +176,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-xs); /* the Arabic's own line height adds the rest */
 }
 
 .verse-number-badge {
@@ -282,15 +235,15 @@
 .verse-content {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-sm);
 }
 
 .verse-arabic {
   font-family: var(--font-arabic);
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.625rem; /* 26px */
   font-weight: 400;
   color: var(--color-text);
-  line-height: 2.5;
+  line-height: 2.1; /* room for the marks above and below, without a gap between lines */
   text-align: right;
   direction: rtl;
 }
@@ -302,17 +255,21 @@
 
 .verse-translation {
   font-family: var(--font-body);
-  font-size: var(--font-md);
+  font-size: var(--font-lg); /* body text to read at length, not a caption */
   font-weight: 400;
-  color: var(--color-text-muted);
-  line-height: 1.8;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
   direction: ltr;
   text-align: left;
 }
 
+/* Urdu: the Arabic-script font, a step larger, with the line height that script needs */
 .verse-translation.rtl {
   direction: rtl;
   text-align: right;
+  font-family: var(--font-arabic);
+  font-size: calc(var(--font-lg) + 0.125rem);
+  line-height: 2;
 }
 
 .verse-item.selected .verse-translation,

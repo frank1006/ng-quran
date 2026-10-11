@@ -29,7 +29,8 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   protected readonly verses = signal<VerseWithTranslation[]>([]);
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly selectedTranslationLanguage = signal<'english' | 'bengali' | 'urdu'>('english');
+  /** Chosen in Profile → Preferences → Quran */
+  protected readonly selectedTranslationLanguage = computed(() => this.userStore.quranTranslationLanguage() ?? 'english');
   protected readonly selectedReciterId = computed(() => this.userStore.selectedReciterId());
 
   /** Verse the reader tapped or is listening to */
@@ -76,6 +77,12 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       });
     });
 
+    // The translation language can change while a surah is open (settings arriving from the account)
+    effect(() => {
+      const language = this.selectedTranslationLanguage();
+      untracked(() => this.updateVersesWithTranslation(language));
+    });
+
     // Save player state when it changes (debounced)
     effect(() => {
       if (this.chapterId) {
@@ -104,12 +111,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Load saved translation language preference from user store
-    const savedLanguage = this.userStore.quranTranslationLanguage();
-    if (savedLanguage && (savedLanguage === 'english' || savedLanguage === 'bengali' || savedLanguage === 'urdu')) {
-      this.selectedTranslationLanguage.set(savedLanguage);
-    }
-    
     // Check for URL fragment (verse to scroll to) - check immediately and subscribe for changes
     const currentFragment = this.route.snapshot.fragment;
     if (currentFragment && currentFragment.startsWith('verse-')) {
@@ -335,20 +336,6 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         this.loading.set(false);
       }
     });
-  }
-
-  protected onTranslationLanguageChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const language = select.value as 'english' | 'bengali' | 'urdu';
-    
-    // Update the selected language
-    this.selectedTranslationLanguage.set(language);
-    
-    // Save preference to user store
-    this.userStore.setQuranTranslationLanguage(language);
-    
-    // Update verses with new translation
-    this.updateVersesWithTranslation(language);
   }
 
   private updateVersesWithTranslation(language: 'english' | 'bengali' | 'urdu'): void {
