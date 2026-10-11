@@ -1,7 +1,7 @@
 .hero-section {
-  /* Pages can resize the hero via --hero-height / --hero-overlap / --hero-bg */
+  /* Pages can resize the hero via --hero-height / --hero-overlap / --hero-bg / --hero-padding-bottom */
   height: var(--hero-height, 14.25rem); /* 228px default */
-  padding: var(--space-lg) var(--space-xl);
+  padding: var(--space-lg) var(--space-xl) var(--hero-padding-bottom, var(--space-lg));
   margin-bottom: calc(-1 * var(--hero-overlap, var(--space-lg)));
   position: relative;
   background: var(--hero-bg, var(--hero-gradient));

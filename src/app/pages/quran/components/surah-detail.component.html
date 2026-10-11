@@ -3,13 +3,10 @@
     <!-- Placeholder header and ayahs the size of the real ones, so nothing jumps when they load -->
     <app-hero-header>
       <div class="surah-title-wrapper" aria-hidden="true">
-        <div class="surah-title-left">
-          <span class="ui-skeleton skeleton-title"></span>
-          <span class="ui-skeleton skeleton-line skeleton-line--short"></span>
-          <span class="ui-skeleton skeleton-line skeleton-line--meta"></span>
-        </div>
+        <span class="ui-skeleton skeleton-title"></span>
         <span class="ui-skeleton skeleton-arabic-name"></span>
       </div>
+      <span class="ui-skeleton skeleton-line skeleton-line--facts" aria-hidden="true"></span>
     </app-hero-header>
     <div class="verses-container" role="status">
       <span class="visually-hidden">Loading the surah</span>
@@ -42,19 +39,17 @@
 
   @if (!loading() && chapter()) {
     <app-hero-header>
+      <!-- The name in both scripts on one row; a long name is set smaller instead of wrapping -->
       <div class="surah-title-wrapper">
-        <div class="surah-title-left">
-          <h1 class="surah-name-latin">{{ chapter()!.transliteration }}</h1>
-          <p class="ui-page-subtitle surah-translation">{{ chapter()!.translation }}</p>
-          <div class="surah-meta">
-            <span class="surah-type" [class.surah-type-meccan]="chapter()!.type === 'Meccan'" [class.surah-type-medinan]="chapter()!.type === 'Medinan'">{{ chapter()!.type }}</span>
-            <span class="surah-info">{{ chapter()!.id }} • {{ chapter()!.total_verses }} ayahs</span>
-          </div>
-        </div>
-        <div class="surah-title-right">
-          <h2 class="surah-name-arabic">{{ chapter()!.name }}</h2>
-        </div>
+        <h1 class="surah-name-latin" [class.surah-name-latin--long]="chapter()!.transliteration.length > 11">{{ chapter()!.transliteration }}</h1>
+        <h2 class="surah-name-arabic">{{ chapter()!.name }}</h2>
       </div>
+      <!-- One line under the title, as on every page: what the name means, then the facts -->
+      <p class="ui-page-subtitle surah-facts">
+        <span>{{ chapter()!.translation }}</span>
+        <span class="surah-type" [class.surah-type-meccan]="chapter()!.type === 'Meccan'" [class.surah-type-medinan]="chapter()!.type === 'Medinan'">{{ chapter()!.type }}</span>
+        <span class="surah-info">Surah {{ chapter()!.id }} · {{ chapter()!.total_verses }} ayahs</span>
+      </p>
 
       <app-audio-player [chapterId]="chapter()!.id" />
     </app-hero-header>

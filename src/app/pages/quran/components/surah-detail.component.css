@@ -14,48 +14,47 @@
   flex-direction: column;
 }
 
+/* The header is as tall as what's in it (title, one line, and the player while it recites),
+   not the fixed height of the pages that draw something in their hero */
+app-hero-header {
+  --hero-height: auto;
+  /* The white panel overlaps the header's foot: keep the content clear of it */
+  --hero-padding-bottom: calc(var(--hero-overlap, var(--space-lg)) + var(--space-md));
+}
+
 .surah-title-wrapper {
   display: flex;
-  align-items: flex-start;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.5rem;
-}
-
-.surah-title-left {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.surah-title-right {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  padding-top: 0;
+  gap: var(--space-md);
+  /* The names size themselves to this row's width on small phones (cqi below) */
+  container-type: inline-size;
 }
 
 .surah-name-latin {
   font-family: var(--font-body);
-  font-size: var(--page-title-size);
+  /* The page title size, or less where the row is too narrow for it (about 320px phones) */
+  font-size: min(var(--page-title-size), 8.5cqi);
   line-height: var(--page-title-line-height);
   font-weight: 700;
   color: var(--color-text);
   letter-spacing: -0.03125rem; /* -0.5px */
   margin: 0;
+  min-width: 0;
   white-space: nowrap;
 }
 
-.surah-translation {
-  margin-bottom: var(--space-sm);
+/* The longest names ("Al-Munaafiqoon") a step smaller, so they stay on one line beside the Arabic */
+.surah-name-latin--long {
+  font-size: min(calc(var(--page-title-size) * 0.85), 7.25cqi);
 }
 
-.surah-meta {
+/* "The Cow  Medinan  Surah 2 · 286 ayahs": wraps as a whole phrase at a time on narrow phones */
+.surah-facts {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
   flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-sm);
 }
 
 .surah-type {
@@ -82,12 +81,13 @@
 
 .surah-name-arabic {
   font-family: var(--font-arabic);
-  font-size: var(--font-2xl);
+  flex-shrink: 0;
+  font-size: min(var(--page-title-size), 8.5cqi);
   font-weight: 700;
   color: var(--color-text);
   margin: 0;
   padding: 0;
-  line-height: 1.2;
+  line-height: var(--page-title-line-height);
   direction: rtl;
   text-align: right;
   white-space: nowrap;
@@ -278,30 +278,31 @@
 }
 
 /* ── Loading placeholders, sized like the real header and ayahs ── */
-.surah-title-left .ui-skeleton,
+.surah-title-wrapper .ui-skeleton,
+.skeleton-line--facts,
 .verse-content .ui-skeleton {
   display: block;
 }
 
+/* Bars the height of the text they stand for, centred in that text's line box */
 .skeleton-title {
   width: 9rem;
   height: calc(var(--page-title-size) * 0.8);
-  margin: 0.35rem 0 0.6rem;
+  margin: calc(var(--page-title-size) * 0.2) 0;
 }
 
 .skeleton-line {
   height: 0.9rem;
-  margin-bottom: 0.6rem;
+  margin: calc(var(--title-subtitle-gap) + 0.2rem) 0 0.2rem;
 }
 
-.skeleton-line--short { width: 6rem; }
-.skeleton-line--meta { width: 8.5rem; }
+.skeleton-line--facts { width: 13rem; max-width: 100%; }
 
 .skeleton-arabic-name {
   flex-shrink: 0;
+  align-self: center;
   width: 4rem;
-  height: 2.25rem;
-  margin-top: 0.4rem;
+  height: calc(var(--page-title-size) * 0.8);
 }
 
 .skeleton-badge {

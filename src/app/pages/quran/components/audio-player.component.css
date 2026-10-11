@@ -1,60 +1,79 @@
+/* The player sits in the surah header, under the title, only while this surah is the one
+   reciting. It is part of the flow (the header grows to hold it), so it never covers the title
+   on a small phone. */
+:host {
+  display: block;
+}
+
 .audio-player {
-  position: absolute;
-  bottom: 1.20rem;
-  right: -1rem;
-  background: transparent;
-  z-index: 100;
-  min-width: 0;
-  transition: opacity var(--motion-base) var(--ease-standard), transform var(--motion-base) var(--ease-standard);
-  opacity: 1;
+  margin-top: var(--space-sm);
 }
 
 .audio-player.collapsed {
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.9);
+  display: none;
 }
 
 .player-content {
-  padding: 0;
-  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-xs);
+  animation: player-in var(--motion-base) var(--ease-standard);
 }
 
+@keyframes player-in {
+  from { opacity: 0; transform: translateY(-0.25rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-content { animation: none; }
+}
+
+/* Previous, play, next, repeat on the left; the time on the right */
 .player-controls {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 0;
+  gap: var(--space-sm);
 }
 
-/* Buttons are shared ui-icon-btn (white squares on the cream header, amber play) */
+/* Buttons are shared ui-icon-btn (white circles on the cream header, amber play) */
 .player-controls .ui-icon-btn--white {
   backdrop-filter: blur(10px);
 }
 
-.player-progress {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+/* Play is the main control: a comfortable 44px target, the others stay 36px */
+.play-pause-button {
+  width: 2.75rem;
+  height: 2.75rem;
 }
 
 .time-display {
+  margin-left: auto;
   font-family: var(--font-body);
   font-size: var(--font-xs);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
-  min-width: var(--space-xl);
-  text-align: center;
+  white-space: nowrap;
+}
+
+/* The seek bar spans the header; its row is tall enough to grab */
+.player-progress {
+  display: flex;
+  align-items: center;
+  height: 1rem;
+}
+
+/* Narrow phones: the same controls, a little closer together */
+@media (max-width: 360px) {
+  .player-controls {
+    gap: var(--space-xs);
+  }
 }
 
 .seek-bar {
   flex: 1;
   height: 0.1875rem; /* 3px */
-  background: color-mix(in srgb, var(--color-accent-soft) 90%, transparent);
+  background: color-mix(in srgb, var(--color-accent-dark) 20%, transparent); /* a track you can see on the cream header */
   border-radius: 0.125rem; /* 2px */
   outline: none;
   -webkit-appearance: none;

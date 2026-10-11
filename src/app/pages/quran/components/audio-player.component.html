@@ -15,17 +15,17 @@
         </button>
 
         <button 
-          class="ui-icon-btn ui-icon-btn--primary ui-icon-btn--lg play-pause-button"
+          class="ui-icon-btn ui-icon-btn--primary play-pause-button"
           (click)="audio.toggle()"
           [attr.aria-label]="audio.isPlaying() ? 'Pause' : 'Play'"
         >
           @if (audio.isPlaying()) {
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="6" y="4" width="4" height="16"></rect>
               <rect x="14" y="4" width="4" height="16"></rect>
             </svg>
           } @else {
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="5 3 19 12 5 21 5 3"></polygon>
             </svg>
           }
@@ -61,10 +61,11 @@
             }
           </svg>
         </button>
+
+        <span class="time-display">{{ formatTime(audio.currentTime()) }} / {{ formatTime(audio.duration()) }}</span>
       </div>
 
       <div class="player-progress">
-        <span class="time-display">{{ formatTime(audio.currentTime()) }}</span>
         <input
           type="range"
           class="seek-bar"
@@ -73,8 +74,8 @@
           [value]="audio.currentTime()"
           (input)="onSeek($event)"
           [disabled]="!audio.duration()"
+          aria-label="Position in the ayah"
         />
-        <span class="time-display">{{ formatTime(audio.duration()) }}</span>
       </div>
     </div>
   }
