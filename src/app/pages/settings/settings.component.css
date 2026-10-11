@@ -387,7 +387,7 @@
   color: var(--color-text-secondary);
 }
 
-/* Our mission / Privacy policy: two cream text buttons side by side */
+/* Our mission / Privacy policy / Terms of use: cream text buttons side by side, wrapping */
 .about-links {
   display: flex;
   flex-wrap: wrap;

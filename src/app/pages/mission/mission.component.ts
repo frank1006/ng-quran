@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 
 /**
  * Our mission (/mission), linked from Profile → App → About. Also the "App home page" on Google's
- * sign-in branding: it must say what the app does and link to the privacy policy.
+ * sign-in branding: it must say what the app does and link to the privacy policy (and the terms).
  * Layout: .ui-doc-page (styles.css).
  */
 @Component({
@@ -46,7 +46,8 @@ import { RouterLink } from '@angular/router';
       <section>
         <h2 class="ui-section-label">Your privacy</h2>
         <p>
-          Read how QuranFlow handles your data in our <a routerLink="/privacy">privacy policy</a>.
+          Read how QuranFlow handles your data in our <a routerLink="/privacy">privacy policy</a>, and the
+          <a routerLink="/terms">terms of use</a>.
         </p>
       </section>
 

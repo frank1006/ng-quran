@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <article class="ui-doc-page page-pattern">
       <h1 class="ui-doc-title">Privacy policy</h1>
-      <p class="ui-page-subtitle">Last updated 7 October 2026</p>
+      <p class="ui-page-subtitle">Last updated 10 October 2026</p>
 
       <p class="ui-doc-lead">
         QuranFlow is a free app for prayer times, the Quran, Qibla direction and nearby masjids. Most
@@ -87,6 +87,10 @@ import { RouterLink } from '@angular/router';
           the day, stored under a scrambled form of your Google account id, and it expires after a day and a
           half (also if you delete your account). Please don't include personal details in your questions.
         </p>
+        <p>
+          When you ask what an ayah means, our server asks the Quran Foundation for the tafsir of that ayah. Only the
+          ayah's number and the tafsir's name are sent; nothing about you is.
+        </p>
       </section>
 
       <section>
@@ -142,6 +146,7 @@ import { RouterLink } from '@angular/router';
 
       <div class="ui-doc-back">
         <a class="ui-button ui-button--secondary" routerLink="/profile">Back to Profile</a>
+        <a class="ui-button ui-button--secondary" routerLink="/terms">Terms of use</a>
       </div>
     </article>
   `,
