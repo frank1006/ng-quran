@@ -36,6 +36,12 @@ export interface QFlowAnswer {
   tafsirs?: QFlowTafsir[];
 }
 
+/** Mirrors ShownAbove in api/_lib/qflow.ts: the cards under the previous answer */
+export interface QFlowShownAbove {
+  ayahs: string[];
+  tafsir?: { ref: string; key: string; lang: string };
+}
+
 /** Mirrors Tafsir in api/_lib/tafsir.ts: one part of a tafsir's passage on an ayah, verbatim */
 export interface QFlowTafsir {
   ref: string;
@@ -147,12 +153,12 @@ export class QFlowService {
   private readonly auth = inject(AuthService);
   private readonly appContext = inject(QFlowAppContextService);
 
-  async ask(question: string, history: QFlowTurn[]): Promise<QFlowAnswer> {
+  async ask(question: string, history: QFlowTurn[], above?: QFlowShownAbove): Promise<QFlowAnswer> {
     const [headers, app] = await Promise.all([this.authHeaders(), this.appContext.build()]);
     return firstValueFrom(
       this.http.post<QFlowAnswer>(
         '/api/qflow/ask',
-        { question, history, calendar: this.calendar(), app, timeZone: timeZone() },
+        { question, history, above, calendar: this.calendar(), app, timeZone: timeZone() },
         { headers },
       ),
     );

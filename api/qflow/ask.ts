@@ -14,7 +14,7 @@
  * providers to produce the answer. The rounded location is used here to look up masjids/weather.
  */
 import { cleanContext } from '../_lib/app-tools';
-import { ask, type AskInput, type CalendarContext, type ChatTurn } from '../_lib/qflow';
+import { ask, type AskInput, type CalendarContext, type ChatTurn, type ShownAbove } from '../_lib/qflow';
 import { getUser } from '../_lib/auth';
 import { refundQuestion, takeCloudflareSlot, takeQuestion, validTimeZone } from '../_lib/qflow-limit';
 
@@ -54,6 +54,8 @@ export async function POST(request: Request): Promise<Response> {
         .map((t: any) => ({ role: t.role, content: t.content.slice(0, MAX_TURN) }))
     : [];
 
+  const above = shownAbove(body.above);
+
   let calendar: CalendarContext | undefined;
   if (body.calendar && typeof body.calendar === 'object' && JSON.stringify(body.calendar).length <= MAX_CALENDAR_JSON) {
     calendar = body.calendar;
@@ -81,7 +83,7 @@ export async function POST(request: Request): Promise<Response> {
   const app = body.app && JSON.stringify(body.app).length <= MAX_CALENDAR_JSON ? cleanContext(body.app) : undefined;
   // The Cloudflare backup is paid past a small daily allowance, so it has its own cap
   const allowModel = async (config: { provider: string }) => config.provider !== 'cloudflare' || (await takeCloudflareSlot().catch(() => false));
-  const input: AskInput = { question, history, calendar, app, allowModel };
+  const input: AskInput = { question, history, above, calendar, app, allowModel };
   try {
     // Why a model was skipped (busy, quota, timeout) shows in the Vercel logs; questions aren't logged
     const result = await ask(input, line => {
@@ -100,6 +102,16 @@ export async function POST(request: Request): Promise<Response> {
     await refundQuestion(id, timeZone).catch(() => {});
     return json({ error: 'QuranFlow AI could not answer right now. Please try again.' }, 502);
   }
+}
+
+/** The cards under the previous answer, as the app reports them: references and names only */
+function shownAbove(value: any): ShownAbove | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const isRef = (ref: unknown): ref is string => typeof ref === 'string' && /^\d{1,3}:\d{1,3}$/.test(ref);
+  const ayahs = Array.isArray(value.ayahs) ? value.ayahs.filter(isRef).slice(0, 12) : [];
+  const t = value.tafsir;
+  const tafsir = t && isRef(t.ref) && typeof t.key === 'string' && typeof t.lang === 'string' ? { ref: t.ref, key: t.key.slice(0, 30), lang: t.lang.slice(0, 5) } : undefined;
+  return { ayahs, tafsir };
 }
 
 function json(data: unknown, status = 200): Response {

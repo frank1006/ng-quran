@@ -1,7 +1,7 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { AuthService } from '../../core/auth.service';
 import { AppHttpError } from '../../interceptors/error.interceptor';
-import { QFlowAnswer, QFlowQuota, QFlowService, QFlowTurn } from './qflow.service';
+import { QFlowAnswer, QFlowQuota, QFlowService, QFlowShownAbove, QFlowTurn } from './qflow.service';
 
 export type QFlowLang = 'en' | 'ur' | 'ar';
 
@@ -98,15 +98,16 @@ export class QFlowChatStore {
     if (!question || this.busy() || this.limitReached() || this.signInNeeded()) return;
     const exchange: QFlowExchange = { id: this.nextId++, question, lang: detectLang(question), status: 'loading' };
     const history = this.history();
+    const above = shownAbove(this.exchanges());
     this.exchanges.update(list => [...list, exchange]);
-    void this.run(exchange, history);
+    void this.run(exchange, history, above);
   }
 
   retry(id: number): void {
     const exchange = this.exchanges().find(e => e.id === id);
     if (!exchange || this.busy()) return;
     this.update(id, { status: 'loading', error: undefined });
-    void this.run(exchange, this.history(id));
+    void this.run(exchange, this.history(id), shownAbove(this.exchanges().filter(e => e.id < id)));
   }
 
   /**
@@ -140,9 +141,9 @@ export class QFlowChatStore {
     save([]);
   }
 
-  private async run(exchange: QFlowExchange, history: QFlowTurn[]): Promise<void> {
+  private async run(exchange: QFlowExchange, history: QFlowTurn[], above?: QFlowShownAbove): Promise<void> {
     try {
-      const result = await this.qflow.ask(exchange.question, history);
+      const result = await this.qflow.ask(exchange.question, history, above);
       if (result.quota) this.quota.set(result.quota);
       result.tafsirs?.forEach(tafsir => (tafsir.at = Date.now()));
       this.update(exchange.id, { status: 'done', result });
@@ -233,6 +234,21 @@ export function withoutUnansweredGreetings(exchanges: QFlowExchange[], today: st
     const next = exchanges[index + 1];
     return !!next && next.kind !== 'welcome';
   });
+}
+
+/**
+ * The cards under the last answer of a conversation, for the server: a summary of the tafsir
+ * shown there doesn't need the same ayah and passage under it again. Nothing when the last item
+ * isn't an answer.
+ */
+export function shownAbove(exchanges: QFlowExchange[]): QFlowShownAbove | undefined {
+  const result = exchanges.at(-1)?.result;
+  if (!result) return undefined;
+  const [tafsir] = result.tafsirs ?? [];
+  return {
+    ayahs: result.ayahs.map(a => a.ref),
+    tafsir: tafsir && { ref: tafsir.ref, key: tafsir.key, lang: tafsir.lang },
+  };
 }
 
 /**

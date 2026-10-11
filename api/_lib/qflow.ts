@@ -56,9 +56,17 @@ export interface ChatTurn {
   content: string;
 }
 
+/** The cards under the previous answer: its ayahs, and its tafsir passage if it had one */
+export interface ShownAbove {
+  ayahs: string[];
+  tafsir?: { ref: string; key: string; lang: string };
+}
+
 export interface AskInput {
   question: string;
   history?: ChatTurn[];
+  /** What the answer just above this question shows, so a summary of it doesn't show it again */
+  above?: ShownAbove;
   calendar?: CalendarContext;
   /** Prayer times, place, Qibla… as the app has them (see ./app-tools) */
   app?: AppContext;
@@ -660,6 +668,8 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
   let tafsirShown: Tafsir | null = null;
   /** It couldn't fetch the passage, so the answer may say which tafsir it could not get */
   let tafsirOpen = false;
+  /** A summary of the passage the answer just above shows: that card and its ayah aren't shown again */
+  let tafsirAbove = false;
   // Times the app gave, so a bracketed time isn't mistaken for a citation ("16:19" vs 16:19)
   const times = new Set(
     Object.values(input.app?.prayers?.times ?? {}).flatMap(t => t.match(/\d{1,2}:\d{2}/g) ?? []),
@@ -738,6 +748,11 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
       const instead = wanted && !key ? `"${wanted.slice(0, 60)}" is not available in QuranFlow AI. Say so first, then explain from this one instead, naming it:\n` : '';
       tafsirGiven.add(tafsir.key);
       tafsirShown = tafsir;
+      const above = input.above?.tafsir;
+      tafsirAbove = ASKS_FOR_SUMMARY.test(input.question) && above?.ref === tafsir.ref && above.key === tafsir.key && above.lang === tafsir.lang;
+      if (tafsirAbove) {
+        return `${tafsir.name}, on ${tafsir.covers.join(', ')}:\n${tafsir.text}\nThe app already shows this passage and its ayah above, under your previous answer, so nothing is shown under this one. Summarise the passage as rule 5 says, without saying it is shown below. Name this tafsir and no other, and cite (${ayah.ref}).${lang === 'en' && tafsir.lang === 'en' ? '' : `\nReply in ${REPLY_LANGUAGE[lang]}, not in the language of this passage.`}`;
+      }
       const reminder = lang === 'en' && tafsir.lang === 'en' ? '' : `\nReply in ${REPLY_LANGUAGE[lang]}, not in the language of this passage.`;
       const more = tafsir.part < tafsir.parts ? ` For "tell me more", part ${tafsir.part + 1} continues.` : '';
       return `${instead}${tafsir.name}, on ${tafsir.covers.join(', ')} (part ${tafsir.part} of ${tafsir.parts}):\n${tafsir.text}\nThe app shows this passage under your answer. Unless the person asked for a summary or a simpler version, do not explain or summarise it: say which ayah it is and that this tafsir's passage is shown below. Name this tafsir and no other, and cite (${ayah.ref}).${more}${reminder}`;
@@ -820,6 +835,7 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
     tafsirGiven = new Set();
     tafsirShown = null;
     tafsirOpen = false;
+    tafsirAbove = false;
     try {
       // One chance per model to fix a quote that isn't word for word from the retrieved text
       let quoteCorrected = false;
@@ -879,7 +895,7 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
           return {
             mode: 'ai',
             answer: text,
-            ayahs: cited.map(r => known.get(r)!),
+            ayahs: cited.filter(r => !tafsirAbove || !input.above!.ayahs.includes(r)).map(r => known.get(r)!),
             model: config.model,
             searches,
             ms: Date.now() - started,
@@ -887,7 +903,7 @@ export async function ask(input: AskInput, log: (line: string) => void = () => {
             duas,
             names,
             hadiths,
-            tafsirs: tafsirShown ? [tafsirShown] : [],
+            tafsirs: tafsirShown && !tafsirAbove ? [tafsirShown] : [],
           };
         }
         for (const call of reply.tool_calls) {
