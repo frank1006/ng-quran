@@ -1,4 +1,4 @@
-import { QFlowExchange, shownAbove, withoutUnansweredGreetings } from './qflow-chat.store';
+import { QFlowExchange, shownAbove, withOpeningGreeting } from './qflow-chat.store';
 import { QFlowAyah } from './qflow.service';
 
 const greeting = (id: number, date: string): QFlowExchange =>
@@ -6,25 +6,26 @@ const greeting = (id: number, date: string): QFlowExchange =>
 const question = (id: number): QFlowExchange => ({ id, question: 'What is sabr?', lang: 'en', status: 'done' });
 const ids = (list: QFlowExchange[]) => list.map(e => e.id);
 
-describe('withoutUnansweredGreetings', () => {
-  it('drops greetings from days when nothing was asked', () => {
+describe('withOpeningGreeting', () => {
+  it("keeps only today's greeting while nothing has been asked", () => {
     const list = [greeting(1, '2026-10-08'), greeting(2, '2026-10-09'), greeting(3, '2026-10-10')];
-    expect(ids(withoutUnansweredGreetings(list, '2026-10-10'))).toEqual([3]);
+    expect(ids(withOpeningGreeting(list, '2026-10-10'))).toEqual([3]);
+    expect(ids(withOpeningGreeting([greeting(1, '2026-10-09')], '2026-10-10'))).toEqual([]);
   });
 
-  it("keeps the greeting of a day that has questions, as that day's heading", () => {
-    const list = [greeting(1, '2026-10-08'), question(2), greeting(3, '2026-10-09'), greeting(4, '2026-10-10')];
-    expect(ids(withoutUnansweredGreetings(list, '2026-10-10'))).toEqual([1, 2, 4]);
+  it('keeps the greeting a conversation opened with, on later days too', () => {
+    const list = [greeting(1, '2026-10-08'), question(2), question(3)];
+    expect(withOpeningGreeting(list, '2026-10-10')).toEqual(list);
   });
 
-  it("drops yesterday's unanswered greeting before today's is added", () => {
-    const list = [greeting(1, '2026-10-08'), question(2), greeting(3, '2026-10-09')];
-    expect(ids(withoutUnansweredGreetings(list, '2026-10-10'))).toEqual([1, 2]);
+  it('drops greetings that arrived in the middle of a conversation', () => {
+    const list = [greeting(1, '2026-10-08'), question(2), greeting(3, '2026-10-09'), question(4), greeting(5, '2026-10-10')];
+    expect(ids(withOpeningGreeting(list, '2026-10-10'))).toEqual([1, 2, 4]);
   });
 
-  it('leaves a conversation with nothing to tidy as it is', () => {
-    const list = [greeting(1, '2026-10-10'), question(2)];
-    expect(withoutUnansweredGreetings(list, '2026-10-10')).toEqual(list);
+  it('keeps the latest of several greetings before the first question', () => {
+    const list = [greeting(1, '2026-10-08'), greeting(2, '2026-10-09'), question(3)];
+    expect(ids(withOpeningGreeting(list, '2026-10-10'))).toEqual([2, 3]);
   });
 });
 

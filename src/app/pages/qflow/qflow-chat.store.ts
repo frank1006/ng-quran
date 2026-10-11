@@ -111,13 +111,13 @@ export class QFlowChatStore {
   }
 
   /**
-   * Adds the day's greeting unless today's is already in the conversation (then it only updates
-   * the name, e.g. after signing in). A greeting from an earlier day that nobody answered is
-   * dropped first: only a day on which something was asked keeps its greeting, as that day's
-   * heading. So opening the page day after day never stacks greetings.
+   * The greeting opens a conversation; it never arrives in the middle of one. With no question
+   * asked yet, the greeting is today's (an earlier day's is replaced). Once there are questions,
+   * the conversation keeps the greeting it opened with and gets no other, also when the date
+   * changes; "New conversation" starts again with the day's greeting.
    */
   welcome(welcome: QFlowWelcome): void {
-    const kept = withoutUnansweredGreetings(this.exchanges(), welcome.date);
+    const kept = withOpeningGreeting(this.exchanges(), welcome.date);
     if (kept.length !== this.exchanges().length) {
       this.exchanges.set(kept);
       save(kept);
@@ -125,9 +125,11 @@ export class QFlowChatStore {
 
     const today = kept.find(e => e.kind === 'welcome' && e.welcome?.date === welcome.date);
     if (today) {
+      // The name can change, e.g. after signing in
       if (today.welcome?.greeting !== welcome.greeting) this.update(today.id, { welcome: { ...today.welcome!, greeting: welcome.greeting } });
       return;
     }
+    if (kept.some(e => e.kind !== 'welcome')) return;
     const item: QFlowExchange = { id: this.nextId++, kind: 'welcome', welcome, question: '', lang: 'en', status: 'done' };
     this.exchanges.update(list => [...list, item]);
     save(this.exchanges());
@@ -225,15 +227,14 @@ export function detectLang(text: string): QFlowLang {
 }
 
 /**
- * The conversation without the greetings of earlier days that were never followed by a question
- * (the next item is another greeting, or there is none). Today's greeting always stays.
+ * The conversation with at most one greeting, at its start: greetings that come after a question
+ * are dropped, and of those before the first question the latest stays. A conversation with no
+ * question yet keeps only today's.
  */
-export function withoutUnansweredGreetings(exchanges: QFlowExchange[], today: string): QFlowExchange[] {
-  return exchanges.filter((exchange, index) => {
-    if (exchange.kind !== 'welcome' || exchange.welcome?.date === today) return true;
-    const next = exchanges[index + 1];
-    return !!next && next.kind !== 'welcome';
-  });
+export function withOpeningGreeting(exchanges: QFlowExchange[], today: string): QFlowExchange[] {
+  const firstQuestion = exchanges.findIndex(e => e.kind !== 'welcome');
+  if (firstQuestion < 0) return exchanges.filter(e => e.welcome?.date === today);
+  return exchanges.filter((exchange, index) => exchange.kind !== 'welcome' || index === firstQuestion - 1);
 }
 
 /**

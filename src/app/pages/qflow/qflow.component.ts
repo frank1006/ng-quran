@@ -72,8 +72,8 @@ export class QFlowComponent implements AfterViewInit {
     const timer = setInterval(() => this.now.set(new Date()), 60_000);
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
 
-    // The first visit each day starts with the day's greeting (also when the date changes while
-    // open); signing in puts the person's first name in it
+    // A conversation with no question yet opens with the day's greeting (kept current when the
+    // date changes while open); signing in puts the person's first name in it
     effect(() => {
       this.todayKey();
       const firstName = this.auth.user()?.firstName;
@@ -172,14 +172,6 @@ export class QFlowComponent implements AfterViewInit {
     const match = source.match(/^Quran (\d{1,3}):(\d{1,3})/i);
     return match ? { surah: Number(match[1]), ayah: Number(match[2]) } : null;
   }
-
-  /** True when the conversation already had a question before this greeting was added */
-  protected askedBefore(greetingId: number): boolean {
-    const first = this.firstQuestionId();
-    return first !== null && first < greetingId;
-  }
-
-  private readonly firstQuestionId = computed(() => this.exchanges().find(e => e.kind !== 'welcome')?.id ?? null);
 
   /** Right to left for Urdu and Arabic text, wherever it appears in the chat */
   protected readonly dir = textDir;
