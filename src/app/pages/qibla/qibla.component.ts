@@ -33,6 +33,8 @@ export class QiblaComponent implements OnInit, OnDestroy {
   protected readonly compassAvailable = signal<boolean>(false);
   protected readonly needsPermissionButton = signal<boolean>(false);
   protected readonly compassError = signal<string | null>(null);
+  /** The phone has a motion sensor but its browser doesn't give true north */
+  protected readonly relativeCompassOnly = signal(false);
 
   private headingSubscription: Subscription | null = null;
   private locationSubscription: Subscription | null = null;
@@ -172,7 +174,8 @@ export class QiblaComponent implements OnInit, OnDestroy {
         this.quadrant.set(locationInfo.quadrant || '');
       }
 
-      this.compassAvailable.set(this.qiblaService.isDeviceOrientationSupported());
+      this.compassAvailable.set(await this.qiblaService.hasCompass());
+      if (this.destroyRef.destroyed) return;
 
       if (this.compassAvailable()) {
         // iOS must re-request permission from a tap each launch, so it always shows the button
@@ -280,9 +283,9 @@ export class QiblaComponent implements OnInit, OnDestroy {
     this.compassPermissionRequested.set(false);
     this.needsPermissionButton.set(false);
     this.currentHeading.set(null);
-    this.compassError.set(
-      `This browser doesn't provide a true compass. Face ${Math.round(this.qiblaBearing())}° clockwise from north (try Chrome on Android or Safari on iPhone).`
-    );
+    // The fixed dial and its lines say the rest (the page's no-compass view)
+    this.compassError.set(null);
+    this.relativeCompassOnly.set(true);
   }
 
   /**

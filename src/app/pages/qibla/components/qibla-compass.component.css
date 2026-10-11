@@ -74,4 +74,12 @@
   display: block;
 }
 
-
+/* "N" above a fixed dial, where the Kaaba marker sits on a live one */
+.north-point {
+  transform: translateY(-95%);
+  font-family: var(--font-body);
+  font-size: var(--font-xl);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-accent-dark);
+}

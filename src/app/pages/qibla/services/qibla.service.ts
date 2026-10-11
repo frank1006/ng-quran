@@ -1,8 +1,9 @@
-import { Injectable, isDevMode } from '@angular/core';
+import { Injectable, inject, isDevMode } from '@angular/core';
 import { Observable, fromEvent } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { normalizeQuadrant, normalizeCity, normalizeCountry } from '../../../core/location.util';
 import { Logger } from '../../../core/logger.util';
+import { DeviceDetectionService } from '../../../services/device-detection.service';
 
 /**
  * Makkah (Kaaba) coordinates
@@ -76,6 +77,8 @@ export function toCompassHeading(
   providedIn: 'root'
 })
 export class QiblaService {
+  private readonly device = inject(DeviceDetectionService);
+
   /** How far the Kaaba is, in km along the Earth's surface (the same great circle the bearing follows) */
   distanceToKaabaKm(userLat: number, userLon: number): number {
     const lat1 = this.toRadians(userLat);
@@ -137,6 +140,33 @@ export class QiblaService {
   requiresPermissionGesture(): boolean {
     return this.isDeviceOrientationSupported() &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
+  }
+
+  /**
+   * Whether this device has a compass that answers. A laptop's browser knows about orientation
+   * events but never sends a reading (or sends an empty one), so support alone says nothing: this
+   * waits a moment for a real one. A phone or tablet that answers only after a permission tap
+   * (iPhone, iPad) counts as having one; a Mac's Safari has the same permission call but no
+   * sensor behind it, so computers are always asked for a reading.
+   */
+  hasCompass(waitMs = 1200): Promise<boolean> {
+    if (!this.isDeviceOrientationSupported()) return Promise.resolve(false);
+    const { isMobile, isIOS } = this.device.deviceInfo();
+    if (this.requiresPermissionGesture() && (isMobile || isIOS)) return Promise.resolve(true);
+    return new Promise(resolve => {
+      const events = ['deviceorientationabsolute', 'deviceorientation'];
+      const finish = (found: boolean) => {
+        clearTimeout(timer);
+        events.forEach(name => window.removeEventListener(name, onReading));
+        resolve(found);
+      };
+      const onReading = (event: Event) => {
+        const reading = event as DeviceOrientationEvent & { webkitCompassHeading?: number | null };
+        if (reading.alpha !== null || (reading.webkitCompassHeading ?? null) !== null) finish(true);
+      };
+      const timer = setTimeout(() => finish(false), waitMs);
+      events.forEach(name => window.addEventListener(name, onReading, { passive: true }));
+    });
   }
 
   isDeviceOrientationSupported(): boolean {

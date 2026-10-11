@@ -1,4 +1,4 @@
-<div class="qibla-container">
+<div class="qibla-container" [class.no-compass]="!loading() && !!location() && !compassAvailable()">
   <!-- Header with city location (Hero section style) -->
   <app-hero-header>
     <div class="location-title">
@@ -45,6 +45,7 @@
         <app-qibla-compass
           [qiblaBearing]="qiblaBearing()"
           [currentHeading]="compassPermissionGranted() ? currentHeading() : null"
+          [fixed]="!loading() && !!location() && !compassAvailable()"
         />
 
         <!-- Instruction section -->
@@ -72,11 +73,17 @@
               }
             }
 
-            <!-- No usable compass (desktop or relative-only sensor): show the bearing instead -->
+            <!-- No usable compass (laptop, desktop, or a browser without true north): the dial is
+                 fixed with north at the top, and the bearing is given in words -->
             @if (!compassAvailable()) {
               <div class="instruction-card">
-                <p class="instruction-text">
-                  {{ compassError() || 'Qibla is ' + (qiblaBearing() | number: '1.0-0') + '° clockwise from north' }}
+                <p class="instruction-text">Qibla is {{ bearingText() }} from north</p>
+                <p class="instruction-note">
+                  @if (relativeCompassOnly()) {
+                    This browser has no true compass. Try Chrome on Android or Safari on iPhone.
+                  } @else {
+                    This device has no compass. Open QuranFlow on your phone to point the way.
+                  }
                 </p>
               </div>
             }
