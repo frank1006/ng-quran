@@ -16,8 +16,12 @@
 export type TafsirLang = 'en' | 'ur' | 'ar';
 
 export interface Tafsir {
+  /** Which tafsir this is (a key of TAFSIRS) */
+  key: string;
   /** The tafsir's name, as the answer should give it */
   name: string;
+  /** The language of this text, which isn't always the reader's (Al-Tabari is only in Arabic) */
+  lang: TafsirLang;
   /** The ayahs this passage explains (tafsirs often treat a few together), e.g. ["2:183", "2:184"] */
   covers: string[];
   /** Plain text: one part of the passage, a length a model can read quickly */
@@ -27,12 +31,61 @@ export interface Tafsir {
   parts: number;
 }
 
-/** Ibn Kathir where there is one in the language; the short, plain Muyassar for Arabic */
-const SOURCES: Record<TafsirLang, { id: number; name: string }> = {
-  en: { id: 169, name: 'Tafsir Ibn Kathir (abridged)' },
-  ur: { id: 160, name: 'Tafsir Ibn Kathir (Urdu)' },
-  ar: { id: 16, name: 'Al-Tafsir al-Muyassar' },
+interface TafsirSource {
+  name: string;
+  /** How people and models write it, in Latin, Urdu and Arabic letters */
+  pattern: RegExp;
+  /** The Quran Foundation resource id of each language it exists in */
+  ids: Partial<Record<TafsirLang, number>>;
+}
+
+/** The tafsirs the Quran Foundation API has in English, Urdu or Arabic */
+const TAFSIRS: Record<string, TafsirSource> = {
+  'ibn-kathir': {
+    name: 'Tafsir Ibn Kathir',
+    pattern: /ibn[\s-]*e?[\s-]*kath?[ie]e?r|ابنِ?\s?کثیر|ابن كثير/i,
+    ids: { en: 169, ur: 160, ar: 14 },
+  },
+  maarif: {
+    name: "Ma'arif al-Qur'an (Mufti Muhammad Shafi)",
+    pattern: /ma'?a?rif[\s-]*(al|ul)[\s-]*qur'?an|mufti\s+(muhammad\s+)?shaf[iy]|معارف القرآن/i,
+    ids: { en: 168 },
+  },
+  tazkir: {
+    name: 'Tazkir ul Quran (Maulana Wahiduddin Khan)',
+    pattern: /tazkir[\s-]*ul?[\s-]*quran|wahid[\s-]*uddin|تذکیر القرآن/i,
+    ids: { en: 817, ur: 818 },
+  },
+  bayan: {
+    name: 'Bayan ul Quran (Dr. Israr Ahmad)',
+    pattern: /bayan[\s-]*ul[\s-]*quran|israr\s+ahm[ae]d|بیان القرآن|اسرار احمد/i,
+    ids: { ur: 159 },
+  },
+  zilal: {
+    name: 'Fi Zilal al-Quran (Sayyid Qutb)',
+    pattern: /zilal|sayy?id\s+qutb|ظلال/i,
+    ids: { ur: 157 },
+  },
+  muyassar: { name: 'Al-Tafsir al-Muyassar', pattern: /muyassar|الميسر|المیسر/i, ids: { ar: 16 } },
+  tabari: { name: 'Tafsir al-Tabari', pattern: /tabar[iy]|الطبري|طبری/i, ids: { ar: 15 } },
+  qurtubi: { name: 'Tafsir al-Qurtubi', pattern: /qurtub[iy]|القرطبي|قرطبی/i, ids: { ar: 90 } },
+  saadi: { name: "Tafsir al-Sa'di", pattern: /\bsa'?a?di\b|السعدي|سعدی/i, ids: { ar: 91 } },
+  baghawi: { name: 'Tafsir al-Baghawi', pattern: /bagha?w[iy]|البغوي|بغوی/i, ids: { ar: 94 } },
+  wasit: { name: 'Al-Tafsir al-Wasit (Tantawi)', pattern: /\bwasit\b|tantawi|الوسيط|طنطاوي/i, ids: { ar: 93 } },
 };
+
+/** Without a request for one by name: Ibn Kathir, or the short, plain Muyassar for Arabic */
+const DEFAULT_TAFSIR: Record<TafsirLang, string> = { en: 'ibn-kathir', ur: 'ibn-kathir', ar: 'muyassar' };
+/** A tafsir asked for by name that isn't in the reader's language is read in one of these, in order */
+const LANG_ORDER: TafsirLang[] = ['en', 'ur', 'ar'];
+
+/** For the AI: what it may offer when someone asks which tafsirs there are */
+export const TAFSIR_NAMES = Object.values(TAFSIRS).map(t => t.name).join('; ');
+
+/** The tafsirs a text names, by key ("Tabari's tafsir", "تفسیر ابنِ کثیر") */
+export function tafsirsNamed(text: string): string[] {
+  return Object.keys(TAFSIRS).filter(key => TAFSIRS[key].pattern.test(text));
+}
 
 /** A passage can run to thousands of words: it is read a part at a time. The opening carries the
  *  meaning of the ayah; later parts are for follow-up questions. */
@@ -50,24 +103,37 @@ const ENVIRONMENTS = {
 const cache = new Map<string, { covers: string[]; parts: string[] }>();
 let token: { value: string; expires: number } | undefined;
 
-/** The tafsir of one ayah ("2:255"), or null when there is none to give. `part` starts at 1. */
-export async function getTafsir(ref: string, lang: TafsirLang, part = 1): Promise<Tafsir | null> {
-  if (!/^\d{1,3}:\d{1,3}$/.test(ref)) return null;
-  const source = SOURCES[lang];
-  const key = `${source.id}|${ref}`;
-  let passage = cache.get(key);
+/**
+ * The tafsir of one ayah ("2:255"), or null when there is none to give. `part` starts at 1.
+ * `key` is a tafsir asked for by name; without it the reader's language decides.
+ */
+export async function getTafsir(ref: string, lang: TafsirLang, part = 1, key = DEFAULT_TAFSIR[lang]): Promise<Tafsir | null> {
+  const source = TAFSIRS[key];
+  if (!source || !/^\d{1,3}:\d{1,3}$/.test(ref)) return null;
+  const textLang = source.ids[lang] ? lang : LANG_ORDER.find(l => source.ids[l])!;
+  const id = source.ids[textLang]!;
+  const cacheKey = `${id}|${ref}`;
+  let passage = cache.get(cacheKey);
   if (!passage) {
-    const path = `/tafsirs/${source.id}/by_ayah/${ref}`;
+    const path = `/tafsirs/${id}/by_ayah/${ref}`;
     const body = (await fromFoundation(path)) ?? (await getJson(`${PUBLIC_BASE}${path}`));
     const text = plainText(body?.tafsir?.text);
     if (!text) return null;
     const covers = Object.keys(body.tafsir.verses ?? {});
     passage = { covers: covers.length ? covers : [ref], parts: split(text) };
-    cache.set(key, passage);
+    cache.set(cacheKey, passage);
   }
 
   const index = Math.min(Math.max(Math.round(part) || 1, 1), passage.parts.length) - 1;
-  return { name: source.name, covers: passage.covers, text: passage.parts[index], part: index + 1, parts: passage.parts.length };
+  return {
+    key,
+    name: source.name,
+    lang: textLang,
+    covers: passage.covers,
+    text: passage.parts[index],
+    part: index + 1,
+    parts: passage.parts.length,
+  };
 }
 
 /** The same request through the Quran Foundation API; null when it isn't set up or doesn't answer */
