@@ -20,8 +20,9 @@ type SignedOutListener = () => void;
 
 /**
  * Google sign-in through Supabase. Only QuranFlow AI needs an account; everything else works
- * without one. The Supabase library loads after the first screen (it isn't small) and keeps the
- * session in this browser's storage, refreshing it as needed.
+ * without one. The Supabase library (it isn't small) loads only for someone with a saved session,
+ * coming back from Google, or tapping Sign in; guests never download it. It keeps the session in
+ * this browser's storage, refreshing it as needed.
  *
  * Sign-in is a full-page redirect to Google and back (PKCE). Popups don't work reliably in an app
  * installed to the home screen.
@@ -43,7 +44,8 @@ export class AuthService {
 
   constructor() {
     this.readRedirectError();
-    void this.supabase();
+    if (hasSessionToRead()) void this.supabase();
+    else this.ready.set(true); // a guest: nothing to read
   }
 
   /** Goes to Google and comes back to QuranFlow AI, the reason to have an account */
@@ -82,6 +84,7 @@ export class AuthService {
 
   /** The current access token for our API (refreshed by Supabase when it's about to expire) */
   async accessToken(): Promise<string | null> {
+    if (!this.clientPromise && !this.user()) return null; // a guest has no token
     const supabase = await this.supabase();
     if (!supabase) return null;
     const { data } = await supabase.auth.getSession();
@@ -164,5 +167,22 @@ export class AuthService {
     if (!keys.some(k => url.searchParams.has(k))) return;
     keys.forEach(k => url.searchParams.delete(k));
     history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+  }
+}
+
+/**
+ * Whether there's a session to read now: one Supabase saved in this browser (its key is
+ * sb-<project>-auth-token) or a sign-in coming back from Google (?code=)
+ */
+function hasSessionToRead(): boolean {
+  if (new URLSearchParams(location.search).has('code')) return true;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('sb-') && key.endsWith('-auth-token')) return true;
+    }
+    return false;
+  } catch {
+    return true; // storage can't be read: let Supabase look as before
   }
 }
