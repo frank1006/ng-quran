@@ -83,13 +83,17 @@ async function refill(): Promise<number> {
       await r.zrem('push:refill', id);
       return;
     }
-    // Normally the day after the last queued one; never a day that has already passed
+    // Normally the day after the last queued one. After a gap (the top-up fell behind), every day
+    // from today, so today's and tomorrow's reminders are always queued
     const today = localDate(sub.timeZone);
-    const candidate = sub.queuedUntil ? nextDate(sub.queuedUntil) : today;
-    const date = candidate < today ? nextDate(today) : candidate;
+    const tomorrow = nextDate(today);
+    const next = sub.queuedUntil ? nextDate(sub.queuedUntil) : today;
     try {
-      await queueDay(id, sub, date);
-      sub.queuedUntil = date;
+      for (let date = next < today ? today : next; ; date = nextDate(date)) {
+        await queueDay(id, sub, date);
+        sub.queuedUntil = date;
+        if (date >= tomorrow) break;
+      }
       await saveSubscriber(id, sub);
       await r.zadd('push:refill', { score: Date.now() + DAY_MS, member: id });
     } catch (error) {
