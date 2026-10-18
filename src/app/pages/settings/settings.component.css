@@ -410,3 +410,11 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
 }
+
+/* Android app: the two adhan test buttons side by side */
+.adhan-tests {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}

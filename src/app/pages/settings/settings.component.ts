@@ -8,6 +8,8 @@ import { DistanceUnit, TemperatureUnit } from '../../services/units';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService } from '../qibla/services/qibla.service';
+import { isNativeApp } from '../../core/native-app';
+import { NativeAdhanService } from '../../services/native-adhan.service';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationPermissionStatus } from '../../services/notification.types';
 import { UserStoreService, Bookmark, TranslationLanguage } from '../../services/user-store.service';
@@ -56,6 +58,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly requestingCompass = signal<boolean>(false);
   protected readonly requestingLocation = signal<boolean>(false);
   protected readonly clearingData = signal<boolean>(false);
+  /** The Android app's adhan alarms (on the website it reports nothing to fix) */
+  protected readonly nativeAdhan = inject(NativeAdhanService);
+  protected readonly isNativeApp = isNativeApp;
   protected readonly notificationPermission = computed(() => this.notificationService.isPermissionGranted());
   protected readonly notificationStatus = computed(() => {
     const permission = this.notificationService.isPermissionGranted();

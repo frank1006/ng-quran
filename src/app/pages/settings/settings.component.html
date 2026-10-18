@@ -409,6 +409,33 @@
               </div>
             </div>
 
+            @if (isNativeApp) {
+              <!-- Android app: hear the adhan (and set the volume) without waiting for a prayer -->
+              <div class="permission-item">
+                <div class="permission-info">
+                  <h3 class="permission-name">Adhan</h3>
+                  <p class="permission-description">Plays at each prayer whose bell is set to Full adhan, even when QuranFlow is closed, at your phone's notification volume. A phone on silent or vibrate shows the reminder without the adhan.</p>
+                </div>
+                <div class="permission-status adhan-tests">
+                  <button class="ui-button clear-data-button" type="button" (click)="nativeAdhan.testAdhan('dhuhr')">Play</button>
+                  <button class="ui-button clear-data-button" type="button" (click)="nativeAdhan.testAdhan('fajr')">Play Fajr</button>
+                </div>
+              </div>
+            }
+
+            @if (!nativeAdhan.ringsOnTime()) {
+              <!-- Android app on Android 12+: exact alarms need the person's OK -->
+              <div class="permission-item">
+                <div class="permission-info">
+                  <h3 class="permission-name">Alarms &amp; reminders</h3>
+                  <p class="permission-description">Lets the adhan play right on time. Without it, Android may play it a few minutes late.</p>
+                </div>
+                <div class="permission-status">
+                  <button class="ui-button clear-data-button" type="button" (click)="nativeAdhan.openAlarmSettings()">Allow</button>
+                </div>
+              </div>
+            }
+
             @if (auth.signedIn()) {
               <!-- Delete account (Google Play requires this in the app) -->
               <div class="permission-item permission-item-danger">

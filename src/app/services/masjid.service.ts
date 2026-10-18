@@ -1,4 +1,5 @@
 import { Injectable, isDevMode } from '@angular/core';
+import { apiUrl } from '../core/native-app';
 import { Observable, from, of, throwError } from 'rxjs';
 import { tap, shareReplay, finalize, catchError } from 'rxjs/operators';
 
@@ -474,7 +475,7 @@ export class MasjidService {
       throw new Error('Radius not supported by proxy');
     }
     const grid = (value: number) => Number((Math.round(value / 0.01) * 0.01).toFixed(2));
-    const url = `/api/masjids?lat=${grid(latitude)}&lng=${grid(longitude)}&r=${proxyRadius}`;
+    const url = apiUrl(`/api/masjids?lat=${grid(latitude)}&lng=${grid(longitude)}&r=${proxyRadius}`);
 
     const attempt = new AbortController();
     const timer = setTimeout(() => attempt.abort(), this.PROXY_TIMEOUT_MS);

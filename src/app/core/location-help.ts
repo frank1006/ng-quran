@@ -1,8 +1,14 @@
+import { Capacitor } from '@capacitor/core';
+
 /**
  * What to tell someone who blocked location, worded for where QuranFlow is running:
  * an iPhone/iPad, the installed Android app, or a browser tab.
  */
 export function locationDeniedMessage(): string {
+  // The Android app (Capacitor); not imported from native-app.ts, which imports this file
+  if (Capacitor.isNativePlatform()) {
+    return 'Location is off for QuranFlow. Allow it in Settings › Apps › QuranFlow › Permissions, then tap Try again.';
+  }
   const ua = navigator.userAgent;
   const isIos = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const installed = window.matchMedia?.('(display-mode: standalone)').matches

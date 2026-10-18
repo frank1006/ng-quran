@@ -1,0 +1,70 @@
+<dialog
+  #sheet
+  class="reminder-sheet"
+  [class.closing]="closing()"
+  aria-labelledby="reminder-sheet-title"
+  (cancel)="onCancel($event)"
+  (click)="onDialogClick($event)"
+>
+  <div class="sheet-body">
+    <div class="sheet-handle" aria-hidden="true"></div>
+
+    <header class="sheet-header">
+      <h2 id="reminder-sheet-title" class="sheet-title">{{ prayer()?.name }} reminder</h2>
+      <span class="sheet-time">{{ prayer()?.time }}</span>
+    </header>
+
+    <div class="options" role="radiogroup" aria-labelledby="reminder-sheet-title">
+      @for (option of options(); track option.mode) {
+        <div class="option" [class.selected]="option.mode === current()">
+          <button
+            type="button"
+            class="option-choose"
+            role="radio"
+            [attr.aria-checked]="option.mode === current()"
+            (click)="choose(option.mode)"
+          >
+            <span class="option-icon" [class.is-on]="option.mode === 'adhan' || option.mode === 'sound'">
+              <app-reminder-icon [mode]="option.mode" />
+            </span>
+            <span class="option-text">
+              <span class="option-label">{{ option.label }}</span>
+              <span class="option-hint">{{ option.hint }}</span>
+            </span>
+            @if (option.mode === current()) {
+              <svg class="option-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+            }
+          </button>
+          @if (option.mode === 'adhan') {
+            <button
+              type="button"
+              class="ui-icon-btn preview"
+              [class.is-on]="previewing()"
+              (click)="togglePreview()"
+              [attr.aria-label]="previewing() ? 'Stop the adhan' : 'Listen to the adhan'"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                @if (previewing()) {
+                  <rect x="6" y="6" width="12" height="12" rx="1.5"></rect>
+                } @else {
+                  <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path>
+                }
+              </svg>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (!isSunrise()) {
+      <label class="all-prayers">
+        <input type="checkbox" [checked]="allPrayers()" (change)="onAllPrayersChange($event)" />
+        Use for all five prayers
+      </label>
+    }
+
+    <p class="sheet-note">With the phone on silent or vibrate, the adhan stays quiet and only the reminder shows.</p>
+  </div>
+</dialog>

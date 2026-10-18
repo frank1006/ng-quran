@@ -5,6 +5,8 @@ import { provideServiceWorker } from '@angular/service-worker';
 
 import { routes } from './app.routes';
 import { errorInterceptor } from './interceptors/error.interceptor';
+import { apiOriginInterceptor } from './interceptors/api-origin.interceptor';
+import { isNativeApp } from './core/native-app';
 import { GlobalErrorHandler } from './core/error-handler.service';
 
 /** Route path of the page being shown, e.g. 'quran' or 'quran/:surahId' */
@@ -43,14 +45,15 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withViewTransitions({ skipInitialTransition: true, onViewTransitionCreated })),
     provideHttpClient(
-      withInterceptors([errorInterceptor])
+      withInterceptors([apiOriginInterceptor, errorInterceptor])
     ),
     {
       provide: ErrorHandler,
       useClass: GlobalErrorHandler
     },
+    // Not in the Android app: its pages are already on the phone, and reminders are native there
     provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
+      enabled: !isDevMode() && !isNativeApp,
       registrationStrategy: 'registerWhenStable:5000'
     }),
     // Enable Service Worker in dev mode for notification testing

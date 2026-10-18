@@ -1,0 +1,195 @@
+/* ── The sheet: a native <dialog> pinned to the bottom, as the calendar sheet ── */
+.reminder-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: var(--app-max-width);
+  max-height: 88dvh;
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+}
+
+.reminder-sheet[open] {
+  animation: sheet-in var(--motion-slow) var(--ease-out);
+}
+
+.reminder-sheet::backdrop {
+  background: rgba(31, 31, 31, 0.35);
+  animation: backdrop-in var(--motion-slow) var(--ease-out);
+}
+
+.reminder-sheet.closing {
+  animation: sheet-out var(--motion-exit) var(--ease-in) forwards;
+}
+
+.reminder-sheet.closing::backdrop {
+  animation: backdrop-out var(--motion-exit) var(--ease-in) forwards;
+}
+
+@keyframes sheet-in { from { transform: translateY(100%); } }
+@keyframes sheet-out { to { transform: translateY(100%); } }
+@keyframes backdrop-in { from { opacity: 0; } }
+@keyframes backdrop-out { to { opacity: 0; } }
+
+.sheet-body {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xs) var(--space-lg) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, var(--color-bg) 0, var(--color-surface) 6rem);
+}
+
+.sheet-handle {
+  margin-inline: auto;
+  width: 2.5rem;
+  height: 0.3rem;
+  margin-bottom: var(--space-sm);
+  border-radius: 999px;
+  background: var(--color-cream-strong);
+}
+
+.sheet-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.sheet-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-xl);
+  font-weight: 700;
+}
+
+.sheet-time {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-primary-text);
+}
+
+/* ── The choices ── */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-right: var(--space-sm);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-alt);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  transition: background-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.option.selected {
+  background: var(--color-fill-current);
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+}
+
+.option-choose {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 3.75rem;
+  padding: var(--space-xs) 0 var(--space-xs) var(--space-sm);
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.option-choose:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: 2px;
+  border-radius: var(--radius-lg);
+}
+
+.option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--color-control);
+  color: var(--color-control-ink);
+}
+
+.option-icon.is-on {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-on-edge);
+}
+
+.option-icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.option-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.option-label {
+  font-size: var(--font-md);
+  font-weight: 600;
+}
+
+.option-hint {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.option-check {
+  flex-shrink: 0;
+  color: var(--color-primary-text);
+}
+
+.preview {
+  background: var(--color-surface);
+}
+
+/* ── For all prayers, and the note ── */
+.all-prayers {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 2.75rem;
+  margin-top: var(--space-md);
+  padding-inline: var(--space-sm);
+  font-size: var(--font-md);
+  cursor: pointer;
+}
+
+.all-prayers input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--color-primary-deep);
+}
+
+.sheet-note {
+  margin: var(--space-sm) 0 0;
+  padding-inline: var(--space-sm);
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}

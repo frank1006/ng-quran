@@ -10,6 +10,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
 import { NotificationWorkerService } from './services/notification-worker.service';
 import { BackgroundSyncService } from './services/background-sync.service';
 import { PushReminderService } from './services/push-reminder.service';
+import { NativeAdhanService } from './services/native-adhan.service';
 import { AuthService } from './core/auth.service';
 import { AccountSyncService } from './core/account-sync.service';
 
@@ -25,6 +26,8 @@ export class App implements OnInit {
   private readonly notificationWorker = inject(NotificationWorkerService);
   private readonly backgroundSync = inject(BackgroundSyncService);
   private readonly pushReminders = inject(PushReminderService);
+  /** In the Android app, the phone's own adhan alarms (does nothing on the website) */
+  private readonly nativeAdhan = inject(NativeAdhanService);
   /** Started here so a returning Google sign-in is finished on whichever page it lands */
   private readonly auth = inject(AuthService);
   /** Bookmarks and preferences follow the signed-in account */
