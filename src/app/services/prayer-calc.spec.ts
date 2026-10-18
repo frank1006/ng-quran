@@ -20,40 +20,30 @@ describe('Prayer calculation settings', () => {
     });
   });
 
-  describe('Aladhan request', () => {
+  describe('on-device times', () => {
     let service: PrayerTimeService;
-    let fetchMock: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
       service = TestBed.inject(PrayerTimeService);
-      fetchMock = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          code: 200,
-          status: 'OK',
-          data: {
-            timings: { Fajr: '04:38', Sunrise: '05:59', Dhuhr: '11:51', Asr: '16:03', Maghrib: '17:44', Isha: '19:04' },
-            date: { readable: '05 Oct 2026' }
-          }
-        })
-      });
-      window.fetch = fetchMock as unknown as typeof fetch;
     });
 
     afterEach(() => vi.restoreAllMocks());
 
-    const requestedUrl = () => new URL(fetchMock.mock.calls[0][0] as string);
-
-    it('omits the method so the API picks the local authority', async () => {
-      await firstValueFrom(service.getPrayerTimesByCoordinates(31.52, 74.36, new Date(2026, 9, 5), { method: null, school: 1 }));
-      expect(requestedUrl().searchParams.has('method')).toBe(false);
-      expect(requestedUrl().searchParams.get('school')).toBe('1');
+    it('works the times out without a network request', async () => {
+      const fetchSpy = vi.spyOn(window, 'fetch');
+      const data = await firstValueFrom(service.getPrayerTimesByCoordinates(31.52, 74.36, new Date(2026, 9, 5), { method: null, school: 1 }));
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(data.date).toBe('05 Oct 2026');
+      expect(Object.values(data.timings).every(t => /^\d{2}:\d{2}$/.test(t))).toBe(true);
     });
 
-    it('sends an explicit method when chosen', async () => {
-      await firstValueFrom(service.getPrayerTimesByCoordinates(31.52, 74.36, new Date(2026, 9, 5), { method: 1, school: 0 }));
-      expect(requestedUrl().searchParams.get('method')).toBe('1');
-      expect(requestedUrl().searchParams.get('school')).toBe('0');
+    it('uses the chosen method and Asr school', async () => {
+      const at = (method: number | null, school: 0 | 1) =>
+        firstValueFrom(service.getPrayerTimesByCoordinates(31.52, 74.36, new Date(2026, 9, 5), { method, school }));
+      const [karachi, isna, hanafi] = await Promise.all([at(1, 0), at(2, 0), at(1, 1)]);
+      expect(isna.timings.fajr).not.toBe(karachi.timings.fajr); // 15° vs 18°
+      expect(hanafi.timings.asr).not.toBe(karachi.timings.asr);
+      expect(hanafi.timings.dhuhr).toBe(karachi.timings.dhuhr);
     });
   });
 });

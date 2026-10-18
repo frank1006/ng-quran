@@ -1,16 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, throwError } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { Observable, defer, of, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 
+import { clockTime, prayerTimes } from '../../../shared/prayer-times';
 import { locationDeniedMessage } from '../core/location-help';
 import {
   LocationCoordinates,
-  PrayerTimings,
   PrayerTimeData,
-  AladhanApiResponse,
-  LocationError,
-  AladhanTimings,
-  HijriDate
+  LocationError
 } from './prayer-time.types';
 
 export type LocationPermission = PermissionState | 'unknown' | 'unsupported';
@@ -24,8 +21,6 @@ export interface PrayerCalcParams {
   providedIn: 'root'
 })
 export class PrayerTimeService {
-  private readonly baseUrl = 'https://api.aladhan.com/v1';
-
   /**
    * Whether location is already allowed, asked without showing a prompt. 'prompt' means reading
    * the location now would make the phone ask (an iPhone Home Screen app asks again every time
@@ -90,46 +85,31 @@ export class PrayerTimeService {
     });
   }
 
+  /** Worked out on the phone (shared/prayer-times.ts): works offline, no API call */
   getPrayerTimesByCoordinates(
     latitude: number,
     longitude: number,
     date?: Date,
     calc: PrayerCalcParams = { method: null, school: 0 }
   ): Observable<PrayerTimeData> {
-    const targetDate = date || new Date();
-    const dateStr = `${targetDate.getDate()}-${targetDate.getMonth() + 1}-${targetDate.getFullYear()}`;
-
-    // Without a method the API picks the nearest local authority (e.g. Karachi for Pakistan)
-    const methodParam = calc.method !== null ? `&method=${calc.method}` : '';
-    const url = `${this.baseUrl}/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}${methodParam}&school=${calc.school}`;
-
-    return from(fetch(url)).pipe(
-      switchMap((response: Response) => {
-        if (!response.ok) {
-          return throwError(() => new Error(`API request failed: ${response.status} ${response.statusText}`));
-        }
-        return from(response.json()) as Observable<AladhanApiResponse>;
-      }),
-      map((apiResponse: AladhanApiResponse) => {
-        if (apiResponse.code !== 200 || !apiResponse.data) {
-          throw new Error(apiResponse.status || 'Invalid API response');
-        }
-        const timingData = apiResponse.data;
-        const timings = this.convertTimings(timingData.timings);
-        const hijriDate = timingData.date.hijri ? this.convertHijriDate(timingData.date.hijri) : undefined;
-        
-        return {
-          date: timingData.date.readable,
-          timings,
-          location: { latitude, longitude },
-          hijriDate
-        } as PrayerTimeData;
-      }),
-      catchError((error: Error) => {
-        const errorMessage = error.message || 'Failed to fetch prayer times. Please check your internet connection.';
-        return throwError(() => new Error(errorMessage));
-      })
-    );
+    return defer(() => {
+      const targetDate = date || new Date();
+      const day = `${targetDate.getFullYear()}-${pad(targetDate.getMonth() + 1)}-${pad(targetDate.getDate())}`;
+      // Without a method, the nearest local authority's (e.g. Karachi for Pakistan)
+      const times = prayerTimes(latitude, longitude, day, calc.method, calc.school);
+      return of({
+        date: targetDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        timings: {
+          fajr: clockTime(times.fajr),
+          sunrise: clockTime(times.sunrise),
+          dhuhr: clockTime(times.dhuhr),
+          asr: clockTime(times.asr),
+          maghrib: clockTime(times.maghrib),
+          isha: clockTime(times.isha)
+        },
+        location: { latitude, longitude }
+      });
+    });
   }
 
   getTodayPrayerTimes(): Observable<PrayerTimeData> {
@@ -145,47 +125,8 @@ export class PrayerTimeService {
       })
     );
   }
-
-  private convertTimings(apiTimings: AladhanTimings): PrayerTimings {
-    const extractTime = (timeString: string): string => {
-      const match = timeString.match(/(\d{2}:\d{2})/);
-      return match ? match[1] : timeString.split(' ')[0];
-    };
-
-    return {
-      fajr: extractTime(apiTimings.Fajr || ''),
-      sunrise: extractTime(apiTimings.Sunrise || ''),
-      dhuhr: extractTime(apiTimings.Dhuhr || ''),
-      asr: extractTime(apiTimings.Asr || ''),
-      maghrib: extractTime(apiTimings.Maghrib || ''),
-      isha: extractTime(apiTimings.Isha || '')
-    };
-  }
-
-  private convertHijriDate(apiHijri: any): HijriDate {
-    return {
-      date: apiHijri.date || '',
-      format: apiHijri.format || '',
-      day: apiHijri.day || '',
-      weekday: {
-        en: apiHijri.weekday?.en || '',
-        ar: apiHijri.weekday?.ar || ''
-      },
-      month: {
-        number: apiHijri.month?.number || 0,
-        en: apiHijri.month?.en || '',
-        ar: apiHijri.month?.ar || '',
-        days: apiHijri.month?.days || 0
-      },
-      year: apiHijri.year || '',
-      designation: {
-        abbreviated: apiHijri.designation?.abbreviated || 'AH',
-        expanded: apiHijri.designation?.expanded || 'Anno Hegirae'
-      },
-      holidays: apiHijri.holidays || [],
-      adjustedHolidays: apiHijri.adjustedHolidays || [],
-      method: apiHijri.method || ''
-    };
-  }
 }
 
+function pad(value: number): string {
+  return String(value).padStart(2, '0');
+}

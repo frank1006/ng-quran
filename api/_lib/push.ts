@@ -12,15 +12,13 @@
 import { createHash } from 'node:crypto';
 import { Redis } from '@upstash/redis';
 import webpush, { PushSubscription } from 'web-push';
+import { PRAYER_KEYS, PrayerKey, prayerTimes } from '../../shared/prayer-times';
 
-export const PRAYER_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
-export type PrayerKey = (typeof PRAYER_KEYS)[number];
+export { PRAYER_KEYS };
+export type { PrayerKey };
 
 const PRAYER_NAMES: Record<PrayerKey, string> = {
   fajr: 'Fajr', sunrise: 'Shuruq', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
-};
-const ALADHAN_FIELDS: Record<PrayerKey, string> = {
-  fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -94,33 +92,14 @@ export function isValidTimeZone(timeZone: unknown): timeZone is string {
   }
 }
 
-/** Prayer times for one local date, as epoch ms. */
-async function fetchTimes(sub: Subscriber, date: string): Promise<Partial<Record<PrayerKey, number>>> {
-  const [y, m, d] = date.split('-');
-  const params = new URLSearchParams({
-    latitude: String(sub.lat), longitude: String(sub.lng), school: String(sub.school), iso8601: 'true',
-  });
-  if (sub.method !== null) params.set('method', String(sub.method));
-  const response = await fetch(`https://api.aladhan.com/v1/timings/${d}-${m}-${y}?${params}`, {
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!response.ok) throw new Error(`Aladhan HTTP ${response.status}`);
-  const timings = (await response.json())?.data?.timings ?? {};
-  const times: Partial<Record<PrayerKey, number>> = {};
-  for (const key of PRAYER_KEYS) {
-    const at = Date.parse(timings[ALADHAN_FIELDS[key]]);
-    if (!Number.isNaN(at)) times[key] = at;
-  }
-  return times;
-}
-
 /** Queue one day's reminders for the subscriber's chosen prayers. */
 export async function queueDay(id: string, sub: Subscriber, date: string): Promise<void> {
-  const times = await fetchTimes(sub, date);
+  // The same calculation the app shows, worked out here (no API call)
+  const times = prayerTimes(sub.lat, sub.lng, date, sub.method, sub.school);
   const now = Date.now();
   const entries = sub.prayers
-    .map(key => ({ key, at: times[key] }))
-    .filter((e): e is { key: PrayerKey; at: number } => e.at !== undefined && e.at > now)
+    .map(key => ({ key, at: times[key].getTime() }))
+    .filter(e => !Number.isNaN(e.at) && e.at > now)
     .map(e => ({ score: e.at, member: `${id}|${e.key}|${e.at}` }));
   if (entries.length) {
     const [first, ...rest] = entries;

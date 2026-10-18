@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <article class="ui-doc-page page-pattern">
       <h1 class="ui-doc-title">Privacy policy</h1>
-      <p class="ui-page-subtitle">Last updated 10 October 2026</p>
+      <p class="ui-page-subtitle">Last updated 18 October 2026</p>
 
       <p class="ui-doc-lead">
         QuranFlow is a free app for prayer times, the Quran, Qibla direction and nearby masjids. Most
@@ -38,9 +38,9 @@ import { RouterLink } from '@angular/router';
         <h2 class="ui-section-label">Your location</h2>
         <p>
           With your permission, your location is used to work out prayer times and the Qibla
-          direction, and it is sent (without your name) to these services to get: prayer times
-          (AlAdhan), weather (Open-Meteo), nearby masjids (OpenStreetMap / Overpass) and your city's
-          name (OpenStreetMap Nominatim or Geoapify).
+          direction on your phone, and it is sent (without your name) to these services to get:
+          weather (Open-Meteo), nearby masjids (OpenStreetMap / Overpass) and your city's name
+          (OpenStreetMap Nominatim or Geoapify).
         </p>
       </section>
 
@@ -122,7 +122,7 @@ import { RouterLink } from '@angular/router';
       <section>
         <h2 class="ui-section-label">Data sources and credits</h2>
         <ul>
-          <li>Prayer times by <a href="https://aladhan.com" target="_blank" rel="noopener">AlAdhan</a></li>
+          <li>Prayer times calculated with <a href="https://github.com/batoulapps/adhan-js" target="_blank" rel="noopener">Adhan</a> (MIT); Hijri dates by <a href="https://aladhan.com" target="_blank" rel="noopener">AlAdhan</a></li>
           <li>Quran text and audio via <a href="https://github.com/The-Quran-Project/Quran-API" target="_blank" rel="noopener">The Quran Project</a> (MIT)</li>
           <li>Masjid and map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL); fallback by <a href="https://www.geoapify.com" target="_blank" rel="noopener">Geoapify</a></li>
           <li>Weather data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)</li>

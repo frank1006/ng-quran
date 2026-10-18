@@ -109,87 +109,24 @@ describe('PrayerTimeService', () => {
   });
 
   describe('getPrayerTimesByCoordinates', () => {
-    it('should fetch prayer times successfully', async () => {
-      const mockResponse = {
-        code: 200,
-        status: 'OK',
-        data: {
-          timings: {
-            Fajr: '05:30 (GMT)',
-            Sunrise: '07:00 (GMT)',
-            Dhuhr: '12:30 (GMT)',
-            Asr: '15:00 (GMT)',
-            Maghrib: '17:30 (GMT)',
-            Isha: '19:00 (GMT)'
-          },
-          date: {
-            readable: '29 Dec 2024',
-            timestamp: '1234567890'
-          }
-        }
-      };
-
-      window.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse
-      } as Response);
-
+    it('should work out the day\'s prayer times for the place', async () => {
       const result = await new Promise<PrayerTimeData>((resolve, reject) => {
-        service.getPrayerTimesByCoordinates(40.7128, -74.0060).subscribe({
+        service.getPrayerTimesByCoordinates(40.7128, -74.0060, new Date(2024, 11, 29)).subscribe({
           next: resolve,
           error: reject
         });
       });
 
-      expect(result.timings.fajr).toBe('05:30');
-      expect(result.timings.dhuhr).toBe('12:30');
+      const { fajr, sunrise, dhuhr, asr, maghrib, isha } = result.timings;
+      expect([fajr, sunrise, dhuhr, asr, maghrib, isha]).toEqual([fajr, sunrise, dhuhr, asr, maghrib, isha].sort());
       expect(result.date).toBe('29 Dec 2024');
       expect(result.location.latitude).toBe(40.7128);
       expect(result.location.longitude).toBe(-74.0060);
     });
-
-    it('should handle API error response', async () => {
-      window.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error'
-      } as Response);
-
-      await expect(
-        new Promise((resolve, reject) => {
-          service.getPrayerTimesByCoordinates(40.7128, -74.0060).subscribe({
-            next: resolve,
-            error: reject
-          });
-        })
-      ).rejects.toThrow();
-    });
-
-    it('should handle invalid API response', async () => {
-      const mockResponse = {
-        code: 400,
-        status: 'Bad Request',
-        data: null
-      };
-
-      window.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse
-      } as Response);
-
-      await expect(
-        new Promise((resolve, reject) => {
-          service.getPrayerTimesByCoordinates(40.7128, -74.0060).subscribe({
-            next: resolve,
-            error: reject
-          });
-        })
-      ).rejects.toThrow();
-    });
   });
 
   describe('getTodayPrayerTimes', () => {
-    it('should get location and fetch prayer times', async () => {
+    it('should get location and work out prayer times', async () => {
       const mockPosition = {
         coords: {
           latitude: 40.7128,
@@ -205,33 +142,9 @@ describe('PrayerTimeService', () => {
         toJSON: vi.fn()
       } as GeolocationPosition;
 
-      const mockResponse = {
-        code: 200,
-        status: 'OK',
-        data: {
-          timings: {
-            Fajr: '05:30 (GMT)',
-            Sunrise: '07:00 (GMT)',
-            Dhuhr: '12:30 (GMT)',
-            Asr: '15:00 (GMT)',
-            Maghrib: '17:30 (GMT)',
-            Isha: '19:00 (GMT)'
-          },
-          date: {
-            readable: '29 Dec 2024',
-            timestamp: '1234567890'
-          }
-        }
-      };
-
       mockGetCurrentPosition.mockImplementation((success: PositionCallback) => {
         success(mockPosition);
       });
-
-      window.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse
-      } as Response);
 
       const result = await new Promise<PrayerTimeData>((resolve, reject) => {
         service.getTodayPrayerTimes().subscribe({
