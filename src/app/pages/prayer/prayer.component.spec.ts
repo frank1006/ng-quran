@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { PrayerComponent } from './prayer.component';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
@@ -29,6 +30,7 @@ describe('PrayerComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PrayerComponent],
       providers: [
+        provideRouter([]),
         { provide: PrayerTimeStore, useValue: storeSpy },
         { provide: PrayerTrajectoryService, useValue: trajectoryServiceSpy }
       ]

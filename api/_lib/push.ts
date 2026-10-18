@@ -39,6 +39,11 @@ export interface Subscriber {
   hour12?: boolean;
   /** Last local date (YYYY-MM-DD) whose reminders are queued. */
   queuedUntil: string;
+  /**
+   * This device's entries in push:due that are still to come, so they can be removed without
+   * reading everyone's (missing on devices saved before this existed)
+   */
+  queued?: string[];
 }
 
 let redisClient: Redis | undefined;
@@ -92,7 +97,7 @@ export function isValidTimeZone(timeZone: unknown): timeZone is string {
   }
 }
 
-/** Queue one day's reminders for the subscriber's chosen prayers. */
+/** Queue one day's reminders for the subscriber's chosen prayers (the caller saves `sub`). */
 export async function queueDay(id: string, sub: Subscriber, date: string): Promise<void> {
   // The same calculation the app shows, worked out here (no API call)
   const times = prayerTimes(sub.lat, sub.lng, date, sub.method, sub.school);
@@ -101,6 +106,9 @@ export async function queueDay(id: string, sub: Subscriber, date: string): Promi
     .map(key => ({ key, at: times[key].getTime() }))
     .filter(e => !Number.isNaN(e.at) && e.at > now)
     .map(e => ({ score: e.at, member: `${id}|${e.key}|${e.at}` }));
+  // Entries already sent drop off the list (their time is the member's last part)
+  const stillToCome = (sub.queued ?? []).filter(member => Number(member.split('|')[2]) > now);
+  sub.queued = [...stillToCome, ...entries.map(e => e.member)];
   if (entries.length) {
     const [first, ...rest] = entries;
     await redis().zadd('push:due', first, ...rest);
@@ -123,11 +131,14 @@ export async function saveSubscriber(id: string, sub: Subscriber): Promise<void>
   await redis().set(subscriberKey(id), sub, { ex: SUBSCRIBER_TTL_SECONDS });
 }
 
+/** Removes the device's queued reminders, using the list saved with it */
 export async function clearQueue(id: string): Promise<void> {
   const r = redis();
-  // Small queue (≤ 12 entries per subscriber), so a scan is fine at this app's scale
-  const due = await r.zrange<string[]>('push:due', 0, -1);
-  const mine = due.filter(member => member.startsWith(`${id}|`));
+  const stored = await r.get<Subscriber>(subscriberKey(id));
+  if (!stored) return; // nothing saved: any leftover entries are skipped and dropped when due
+  // Devices saved before `queued` existed: find their entries in the whole queue, this once
+  const mine = stored.queued ??
+    (await r.zrange<string[]>('push:due', 0, -1)).filter(member => member.startsWith(`${id}|`));
   if (mine.length) {
     const [first, ...rest] = mine;
     await r.zrem('push:due', first, ...rest);
