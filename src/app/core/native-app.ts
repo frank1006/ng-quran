@@ -98,3 +98,35 @@ export async function nativePosition(options: PositionOptions): Promise<{ latitu
     throw { code: 2, message: 'Your location isn\'t available right now. Check that location is turned on, then tap Try again.' };
   }
 }
+
+/**
+ * Google's web sign-in client (the one Supabase's Google provider uses): the app's ID tokens are
+ * issued for it, so Supabase accepts them. Public, like everything in this file.
+ */
+const GOOGLE_WEB_CLIENT_ID = '1014376431724-15uk1c71vnkl4d8ldqc1ct5e27rj3ahe.apps.googleusercontent.com';
+
+/** Android's Google account picker (apps/quranflow: android/.../auth/GoogleSignInPlugin.java) */
+interface GoogleSignInPlugin {
+  /** Rejects with code CANCELLED (the person closed it), NO_ACCOUNT or FAILED */
+  signIn(options: { serverClientId: string; nonce?: string }): Promise<{ idToken: string }>;
+  signOut(): Promise<void>;
+}
+
+const NativeGoogleSignIn = registerPlugin<GoogleSignInPlugin>('GoogleSignIn');
+
+/**
+ * A Google ID token from the phone's account picker, and the nonce it carries (Supabase checks
+ * that the token's nonce is the SHA-256 of the one it's given)
+ */
+export async function nativeGoogleIdToken(): Promise<{ idToken: string; nonce: string }> {
+  const nonce = Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2, '0')).join('');
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(nonce));
+  const hashed = Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+  const { idToken } = await NativeGoogleSignIn.signIn({ serverClientId: GOOGLE_WEB_CLIENT_ID, nonce: hashed });
+  return { idToken, nonce };
+}
+
+/** Lets the next sign-in show the account picker again */
+export function nativeGoogleSignOut(): Promise<void> {
+  return NativeGoogleSignIn.signOut().catch(() => {});
+}
