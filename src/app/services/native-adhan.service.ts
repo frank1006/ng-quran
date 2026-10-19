@@ -30,6 +30,8 @@ export class NativeAdhanService {
 
   /** False when Android may ring late because "Alarms & reminders" isn't allowed (Android 12+) */
   readonly ringsOnTime = signal(true);
+  /** False while the phone may pause QuranFlow to save battery (the adhan can then come late) */
+  readonly batteryUnrestricted = signal(true);
 
   private timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -68,6 +70,11 @@ export class NativeAdhanService {
     return AdhanAlarm.stop();
   }
 
+  /** QuranFlow's page in the phone's settings, to set its battery use to Unrestricted */
+  openBatterySettings(): Promise<void> {
+    return AdhanAlarm.openBatterySettings();
+  }
+
   /** Opens the phone's "Alarms & reminders" setting for the app */
   openAlarmSettings(): Promise<void> {
     return AdhanAlarm.openExactAlarmSettings();
@@ -84,6 +91,9 @@ export class NativeAdhanService {
       if (!alarms) return; // no location yet: keep what the phone has
       const result = alarms.length ? await AdhanAlarm.schedule({ alarms }) : await AdhanAlarm.cancelAll().then(() => AdhanAlarm.status());
       this.ringsOnTime.set(result.exactAlarms);
+      this.batteryUnrestricted.set(result.batteryUnrestricted);
+      // With a reminder set, explain battery limits once (Android's dialog; it never asks twice)
+      if (alarms.length && !result.batteryUnrestricted) await AdhanAlarm.askBatteryUnrestricted();
     } catch (error) {
       Logger.warn('Could not set the prayer alarms:', error);
     }
