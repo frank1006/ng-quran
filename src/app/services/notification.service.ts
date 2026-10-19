@@ -52,6 +52,9 @@ export class NotificationService {
     this.permissionStatus() === NotificationPermissionStatus.GRANTED
   );
 
+  /** Granted, denied, not asked yet ('default') or not supported */
+  readonly permission = this.permissionStatus.asReadonly();
+
   readonly isNotificationEnabled = computed(() =>
     this.settings().enabled && this.isPermissionGranted()
   );

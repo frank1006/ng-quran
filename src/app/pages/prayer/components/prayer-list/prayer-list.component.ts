@@ -135,13 +135,10 @@ export class PrayerListComponent {
     }
   }
 
-  /** A choice from the app's reminder sheet, for one prayer or all five */
-  async onReminderChosen({ prayer, mode, allPrayers }: ReminderChoice): Promise<void> {
-    const keys = allPrayers
-      ? this.prayers().map(p => p.key).filter(key => key !== 'sunrise')
-      : [prayer.key];
-    if (await this.applyMode(keys, mode)) {
-      this.toasts.show(`${allPrayers ? 'All prayers' : prayer.name + ' reminder'}: ${this.modeLabels[mode]}`);
+  /** A choice from the app's reminder sheet */
+  async onReminderChosen({ prayer, mode }: ReminderChoice): Promise<void> {
+    if (await this.applyMode([prayer.key], mode)) {
+      this.toasts.show(`${prayer.name} reminder: ${this.modeLabels[mode]}`);
     }
   }
 

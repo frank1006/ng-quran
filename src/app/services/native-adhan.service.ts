@@ -58,6 +58,11 @@ export class NativeAdhanService {
     return AdhanAlarm.test({ prayer });
   }
 
+  /** Plays the notification sound once, or vibrates once, as that reminder would */
+  preview(kind: 'sound' | 'vibrate'): Promise<void> {
+    return AdhanAlarm.preview({ kind });
+  }
+
   /** Stops an adhan that is playing (a test, or one at prayer time) */
   stopAdhan(): Promise<void> {
     return AdhanAlarm.stop();

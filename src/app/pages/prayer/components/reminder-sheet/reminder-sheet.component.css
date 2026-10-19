@@ -40,8 +40,12 @@
 .sheet-body {
   display: flex;
   flex-direction: column;
-  padding: var(--space-xs) var(--space-lg) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  padding: 0 var(--space-lg) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, var(--color-bg) 0, var(--color-surface) 6rem);
+}
+
+.sheet-drag-zone {
+  padding-top: var(--space-xs);
 }
 
 .sheet-handle {
@@ -166,30 +170,4 @@
 
 .preview {
   background: var(--color-surface);
-}
-
-/* ── For all prayers, and the note ── */
-.all-prayers {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  min-height: 2.75rem;
-  margin-top: var(--space-md);
-  padding-inline: var(--space-sm);
-  font-size: var(--font-md);
-  cursor: pointer;
-}
-
-.all-prayers input {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin: 0;
-  accent-color: var(--color-primary-deep);
-}
-
-.sheet-note {
-  margin: var(--space-sm) 0 0;
-  padding-inline: var(--space-sm);
-  font-size: var(--font-sm);
-  color: var(--color-text-muted);
 }

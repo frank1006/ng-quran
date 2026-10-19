@@ -1,10 +1,10 @@
 import { Injectable, inject, isDevMode } from '@angular/core';
 import { Observable, fromEvent } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { normalizeQuadrant, normalizeCity, normalizeCountry } from '../../../core/location.util';
+import { NominatimAddress, normalizeQuadrant, normalizeCity, normalizeCountry } from '../../../core/location.util';
 import { Logger } from '../../../core/logger.util';
 import { DeviceDetectionService } from '../../../services/device-detection.service';
-import { NativeCompass, isNativeApp } from '../../../core/native-app';
+import { NativeCompass, NativeGeocoder, isNativeApp } from '../../../core/native-app';
 
 /**
  * Makkah (Kaaba) coordinates
@@ -395,23 +395,8 @@ export class QiblaService {
     }
 
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
-        {
-          headers: {
-            'User-Agent': 'QuranApp/1.0'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Geocoding API error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-
       // Extract location info using normalization utilities
-      const address = data.address || {};
+      const address = await this.reverseGeocode(latitude, longitude);
       const quadrant = normalizeQuadrant(address);
       const city = normalizeCity(address);
       const country = normalizeCountry(address);
@@ -448,6 +433,35 @@ export class QiblaService {
       
       return fallback;
     }
+  }
+
+  /**
+   * The address fields for a place: from the phone's geocoder in the app (Nominatim if it has no
+   * answer), from OpenStreetMap's Nominatim on the website
+   */
+  private async reverseGeocode(latitude: number, longitude: number): Promise<NominatimAddress & { country_code?: string }> {
+    if (isNativeApp) {
+      try {
+        return (await NativeGeocoder.reverse({ latitude, longitude })).address;
+      } catch (error) {
+        Logger.warn('Phone geocoder had no answer, asking Nominatim:', error);
+      }
+    }
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'QuranApp/1.0'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Geocoding API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.address || {};
   }
 
   async getCityName(latitude: number, longitude: number): Promise<string> {

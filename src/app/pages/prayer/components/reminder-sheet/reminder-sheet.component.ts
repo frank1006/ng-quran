@@ -2,6 +2,8 @@ import { Component, ElementRef, computed, inject, input, output, signal, viewChi
 import { ReminderMode } from '../../../../services/notification.types';
 import { NativeAdhanService } from '../../../../services/native-adhan.service';
 import { isNativeApp } from '../../../../core/native-app';
+import { SheetDragDirective } from '../../../../shared/directives/sheet-drag.directive';
+import { closeOnBack } from '../../../../shared/sheet-back';
 
 export interface ReminderSheetPrayer {
   key: string;
@@ -12,8 +14,6 @@ export interface ReminderSheetPrayer {
 export interface ReminderChoice {
   prayer: ReminderSheetPrayer;
   mode: ReminderMode;
-  /** Use the choice for all five prayers (Shuruq stays as it is) */
-  allPrayers: boolean;
 }
 
 interface ReminderOption {
@@ -70,7 +70,7 @@ export class ReminderIconComponent {
  */
 @Component({
   selector: 'app-reminder-sheet',
-  imports: [ReminderIconComponent],
+  imports: [ReminderIconComponent, SheetDragDirective],
   templateUrl: './reminder-sheet.component.html',
   styleUrl: './reminder-sheet.component.css'
 })
@@ -82,16 +82,20 @@ export class ReminderSheetComponent {
 
   protected readonly prayer = signal<ReminderSheetPrayer | null>(null);
   protected readonly current = signal<ReminderMode>('off');
-  protected readonly allPrayers = signal(false);
   protected readonly previewing = signal(false);
   protected readonly closing = signal(false);
+  /** Takes the Back-button history entry off again (the app only) */
+  private releaseBack?: () => void;
 
   protected readonly isSunrise = computed(() => this.prayer()?.key === 'sunrise');
 
   protected readonly options = computed<ReminderOption[]>(() => {
     const fajr = this.prayer()?.key === 'fajr';
     const options: ReminderOption[] = [
-      { mode: 'adhan', label: 'Full adhan', hint: fajr ? 'Fajr adhan by Mishary al-Afasy' : 'Adhan by Ahmed al-Imadi' },
+      {
+        mode: 'adhan', label: 'Full adhan',
+        hint: fajr ? 'The Fajr adhan, with “prayer is better than sleep”' : 'The full call to prayer, with a Stop button',
+      },
       { mode: 'sound', label: 'Notification sound', hint: 'Your phone’s notification sound' },
       { mode: 'silent', label: 'Vibrate only', hint: 'Vibrates, no sound' },
       { mode: 'off', label: 'Off', hint: 'No reminder' },
@@ -103,17 +107,21 @@ export class ReminderSheetComponent {
   open(prayer: ReminderSheetPrayer, current: ReminderMode): void {
     this.prayer.set(prayer);
     this.current.set(current);
-    this.allPrayers.set(false);
     this.closing.set(false);
     const dialog = this.dialog().nativeElement;
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) {
+      dialog.showModal();
+      this.releaseBack = closeOnBack(() => this.close());
+    }
   }
 
   protected choose(mode: ReminderMode): void {
     const prayer = this.prayer();
     if (!prayer) return;
     this.current.set(mode);
-    this.chosen.emit({ prayer, mode, allPrayers: this.allPrayers() && !this.isSunrise() });
+    // A taste of what was chosen (the adhan has its own ▶, it's minutes long)
+    if (mode === 'sound' || mode === 'silent') void this.nativeAdhan.preview(mode === 'sound' ? 'sound' : 'vibrate');
+    this.chosen.emit({ prayer, mode });
     this.close();
   }
 
@@ -128,14 +136,12 @@ export class ReminderSheetComponent {
     }
   }
 
-  protected onAllPrayersChange(event: Event): void {
-    this.allPrayers.set((event.target as HTMLInputElement).checked);
-  }
-
   /** Slide down, then close; a preview that is still playing stops */
   close(): void {
     const dialog = this.dialog().nativeElement;
     if (!dialog.open || this.closing()) return;
+    this.releaseBack?.();
+    this.releaseBack = undefined;
     this.stopPreview();
     this.closing.set(true);
     const finish = () => {

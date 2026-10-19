@@ -10,10 +10,8 @@
     <!-- Drag this area (handle and title) down to close -->
     <div
       class="sheet-drag-zone"
-      (pointerdown)="onDragStart($event)"
-      (pointermove)="onDragMove($event)"
-      (pointerup)="onDragEnd($event)"
-      (pointercancel)="onDragEnd($event)"
+      [appSheetDrag]="sheet"
+      (sheetDismiss)="close()"
     >
     <div class="sheet-handle" aria-hidden="true"></div>
 

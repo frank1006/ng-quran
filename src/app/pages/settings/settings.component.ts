@@ -8,7 +8,7 @@ import { DistanceUnit, TemperatureUnit } from '../../services/units';
 import { PermissionsService, PermissionStatus } from '../../services/permissions.service';
 import { PrayerTimeStore } from '../../store/prayer-time.store';
 import { QiblaService } from '../qibla/services/qibla.service';
-import { isNativeApp } from '../../core/native-app';
+import { NativeApp, isNativeApp } from '../../core/native-app';
 import { NativeAdhanService } from '../../services/native-adhan.service';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationPermissionStatus } from '../../services/notification.types';
@@ -64,7 +64,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly notificationPermission = computed(() => this.notificationService.isPermissionGranted());
   protected readonly notificationStatus = computed(() => {
     const permission = this.notificationService.isPermissionGranted();
-    return permission ? 'granted' : Notification.permission;
+    if (permission) return 'granted';
+    // The app's web view has no Notification API: the phone's answer comes from the app
+    if (isNativeApp) return this.notificationService.permission() === NotificationPermissionStatus.DENIED ? 'denied' : 'default';
+    return Notification.permission;
   });
 
   // Location Information
@@ -152,7 +155,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   });
 
   protected readonly appName = 'QuranFlow';
-  protected readonly appVersion = 'v1.0';
+  /** The Android app shows its own version (as on Google Play); the website its release */
+  protected readonly appVersion = signal('v1.0');
 
   private verifyInterval: number | null = null;
 
@@ -170,6 +174,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    if (isNativeApp) void NativeApp.info().then(info => this.appVersion.set(`v${info.version}`), () => {});
+
     // Refresh compass permission status on component load
     this.permissionsService.checkPermissions();
     
@@ -442,8 +448,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** QuranFlow's page in the phone's settings, to allow a permission refused earlier */
+  protected openPhoneSettings(page: 'app' | 'notifications'): void {
+    void NativeApp.openSettings({ page });
+  }
+
   protected resetDataAndPermissions(): void {
-    if (!confirm('Are you sure you want to reset permissions and clear all cache data? This will clear API cache and reset permissions, but your preferences (time format, bookmarks, etc.) will be preserved. This action cannot be undone.')) {
+    const question = isNativeApp
+      ? 'Clear the data saved on this phone? Prayer reminders turn off; bookmarks and settings stay.'
+      : 'Are you sure you want to reset permissions and clear all cache data? This will clear API cache and reset permissions, but your preferences (time format, bookmarks, etc.) will be preserved. This action cannot be undone.';
+    if (!confirm(question)) {
       return;
     }
 

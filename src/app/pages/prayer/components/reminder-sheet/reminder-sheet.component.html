@@ -7,12 +7,15 @@
   (click)="onDialogClick($event)"
 >
   <div class="sheet-body">
-    <div class="sheet-handle" aria-hidden="true"></div>
+    <!-- Drag this area (handle and title) down to close -->
+    <div class="sheet-drag-zone" [appSheetDrag]="sheet" (sheetDismiss)="close()">
+      <div class="sheet-handle" aria-hidden="true"></div>
 
-    <header class="sheet-header">
-      <h2 id="reminder-sheet-title" class="sheet-title">{{ prayer()?.name }} reminder</h2>
-      <span class="sheet-time">{{ prayer()?.time }}</span>
-    </header>
+      <header class="sheet-header">
+        <h2 id="reminder-sheet-title" class="sheet-title">{{ prayer()?.name }} reminder</h2>
+        <span class="sheet-time">{{ prayer()?.time }}</span>
+      </header>
+    </div>
 
     <div class="options" role="radiogroup" aria-labelledby="reminder-sheet-title">
       @for (option of options(); track option.mode) {
@@ -57,14 +60,5 @@
         </div>
       }
     </div>
-
-    @if (!isSunrise()) {
-      <label class="all-prayers">
-        <input type="checkbox" [checked]="allPrayers()" (change)="onAllPrayersChange($event)" />
-        Use for all five prayers
-      </label>
-    }
-
-    <p class="sheet-note">With the phone on silent or vibrate, the adhan stays quiet and only the reminder shows.</p>
   </div>
 </dialog>

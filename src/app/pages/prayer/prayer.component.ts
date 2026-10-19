@@ -111,6 +111,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
   private readonly masjidService = inject(MasjidService);
   private readonly deviceDetection = inject(DeviceDetectionService);
   private readonly weatherService = inject(WeatherService);
+  protected readonly weatherUpdating = this.weatherService.updating;
   private timeInterval: number | null = null;
   private messageTimer: ReturnType<typeof setTimeout> | undefined;
   private hiddenAt: number | null = null;
@@ -489,6 +490,12 @@ export class PrayerComponent implements OnInit, OnDestroy {
   }
 
   /** User tapped the location chip: take a fresh GPS fix and reload times and masjids. */
+  /** A tap on the weather fetches it again (unless it's only a few minutes old) */
+  protected refreshWeather(): void {
+    const location = this.prayerTimeStore.currentLocation();
+    if (location) void this.weatherService.refresh(location.latitude, location.longitude, true);
+  }
+
   protected refreshLocation(): void {
     if (this.locating()) return;
     this.locating.set(true);

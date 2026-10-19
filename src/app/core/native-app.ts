@@ -46,6 +46,8 @@ export interface AdhanAlarmPlugin {
   cancelAll(): Promise<void>;
   /** Plays the adhan now, without changing the stored alarms (Fajr's adhan for 'fajr') */
   test(options: { prayer: string }): Promise<void>;
+  /** Plays the notification sound once ('sound') or vibrates once ('vibrate'); quiet on a silent phone */
+  preview(options: { kind: 'sound' | 'vibrate' }): Promise<void>;
   /** Stops an adhan that is playing */
   stop(): Promise<void>;
   status(): Promise<AlarmStatus>;
@@ -130,3 +132,19 @@ export async function nativeGoogleIdToken(): Promise<{ idToken: string; nonce: s
 export function nativeGoogleSignOut(): Promise<void> {
   return NativeGoogleSignIn.signOut().catch(() => {});
 }
+
+/** The app itself (apps/quranflow: android/.../AppPlugin.java) */
+interface AppInfoPlugin {
+  info(): Promise<{ version: string; build: number }>;
+  /** QuranFlow's page in the phone's settings ('notifications': its notification settings) */
+  openSettings(options: { page?: 'app' | 'notifications' }): Promise<void>;
+}
+
+export const NativeApp = registerPlugin<AppInfoPlugin>('QuranFlowApp');
+
+/** The phone's own geocoder (apps/quranflow: android/.../GeocoderPlugin.java), with Nominatim's field names */
+interface GeocoderPlugin {
+  reverse(options: { latitude: number; longitude: number }): Promise<{ address: Record<string, string> }>;
+}
+
+export const NativeGeocoder = registerPlugin<GeocoderPlugin>('Geocoder');
