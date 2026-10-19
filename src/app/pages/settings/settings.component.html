@@ -420,6 +420,19 @@
               </div>
             </div>
 
+            @if (!nativeAdhan.batteryUnrestricted()) {
+              <!-- Android app: battery limits (Samsung and others) can hold the adhan back -->
+              <div class="permission-item">
+                <div class="permission-info">
+                  <h3 class="permission-name">Battery use</h3>
+                  <p class="permission-description">This phone may pause QuranFlow to save battery, and the adhan can then come late. Open Battery and choose Unrestricted.</p>
+                </div>
+                <div class="permission-status">
+                  <button class="ui-button clear-data-button" type="button" (click)="nativeAdhan.openBatterySettings()">Open settings</button>
+                </div>
+              </div>
+            }
+
             @if (!nativeAdhan.ringsOnTime()) {
               <!-- Android app on Android 12+: exact alarms need the person's OK -->
               <div class="permission-item">

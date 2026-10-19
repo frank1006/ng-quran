@@ -37,6 +37,8 @@ export interface AlarmStatus {
   notifications: 'granted' | 'denied' | 'prompt';
   /** Whether alarms ring on the minute (Android 12+ needs "Alarms & reminders" allowed) */
   exactAlarms: boolean;
+  /** Whether the phone lets QuranFlow run without battery limits (limits can delay the adhan) */
+  batteryUnrestricted: boolean;
 }
 
 /** The app's native prayer alarms (apps/quranflow: android/.../adhan/AdhanAlarmPlugin.java) */
@@ -53,6 +55,10 @@ export interface AdhanAlarmPlugin {
   status(): Promise<AlarmStatus>;
   /** Asks for the notification permission (only Android 13+ asks) */
   requestNotifications(): Promise<AlarmStatus>;
+  /** Once ever, and only while battery is limited: Android's dialog asking to allow unrestricted battery */
+  askBatteryUnrestricted(): Promise<{ shown: boolean }>;
+  /** QuranFlow's page in the phone's settings, where Battery is */
+  openBatterySettings(): Promise<void>;
   /** Opens the app's "Alarms & reminders" setting (Android 12+) */
   openExactAlarmSettings(): Promise<void>;
 }
@@ -135,6 +141,8 @@ export function nativeGoogleSignOut(): Promise<void> {
 
 /** The app itself (apps/quranflow: android/.../AppPlugin.java) */
 interface AppInfoPlugin {
+  /** The page has drawn: the launch screen can go */
+  ready(): Promise<void>;
   info(): Promise<{ version: string; build: number }>;
   /** QuranFlow's page in the phone's settings ('notifications': its notification settings) */
   openSettings(options: { page?: 'app' | 'notifications' }): Promise<void>;

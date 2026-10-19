@@ -2,7 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
 import { inject } from '@vercel/analytics';
-import { isNativeApp } from './app/core/native-app';
+import { NativeApp, isNativeApp } from './app/core/native-app';
 
 /**
  * On a fresh start the launch screen stays at least this long (from the tap), so it reads as a
@@ -24,6 +24,13 @@ bootstrapApplication(App, appConfig)
 /** Fades out the launch screen in index.html once the app is up and the minimum time has passed */
 function hideSplash(): void {
   const splash = document.getElementById('boot');
+  if (isNativeApp) {
+    // Android's launch screen is still up: drop ours at once, then let Android's go once the
+    // page has drawn (two frames), so the page appears straight after it
+    splash?.remove();
+    requestAnimationFrame(() => requestAnimationFrame(() => void NativeApp.ready().catch(() => {})));
+    return;
+  }
   if (!splash) return;
   setTimeout(() => {
     splash.classList.add('boot--hidden');

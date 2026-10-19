@@ -51,6 +51,9 @@ export interface QiblaData {
 const COMPASS_PERMISSION_KEY = 'qibla_compass_permission_granted';
 
 /** Error message emitted when the device only provides relative orientation. */
+/** How quickly the app's needle catches up with the phone (time constant, ms) */
+const NEEDLE_EASE_MS = 70;
+
 export const NO_ABSOLUTE_COMPASS = 'NO_ABSOLUTE_COMPASS';
 
 /**
@@ -290,9 +293,35 @@ export class QiblaService {
       }
     };
 
-    // The app: the phone's rotation sensor, already turned to true north
+    // The app: the phone's rotation sensor, already turned to true north. The needle eases toward
+    // the latest reading on every screen frame (not per reading), so it turns smoothly at the
+    // screen's rate whatever rate the readings come in at.
     if (isNativeApp) {
-      const listener = NativeCompass.addListener('heading', reading => push(reading.heading));
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      let target: number | null = null;
+      let shown: number | null = null;
+      let lastFrame: number | null = null;
+      const frame = (time: number) => {
+        if (!isActive) return;
+        if (target !== null) {
+          if (shown === null) {
+            shown = target;
+          } else {
+            const dt = Math.min(64, lastFrame === null ? 16 : time - lastFrame);
+            const diff = ((target - shown + 540) % 360) - 180; // the short way round
+            shown = (shown + diff * (1 - Math.exp(-dt / NEEDLE_EASE_MS)) + 360) % 360;
+          }
+          const rounded = Math.round(shown * 10) / 10;
+          if (rounded !== lastHeading) {
+            lastHeading = rounded;
+            observer.next(rounded);
+          }
+        }
+        lastFrame = time;
+        rafId = requestAnimationFrame(frame);
+      };
+      rafId = requestAnimationFrame(frame);
+      const listener = NativeCompass.addListener('heading', reading => (target = reading.heading));
       NativeCompass.start().catch(() => observer.next(null));
       return () => {
         stopFrames();
