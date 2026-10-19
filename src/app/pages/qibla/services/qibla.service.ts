@@ -1,9 +1,10 @@
 import { Injectable, inject, isDevMode } from '@angular/core';
 import { Observable, fromEvent } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { normalizeQuadrant, normalizeCity, normalizeCountry } from '../../../core/location.util';
+import { NominatimAddress, normalizeQuadrant, normalizeCity, normalizeCountry } from '../../../core/location.util';
 import { Logger } from '../../../core/logger.util';
 import { DeviceDetectionService } from '../../../services/device-detection.service';
+import { NativeCompass, NativeGeocoder, isNativeApp } from '../../../core/native-app';
 
 /**
  * Makkah (Kaaba) coordinates
@@ -138,7 +139,8 @@ export class QiblaService {
 
   /** iOS Safari needs DeviceOrientationEvent.requestPermission() from a user tap on every launch. */
   requiresPermissionGesture(): boolean {
-    return this.isDeviceOrientationSupported() &&
+    // The app's web view has the iPhone call too, but the app reads the compass natively
+    return !isNativeApp && this.isDeviceOrientationSupported() &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
   }
 
@@ -150,6 +152,7 @@ export class QiblaService {
    * sensor behind it, so computers are always asked for a reading.
    */
   hasCompass(waitMs = 1200): Promise<boolean> {
+    if (isNativeApp) return NativeCompass.available().then(r => r.available, () => false);
     if (!this.isDeviceOrientationSupported()) return Promise.resolve(false);
     const { isMobile, isIOS } = this.device.deviceInfo();
     if (this.requiresPermissionGesture() && (isMobile || isIOS)) return Promise.resolve(true);
@@ -174,6 +177,7 @@ export class QiblaService {
   }
 
   async requestCompassPermission(): Promise<boolean> {
+    if (isNativeApp) return true;
     if (!this.isDeviceOrientationSupported()) {
       return false;
     }
@@ -196,7 +200,7 @@ export class QiblaService {
 
   getDeviceHeading(): Observable<number | null> {
     return new Observable<number | null>((observer) => {
-      if (!this.isDeviceOrientationSupported()) {
+      if (!isNativeApp && !this.isDeviceOrientationSupported()) {
         observer.next(null);
         observer.complete();
         return;
@@ -205,7 +209,7 @@ export class QiblaService {
       let cleanup: (() => void) | null = null;
 
       const savedPermission = this.loadCompassPermission();
-      const needsPermissionRequest = typeof (DeviceOrientationEvent as any).requestPermission === 'function';
+      const needsPermissionRequest = this.requiresPermissionGesture();
 
       if (!needsPermissionRequest) {
         this.saveCompassPermission(true);
@@ -255,6 +259,48 @@ export class QiblaService {
 
     rafId = requestAnimationFrame(updateHeading);
 
+    /** Eases toward each new reading (the short way round), so the needle doesn't jitter */
+    const push = (heading: number) => {
+      if (lastHeading === null) {
+        lastHeading = heading;
+        pendingHeading = Math.round(heading * 10) / 10;
+        return;
+      }
+
+      let diff = heading - lastHeading;
+      if (diff > 180) {
+        diff -= 360;
+      } else if (diff < -180) {
+        diff += 360;
+      }
+
+      heading = lastHeading + diff * 0.15;
+      heading = heading % 360;
+      if (heading < 0) heading += 360;
+
+      lastHeading = heading;
+      pendingHeading = Math.round(heading * 10) / 10;
+    };
+
+    const stopFrames = () => {
+      isActive = false;
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    // The app: the phone's rotation sensor, already turned to true north
+    if (isNativeApp) {
+      const listener = NativeCompass.addListener('heading', reading => push(reading.heading));
+      NativeCompass.start().catch(() => observer.next(null));
+      return () => {
+        stopFrames();
+        void listener.then(handle => handle.remove());
+        void NativeCompass.stop();
+      };
+    }
+
     const handleOrientation = (event: DeviceOrientationEvent) => {
       let heading: number | null = null;
 
@@ -280,36 +326,14 @@ export class QiblaService {
         return;
       }
 
-      if (lastHeading === null) {
-        lastHeading = heading;
-        pendingHeading = Math.round(heading * 10) / 10;
-        return;
-      }
-
-      let diff = heading - lastHeading;
-      if (diff > 180) {
-        diff -= 360;
-      } else if (diff < -180) {
-        diff += 360;
-      }
-
-      heading = lastHeading + diff * 0.15;
-      heading = heading % 360;
-      if (heading < 0) heading += 360;
-
-      lastHeading = heading;
-      pendingHeading = Math.round(heading * 10) / 10;
+      push(heading);
     };
 
     window.addEventListener(eventName, handleOrientation, { passive: true });
 
     return () => {
-      isActive = false;
+      stopFrames();
       window.removeEventListener(eventName, handleOrientation);
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
     };
   }
 
@@ -371,23 +395,8 @@ export class QiblaService {
     }
 
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
-        {
-          headers: {
-            'User-Agent': 'QuranApp/1.0'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Geocoding API error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-
       // Extract location info using normalization utilities
-      const address = data.address || {};
+      const address = await this.reverseGeocode(latitude, longitude);
       const quadrant = normalizeQuadrant(address);
       const city = normalizeCity(address);
       const country = normalizeCountry(address);
@@ -424,6 +433,35 @@ export class QiblaService {
       
       return fallback;
     }
+  }
+
+  /**
+   * The address fields for a place: from the phone's geocoder in the app (Nominatim if it has no
+   * answer), from OpenStreetMap's Nominatim on the website
+   */
+  private async reverseGeocode(latitude: number, longitude: number): Promise<NominatimAddress & { country_code?: string }> {
+    if (isNativeApp) {
+      try {
+        return (await NativeGeocoder.reverse({ latitude, longitude })).address;
+      } catch (error) {
+        Logger.warn('Phone geocoder had no answer, asking Nominatim:', error);
+      }
+    }
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'QuranApp/1.0'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Geocoding API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.address || {};
   }
 
   async getCityName(latitude: number, longitude: number): Promise<string> {

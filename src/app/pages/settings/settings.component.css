@@ -410,3 +410,5 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
 }
+
+/* Android app: the two adhan test buttons side by side */

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { PUBLIC_ENV } from './public-env';
+import { isNativeApp, nativeGoogleIdToken, nativeGoogleSignOut } from './native-app';
 
 /** The signed-in person, as the app shows them */
 export interface AppUser {
@@ -25,7 +26,8 @@ type SignedOutListener = () => void;
  * this browser's storage, refreshing it as needed.
  *
  * Sign-in is a full-page redirect to Google and back (PKCE). Popups don't work reliably in an app
- * installed to the home screen.
+ * installed to the home screen. The Android app can't use Google's web page at all (Google blocks
+ * it inside apps), so it signs in with an ID token from the phone's account picker instead.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -56,6 +58,7 @@ export class AuthService {
       this.error.set('Sign-in is not available right now.');
       return;
     }
+    if (isNativeApp) return this.signInOnPhone(supabase);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -66,10 +69,27 @@ export class AuthService {
     if (error) this.error.set('Could not open Google sign-in. Please try again.');
   }
 
+  private async signInOnPhone(supabase: SupabaseClient): Promise<void> {
+    let google: { idToken: string; nonce: string };
+    try {
+      google = await nativeGoogleIdToken();
+    } catch (e) {
+      const code = (e as { code?: string }).code;
+      if (code === 'CANCELLED') return; // closed the picker: nothing to say
+      this.error.set(code === 'NO_ACCOUNT'
+        ? 'Add a Google account to this phone (Settings › Accounts), then try again.'
+        : 'Could not open Google sign-in. Please try again.');
+      return;
+    }
+    const { error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: google.idToken, nonce: google.nonce });
+    if (error) this.error.set('Sign-in did not complete. Please try again.');
+  }
+
   async signOut(): Promise<void> {
     const supabase = await this.supabase();
     // 'local': this device only; other devices stay signed in
     await supabase?.auth.signOut({ scope: 'local' }).catch(() => {});
+    if (isNativeApp) await nativeGoogleSignOut();
     this.applySession(null);
     this.signedOutListeners.forEach(listener => listener());
   }

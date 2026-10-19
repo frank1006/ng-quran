@@ -3,6 +3,7 @@ import { Observable, from } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Logger } from '../core/logger.util';
 import { PrayerTimeService } from './prayer-time.service';
+import { isNativeApp, nativePosition } from '../core/native-app';
 
 /**
  * Permission status types
@@ -98,6 +99,19 @@ export class PermissionsService {
    * Request location permission
    */
   requestLocationPermission(): Observable<boolean> {
+    if (isNativeApp) {
+      // The phone asks; reading the location once tells us its answer
+      return from(nativePosition({ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 })).pipe(
+        map(() => {
+          this.locationPermission.set(PermissionStatus.GRANTED);
+          return true;
+        }),
+        catchError((error: { code?: number }) => {
+          this.locationPermission.set(error.code === 1 ? PermissionStatus.DENIED : PermissionStatus.PROMPT);
+          return from([false]);
+        })
+      );
+    }
     return new Observable<boolean>((observer) => {
       if (!navigator.geolocation) {
         this.locationPermission.set(PermissionStatus.NOT_SUPPORTED);
@@ -130,6 +144,12 @@ export class PermissionsService {
    * Check compass/motion permission status
    */
   private checkCompassPermission(): void {
+    // The app reads the phone's compass itself: no permission involved
+    if (isNativeApp) {
+      this.compassSupported.set(true);
+      this.compassPermission.set(PermissionStatus.GRANTED);
+      return;
+    }
     const isSupported = typeof window !== 'undefined' && !!window.DeviceOrientationEvent;
     this.compassSupported.set(isSupported);
 
@@ -215,6 +235,7 @@ export class PermissionsService {
    * Request compass/motion permission
    */
   async requestCompassPermission(): Promise<boolean> {
+    if (isNativeApp) return true;
     if (!this.compassSupported()) {
       this.compassPermission.set(PermissionStatus.NOT_SUPPORTED);
       return false;

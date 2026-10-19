@@ -1,4 +1,4 @@
-import { Component, input, output, signal, inject } from '@angular/core';
+import { Component, input, output, signal, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConnectionErrorComponent } from '../../../../shared/components/connection-error/connection-error.component';
 import { NotificationService } from '../../../../services/notification.service';
@@ -6,6 +6,8 @@ import { DeviceDetectionService } from '../../../../services/device-detection.se
 import { ReminderMode } from '../../../../services/notification.types';
 import { Logger } from '../../../../core/logger.util';
 import { ToastService } from '../../../../core/toast.service';
+import { isNativeApp } from '../../../../core/native-app';
+import { ReminderChoice, ReminderIconComponent, ReminderSheetComponent } from '../reminder-sheet/reminder-sheet.component';
 
 /**
  * Prayer item for list display
@@ -18,12 +20,13 @@ interface PrayerItem {
   hasPassed?: boolean;
 }
 
-const NEXT_MODE: Record<ReminderMode, ReminderMode> = { off: 'sound', sound: 'silent', silent: 'off' };
+/** The website's bell cycles; the app's opens the reminder sheet */
+const NEXT_MODE: Record<ReminderMode, ReminderMode> = { off: 'sound', sound: 'silent', silent: 'off', adhan: 'silent' };
 
 @Component({
   selector: 'app-prayer-list',
   standalone: true,
-  imports: [CommonModule, ConnectionErrorComponent],
+  imports: [CommonModule, ConnectionErrorComponent, ReminderIconComponent, ReminderSheetComponent],
   // Times on screen stay while they refresh. With none yet: an error if there is one, otherwise a
   // skeleton of the six rows (loading, or waiting for the location), never an empty space.
   template: `
@@ -31,45 +34,37 @@ const NEXT_MODE: Record<ReminderMode, ReminderMode> = { off: 'sound', sound: 'si
       <div class="prayer-list-container">
         <div class="prayer-list">
           @for (prayer of prayers(); track prayer.key) {
-            <div class="prayer-card" [class.active]="prayer.isActive" [class.passed]="prayer.hasPassed">
-              <div class="prayer-info">
-                <h3 class="prayer-title">{{ prayer.name }}</h3>
-                <p class="prayer-time">{{ prayer.time }}</p>
-              </div>
-              @let mode = reminderMode(prayer.key);
-              <button
+            @let mode = reminderMode(prayer.key);
+            <!-- The whole row sets the reminder; the bell shows how it's set -->
+            <button
+              type="button"
+              class="prayer-card"
+              [class.active]="prayer.isActive"
+              [class.passed]="prayer.hasPassed"
+              [class.loading]="notificationLoadingStates()[prayer.key]"
+              [disabled]="notificationLoadingStates()[prayer.key]"
+              (click)="onReminderTap(prayer)"
+              [attr.aria-label]="prayer.name + ' ' + prayer.time + ', reminder: ' + modeLabels[mode] + (isNativeApp ? '. Tap to choose.' : '. Tap to change.')"
+            >
+              <span class="prayer-info">
+                <span class="prayer-title">{{ prayer.name }}</span>
+                <span class="prayer-time">{{ prayer.time }}</span>
+              </span>
+              <span
                 class="ui-icon-btn notification-button"
-                type="button"
-                [class.is-on]="mode === 'sound'"
+                [class.is-on]="mode === 'sound' || mode === 'adhan'"
                 [class.is-silent]="mode === 'silent'"
-                [class.loading]="notificationLoadingStates()[prayer.key]"
-                [disabled]="notificationLoadingStates()[prayer.key]"
-                (click)="onReminderTap(prayer)"
-                [attr.aria-label]="prayer.name + ' reminder: ' + modeLabels[mode] + '. Tap to change.'"
+                aria-hidden="true"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  @switch (mode) {
-                    @case ('sound') {
-                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                      <path d="M2 8a10 10 0 0 1 2.6-5.5M22 8a10 10 0 0 0-2.6-5.5"></path>
-                    }
-                    @case ('silent') {
-                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                    }
-                    @default {
-                      <path d="M8.7 3A6 6 0 0 1 18 8c0 2.2.3 3.9.8 5.2M17 17H3s3-2 3-9c0-.5.1-1 .2-1.5"></path>
-                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                      <path d="M3 3l18 18"></path>
-                    }
-                  }
-                </svg>
-              </button>
-            </div>
+                <app-reminder-icon [mode]="mode" />
+              </span>
+            </button>
           }
         </div>
       </div>
+      @if (isNativeApp) {
+        <app-reminder-sheet (chosen)="onReminderChosen($event)" />
+      }
     } @else if (error() && !loading()) {
       <div class="prayer-state">
         <app-connection-error
@@ -108,37 +103,60 @@ export class PrayerListComponent {
   private readonly toasts = inject(ToastService);
   readonly notificationLoadingStates = signal<Record<string, boolean>>({});
 
+  protected readonly isNativeApp = isNativeApp;
+  private readonly sheet = viewChild(ReminderSheetComponent);
+
   /** What each bell state is called, in the toast and for screen readers */
-  protected readonly modeLabels: Record<ReminderMode, string> = {
-    off: 'off',
-    sound: 'with sound',
-    silent: 'silent, no sound',
-  };
+  protected readonly modeLabels: Record<ReminderMode, string> = isNativeApp
+    ? { off: 'off', sound: 'notification sound', silent: 'vibrate only', adhan: 'full adhan' }
+    : { off: 'off', sound: 'with sound', silent: 'silent, no sound', adhan: 'full adhan' };
   protected reminderMode(prayerKey: string): ReminderMode {
     return this.notificationService.prayerMode(prayerKey);
   }
 
-  /** Each tap moves the bell on: off → with sound → silent → off */
+  /** On the website each tap moves the bell on (off → with sound → silent → off); in the app it opens the choices */
   async onReminderTap(prayer: PrayerItem): Promise<void> {
-    const deviceInfo = this.deviceDetection.deviceInfo();
-
     // Check if installation is required (iOS)
-    if (deviceInfo.requiresInstallation) {
+    if (this.deviceDetection.deviceInfo().requiresInstallation) {
       this.showInstallationPrompt();
       return;
     }
 
-    const newMode = NEXT_MODE[this.reminderMode(prayer.key)];
+    const sheet = this.sheet();
+    if (sheet) {
+      sheet.open(prayer, this.reminderMode(prayer.key));
+      return;
+    }
 
-    // Set loading state
-    this.notificationLoadingStates.set({
-      ...this.notificationLoadingStates(),
-      [prayer.key]: true
-    });
+    const newMode = NEXT_MODE[this.reminderMode(prayer.key)];
+    if (await this.applyMode([prayer.key], newMode)) {
+      // Says what the tap did, so the three bell states explain themselves
+      this.toasts.show(`${prayer.name} reminder: ${this.modeLabels[newMode]}`);
+    }
+  }
+
+  /** A choice from the app's reminder sheet */
+  async onReminderChosen({ prayer, mode }: ReminderChoice): Promise<void> {
+    if (await this.applyMode([prayer.key], mode)) {
+      this.toasts.show(`${prayer.name} reminder: ${this.modeLabels[mode]}`);
+    }
+  }
+
+  /** Sets the prayers' reminders, asking for the notification permission first if needed */
+  private async applyMode(keys: string[], mode: ReminderMode): Promise<boolean> {
+    const loading = (on: boolean) => {
+      const states = { ...this.notificationLoadingStates() };
+      for (const key of keys) {
+        if (on) states[key] = true;
+        else delete states[key];
+      }
+      this.notificationLoadingStates.set(states);
+    };
+    loading(true);
 
     try {
       // Request permission if not granted
-      if (newMode !== 'off' && !this.notificationService.isPermissionGranted()) {
+      if (mode !== 'off' && !this.notificationService.isPermissionGranted()) {
         const permission = await this.notificationService.requestPermission();
         if (permission === 'not_supported') {
           throw new Error('Not supported');
@@ -148,9 +166,8 @@ export class PrayerListComponent {
         }
       }
 
-      await this.notificationService.setPrayerMode(prayer.key, newMode);
-      // Says what the tap did, so the three bell states explain themselves
-      this.toasts.show(`${prayer.name} reminder: ${this.modeLabels[newMode]}`);
+      for (const key of keys) await this.notificationService.setPrayerMode(key, mode);
+      return true;
     } catch (error: any) {
       if (error.message === 'INSTALLATION_REQUIRED') {
         this.showInstallationPrompt();
@@ -160,13 +177,10 @@ export class PrayerListComponent {
         alert('This browser does not support notifications. Try Chrome, Edge, Firefox or Safari, or install QuranFlow to your Home Screen.');
       } else {
         Logger.error('Failed to toggle notification:', error);
-        // You can add a toast/alert here to show error to user
       }
+      return false;
     } finally {
-      // Clear loading state
-      const loadingStates = { ...this.notificationLoadingStates() };
-      delete loadingStates[prayer.key];
-      this.notificationLoadingStates.set(loadingStates);
+      loading(false);
     }
   }
 
@@ -179,7 +193,9 @@ export class PrayerListComponent {
 
   private showPermissionDeniedMessage(): void {
     alert(
-      this.deviceDetection.deviceInfo().isIOS
+      isNativeApp
+        ? 'Notifications are turned off for QuranFlow. Turn them on in your phone\'s Settings › Apps › QuranFlow › Notifications.'
+        : this.deviceDetection.deviceInfo().isIOS
         ? 'Notifications are turned off for QuranFlow. Turn them on in Settings › Notifications › QuranFlow.'
         : 'Notifications are blocked for QuranFlow. Allow them in your browser\'s site settings to receive prayer reminders.'
     );

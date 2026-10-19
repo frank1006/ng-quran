@@ -14,6 +14,7 @@ import { UserStoreService } from './user-store.service';
 import { Logger } from '../core/logger.util';
 import { SettingsService } from './settings.service';
 import { formatTime } from './time-format.util';
+import { AdhanAlarm, AlarmStatus, isNativeApp } from '../core/native-app';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +51,9 @@ export class NotificationService {
   readonly isPermissionGranted = computed(() =>
     this.permissionStatus() === NotificationPermissionStatus.GRANTED
   );
+
+  /** Granted, denied, not asked yet ('default') or not supported */
+  readonly permission = this.permissionStatus.asReadonly();
 
   readonly isNotificationEnabled = computed(() =>
     this.settings().enabled && this.isPermissionGranted()
@@ -208,6 +212,12 @@ export class NotificationService {
       return NotificationPermissionStatus.NOT_SUPPORTED;
     }
 
+    if (isNativeApp) {
+      const status = nativeStatus(await AdhanAlarm.requestNotifications());
+      this.permissionStatus.set(status);
+      return status;
+    }
+
     const deviceInfo = this.deviceDetection.deviceInfo();
 
     // Check if installation is required (iOS)
@@ -249,8 +259,8 @@ export class NotificationService {
    * "not asked" on the page although the user allowed notifications earlier.
    */
   private async refreshPermission(): Promise<void> {
-    let status = this.checkPermissionStatus();
-    if (status === NotificationPermissionStatus.PROMPT) {
+    let status = isNativeApp ? nativeStatus(await AdhanAlarm.status()) : this.checkPermissionStatus();
+    if (!isNativeApp && status === NotificationPermissionStatus.PROMPT) {
       status = (await this.pushPermission()) ?? status;
     }
     if (status === this.permissionStatus()) return;
@@ -275,6 +285,8 @@ export class NotificationService {
    * Check current permission status
    */
   private checkPermissionStatus(): NotificationPermissionStatus {
+    // The Android app's answer comes from the phone, a moment later (refreshPermission)
+    if (isNativeApp) return NotificationPermissionStatus.PROMPT;
     if (typeof window === 'undefined' || !('Notification' in window)) {
       return NotificationPermissionStatus.NOT_SUPPORTED;
     }
@@ -324,11 +336,16 @@ export class NotificationService {
     }
 
     const currentSettings = this.settings();
+    // The app keeps adhan-or-sound per prayer; the website leaves it as the app set it
+    const plainSound = isNativeApp && (mode === 'adhan' || mode === 'sound')
+      ? { ...currentSettings.plainSound, [prayerKey]: mode === 'sound' }
+      : currentSettings.plainSound;
     this.settings.set({
       ...currentSettings,
       enabled: true, // Auto-enable if any prayer has notifications
       preferences: { ...currentSettings.preferences, [prayerKey]: mode !== 'off' },
-      silent: { ...currentSettings.silent, [prayerKey]: mode === 'silent' }
+      silent: { ...currentSettings.silent, [prayerKey]: mode === 'silent' },
+      ...(plainSound ? { plainSound } : {})
     });
     this.saveSettings();
 
@@ -341,7 +358,10 @@ export class NotificationService {
     if (!settings.enabled || settings.preferences[prayerKey] !== true || !this.isPermissionGranted()) {
       return 'off';
     }
-    return settings.silent?.[prayerKey] === true ? 'silent' : 'sound';
+    if (settings.silent?.[prayerKey] === true) return 'silent';
+    // In the app a prayer with sound plays the adhan unless set to the notification sound;
+    // Shuruq isn't a prayer, so it never has the adhan
+    return isNativeApp && prayerKey !== 'sunrise' && settings.plainSound?.[prayerKey] !== true ? 'adhan' : 'sound';
   }
 
   /**
@@ -352,7 +372,8 @@ export class NotificationService {
     date: Date,
     prayerData: PrayerTimeData
   ): Promise<void> {
-    if (!this.isNotificationEnabled()) {
+    // In the Android app the phone's own alarms ring instead (NativeAdhanService)
+    if (isNativeApp || !this.isNotificationEnabled()) {
       return;
     }
 
@@ -475,7 +496,7 @@ export class NotificationService {
     prayerName: string,
     prayerTime: string
   ): Promise<void> {
-    if (!this.isPermissionGranted()) {
+    if (isNativeApp || !this.isPermissionGranted()) {
       return;
     }
 
@@ -749,4 +770,16 @@ function addMinutes(time: string, minutes: number): string {
   const h = Math.floor(total / 60);
   const m = String(total % 60).padStart(2, '0');
   return ampm ? `${h % 12 || 12}:${m} ${h < 12 ? 'AM' : 'PM'}` : `${String(h).padStart(2, '0')}:${m}`;
+}
+
+/** The phone's notification permission, in the web app's terms */
+function nativeStatus(status: AlarmStatus): NotificationPermissionStatus {
+  switch (status.notifications) {
+    case 'granted':
+      return NotificationPermissionStatus.GRANTED;
+    case 'denied':
+      return NotificationPermissionStatus.DENIED;
+    default:
+      return NotificationPermissionStatus.PROMPT;
+  }
 }

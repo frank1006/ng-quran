@@ -51,7 +51,6 @@
 
 .sheet-drag-zone {
   flex-shrink: 0;
-  touch-action: none; /* the browser leaves vertical drags here to us */
   cursor: grab;
 }
 

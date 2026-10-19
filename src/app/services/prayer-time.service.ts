@@ -4,6 +4,7 @@ import { catchError, switchMap } from 'rxjs/operators';
 
 import { clockTime, prayerTimes } from '../../../shared/prayer-times';
 import { locationDeniedMessage } from '../core/location-help';
+import { isNativeApp, nativeLocationPermission, nativePosition } from '../core/native-app';
 import {
   LocationCoordinates,
   PrayerTimeData,
@@ -27,6 +28,8 @@ export class PrayerTimeService {
    * it is opened); 'unknown' is a browser that can't say.
    */
   async locationPermission(): Promise<LocationPermission> {
+    // The app's web view always answers 'prompt'; the phone knows
+    if (isNativeApp) return nativeLocationPermission();
     if (typeof navigator === 'undefined' || !navigator.geolocation) return 'unsupported';
     try {
       return (await navigator.permissions.query({ name: 'geolocation' })).state;
@@ -36,6 +39,9 @@ export class PrayerTimeService {
   }
 
   getCurrentLocation(overrides?: PositionOptions): Observable<LocationCoordinates> {
+    if (isNativeApp) {
+      return defer(() => nativePosition({ enableHighAccuracy: true, timeout: 10000, maximumAge: 0, ...overrides }));
+    }
     return new Observable<LocationCoordinates>((observer) => {
       if (!navigator.geolocation) {
         observer.error({

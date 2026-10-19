@@ -48,10 +48,30 @@
   align-items: center;
   justify-content: space-between;
   position: relative;
+  width: 100%;
   min-height: 3.5rem;
+  margin: 0;
   padding: var(--space-xs) var(--space-md);
+  border: none;
   border-radius: var(--radius-lg);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition: background-color var(--motion-slow) var(--ease-standard);
+}
+
+/* The row is the reminder button: a press tints it, keyboard focus outlines it */
+.prayer-card:active:not(:disabled) {
+  background: var(--color-selected-tint);
+  transition-duration: var(--motion-fast);
+}
+
+.prayer-card:focus-visible {
+  outline: 2px solid var(--color-primary-edge);
+  outline-offset: -2px;
 }
 
 /* Rows sit on the page with thin inset separators instead of outlines */
@@ -66,7 +86,8 @@
 }
 
 /* The current prayer: a soft amber fill, with no separators touching it */
-.prayer-card.active {
+.prayer-card.active,
+.prayer-card.active:active:not(:disabled) {
   background: var(--color-fill-current);
 }
 
@@ -140,13 +161,12 @@
   border-radius: 50%;
 }
 
-.notification-button.loading {
-  opacity: 0.6;
-  cursor: not-allowed;
+/* Setting the reminder (e.g. waiting for the permission answer) */
+.prayer-card:disabled {
+  cursor: progress;
 }
 
-.notification-button:disabled {
-  cursor: not-allowed;
+.prayer-card:disabled .notification-button {
   opacity: 0.6;
 }
 

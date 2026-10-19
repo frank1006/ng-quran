@@ -20,6 +20,8 @@ export interface CurrentWeather {
 const API_URL = 'https://api.open-meteo.com/v1/forecast';
 const STORAGE_KEY = 'weather-current';
 const MAX_AGE_MS = 30 * 60 * 1000;
+/** A tap refreshes a reading at least this old (Open-Meteo updates every 15 minutes) */
+const TAP_MIN_AGE_MS = 5 * 60 * 1000;
 /** After this the last reading is too old to show at all (e.g. offline for hours) */
 const STALE_MS = 3 * 60 * 60 * 1000;
 
@@ -46,20 +48,26 @@ export function conditionLabel(condition: WeatherCondition, isDay: boolean): str
 export class WeatherService {
   private readonly current = signal<CurrentWeather | null>(this.readStored());
   readonly weather = this.current.asReadonly();
+  /** True while a reading is being fetched */
+  readonly updating = signal(false);
   private inFlight: string | null = null;
 
-  /** Fetches the weather for a location unless a recent reading for the same place exists. */
-  async refresh(latitude: number, longitude: number): Promise<void> {
+  /**
+   * Fetches the weather for a location unless a recent reading for the same place exists.
+   * `tapped`: the person asked for it, so a reading over a few minutes old is fetched again.
+   */
+  async refresh(latitude: number, longitude: number, tapped = false): Promise<void> {
     const place = `${latitude.toFixed(1)},${longitude.toFixed(1)}`;
     const existing = this.current();
     if (existing && existing.place !== place) {
       this.current.set(null); // don't show another city's weather
-    } else if (existing && Date.now() - existing.at < MAX_AGE_MS) {
+    } else if (existing && Date.now() - existing.at < (tapped ? TAP_MIN_AGE_MS : MAX_AGE_MS)) {
       return;
     }
     if (this.inFlight === place || !navigator.onLine) return;
 
     this.inFlight = place;
+    this.updating.set(true);
     try {
       const params = new URLSearchParams({
         latitude: latitude.toFixed(2),
@@ -89,6 +97,7 @@ export class WeatherService {
       Logger.warn('Weather update failed:', error);
     } finally {
       this.inFlight = null;
+      this.updating.set(false);
     }
   }
 
