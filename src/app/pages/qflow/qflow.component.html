@@ -73,6 +73,32 @@
               @if (exchange.result!.answer) {
                 <span class="answer-label">AI summary</span>
                 <p class="answer-text" [attr.dir]="dir(exchange.result!.answer!)">@for (part of answerParts(exchange.result!.answer!); track $index) {@if (part.ref) {<bdi dir="ltr">{{ part.text }}</bdi>} @else {<span>{{ part.text }}</span>}}</p>
+                <!-- Google Play requires a way to report AI answers without leaving the app -->
+                @if (reported().has(exchange.id)) {
+                  <p class="report-done" role="status">Thank you. We'll review this answer.</p>
+                } @else if (reporting() === exchange.id) {
+                  <form class="report-form" (submit)="sendReport(exchange.id, exchange.question, exchange.result!.answer!); $event.preventDefault()">
+                    <fieldset class="report-reasons">
+                      <legend class="report-legend">What's wrong with this answer?</legend>
+                      @for (option of reportReasons; track option.value) {
+                        <label class="report-reason">
+                          <input type="radio" name="report-reason" [value]="option.value" [checked]="reportReason() === option.value" (change)="reportReason.set(option.value)" />
+                          {{ option.label }}
+                        </label>
+                      }
+                    </fieldset>
+                    <textarea class="report-note" rows="2" [attr.maxlength]="reportNoteMax" placeholder="Add a note (optional)" aria-label="Note (optional)" [value]="reportNote()" (input)="reportNote.set($any($event.target).value)"></textarea>
+                    @if (reportError()) {
+                      <p class="error-text" role="alert">{{ reportError() }}</p>
+                    }
+                    <div class="report-buttons">
+                      <button type="button" class="ui-button ui-button--secondary" (click)="cancelReport()" [disabled]="reportSending()">Cancel</button>
+                      <button type="submit" class="ui-button" [disabled]="!reportReason() || reportSending()">{{ reportSending() ? 'Sending…' : 'Send report' }}</button>
+                    </div>
+                  </form>
+                } @else {
+                  <button type="button" class="report-link" (click)="openReport(exchange.id)">Report answer</button>
+                }
               } @else if (exchange.result!.ayahs.length || exchange.result!.hadiths?.length) {
                 <p class="answer-text">QuranFlow AI can't write an answer right now. These match your words:</p>
               } @else {

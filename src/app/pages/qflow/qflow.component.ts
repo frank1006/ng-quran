@@ -12,6 +12,7 @@ import { Chapter } from '../../services/quran-api.types';
 import { QFlowChatStore, QFlowLang, textDir } from './qflow-chat.store';
 import { QFlowClampedDirective } from './qflow-clamped.directive';
 import { buildWelcome, isoDate } from './qflow-welcome';
+import { QFlowReportReason, QFlowReportService, REPORT_LIMITS, REPORT_REASONS, reportRow } from './qflow-report';
 
 const MAX_QUESTION = 500;
 
@@ -61,6 +62,17 @@ export class QFlowComponent implements AfterViewInit {
     const h = Math.floor(minutes / 60);
     return h ? `${h} h ${minutes % 60} min` : `${minutes} min`;
   });
+  /** Reporting an answer: which exchange's form is open, and which were sent this session */
+  private readonly reports = inject(QFlowReportService);
+  protected readonly reportReasons = REPORT_REASONS;
+  protected readonly reportNoteMax = REPORT_LIMITS.note;
+  protected readonly reporting = signal<number | null>(null);
+  protected readonly reported = signal<ReadonlySet<number>>(new Set());
+  protected readonly reportReason = signal<QFlowReportReason | null>(null);
+  protected readonly reportNote = signal('');
+  protected readonly reportSending = signal(false);
+  protected readonly reportError = signal('');
+
   /** Read out once an answer arrives (the conversation itself isn't a live region) */
   protected readonly announcement = signal('');
 
@@ -99,6 +111,33 @@ export class QFlowComponent implements AfterViewInit {
         this.scrollToExchange(settled.id);
       });
     });
+  }
+
+  protected openReport(id: number): void {
+    this.reporting.set(id);
+    this.reportReason.set(null);
+    this.reportNote.set('');
+    this.reportError.set('');
+  }
+
+  protected cancelReport(): void {
+    this.reporting.set(null);
+  }
+
+  protected async sendReport(id: number, question: string, answer: string): Promise<void> {
+    const reason = this.reportReason();
+    if (!reason || this.reportSending()) return;
+    this.reportSending.set(true);
+    this.reportError.set('');
+    try {
+      await this.reports.send(reportRow(reason, this.reportNote(), question, answer));
+      this.reported.update(done => new Set(done).add(id));
+      this.reporting.set(null);
+    } catch {
+      this.reportError.set("Couldn't send the report. Please check your connection and try again.");
+    } finally {
+      this.reportSending.set(false);
+    }
   }
 
   ngAfterViewInit(): void {
