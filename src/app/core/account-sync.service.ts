@@ -1,8 +1,11 @@
-import { DestroyRef, Injectable, computed, effect, inject, isDevMode, untracked } from '@angular/core';
+import { DestroyRef, Injectable, computed, effect, inject, isDevMode, signal, untracked } from '@angular/core';
 import { AuthService } from './auth.service';
 import { UserStoreService, SyncedUserData, Bookmark } from '../services/user-store.service';
 import { SettingsService, PrayerCalcSettings, UnitSettings } from '../services/settings.service';
 import { HijriCalendarService, HijriOffset } from '../calendar/hijri-calendar.service';
+import { NotificationService } from '../services/notification.service';
+import { SyncedReminders } from '../services/notification.types';
+import { isNativeApp } from './native-app';
 
 /** One row in Supabase's public.user_data (supabase/migrations/20261007_user_data.sql) */
 interface SyncedRow {
@@ -16,6 +19,8 @@ interface SyncedRow {
     units?: UnitSettings;
     hijriOffset?: HijriOffset | null;
     showVaried?: boolean;
+    /** The Android app's prayer reminders. Only the app reads or changes them; the website passes them through */
+    reminders?: SyncedReminders;
   };
 }
 
@@ -46,6 +51,8 @@ const RECHECK_MS = 5 * 60 * 1000;
  * - Local changes are sent together after PUSH_DELAY_MS, never one request per tap, and flushed
  *   when the app goes to the background. Returning to the app re-checks at most every RECHECK_MS.
  * - Signing out clears bookmarks and reading place from the device (preferences stay).
+ * - Prayer reminders sync between installs of the Android app only: a browser's reminders
+ *   (usually off on a laptop) must never silence the adhan on the phone.
  *
  * Row level security means a user can only read and write their own row.
  */
@@ -55,6 +62,10 @@ export class AccountSyncService {
   private readonly userStore = inject(UserStoreService);
   private readonly settings = inject(SettingsService);
   private readonly hijri = inject(HijriCalendarService);
+  private readonly notifications = inject(NotificationService);
+
+  /** On the website: the app's reminders as the account last had them, sent back unchanged */
+  private readonly keptReminders = signal<SyncedReminders | undefined>(undefined);
 
   /** Everything that syncs, as one value: changes to any of it schedule a push */
   private readonly local = computed<SyncedRow>(() => {
@@ -71,6 +82,7 @@ export class AccountSyncService {
         units: p.units,
         hijriOffset: this.hijri.userOffset(),
         showVaried: this.hijri.showVaried(),
+        reminders: isNativeApp ? this.notifications.syncedReminders() : this.keptReminders(),
       },
     };
   });
@@ -113,6 +125,7 @@ export class AccountSyncService {
     this.userId = id;
     this.ready = false;
     this.agreed = '';
+    this.keptReminders.set(undefined);
     if (id) await this.pull();
   }
 
@@ -143,6 +156,7 @@ export class AccountSyncService {
       return;
     }
 
+    if (!isNativeApp) this.keptReminders.set((data as SyncedRow | null)?.preferences?.reminders);
     const meta = read();
     const local = this.local();
     const firstHere = meta?.userId !== userId;
@@ -155,6 +169,8 @@ export class AccountSyncService {
     }
 
     const remote = data as SyncedRow & { updated_at: string };
+    // The account has no reminders yet (signed in before the app synced them): send this phone's
+    const missingReminders = isNativeApp && !remote.preferences?.reminders;
     if (firstHere) {
       this.apply(merge(local, remote));
       this.ready = true;
@@ -162,14 +178,15 @@ export class AccountSyncService {
     } else if (remote.updated_at !== meta?.seenAt) {
       // Changed on another device; keep this device's unsent bookmarks too
       this.apply(meta?.dirty ? merge(local, remote) : remote);
-      this.agreed = JSON.stringify(this.local());
+      this.agreed = missingReminders ? '' : JSON.stringify(this.local());
       write({ userId, seenAt: remote.updated_at, dirty: !!meta?.dirty });
       this.ready = true;
-      if (meta?.dirty) await this.push();
+      if (meta?.dirty || missingReminders) await this.push();
     } else {
-      this.agreed = meta?.dirty ? '' : JSON.stringify(local);
+      const send = !!meta?.dirty || missingReminders;
+      this.agreed = send ? '' : JSON.stringify(local);
       this.ready = true;
-      if (meta?.dirty) await this.push();
+      if (send) await this.push();
     }
   }
 
@@ -214,6 +231,8 @@ export class AccountSyncService {
     this.settings.applySyncedPrefs({ calc: p.calc, units: p.units });
     if (p.hijriOffset !== undefined) this.hijri.setUserOffset(p.hijriOffset);
     if (typeof p.showVaried === 'boolean') this.hijri.setShowVaried(p.showVaried);
+    if (isNativeApp && p.reminders) this.notifications.applySyncedReminders(p.reminders);
+    else if (!isNativeApp) this.keptReminders.set(p.reminders);
   }
 }
 

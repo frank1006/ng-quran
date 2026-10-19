@@ -23,6 +23,9 @@ export interface NotificationSettings {
   plainSound?: NotificationPreferences;
 }
 
+/** The Android app's reminder choices, kept with the signed-in account (AccountSyncService) */
+export type SyncedReminders = Pick<NotificationSettings, 'enabled' | 'preferences' | 'silent' | 'plainSound'>;
+
 export interface ScheduledNotification {
   prayerKey: string;
   prayerName: string;
