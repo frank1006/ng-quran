@@ -614,3 +614,14 @@
 .composer-input::placeholder {
   color: var(--color-text-subtle);
 }
+
+/* Reporting an answer (Google Play's AI content policy) */
+.report-link,.report-done{margin-top:var(--space-xs);font-size:var(--font-xs);color:var(--color-text-secondary)}
+.report-link{align-self:flex-start;padding:var(--space-xs) 0;border:0;background:none;font-family:inherit;text-decoration:underline;cursor:pointer}
+.report-form,.report-reasons{display:flex;flex-direction:column;gap:var(--space-sm)}
+.report-form{margin-top:var(--space-sm);padding:var(--space-md);border-radius:var(--radius-lg);background:rgba(0,0,0,.03)}
+.report-reasons{margin:0;padding:0;border:0}
+.report-legend{font-size:var(--font-sm);font-weight:600}
+.report-reason{display:flex;align-items:center;gap:var(--space-sm);min-height:40px;font-size:var(--font-sm)}
+.report-note{box-sizing:border-box;width:100%;padding:var(--space-sm);border:1px solid rgba(0,0,0,.15);border-radius:8px;font:inherit;font-size:var(--font-sm)}
+.report-buttons{display:flex;justify-content:flex-end;gap:var(--space-sm)}

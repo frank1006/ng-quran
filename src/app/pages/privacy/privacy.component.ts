@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <article class="ui-doc-page page-pattern">
       <h1 class="ui-doc-title">Privacy policy</h1>
-      <p class="ui-page-subtitle">Last updated 18 October 2026</p>
+      <p class="ui-page-subtitle">Last updated 19 October 2026</p>
 
       <p class="ui-doc-lead">
         QuranFlow is a free app for prayer times, the Quran, Qibla direction and nearby masjids. Most
@@ -83,9 +83,14 @@ import { RouterLink } from '@angular/router';
           1 km (OpenStreetMap / Geoapify for masjids, Open-Meteo for weather). For a zakat estimate,
           only your currency is sent to UmmahAPI for today's gold and silver prices; the amounts you
           type are part of your question and are worked out on our server. We don't store your
-          questions or answers on our servers. To keep the service fair, we keep a count of your questions for
+          questions or answers on our servers, unless you report one (see below). To keep the service fair, we keep a count of your questions for
           the day, stored under a scrambled form of your Google account id, and it expires after a day and a
           half (also if you delete your account). Please don't include personal details in your questions.
+        </p>
+        <p>
+          If you tap <em>Report answer</em>, we keep that question, the answer, the reason you picked and
+          any note you add, linked to your account at Supabase, so we can review the answer and improve
+          QuranFlow AI. Only we can read reports. Deleting your account deletes them too.
         </p>
         <p>
           When you ask what an ayah means, our server asks the Quran Foundation for the tafsir of that ayah. Only the
