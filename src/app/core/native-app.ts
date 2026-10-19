@@ -39,6 +39,16 @@ export interface AlarmStatus {
   exactAlarms: boolean;
   /** Whether the phone lets QuranFlow run without battery limits (limits can delay the adhan) */
   batteryUnrestricted: boolean;
+  /** The last reminder that rang over a minute late, until dismissed */
+  lateRing: LateRing | null;
+}
+
+/** A reminder that rang late: the phone may be holding QuranFlow back to save battery */
+export interface LateRing {
+  prayer: string;
+  minutesLate: number;
+  /** When it was due (ms) */
+  at: number;
 }
 
 /** The app's native prayer alarms (apps/quranflow: android/.../adhan/AdhanAlarmPlugin.java) */
@@ -55,8 +65,8 @@ export interface AdhanAlarmPlugin {
   status(): Promise<AlarmStatus>;
   /** Asks for the notification permission (only Android 13+ asks) */
   requestNotifications(): Promise<AlarmStatus>;
-  /** Once ever, and only while battery is limited: Android's dialog asking to allow unrestricted battery */
-  askBatteryUnrestricted(): Promise<{ shown: boolean }>;
+  /** The person has seen the note about a late reminder */
+  dismissLateRing(): Promise<AlarmStatus>;
   /** QuranFlow's page in the phone's settings, where Battery is */
   openBatterySettings(): Promise<void>;
   /** Opens the app's "Alarms & reminders" setting (Android 12+) */

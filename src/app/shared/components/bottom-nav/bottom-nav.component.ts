@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { IsActiveMatchOptions, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -22,6 +22,10 @@ const matchOptions = (exact: boolean): IsActiveMatchOptions => ({
   fragment: 'ignored',
   matrixParams: 'ignored',
 });
+
+/** How long the corners follow the dip after a tab change: at least the glide, at most this */
+const FOLLOW_MIN_MS = 700;
+const FOLLOW_MAX_MS = 1500;
 
 const TABS: NavTab[] = [
   { path: '/prayer', label: 'Prayer', icon: 'prayer', exact: true },
@@ -59,6 +63,20 @@ export class BottomNavComponent {
   /** Animations start after the first active tab is known, so nothing moves on load */
   protected readonly ready = signal(false);
 
+  private readonly bar = viewChild.required<ElementRef<HTMLElement>>('bar');
+  private readonly dip = viewChild.required<ElementRef<HTMLElement>>('dip');
+  private cornerFrame = 0;
+
+  constructor() {
+    afterNextRender(() => this.followDip());
+    const onResize = () => this.followDip();
+    window.addEventListener('resize', onResize);
+    inject(DestroyRef).onDestroy(() => {
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(this.cornerFrame);
+    });
+  }
+
   /** React on the tap itself, not after the next page has loaded */
   protected select(index: number): void {
     this.moveTo(index);
@@ -77,5 +95,38 @@ export class BottomNavComponent {
   private moveTo(index: number): void {
     this.active.set(index);
     this.dipAt.set(index);
+    this.followDip();
+  }
+
+  /**
+   * Keeps each top corner of the bar no rounder than the dip is far from that edge, every frame
+   * while the dip moves, so the corner squares exactly as the dip reaches the first or last tab
+   * (rounded, it would cut a notch into the dip's curve) and rounds again as the dip pulls away.
+   * The CSS reads the two radii (--corner-start, --corner-end).
+   */
+  private followDip(): void {
+    cancelAnimationFrame(this.cornerFrame);
+    let last = NaN;
+    let still = 0;
+    const started = performance.now();
+    const step = () => {
+      const bar = this.bar().nativeElement;
+      const full = parseFloat(getComputedStyle(bar).getPropertyValue('--corner-full')) || 24;
+      const frame = bar.getBoundingClientRect();
+      const dip = this.dip().nativeElement.getBoundingClientRect();
+      // No tab active: the dip is closed under a plain bar, so both corners are fully round
+      const open = this.active() >= 0;
+      const start = open ? Math.min(full, Math.max(0, dip.left - frame.left)) : full;
+      const end = open ? Math.min(full, Math.max(0, frame.right - dip.right)) : full;
+      bar.style.setProperty('--corner-start', `${start}px`);
+      bar.style.setProperty('--corner-end', `${end}px`);
+      still = dip.left === last ? still + 1 : 0;
+      last = dip.left;
+      // Through the whole glide (it starts after a short delay, later still while the next page
+      // renders), then until the dip has sat still for a few frames
+      const elapsed = performance.now() - started;
+      if ((elapsed < FOLLOW_MIN_MS || still < 3) && elapsed < FOLLOW_MAX_MS) this.cornerFrame = requestAnimationFrame(step);
+    };
+    this.cornerFrame = requestAnimationFrame(step);
   }
 }

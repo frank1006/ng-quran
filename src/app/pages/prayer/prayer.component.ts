@@ -10,6 +10,7 @@ import { HeroHeaderComponent } from '../../shared/components/hero-header/hero-he
 import { PrayerTrajectoryComponent } from './components/trajectory/prayer-trajectory.component';
 import { DateHeaderComponent } from './components/date-header/date-header.component';
 import { PrayerListComponent } from './components/prayer-list/prayer-list.component';
+import { LateReminderNoteComponent } from './components/late-reminder-note/late-reminder-note.component';
 import { MasjidListComponent } from './components/masjid-list/masjid-list.component';
 import { RadiusFilterComponent } from './components/radius-filter/radius-filter.component';
 import { PrayerTrajectoryService } from './services/prayer-trajectory.service';
@@ -50,6 +51,7 @@ const LOCATION_MESSAGE_MS = 4000;
     PrayerTrajectoryComponent,
     DateHeaderComponent,
     PrayerListComponent,
+    LateReminderNoteComponent,
     MasjidListComponent,
     RadiusFilterComponent,
     CalendarSheetComponent,

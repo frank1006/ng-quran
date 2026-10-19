@@ -27,6 +27,13 @@
   --arrive: calc(var(--glide-delay) + var(--nav-slide) * 0.6); /* ~205ms */
   --rise: calc(var(--motion-base) * 0.8); /* ~175ms */
   --bar: var(--color-cream);
+  /*
+   * Where the dip's centre sits: under the active tab, but never so close to the screen's edge
+   * that the dip runs off it (the first and last tabs are narrower than the dip). There the dip
+   * starts flat at the edge, and the bubble moves in with it (--drop-shift).
+   */
+  --dip-at: clamp(var(--dip-width) / 2, (var(--active) + 0.5) * 100cqw / var(--tabs), 100cqw - var(--dip-width) / 2);
+  --drop-shift: calc(var(--dip-at) - (var(--active) + 0.5) * 100cqw / var(--tabs));
 
   position: fixed;
   bottom: 0;
@@ -47,40 +54,42 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: var(--border-radius-tl);
+  /* The top corners: fully round, except as the dip nears that edge (set every frame while the
+     dip moves, see followDip in the component) */
+  --corner-full: 24px; /* --radius-xl */
+  border-radius: var(--corner-start, var(--corner-full)) var(--corner-end, var(--corner-full)) 0 0;
   pointer-events: none; /* transparent: inside the U the page shows through as it is */
 }
 
+/* With the dip at the screen's edge, its curve is that side's top edge (with its own line), so
+   the corner there is square: rounding it would cut a notch into the curve. */
+
 /* The top line follows the bar's rounded corners: the strip's line is straight and gets clipped
-   there, so each corner draws its own arc. When the dip sits at that edge (first or last tab),
-   the corner is part of the opening, so its arc fades out until the dip leaves. */
+   there, so each corner draws its own arc, the same size as the corner (none once it's square:
+   the dip's curve has its own line). */
 .nav-bg::before,
 .nav-bg::after {
   content: '';
   position: absolute;
   top: 0;
   z-index: 1;
-  width: var(--radius-xl);
-  height: var(--radius-xl);
   border-top: 1px solid var(--color-cream-strong);
-  transition: opacity var(--motion-fast) var(--ease-standard) calc(var(--glide-delay) + var(--nav-slide) * 0.4);
 }
 
 .nav-bg::before {
   left: 0;
+  width: var(--corner-start, var(--corner-full));
+  height: var(--corner-start, var(--corner-full));
   border-left: 1px solid var(--color-cream-strong);
-  border-top-left-radius: var(--radius-xl);
+  border-top-left-radius: var(--corner-start, var(--corner-full));
 }
 
 .nav-bg::after {
   right: 0;
+  width: var(--corner-end, var(--corner-full));
+  height: var(--corner-end, var(--corner-full));
   border-right: 1px solid var(--color-cream-strong);
-  border-top-right-radius: var(--radius-xl);
-}
-
-.at-start .nav-bg::before,
-.at-end .nav-bg::after {
-  opacity: 0;
+  border-top-right-radius: var(--corner-end, var(--corner-full));
 }
 
 /* No tab active: a plain bar fades in over the strip and closes the U where it is, so returning
@@ -114,7 +123,7 @@
   left: 0;
   display: flex;
   width: calc(200cqw + var(--dip-width));
-  transform: translateX(calc((var(--active) + 0.5) * 100cqw / var(--tabs) - 100cqw - var(--dip-width) / 2));
+  transform: translateX(calc(var(--dip-at) - 100cqw - var(--dip-width) / 2));
   will-change: transform;
 }
 
@@ -234,13 +243,13 @@
   background: var(--color-primary);
   box-shadow: var(--shadow-on-edge);
   color: var(--color-on-primary); /* dark on amber: 9:1 */
-  transform: translateY(0) scale(0.3);
+  transform: translate(0, 0) scale(0.3);
   opacity: 0;
   pointer-events: none;
 }
 
 .nav-item.active .nav-drop {
-  transform: translateY(var(--icon-lift)) scale(1);
+  transform: translate(var(--drop-shift), var(--icon-lift)) scale(1);
   opacity: 1;
 }
 
