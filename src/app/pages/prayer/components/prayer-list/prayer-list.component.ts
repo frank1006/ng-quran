@@ -34,25 +34,31 @@ const NEXT_MODE: Record<ReminderMode, ReminderMode> = { off: 'sound', sound: 'si
       <div class="prayer-list-container">
         <div class="prayer-list">
           @for (prayer of prayers(); track prayer.key) {
-            <div class="prayer-card" [class.active]="prayer.isActive" [class.passed]="prayer.hasPassed">
-              <div class="prayer-info">
-                <h3 class="prayer-title">{{ prayer.name }}</h3>
-                <p class="prayer-time">{{ prayer.time }}</p>
-              </div>
-              @let mode = reminderMode(prayer.key);
-              <button
+            @let mode = reminderMode(prayer.key);
+            <!-- The whole row sets the reminder; the bell shows how it's set -->
+            <button
+              type="button"
+              class="prayer-card"
+              [class.active]="prayer.isActive"
+              [class.passed]="prayer.hasPassed"
+              [class.loading]="notificationLoadingStates()[prayer.key]"
+              [disabled]="notificationLoadingStates()[prayer.key]"
+              (click)="onReminderTap(prayer)"
+              [attr.aria-label]="prayer.name + ' ' + prayer.time + ', reminder: ' + modeLabels[mode] + (isNativeApp ? '. Tap to choose.' : '. Tap to change.')"
+            >
+              <span class="prayer-info">
+                <span class="prayer-title">{{ prayer.name }}</span>
+                <span class="prayer-time">{{ prayer.time }}</span>
+              </span>
+              <span
                 class="ui-icon-btn notification-button"
-                type="button"
                 [class.is-on]="mode === 'sound' || mode === 'adhan'"
                 [class.is-silent]="mode === 'silent'"
-                [class.loading]="notificationLoadingStates()[prayer.key]"
-                [disabled]="notificationLoadingStates()[prayer.key]"
-                (click)="onReminderTap(prayer)"
-                [attr.aria-label]="prayer.name + ' reminder: ' + modeLabels[mode] + (isNativeApp ? '. Tap to choose.' : '. Tap to change.')"
+                aria-hidden="true"
               >
                 <app-reminder-icon [mode]="mode" />
-              </button>
-            </div>
+              </span>
+            </button>
           }
         </div>
       </div>
