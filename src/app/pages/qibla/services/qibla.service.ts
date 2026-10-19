@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { NominatimAddress, normalizeQuadrant, normalizeCity, normalizeCountry } from '../../../core/location.util';
 import { Logger } from '../../../core/logger.util';
 import { DeviceDetectionService } from '../../../services/device-detection.service';
+import { magneticDeclination } from './magnetic-declination';
 import { NativeCompass, NativeGeocoder, isNativeApp } from '../../../core/native-app';
 
 /**
@@ -201,7 +202,12 @@ export class QiblaService {
     return true;
   }
 
-  getDeviceHeading(): Observable<number | null> {
+  /**
+   * The phone's heading, clockwise from true north (the Qibla bearing is from true north too).
+   * A browser's compass points to magnetic north, so `place` corrects it by the magnetic
+   * declination there (about 10° in Toronto); the app's native compass already does.
+   */
+  getDeviceHeading(place?: { latitude: number; longitude: number }): Observable<number | null> {
     return new Observable<number | null>((observer) => {
       if (!isNativeApp && !this.isDeviceOrientationSupported()) {
         observer.next(null);
@@ -216,13 +222,13 @@ export class QiblaService {
 
       if (!needsPermissionRequest) {
         this.saveCompassPermission(true);
-        cleanup = this.setupOrientationListener(observer);
+        cleanup = this.setupOrientationListener(observer, place);
         return () => cleanup?.();
       }
 
       if (savedPermission === true) {
         try {
-          cleanup = this.setupOrientationListener(observer);
+          cleanup = this.setupOrientationListener(observer, place);
         } catch (e) {
           this.saveCompassPermission(false);
           observer.next(null);
@@ -238,7 +244,8 @@ export class QiblaService {
   }
 
   private setupOrientationListener(
-    observer: { next: (value: number | null) => void; error: (err: unknown) => void; complete: () => void }
+    observer: { next: (value: number | null) => void; error: (err: unknown) => void; complete: () => void },
+    place?: { latitude: number; longitude: number }
   ): () => void {
     let lastHeading: number | null = null;
     let rafId: number | null = null;
@@ -330,6 +337,9 @@ export class QiblaService {
       };
     }
 
+    // Magnetic north to true north, for where the phone is (0 without a place)
+    const declination = place ? magneticDeclination(place.latitude, place.longitude) : 0;
+
     const handleOrientation = (event: DeviceOrientationEvent) => {
       let heading: number | null = null;
 
@@ -355,7 +365,7 @@ export class QiblaService {
         return;
       }
 
-      push(heading);
+      push((heading + declination + 360) % 360);
     };
 
     window.addEventListener(eventName, handleOrientation, { passive: true });

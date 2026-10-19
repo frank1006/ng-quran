@@ -243,7 +243,7 @@ export class QiblaComponent implements OnInit, OnDestroy {
     // Monitor for compass data not being received
     this.startCompassHealthCheck();
 
-    this.headingSubscription = this.qiblaService.getDeviceHeading()
+    this.headingSubscription = this.qiblaService.getDeviceHeading(this.location() ?? undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
       next: (heading) => {
