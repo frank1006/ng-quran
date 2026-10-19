@@ -138,6 +138,7 @@
 
   <!-- Prayer List View -->
   @if (!showMasjidList()) {
+    <app-late-reminder-note />
     <app-prayer-list
       class="ui-fade-in"
       [prayers]="prayers()"

@@ -1,6 +1,6 @@
 import { Injectable, effect, inject, signal, untracked } from '@angular/core';
 import { PRAYER_KEYS, PrayerKey, prayerTimes } from '../../../shared/prayer-times';
-import { AdhanAlarm, PrayerAlarm, isNativeApp } from '../core/native-app';
+import { AdhanAlarm, AlarmStatus, LateRing, PrayerAlarm, isNativeApp } from '../core/native-app';
 import { Logger } from '../core/logger.util';
 import { PrayerTimeStore } from '../store/prayer-time.store';
 import { NotificationService } from './notification.service';
@@ -38,6 +38,12 @@ export class NativeAdhanService {
   readonly ringsOnTime = signal(true);
   /** False while the phone may pause QuranFlow to save battery (the adhan can then come late) */
   readonly batteryUnrestricted = signal(true);
+  /**
+   * A reminder that rang late, for the prayer screen's note. Nothing asks about battery up front:
+   * alarms are alarm clocks, which ring on time almost everywhere; this speaks up only when the
+   * phone actually held one back.
+   */
+  readonly lateRing = signal<LateRing | null>(null);
 
   private timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -81,6 +87,16 @@ export class NativeAdhanService {
     return AdhanAlarm.openBatterySettings();
   }
 
+  /** The note about a late reminder is closed (or its settings opened): it doesn't come back for that one */
+  async dismissLateRing(): Promise<void> {
+    this.lateRing.set(null);
+    try {
+      this.apply(await AdhanAlarm.dismissLateRing());
+    } catch (error) {
+      Logger.warn('Could not dismiss the late reminder note:', error);
+    }
+  }
+
   /** Opens the phone's "Alarms & reminders" setting for the app */
   openAlarmSettings(): Promise<void> {
     return AdhanAlarm.openExactAlarmSettings();
@@ -95,14 +111,16 @@ export class NativeAdhanService {
     try {
       const alarms = this.alarms();
       if (!alarms) return; // no location yet: keep what the phone has
-      const result = alarms.length ? await AdhanAlarm.schedule({ alarms }) : await AdhanAlarm.cancelAll().then(() => AdhanAlarm.status());
-      this.ringsOnTime.set(result.exactAlarms);
-      this.batteryUnrestricted.set(result.batteryUnrestricted);
-      // With a reminder set, explain battery limits once (Android's dialog; it never asks twice)
-      if (alarms.length && !result.batteryUnrestricted) await AdhanAlarm.askBatteryUnrestricted();
+      this.apply(alarms.length ? await AdhanAlarm.schedule({ alarms }) : await AdhanAlarm.cancelAll().then(() => AdhanAlarm.status()));
     } catch (error) {
       Logger.warn('Could not set the prayer alarms:', error);
     }
+  }
+
+  private apply(status: AlarmStatus): void {
+    this.ringsOnTime.set(status.exactAlarms);
+    this.batteryUnrestricted.set(status.batteryUnrestricted);
+    this.lateRing.set(status.lateRing ?? null);
   }
 
   /** The alarms for the next month, or null while the place isn't known */

@@ -9,8 +9,13 @@
 app-hero-header {
   display: block;
   flex: none;
-  /* Browsers lose height to toolbars: scale with the visible viewport, within limits */
-  --hero-height: clamp(15.5rem, 40dvh, 19rem);
+  /*
+   * Just tall enough for the title and weather (5.4375rem with the padding above them), a 0.875rem
+   * gap, and the arc, which is pinned to the hero's bottom and as tall as a third of the width
+   * (up to 9.5rem): any more height would only open a gap under the weather, and the six prayers
+   * then fit without scrolling on most phones. Short browser windows (toolbars) still shrink it.
+   */
+  --hero-height: clamp(15.5rem, 40dvh, calc(6.3125rem + min(100vw / 3, 9.5rem) + var(--space-lg)));
   --hero-overlap: 0px;
   --hero-bg: linear-gradient(180deg, var(--color-bg) 0%, var(--color-primary-soft) 55%, var(--color-surface) 100%);
   --trajectory-bottom: 0px;

@@ -9,10 +9,10 @@
 >
   <!-- The bar: a wide cream strip with a U-shaped dip in it, slid under the active tab.
        Moving the whole strip is one composited transform; the frame clips it to the bar. -->
-  <div class="nav-bg" aria-hidden="true">
+  <div class="nav-bg" #bar aria-hidden="true">
     <div class="nav-track">
       <span class="nav-slab"></span>
-      <span class="nav-dip">
+      <span class="nav-dip" #dip>
         <svg class="nav-dip-curve" viewBox="0 0 120 40" preserveAspectRatio="none">
           <path class="dip-fill" d="M0 0C30 0 30 38 60 38C90 38 90 0 120 0V40H0Z" />
           <path class="dip-edge" d="M0 0.5C30 0.5 30 38.5 60 38.5C90 38.5 90 0.5 120 0.5" />
