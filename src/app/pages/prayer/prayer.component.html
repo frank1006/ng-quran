@@ -30,9 +30,18 @@
         type="button"
         class="weather"
         [class.updating]="weatherUpdating()"
+        [disabled]="weatherUpdating()"
         (click)="refreshWeather()"
-        [attr.aria-label]="'Weather: ' + w.temperature + ', ' + w.label + '. Tap to update.'"
+        [attr.aria-busy]="weatherUpdating()"
+        [attr.aria-label]="weatherUpdating() ? 'Updating the weather' : 'Weather: ' + w.temperature + ', ' + w.label + '. Tap to update.'"
       >
+        <!-- While it updates the icon spins in its own place: nothing on the line moves -->
+        @if (weatherUpdating()) {
+          <svg class="weather-icon weather-refresh" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+            <polyline points="21 3 21 9 15 9"></polyline>
+          </svg>
+        } @else {
         <svg class="weather-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           @switch (w.icon) {
             @case ('clear') {
@@ -64,6 +73,7 @@
             }
           }
         </svg>
+        }
         <span class="weather-temp">{{ w.temperature }}</span>
         <span class="weather-label">{{ w.label }}</span>
       </button>

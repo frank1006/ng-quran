@@ -6,7 +6,8 @@ import {
   NotificationSettings,
   ScheduledNotification,
   NotificationPermissionStatus,
-  ReminderMode
+  ReminderMode,
+  SyncedReminders
 } from './notification.types';
 import { DeviceDetectionService } from './device-detection.service';
 import { PrayerTimeStore } from '../store/prayer-time.store';
@@ -60,6 +61,12 @@ export class NotificationService {
   );
 
   readonly currentSettings = computed(() => this.settings());
+
+  /** Each prayer's reminder choice, as the account keeps it */
+  readonly syncedReminders = computed<SyncedReminders>(() => {
+    const { enabled, preferences, silent, plainSound } = this.settings();
+    return { enabled, preferences, silent: silent ?? {}, plainSound: plainSound ?? {} };
+  });
 
   constructor() {
     this.loadSettings();
@@ -350,6 +357,22 @@ export class NotificationService {
     this.saveSettings();
 
     if (mode === 'off') await this.cancelPrayerNotification(prayerKey);
+  }
+
+  /**
+   * The reminder choices from the account (another phone, or before a reinstall). The app's
+   * alarms follow on their own (NativeAdhanService watches these settings).
+   */
+  applySyncedReminders(reminders: SyncedReminders): void {
+    const current = this.settings();
+    this.settings.set({
+      ...current,
+      enabled: reminders.enabled === true,
+      preferences: { ...reminders.preferences },
+      silent: { ...reminders.silent },
+      plainSound: { ...reminders.plainSound }
+    });
+    this.saveSettings();
   }
 
   /** How a prayer's reminder arrives right now ('off' too while notifications aren't allowed) */

@@ -131,21 +131,25 @@ app-hero-header {
   white-space: nowrap;
 }
 
-/* A tap updates it: dimmed and pulsing while it does */
+/* A tap updates it: the icon becomes a spinning arrow while it does, like the location chip */
 .weather:active {
   opacity: 0.6;
 }
 
-.weather.updating {
-  animation: weather-updating 1s var(--ease-standard) infinite alternate;
+.weather:disabled {
+  cursor: progress;
 }
 
-@keyframes weather-updating {
-  to { opacity: 0.45; }
+.weather-refresh {
+  animation: weather-spin 0.9s linear infinite;
+}
+
+@keyframes weather-spin {
+  to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .weather.updating { animation: none; opacity: 0.6; }
+  .weather-refresh { animation: none; }
 }
 
 .weather:focus-visible {
