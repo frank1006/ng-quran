@@ -32,7 +32,8 @@
             </span>
             <span class="option-text">
               <span class="option-label">{{ option.label }}</span>
-              <span class="option-hint">{{ option.hint }}</span>
+              <!-- While ▶ plays, says how loud it will be at prayer time -->
+              <span class="option-hint" aria-live="polite">{{ option.mode === 'adhan' && previewing() ? 'Playing at your notification volume' : option.hint }}</span>
             </span>
             @if (option.mode === current()) {
               <svg class="option-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

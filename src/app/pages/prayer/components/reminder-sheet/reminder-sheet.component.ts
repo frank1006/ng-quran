@@ -86,6 +86,8 @@ export class ReminderSheetComponent {
   protected readonly closing = signal(false);
   /** Takes the Back-button history entry off again (the app only) */
   private releaseBack?: () => void;
+  /** Turns ▶ back on when the adhan has played to the end */
+  private previewEnds?: ReturnType<typeof setTimeout>;
 
   protected readonly isSunrise = computed(() => this.prayer()?.key === 'sunrise');
 
@@ -127,12 +129,16 @@ export class ReminderSheetComponent {
 
   /** Plays the adhan this prayer would get, or stops it */
   protected async togglePreview(): Promise<void> {
+    clearTimeout(this.previewEnds);
     if (this.previewing()) {
       this.previewing.set(false);
       await this.nativeAdhan.stopAdhan();
     } else {
+      const fajr = this.prayer()?.key === 'fajr';
       this.previewing.set(true);
-      await this.nativeAdhan.testAdhan(this.prayer()?.key === 'fajr' ? 'fajr' : 'dhuhr');
+      // The recordings are just over three minutes (Fajr's a little longer)
+      this.previewEnds = setTimeout(() => this.previewing.set(false), (fajr ? 190 : 181) * 1000);
+      await this.nativeAdhan.testAdhan(fajr ? 'fajr' : 'dhuhr');
     }
   }
 
@@ -165,6 +171,7 @@ export class ReminderSheetComponent {
   }
 
   private stopPreview(): void {
+    clearTimeout(this.previewEnds);
     if (!this.previewing()) return;
     this.previewing.set(false);
     void this.nativeAdhan.stopAdhan();
