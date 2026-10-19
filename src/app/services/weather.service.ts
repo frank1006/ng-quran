@@ -22,6 +22,8 @@ const STORAGE_KEY = 'weather-current';
 const MAX_AGE_MS = 30 * 60 * 1000;
 /** A tap refreshes a reading at least this old (Open-Meteo updates every 15 minutes) */
 const TAP_MIN_AGE_MS = 5 * 60 * 1000;
+/** After a tap the spinner shows at least this long, so a quick (or skipped) fetch still answers the tap */
+const TAP_SPIN_MS = 700;
 /** After this the last reading is too old to show at all (e.g. offline for hours) */
 const STALE_MS = 3 * 60 * 60 * 1000;
 
@@ -58,10 +60,17 @@ export class WeatherService {
    */
   async refresh(latitude: number, longitude: number, tapped = false): Promise<void> {
     const place = `${latitude.toFixed(1)},${longitude.toFixed(1)}`;
+    const started = Date.now();
     const existing = this.current();
     if (existing && existing.place !== place) {
       this.current.set(null); // don't show another city's weather
     } else if (existing && Date.now() - existing.at < (tapped ? TAP_MIN_AGE_MS : MAX_AGE_MS)) {
+      // Already up to date: a tap still gets its spin
+      if (tapped && !this.updating()) {
+        this.updating.set(true);
+        await spinFrom(started);
+        this.updating.set(false);
+      }
       return;
     }
     if (this.inFlight === place || !navigator.onLine) return;
@@ -96,6 +105,7 @@ export class WeatherService {
       // Weather is decoration: keep the last reading (if any) and stay quiet
       Logger.warn('Weather update failed:', error);
     } finally {
+      if (tapped) await spinFrom(started);
       this.inFlight = null;
       this.updating.set(false);
     }
@@ -109,4 +119,10 @@ export class WeatherService {
       return null;
     }
   }
+}
+
+/** Waits until TAP_SPIN_MS have passed since `started` */
+function spinFrom(started: number): Promise<void> {
+  const wait = TAP_SPIN_MS - (Date.now() - started);
+  return wait > 0 ? new Promise(resolve => setTimeout(resolve, wait)) : Promise.resolve();
 }
