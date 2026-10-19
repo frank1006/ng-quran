@@ -10,6 +10,12 @@ import { TimeFormat } from './time-format.types';
 /** How far ahead the phone gets its alarms; opening the app tops them up */
 const DAYS_AHEAD = 30;
 const SYNC_DEBOUNCE_MS = 800;
+/**
+ * Prayers from this long ago stay in the list: the phone may not have rung one yet (it can come
+ * a little late), and the app opening right at prayer time must not drop it. The phone remembers
+ * which have rung, so none rings twice (AlarmStore.MAX_LATE_MS, android/.../adhan).
+ */
+const KEEP_DUE_MS = 10 * 60_000;
 /** Ishraq starts about this long after sunrise (same as the web reminders) */
 const ISHRAQ_AFTER_SUNRISE_MIN = 20;
 
@@ -122,7 +128,7 @@ export class NativeAdhanService {
       const times = prayerTimes(location.latitude, location.longitude, day, method, school);
       for (const key of chosen) {
         const at = times[key].getTime();
-        if (Number.isNaN(at) || at <= now) continue;
+        if (Number.isNaN(at) || at < now - KEEP_DUE_MS) continue;
         const name = PRAYER_NAMES[key];
         const time = clock.format(at);
         const reminder = this.notifications.prayerMode(key);
