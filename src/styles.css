@@ -217,16 +217,23 @@ html, body, .main {
 }
 
 .page-pattern::before {
+  /*
+   * Reaches up behind the phone's status bar (the app draws edge-to-edge; the inset is 0 in a
+   * browser) and fades in from nothing there, so the status bar sits on plain cream and the
+   * texture grows out of it with no edge where the page begins. Then full strength, then it
+   * fades out down the page as before.
+   */
+  --pattern-top: env(safe-area-inset-top, 0px);
   content: '';
   position: absolute;
-  inset: 0 0 auto 0;
-  height: var(--pattern-height, 16rem);
+  inset: calc(-1 * var(--pattern-top)) 0 auto 0;
+  height: calc(var(--pattern-height, 16rem) + var(--pattern-top));
   z-index: -1; /* above the container's own background, below its content */
   pointer-events: none;
   background: url('/images/hero-pattern.png') top center / 440px auto repeat-x;
   opacity: 0.45;
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, transparent calc(var(--pattern-top) * 0.5), #000 calc(var(--pattern-top) + 1.5rem), #000 35%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, transparent calc(var(--pattern-top) * 0.5), #000 calc(var(--pattern-top) + 1.5rem), #000 35%, transparent 100%);
 }
 
 
