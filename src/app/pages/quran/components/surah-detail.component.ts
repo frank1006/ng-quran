@@ -380,7 +380,7 @@ export class SurahDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     }
     
-    // Fallback: return empty array if translation not available
+    // 'none', or a translation that isn't available: no line under the ayah
     return [];
   }
 

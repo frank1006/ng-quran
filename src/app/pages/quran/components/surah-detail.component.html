@@ -22,8 +22,10 @@
           <div class="verse-content">
             <span class="ui-skeleton skeleton-arabic"></span>
             <span class="ui-skeleton skeleton-arabic skeleton-arabic--short"></span>
-            <span class="ui-skeleton skeleton-translation"></span>
-            <span class="ui-skeleton skeleton-translation skeleton-translation--short"></span>
+            @if (selectedTranslationLanguage() !== 'none') {
+              <span class="ui-skeleton skeleton-translation"></span>
+              <span class="ui-skeleton skeleton-translation skeleton-translation--short"></span>
+            }
           </div>
         </div>
       }

@@ -175,7 +175,7 @@
           <div class="setting-row setting-row-stacked">
             <div class="setting-text">
               <h3 class="setting-name">Translation</h3>
-              <p class="setting-hint">Shown under each ayah</p>
+              <p class="setting-hint">{{ translationLanguage() === 'none' ? 'The reader shows the Arabic only' : 'Shown under each ayah' }}</p>
             </div>
             <div class="ui-segmented translation-options" role="radiogroup" aria-label="Translation language">
               @for (language of translationLanguages; track language.id) {
