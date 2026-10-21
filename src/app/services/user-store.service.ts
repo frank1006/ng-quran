@@ -17,7 +17,8 @@ export interface PlayerState {
   currentTime: number;
 }
 
-export type TranslationLanguage = 'english' | 'urdu';
+/** 'none': the reader shows the Arabic only */
+export type TranslationLanguage = 'english' | 'urdu' | 'none';
 
 /** The reader's place in the Quran: the ayah read or listened to most recently, in any surah */
 export interface LastRead {
@@ -284,7 +285,7 @@ export class UserStoreService {
 
   private validateTranslationLanguage(value: any): TranslationLanguage | null {
     // Anything else (e.g. 'bengali', which the reader no longer has) falls back to the default
-    return value === 'english' || value === 'urdu' ? value : null;
+    return value === 'english' || value === 'urdu' || value === 'none' ? value : null;
   }
 
   private migrateFromOldKeys(): void {
