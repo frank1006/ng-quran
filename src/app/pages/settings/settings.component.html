@@ -453,6 +453,28 @@
                   }
                 </div>
               </div>
+
+              @if (nativeAdhan.adhanScreen() !== null) {
+                <div class="permission-item">
+                  <div class="permission-info">
+                    <h3 class="permission-name">Adhan screen</h3>
+                    @if (nativeAdhan.adhanScreen() && !nativeAdhan.fullScreenAllowed()) {
+                      <p class="permission-description">Android keeps the adhan to a notification for now. Allow full screen notifications for QuranFlow to see the adhan screen.</p>
+                    } @else {
+                      <p class="permission-description">When the phone is locked, the adhan wakes the screen with the prayer and a big Stop button.</p>
+                    }
+                  </div>
+                  <div class="permission-status">
+                    @if (nativeAdhan.adhanScreen() && !nativeAdhan.fullScreenAllowed()) {
+                      <button class="ui-button clear-data-button" type="button" (click)="nativeAdhan.openFullScreenSettings()">Allow</button>
+                    }
+                    <button class="ui-button clear-data-button" type="button" [attr.aria-pressed]="nativeAdhan.adhanScreen()"
+                      (click)="nativeAdhan.setAdhanScreen(!nativeAdhan.adhanScreen())">
+                      {{ nativeAdhan.adhanScreen() ? 'Turn off' : 'Turn on' }}
+                    </button>
+                  </div>
+                </div>
+              }
             }
 
             @if (auth.signedIn()) {

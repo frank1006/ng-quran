@@ -1,4 +1,5 @@
 import { Injectable, effect, inject, signal, untracked } from '@angular/core';
+import { HijriCalendarService } from '../calendar/hijri-calendar.service';
 import { PRAYER_KEYS, PrayerKey, prayerTimes } from '../../../shared/prayer-times';
 import { AdhanAlarm, AlarmStatus, LateRing, PrayerAlarm, isNativeApp } from '../core/native-app';
 import { Logger } from '../core/logger.util';
@@ -33,6 +34,9 @@ export class NativeAdhanService {
   private readonly notifications = inject(NotificationService);
   private readonly settings = inject(SettingsService);
   private readonly prayerStore = inject(PrayerTimeStore);
+  private readonly hijri = inject(HijriCalendarService);
+  /** The place's name, for the adhan screen (the Prayer page knows it once it has looked it up) */
+  private readonly place = signal<string | null>(null);
 
   /** False when Android may ring late because "Alarms & reminders" isn't allowed (Android 12+) */
   readonly ringsOnTime = signal(true);
@@ -44,6 +48,10 @@ export class NativeAdhanService {
    * phone actually held one back.
    */
   readonly lateRing = signal<LateRing | null>(null);
+  /** The adhan screen (null: this version of the app doesn't have it) */
+  readonly adhanScreen = signal<boolean | null>(null);
+  /** False when Android 14+ keeps the adhan screen to a notification until it's allowed */
+  readonly fullScreenAllowed = signal(true);
 
   private timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -58,6 +66,8 @@ export class NativeAdhanService {
       this.settings.calcMethod();
       this.settings.asrSchool();
       this.settings.currentTimeFormat();
+      this.hijri.offset();
+      this.place();
       untracked(() => this.syncSoon());
     });
 
@@ -67,9 +77,14 @@ export class NativeAdhanService {
     });
   }
 
+  /** The place's name changed (the Prayer page looked it up): the adhan screen shows it */
+  setPlace(name: string): void {
+    this.place.set(name);
+  }
+
   /** Plays the adhan now so the person can hear it and set the volume (Fajr has its own) */
   testAdhan(prayer: 'fajr' | 'dhuhr'): Promise<void> {
-    return AdhanAlarm.test({ prayer });
+    return AdhanAlarm.test({ prayer, place: this.place() ?? undefined, hijriDate: this.hijri.format(new Date()) });
   }
 
   /** Plays the notification sound once, or vibrates once, as that reminder would */
@@ -97,6 +112,22 @@ export class NativeAdhanService {
     }
   }
 
+  /** Turns the adhan screen on or off */
+  async setAdhanScreen(on: boolean): Promise<void> {
+    this.adhanScreen.set(on);
+    try {
+      this.apply(await AdhanAlarm.setAdhanScreen({ on }));
+    } catch (error) {
+      Logger.warn('Could not change the adhan screen:', error);
+      this.adhanScreen.set(!on);
+    }
+  }
+
+  /** Opens the phone's "Full screen notifications" setting for the app */
+  openFullScreenSettings(): Promise<void> {
+    return AdhanAlarm.openFullScreenSettings();
+  }
+
   /** Opens the phone's "Alarms & reminders" setting for the app */
   openAlarmSettings(): Promise<void> {
     return AdhanAlarm.openExactAlarmSettings();
@@ -121,6 +152,8 @@ export class NativeAdhanService {
     this.ringsOnTime.set(status.exactAlarms);
     this.batteryUnrestricted.set(status.batteryUnrestricted);
     this.lateRing.set(status.lateRing ?? null);
+    this.adhanScreen.set(status.adhanScreen ?? null);
+    this.fullScreenAllowed.set(status.fullScreenAllowed ?? true);
   }
 
   /** The alarms for the next month, or null while the place isn't known */
@@ -137,6 +170,7 @@ export class NativeAdhanService {
       ? { hour: 'numeric', minute: '2-digit', hourCycle: 'h12' }
       : { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
+    const place = this.place() ?? undefined;
     const now = Date.now();
     const today = new Date();
     const alarms: PrayerAlarm[] = [];
@@ -144,6 +178,7 @@ export class NativeAdhanService {
       const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
       const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
       const times = prayerTimes(location.latitude, location.longitude, day, method, school);
+      const hijriDate = this.hijri.format(date);
       for (const key of chosen) {
         const at = times[key].getTime();
         if (Number.isNaN(at) || at < now - KEEP_DUE_MS) continue;
@@ -153,12 +188,12 @@ export class NativeAdhanService {
         const mode = reminder === 'silent' ? 'vibrate' : reminder === 'adhan' ? 'adhan' : 'sound';
         alarms.push(key === 'sunrise'
           ? {
-            id: `${day}|${key}`, at, prayer: key, mode,
+            id: `${day}|${key}`, at, prayer: key, mode, time, place, hijriDate,
             title: `${name} · Sunrise ${time}`,
             body: `Fajr time has ended. Ishraq can be prayed from about ${clock.format(at + ISHRAQ_AFTER_SUNRISE_MIN * 60_000)}.`,
           }
           : {
-            id: `${day}|${key}`, at, prayer: key, mode,
+            id: `${day}|${key}`, at, prayer: key, mode, time, place, hijriDate,
             title: `${name} Prayer Time`,
             body: `Time for ${name} prayer (${time})`,
           });

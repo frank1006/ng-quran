@@ -31,6 +31,10 @@ export interface PrayerAlarm {
    * 'vibrate' vibrates without sound; 'silent' does neither
    */
   mode: 'adhan' | 'sound' | 'vibrate' | 'silent';
+  /** For the adhan screen: the time as the app shows it ("7:46 PM"), the place, and that day's Hijri date */
+  time?: string;
+  place?: string;
+  hijriDate?: string;
 }
 
 export interface AlarmStatus {
@@ -41,6 +45,10 @@ export interface AlarmStatus {
   batteryUnrestricted: boolean;
   /** The last reminder that rang over a minute late, until dismissed */
   lateRing: LateRing | null;
+  /** Whether the adhan opens the adhan screen on a locked phone (missing in app versions without it) */
+  adhanScreen?: boolean;
+  /** Whether Android lets that screen show (Android 14+ can keep it to a notification) */
+  fullScreenAllowed?: boolean;
 }
 
 /** A reminder that rang late: the phone may be holding QuranFlow back to save battery */
@@ -57,7 +65,7 @@ export interface AdhanAlarmPlugin {
   schedule(options: { alarms: PrayerAlarm[] }): Promise<AlarmStatus & { count: number }>;
   cancelAll(): Promise<void>;
   /** Plays the adhan now, without changing the stored alarms (Fajr's adhan for 'fajr') */
-  test(options: { prayer: string }): Promise<void>;
+  test(options: { prayer: string; place?: string; hijriDate?: string }): Promise<void>;
   /** Plays the notification sound once ('sound') or vibrates once ('vibrate'); quiet on a silent phone */
   preview(options: { kind: 'sound' | 'vibrate' }): Promise<void>;
   /** Stops an adhan that is playing */
@@ -71,6 +79,10 @@ export interface AdhanAlarmPlugin {
   openBatterySettings(): Promise<void>;
   /** Opens the app's "Alarms & reminders" setting (Android 12+) */
   openExactAlarmSettings(): Promise<void>;
+  /** Turns the adhan screen on or off: on a locked phone the adhan wakes the screen with a big Stop */
+  setAdhanScreen(options: { on: boolean }): Promise<AlarmStatus>;
+  /** Opens the app's "Full screen notifications" setting (Android 14+) */
+  openFullScreenSettings(): Promise<void>;
 }
 
 export const AdhanAlarm = registerPlugin<AdhanAlarmPlugin>('AdhanAlarm');
