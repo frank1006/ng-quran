@@ -26,6 +26,7 @@ import { WeatherService, conditionLabel } from '../../services/weather.service';
 import { formatTemperature } from '../../services/units';
 import { SegmentedIndicatorDirective } from '../../shared/directives/segmented-indicator.directive';
 import { HijriCalendarService } from '../../calendar/hijri-calendar.service';
+import { NativeAdhanService } from '../../services/native-adhan.service';
 import { CalendarSheetComponent } from '../../calendar/calendar-sheet.component';
 
 interface PrayerItem {
@@ -120,6 +121,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
   private wasViewingToday = true;
   private readonly onVisibilityChange = () => this.handleVisibilityChange();
   private readonly hijriCalendar = inject(HijriCalendarService);
+  private readonly nativeAdhan = inject(NativeAdhanService);
 
   /** The current minute; the header and countdown recompute when it changes */
   private readonly minute = signal(Math.floor(Date.now() / 60_000));
@@ -481,6 +483,7 @@ export class PrayerComponent implements OnInit, OnDestroy {
     try {
       const locationInfo = await this.qiblaService.getLocationInfo(location.latitude, location.longitude);
       this.cityName.set(locationInfo.city);
+      this.nativeAdhan.setPlace(locationInfo.city);
       this.quadrant.set(locationInfo.quadrant || '');
       this.hijriCalendar.setCountry(locationInfo.countryCode, locationInfo.country);
     } catch (error) {
