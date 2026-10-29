@@ -111,7 +111,9 @@ export class BottomNavComponent {
     const started = performance.now();
     const step = () => {
       const bar = this.bar().nativeElement;
-      const full = parseFloat(getComputedStyle(bar).getPropertyValue('--corner-full')) || 24;
+      // --corner-full is in rem (it scales with the app): in pixels for the arithmetic below
+      const full = (parseFloat(getComputedStyle(bar).getPropertyValue('--corner-full')) || 1.5)
+        * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
       const frame = bar.getBoundingClientRect();
       const dip = this.dip().nativeElement.getBoundingClientRect();
       // No tab active: the dip is closed under a plain bar, so both corners are fully round

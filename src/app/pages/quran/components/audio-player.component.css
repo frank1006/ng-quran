@@ -63,12 +63,6 @@
   height: 1rem;
 }
 
-/* Narrow phones: the same controls, a little closer together */
-@media (max-width: 360px) {
-  .player-controls {
-    gap: var(--space-xs);
-  }
-}
 
 .seek-bar {
   flex: 1;

@@ -167,6 +167,21 @@
               </label>
             </div>
           </div>
+
+          <div class="setting-row setting-row-stacked">
+            <div class="setting-text">
+              <h3 class="setting-name">Display size</h3>
+              <p class="setting-hint">The whole app, a little smaller or larger</p>
+            </div>
+            <div class="ui-segmented translation-options" role="radiogroup" aria-label="Display size">
+              @for (size of displaySizes; track size.id) {
+                <label class="ui-segment" [class.is-on]="displaySize() === size.id">
+                  <input type="radio" name="displaySize" [checked]="displaySize() === size.id" (change)="setDisplaySize(size.id)" />
+                  {{ size.name }}
+                </label>
+              }
+            </div>
+          </div>
         </section>
 
         <section class="settings-section">

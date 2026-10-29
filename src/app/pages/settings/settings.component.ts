@@ -12,6 +12,7 @@ import { NativeApp, isNativeApp } from '../../core/native-app';
 import { NativeAdhanService } from '../../services/native-adhan.service';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationPermissionStatus } from '../../services/notification.types';
+import { DISPLAY_SIZES, DisplaySize, applyDisplaySize, readDisplaySize } from '../../core/display-size';
 import { UserStoreService, Bookmark, TranslationLanguage } from '../../services/user-store.service';
 import { QuranApiService } from '../../services/quran-api.service';
 import { Chapter, Reciter } from '../../services/quran-api.types';
@@ -78,6 +79,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   protected readonly bookmarks = computed(() => this.userStore.bookmarks());
 
   // Quran: the translation under each ayah and the reciter (used by the reader and the player)
+  // Display: the whole app a little smaller or larger, evenly (core/display-size.ts)
+  protected readonly displaySizes = DISPLAY_SIZES;
+  protected readonly displaySize = signal<DisplaySize>(readDisplaySize());
+
   protected readonly translationLanguages: { id: TranslationLanguage; name: string }[] = [
     { id: 'english', name: 'English' },
     { id: 'urdu', name: 'Urdu' },
@@ -205,6 +210,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
         next: reciters => this.reciters.set(reciters),
         error: () => {} // the picker stays on "Loading reciters…"; the chosen reciter still plays
       });
+  }
+
+  protected setDisplaySize(size: DisplaySize): void {
+    this.displaySize.set(size);
+    applyDisplaySize(size, true);
   }
 
   protected setTranslationLanguage(language: TranslationLanguage): void {

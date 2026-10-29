@@ -399,7 +399,7 @@
   text-decoration: none;
 }
 
-/* Translation: three choices across the full width under the label */
+/* Translation and display size: three choices across the full width under the label */
 .translation-options {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

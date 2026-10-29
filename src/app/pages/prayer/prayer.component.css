@@ -175,10 +175,6 @@ app-hero-header {
   color: var(--color-text-secondary);
 }
 
-/* Narrow phones: the temperature alone keeps the line from crowding */
-@media (max-width: 360px) {
-  .weather-label { display: none; }
-}
 
 .prayer-name-skeleton {
   width: 8rem;
