@@ -28,6 +28,9 @@ Controls on a cream surface (hero headers, the cream part of a page) use the `--
 | `ui-page-subtitle` | the plain brown line under a page title (countdown, country, surah translation); sits `--title-subtitle-gap` below the title on every page | |
 | `ui-section-label` | small uppercase heading over a group of rows | |
 
+Play icons sit 1.5 units right of centre in their 24-unit box (`points="6.5 3 20.5 12 6.5 21 6.5 3"`): a
+triangle's weight is left of its box, so a centred box looks off-centre in a round button.
+
 ## Page search (Quran)
 
 - A 48px white circle centred beside the title and subtitle block; the text keeps its standard
@@ -123,6 +126,23 @@ and down faster (`--motion-exit`) over a dimmed backdrop. Floating, so it has a 
 Rows sit on the page with 1px `--color-border` separators (no cards). The current or selected
 row gets `--color-fill-current` with no separators touching it; buttons inside it switch to white.
 
+## One layout on every phone
+
+- The app is drawn for a 411px-wide phone (Galaxy Note9) and **scales as a whole** with the
+  screen's width: the root font size follows the width (16px at 411px, ~14px at 360px, up to
+  ~18.7px at 480px; tablets and computers keep 16px). Small and big phones show the same screen,
+  only smaller or larger; nothing rearranges, wraps differently or hides.
+- So **every size is in rem** (spacing, type, icons, radii); px only for hairlines (1–2px borders)
+  and shadows. A px size won't scale and breaks the proportions.
+- **No width breakpoints for phones.** Don't add "small phone" rules that shrink or hide things;
+  the scaling already does it. (Layout changes for tablets and wide screens are fine.)
+- **The phone's font size is ignored** in the Android app (MainActivity sets the web view's text
+  zoom to 100%). Profile > Preferences > **Display size** (Compact 92%, Standard, Expanded 108%)
+  makes the whole app a little smaller or larger instead (`--ui-zoom`, `core/display-size.ts`).
+  The steps stay small: much larger and the layout no longer fits a phone.
+- Check new screens on a 360px and a 411px phone (`apps/quranflow/tool/capture_screens.py` in
+  the studio repo); they should look identical apart from size.
+
 ## Text
 
 - Uppercase only for `ui-section-label` and card labels like "Continue reading".
@@ -130,7 +150,7 @@ row gets `--color-fill-current` with no separators touching it; buttons inside i
 - Contrast (WCAG 2.2 AA): text ≥ 4.5:1, icons and state edges ≥ 3:1. Brown on cream is 4.9:1,
   dark on amber 9:1. Check new colour pairs before adding them.
 - The app is portrait-only by choice (WCAG 1.3.4 is a known exception).
-- Minimum text size is 12px (`--font-xs`), on every screen width.
+- Minimum text size is `--font-xs` (12px on a 411px phone; it scales with the screen like everything else).
 
 ## Screen readers and loading
 

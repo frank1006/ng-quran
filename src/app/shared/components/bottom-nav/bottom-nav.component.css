@@ -56,7 +56,7 @@
   overflow: hidden;
   /* The top corners: fully round, except as the dip nears that edge (set every frame while the
      dip moves, see followDip in the component) */
-  --corner-full: 24px; /* --radius-xl */
+  --corner-full: var(--radius-xl);
   border-radius: var(--corner-start, var(--corner-full)) var(--corner-end, var(--corner-full)) 0 0;
   pointer-events: none; /* transparent: inside the U the page shows through as it is */
 }
@@ -276,15 +276,3 @@
   }
 }
 
-/* Small phones (iPhone SE and mini, compact Androids): the same bar a size down, so it takes
-   less of a short screen. Keep --nav-space in styles.css in step with these. */
-@media (max-width: 375px) {
-  .bottom-nav {
-    --bubble-size: 3rem;
-    --bubble-rise: 1.125rem;
-    --icon-size: 1.375rem;
-    --tab-pad: 0.5rem;
-    --dip-width: 6.5rem;
-    --dip-height: 2.125rem;
-  }
-}

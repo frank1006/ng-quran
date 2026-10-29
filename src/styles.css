@@ -105,29 +105,22 @@
   --border-radius-tl: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
-/* Extra small screens - reduce font sizes */
-@media (max-width: 410px) {
-  :root {
-    --font-xs: 0.75rem;      /* 12px: the minimum text size */
-    --font-sm: 0.8125rem;     /* 13px */
-    --font-md: 0.9375rem;     /* 15px */
-    --font-lg: 1rem;          /* 16px */
-    --font-xl: 1.25rem;       /* 20px */
-    --font-2xl: 1.75rem;      /* 28px */
-  }
+/*
+ * One layout on every phone. The app is drawn for a 411px-wide phone (a Galaxy Note9) and the
+ * whole of it scales with the screen's width: every size is in rem, and the root size follows
+ * the width (16px at 411px, ~14px at 360px, up to ~18.7px at 480px). So a small phone shows the
+ * same screen, smaller, and a big one the same screen, larger; nothing rearranges. Tablets and
+ * computers keep 16px in the centred column (--app-max-width). The phone's own font size is
+ * ignored (MainActivity); Profile > Preferences > Display size makes the whole app a little
+ * smaller or larger instead (--ui-zoom, core/display-size.ts). New sizes go in rem, never px, or they won't scale.
+ */
+html {
+  font-size: calc(clamp(12px, 3.8929vw, 18.6861px) * var(--ui-zoom, 1));
 }
 
-/* Extra small mobiles - further reduce font sizes */
-@media (max-width: 375px) {
-  :root {
-    /* The bottom nav is a size down here (bottom-nav.component.css): bar 3.75rem + bubble rise 1.125rem */
-    --nav-space: calc(4.875rem + env(safe-area-inset-bottom, 0px));
-    --font-xs: 0.75rem;       /* 12px: the minimum text size */
-    --font-sm: 0.75rem;       /* 12px */
-    --font-md: 0.875rem;      /* 14px */
-    --font-lg: 0.9375rem;     /* 15px */
-    --font-xl: 1.125rem;      /* 18px */
-    --font-2xl: 1.5rem;       /* 24px */
+@media (min-width: 481px) {
+  html {
+    font-size: calc(16px * var(--ui-zoom, 1));
   }
 }
 

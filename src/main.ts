@@ -3,6 +3,7 @@ import { appConfig } from './app/app.config';
 import { App } from './app/app';
 import { inject } from '@vercel/analytics';
 import { NativeApp, isNativeApp } from './app/core/native-app';
+import { applyDisplaySize, readDisplaySize } from './app/core/display-size';
 
 /**
  * On a fresh start the launch screen stays at least this long (from the tap), so it reads as a
@@ -10,6 +11,9 @@ import { NativeApp, isNativeApp } from './app/core/native-app';
  * index.html, or the native app): Android shows its own launch screen there and ours stays empty.
  */
 const SPLASH_MIN_MS = isNativeApp || document.documentElement.classList.contains('android-app') ? 0 : 1000;
+
+// The chosen display size, before anything draws
+applyDisplaySize(readDisplaySize());
 
 // Vercel Analytics counts website visits; its script isn't in the Android app
 if (!isNativeApp) inject();
