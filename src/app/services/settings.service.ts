@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { UserStoreService } from './user-store.service';
 import { TimeFormat } from './time-format.types';
 import {
-  DistanceUnit, TemperatureUnit, defaultDistanceUnit, defaultTemperatureUnit,
+  DistanceUnit, TemperatureUnit, DEFAULT_DISTANCE_UNIT, DEFAULT_TEMPERATURE_UNIT,
 } from './units';
 
 export { TimeFormat } from './time-format.types';
@@ -59,15 +59,15 @@ export class SettingsService {
   private readonly unitSettings = signal<UnitSettings>(this.loadUnitSettings());
 
   /** km or mi (stored choice, otherwise from the phone's region). */
-  readonly distanceUnit = computed<DistanceUnit>(() => this.unitSettings().distance ?? defaultDistanceUnit());
+  readonly distanceUnit = computed<DistanceUnit>(() => this.unitSettings().distance ?? DEFAULT_DISTANCE_UNIT);
 
   /** °C or °F (stored choice, otherwise from the phone's region). */
-  readonly temperatureUnit = computed<TemperatureUnit>(() => this.unitSettings().temperature ?? defaultTemperatureUnit());
+  readonly temperatureUnit = computed<TemperatureUnit>(() => this.unitSettings().temperature ?? DEFAULT_TEMPERATURE_UNIT);
 
   readonly currentTimeFormat = computed(() => {
     const storedFormat = this.userStore.timeFormat();
-    // Return stored format or default to 24-hour format
-    return storedFormat ?? TimeFormat.TWENTY_FOUR_HOUR;
+    // Return stored format or default to 12-hour format
+    return storedFormat ?? TimeFormat.TWELVE_HOUR;
   });
 
   /** Selected method id, or null for automatic (by location). */

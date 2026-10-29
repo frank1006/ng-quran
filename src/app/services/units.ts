@@ -4,30 +4,9 @@ export type TemperatureUnit = 'C' | 'F';
 
 export const KM_PER_MILE = 1.609344;
 
-/** Regions that use miles on road signs, and °F for weather. */
-const MILE_REGIONS = ['US', 'GB', 'LR', 'MM'];
-const FAHRENHEIT_REGIONS = ['US', 'LR', 'MM', 'BS', 'BZ', 'KY', 'PW', 'FM', 'MH'];
-
-/** The phone's region (from its language setting, e.g. en-US → US), or ''. */
-export function deviceRegion(languages: readonly string[] = navigator.languages ?? [navigator.language]): string {
-  for (const tag of languages) {
-    try {
-      const region = new Intl.Locale(tag).maximize().region;
-      if (region) return region;
-    } catch {
-      // Ignore malformed tags
-    }
-  }
-  return '';
-}
-
-export function defaultDistanceUnit(region = deviceRegion()): DistanceUnit {
-  return MILE_REGIONS.includes(region) ? 'mi' : 'km';
-}
-
-export function defaultTemperatureUnit(region = deviceRegion()): TemperatureUnit {
-  return FAHRENHEIT_REGIONS.includes(region) ? 'F' : 'C';
-}
+/** Until the person chooses (Profile > Preferences): km and °C, whatever the phone's region */
+export const DEFAULT_DISTANCE_UNIT: DistanceUnit = 'km';
+export const DEFAULT_TEMPERATURE_UNIT: TemperatureUnit = 'C';
 
 /** Masjid distance filter options, in km, with round numbers in the user's unit. */
 export function masjidRadiusOptionsKm(unit: DistanceUnit): number[] {

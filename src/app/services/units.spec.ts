@@ -1,15 +1,11 @@
 import {
-  defaultDistanceUnit, defaultTemperatureUnit, formatDistance, formatTemperature, masjidRadiusOptionsKm, radiusLabel,
+  DEFAULT_DISTANCE_UNIT, DEFAULT_TEMPERATURE_UNIT, formatDistance, formatTemperature, masjidRadiusOptionsKm, radiusLabel,
 } from './units';
 
 describe('units', () => {
-  it('picks regional defaults', () => {
-    expect(defaultDistanceUnit('US')).toBe('mi');
-    expect(defaultDistanceUnit('GB')).toBe('mi');
-    expect(defaultDistanceUnit('CA')).toBe('km');
-    expect(defaultTemperatureUnit('US')).toBe('F');
-    expect(defaultTemperatureUnit('GB')).toBe('C');
-    expect(defaultTemperatureUnit('PK')).toBe('C');
+  it('starts in km and °C', () => {
+    expect(DEFAULT_DISTANCE_UNIT).toBe('km');
+    expect(DEFAULT_TEMPERATURE_UNIT).toBe('C');
   });
 
   it('formats distances in both units', () => {
